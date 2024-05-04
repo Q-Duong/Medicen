@@ -14,7 +14,7 @@ return [
     */
 
     'default' => env('FILESYSTEM_DISK', 'local'),
-
+    'cloud' => env('FILESYSTEM_CLOUD', 's3'),
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
@@ -55,7 +55,15 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
-
+        'google' => [
+            'driver' => 'google',
+            'clientId' => env('GOOGLE_DRIVE_CLIENT_ID'),
+            'clientSecret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+            'refreshToken' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+            'folderId' => env('GOOGLE_DRIVE_FOLDER_ID'), // without folder is root of drive or team drive
+            //'teamDriveId' => env('GOOGLE_DRIVE_TEAM_DRIVE_ID'),
+            //'sharedFolderId' => env('GOOGLE_DRIVE_SHARED_FOLDER_ID'),
+        ],
     ],
 
     /*
