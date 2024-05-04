@@ -8,8 +8,8 @@ class HistoryEdit extends Model
 {
     public $timestamps = true;
     protected $fillable = [
-        'order_id',  'user_name', 'history_action', 'created_at'
+        'order_id',  'user_name', 'history_action'
     ];
-    protected $primaryKey = 'history_id';
- 	protected $table = 'tbl_history_edit';
+    // protected $primaryKey = 'history_id';
+    protected $table = 'history_edits';
 }

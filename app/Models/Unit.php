@@ -10,8 +10,8 @@ class Unit extends Model
     protected $fillable = [
         'unit_code', 'unit_name'
     ];
-    protected $primaryKey = 'unit_id';
-    protected $table = 'tbl_unit';
+    // protected $primaryKey = 'unit_id';
+    protected $table = 'units';
 
     public function order()
     {

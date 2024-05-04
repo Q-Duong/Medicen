@@ -10,7 +10,7 @@ class Status extends Model
     protected $fillable = [
         'status_name'
     ];
-    protected $primaryKey = 'status_id';
+    // protected $primaryKey = 'status_id';
     protected $table = 'status';
 
     public function order()

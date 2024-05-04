@@ -206,9 +206,9 @@ class OrderController extends Controller
 
 	public function list_order()
 	{
-		$getAllOrder = Order::join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_unit', 'tbl_unit.unit_id', '=', 'tbl_orders.unit_id')
-			->orderBy('order_id', 'DESC')->select('order_id', 'tbl_orders.created_at', 'order_quantity', 'order_price', 'order_status', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')->get();
+		$getAllOrder = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('unit', 'unit.unit_id', '=', 'orders.unit_id')
+			->orderBy('order_id', 'DESC')->select('order_id', 'orders.created_at', 'order_quantity', 'order_price', 'order_status', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')->get();
 		return view('admin.Order.list_order')->with(compact('getAllOrder'));
 	}
 

@@ -10,18 +10,20 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use DB;
 
-class ExcelExport implements  WithHeadings, FromQuery, WithMapping
+class ExcelExport implements WithHeadings, FromQuery, WithMapping
 {
     protected $firstDayofThisMonth;
     protected $lastDayofThisMonth;
 
-    public function __construct($firstDayofThisMonth, $lastDayofThisMonth) {
-    	$this->firstDayofThisMonth=$firstDayofThisMonth;
-        $this->lastDayofThisMonth=$lastDayofThisMonth;
+    public function __construct($firstDayofThisMonth, $lastDayofThisMonth)
+    {
+        $this->firstDayofThisMonth = $firstDayofThisMonth;
+        $this->lastDayofThisMonth = $lastDayofThisMonth;
     }
-    
-    public function headings():array{
-        return[
+
+    public function headings(): array
+    {
+        return [
             'Mã đơn hàng',
             'Tháng',
             'Ngày chụp',
@@ -34,7 +36,7 @@ class ExcelExport implements  WithHeadings, FromQuery, WithMapping
             'Số HH',
             'Ngày HĐ',
             'VAT',
-            'Số lượng', 
+            'Số lượng',
             'Đơn giá',
             'Phụ thu',
             'Thành tiền',
@@ -59,64 +61,63 @@ class ExcelExport implements  WithHeadings, FromQuery, WithMapping
             'Ghi chú',
             'Trạng thái',
         ];
-    } 
-    
+    }
+
     public function query()
     {
         $firstDayofThisMonth = $this->firstDayofThisMonth;
-		$lastDayofThisMonth = $this->lastDayofThisMonth;
+        $lastDayofThisMonth = $this->lastDayofThisMonth;
 
-        return $order = Accountant::join('tbl_orders','tbl_orders.order_id','=','tbl_accountant.order_id')
-        ->join('tbl_unit','tbl_orders.unit_id','=','tbl_unit.unit_id')
-        ->join('tbl_order_details','tbl_order_details.order_detail_id','=','tbl_orders.order_detail_id')
-        ->join('tbl_car_ktv','tbl_car_ktv.order_id','=','tbl_orders.order_id')
-        ->join('status','status.status_id','=','tbl_orders.order_status')
-        ->where('tbl_car_ktv.car_active',1)
-		->whereBetween('tbl_order_details.ord_start_day',[$firstDayofThisMonth,$lastDayofThisMonth])
-		->whereBetween('tbl_order_details.ord_end_day',[$firstDayofThisMonth,$lastDayofThisMonth])
-		->orderBy('tbl_order_details.ord_start_day','ASC');
+        return $order = Accountant::join('orders', 'orders.order_id', '=', 'accountant.order_id')
+            ->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+            ->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+            ->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+            ->join('status', 'status.status_id', '=', 'orders.order_status')
+            ->where('car_ktv.car_active', 1)
+            ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+            ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+            ->orderBy('order_details.ord_start_day', 'ASC');
     }
 
     public function map($accountant): array
     {
         return [
-            $accountant -> order_id,
-            $accountant -> accountant_month,
-            $accountant -> ord_start_day != null ? date('d/m/Y', strtotime($accountant -> ord_start_day)) : '',
-            $accountant -> car_name == 6 ? 'Xe thuê' : $accountant -> car_name,
-            $accountant -> accountant_distance,
-            $accountant -> unit_code,
-            $accountant -> unit_name,
-            $accountant -> ord_cty_name,
-            $accountant -> accountant_deadline,
-            $accountant -> accountant_number,
-            $accountant -> accountant_date != null ? date('d/m/Y', strtotime($accountant -> accountant_date)) : '',
-            $accountant -> order_vat,
-            $accountant -> order_quantity,
-            $accountant -> order_cost,
-            $accountant -> order_surcharge,
-            $accountant -> order_price,
-            $accountant -> accountant_payment != null ? date('d/m/Y', strtotime($accountant -> accountant_payment)) : '',
-            $accountant -> accountant_day,
-            $accountant -> accountant_day_payment != null ? date('d/m/Y', strtotime($accountant -> accountant_day_payment)) : '',
-            $accountant -> accountant_method,
-            $accountant -> accountant_amount_paid,
-            $accountant -> accountant_owe,
-            $accountant -> order_percent_discount,
-            $accountant -> order_discount,
-            $accountant -> accountant_discount_day != null ? date('d/m/Y', strtotime($accountant -> accountant_discount_day)) : '',
-            $accountant -> order_profit,
-            $accountant -> accountant_doctor_read,
-            $accountant -> accountant_doctor_date_payment != null ? date('d/m/Y', strtotime($accountant -> accountant_doctor_date_payment)) : '',
-            $accountant -> ord_form,
-            $accountant -> accountant_35X43,
-            $accountant -> accountant_polime,
-            $accountant -> accountant_8X10,
-            $accountant -> accountant_10X12,
-            $accountant -> accountant_film_bag,
-            $accountant -> accountant_note,
-            $accountant -> status_name,
+            $accountant->order_id,
+            $accountant->accountant_month,
+            $accountant->ord_start_day != null ? date('d/m/Y', strtotime($accountant->ord_start_day)) : '',
+            $accountant->car_name == 6 ? 'Xe thuê' : $accountant->car_name,
+            $accountant->accountant_distance,
+            $accountant->unit_code,
+            $accountant->unit_name,
+            $accountant->ord_cty_name,
+            $accountant->accountant_deadline,
+            $accountant->accountant_number,
+            $accountant->accountant_date != null ? date('d/m/Y', strtotime($accountant->accountant_date)) : '',
+            $accountant->order_vat,
+            $accountant->order_quantity,
+            $accountant->order_cost,
+            $accountant->order_surcharge,
+            $accountant->order_price,
+            $accountant->accountant_payment != null ? date('d/m/Y', strtotime($accountant->accountant_payment)) : '',
+            $accountant->accountant_day,
+            $accountant->accountant_day_payment != null ? date('d/m/Y', strtotime($accountant->accountant_day_payment)) : '',
+            $accountant->accountant_method,
+            $accountant->accountant_amount_paid,
+            $accountant->accountant_owe,
+            $accountant->order_percent_discount,
+            $accountant->order_discount,
+            $accountant->accountant_discount_day != null ? date('d/m/Y', strtotime($accountant->accountant_discount_day)) : '',
+            $accountant->order_profit,
+            $accountant->accountant_doctor_read,
+            $accountant->accountant_doctor_date_payment != null ? date('d/m/Y', strtotime($accountant->accountant_doctor_date_payment)) : '',
+            $accountant->ord_form,
+            $accountant->accountant_35X43,
+            $accountant->accountant_polime,
+            $accountant->accountant_8X10,
+            $accountant->accountant_10X12,
+            $accountant->accountant_film_bag,
+            $accountant->accountant_note,
+            $accountant->status_name,
         ];
     }
-
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CategoryPostController;
+use App\Http\Controllers\PostCategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
@@ -68,6 +68,13 @@ Route::group(['middleware' => 'checkSchedule'], function () {
     Route::get('/lichxechitiet', [ScheduleController::class, 'show_schedule_details_clone'])->name('schedule-sale');
 });
 
+//Order
+Route::get('/create-order', [OrderController::class, 'create_order']);
+Route::post('/save-order-f', [OrderController::class, 'save_order_f']);
+Route::get('/successful-medical-registration', [OrderController::class, 'successful_medical_registration']);
+Route::get('/create-order/customer-autocomplete', [OrderController::class, 'createCustomerAuto']);
+Route::post('/save-order-customer', [OrderController::class, 'save_order_customer']);
+
 Route::post('/select-month-details', [ScheduleController::class, 'select_month_details'])->name('select_month_details');
 Route::post('/select-month-details-clone', [ScheduleController::class, 'select_month_details_clone'])->name('select_month_details_clone');
 Route::post('/update-order-quantity-draft/{id}', [ScheduleController::class, 'update_order_quantity_draft'])->name('update_order_quantity_draft');
@@ -110,78 +117,78 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     })->name('403');
 
     //Category Post
-    Route::prefix('category-post')->group(function () {
-        Route::get('/add', [CategoryPostController::class, 'add'])->name('add-category-post');
-        Route::get('/list', [CategoryPostController::class, 'list'])->name('list-category-post');
-        Route::get('/edit/{category_post_id}', [CategoryPostController::class, 'edit'])->name('edit-category-post');
-        Route::get('/delete/{category_post_id}', [CategoryPostController::class, 'delete'])->name('delete-category-post');
-        Route::post('/save', [CategoryPostController::class, 'save'])->name('save-category-post');
-        Route::post('/update/{category_post_id}', [CategoryPostController::class, 'update'])->name('update-category-post');
+    Route::prefix('post-category')->group(function () {
+        Route::get('/', [PostCategoryController::class, 'index'])->name('post_category.index');
+        Route::get('create', [PostCategoryController::class, 'create'])->name('post_category.create');
+        Route::post('save', [PostCategoryController::class, 'store'])->name('post_category.store');
+        Route::get('edit/{id}', [PostCategoryController::class, 'edit'])->name('post_category.edit');
+        Route::patch('update/{id}', [PostCategoryController::class, 'update'])->name('post_category.update');
+        Route::delete('destroy/{id}', [PostCategoryController::class, 'destroy'])->name('post_category.destroy');
     });
 
     //Unit
     Route::prefix('unit')->group(function () {
-        Route::get('/add', [UnitController::class, 'add'])->name('add-unit');
-        Route::get('/list', [UnitController::class, 'list'])->name('list-unit');
-        Route::get('/edit/{unit_id}', [UnitController::class, 'edit'])->name('edit-unit');
-        Route::get('/delete/{unit_id}', [UnitController::class, 'delete'])->name('delete-unit');
-        Route::post('/save', [UnitController::class, 'save'])->name('save-unit');
-        Route::post('/update/{unit_id}', [UnitController::class, 'update'])->name('update-unit');
+        Route::get('/', [UnitController::class, 'index'])->name('unit.index');
+        Route::get('create', [UnitController::class, 'create'])->name('unit.create');
+        Route::post('save', [UnitController::class, 'save'])->name('unit.save');
+        Route::get('edit/{id}', [UnitController::class, 'edit'])->name('unit.edit');
+        Route::patch('update/{id}', [UnitController::class, 'update'])->name('unit.update');
+        Route::delete('destroy/{id}', [UnitController::class, 'destroy'])->name('unit.destroy');
     });
 
     //Export Excel
-    Route::post('/export-excel', [OrderController::class, 'export_excel'])->name('export-excel');
+    Route::post('/export-excel', [OrderController::class, 'export_excel'])->name('export_excel');
 
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
         //Service
         Route::prefix('service')->group(function () {
-            Route::get('/add', [ServiceController::class, 'add_service'])->name('add-service');
-            Route::get('/list', [ServiceController::class, 'list_service'])->name('list-service');
-            Route::get('/edit/{service}', [ServiceController::class, 'edit_service'])->name('edit-service');
-            Route::get('/delete/{service}', [ServiceController::class, 'delete_service'])->name('delete-service');
-            Route::post('/save', [ServiceController::class, 'save_service'])->name('save-service');
-            Route::post('/update/{service}', [ServiceController::class, 'update_service'])->name('update-service');
+            Route::get('/', [ServiceController::class, 'index'])->name('service.index');
+            Route::get('create', [ServiceController::class, 'create'])->name('service.create');
+            Route::post('save', [ServiceController::class, 'save'])->name('service.save');
+            Route::get('edit/{service}', [ServiceController::class, 'edit'])->name('service.edit');
+            Route::patch('update/{service}', [ServiceController::class, 'update'])->name('service.update');
+            Route::delete('destroy/{service}', [ServiceController::class, 'destroy'])->name('service.destroy');
         });
         //Post
         Route::prefix('post')->group(function () {
-            Route::get('/add', [PostController::class, 'add_post'])->name('add-post');
-            Route::get('/list', [PostController::class, 'list_post'])->name('list-post');
-            Route::get('/edit/{post_id}', [PostController::class, 'edit_post'])->name('edit-post');
-            Route::get('/delete/{post_id}', [PostController::class, 'delete_post'])->name('delete-post');
-            Route::post('/save', [PostController::class, 'save_post'])->name('save-post');
-            Route::post('/update/{post_id}', [PostController::class, 'update_post'])->name('update-post');
+            Route::get('/', [PostController::class, 'index'])->name('post.index');
+            Route::get('create', [PostController::class, 'create'])->name('post.create');
+            Route::post('save', [PostController::class, 'save'])->name('post.save');
+            Route::get('edit/{id}', [PostController::class, 'edit'])->name('post.edit');
+            Route::patch('update/{id}', [PostController::class, 'update'])->name('post.update');
+            Route::delete('destroy/{id}', [PostController::class, 'destroy'])->name('post.destroy');
         });
         //Order
         Route::prefix('order')->group(function () {
-            Route::get('/view/{order_code}', [OrderController::class, 'view_order'])->name('view-order');
-            Route::get('/print/{order_id}', [OrderController::class, 'print_order'])->name('print-order');
-            Route::get('/add', [OrderController::class, 'add_order'])->name('add-order');
-            Route::get('/list', [OrderController::class, 'list_order'])->name('list-order');
-            Route::get('/edit/{order_id}', [OrderController::class, 'edit_order'])->name('edit-order');
-            Route::get('/delete/{order_id}', [OrderController::class, 'delete_order'])->name('delete-order');
-            Route::post('/save', [OrderController::class, 'save_order'])->name('save-order');
-            Route::post('/update/{order_id}', [OrderController::class, 'update_order'])->name('update-order');
-            Route::get('/coppy/{order_id}', [OrderController::class, 'coppy_order'])->name('coppy-order');
-            Route::post('/save-coppy', [OrderController::class, 'save_coppy_order'])->name('save-order-coppy');
-            Route::post('/upload', [OrderController::class, 'upload'])->name('upload');
+            Route::get('/', [OrderController::class, 'index'])->name('order.index');
+            Route::get('create', [OrderController::class, 'create'])->name('order.create');
+            Route::post('save', [OrderController::class, 'save'])->name('order.save');
+            Route::get('edit/{order_id}', [OrderController::class, 'edit'])->name('order.edit');
+            Route::patch('update/{order_id}', [OrderController::class, 'update'])->name('order.update');
+            Route::delete('destroy/{order_id}', [OrderController::class, 'destroy'])->name('order.destroy');
+            Route::get('coppy/{order_id}', [OrderController::class, 'coppy'])->name('order.coppy');
+            Route::post('save-coppy', [OrderController::class, 'save_coppy'])->name('order.save_coppy');
+            Route::get('view/{order_code}', [OrderController::class, 'view'])->name('order.view');
+            Route::get('print/{order_id}', [OrderController::class, 'print'])->name('order.print');
+            Route::post('upload', [OrderController::class, 'upload'])->name('upload');
         });
         //Schuedule
         Route::prefix('schedule')->group(function () {
-            Route::get('/add/{order_id}', [OrderController::class, 'add_schedule'])->name('add-schedule');
-            Route::post('/save', [OrderController::class, 'save_schedule'])->name('save-schedule');
-            Route::get('/edit/{order_id}', [OrderController::class, 'edit_schedule'])->name('edit-schedule');
-            Route::post('/update/{order_id}', [OrderController::class, 'update_schedule'])->name('update-schedule');
-            Route::post('/cancle', [OrderController::class, 'cancle_schedule'])->name('cancle-schedule');
+            Route::get('create/{order_id}', [ScheduleController::class, 'create'])->name('schedule.create');
+            Route::post('save', [ScheduleController::class, 'save'])->name('schedule.save');
+            Route::get('edit/{order_id}', [ScheduleController::class, 'edit'])->name('schedule.edit');
+            Route::patch('update/{order_id}', [ScheduleController::class, 'update'])->name('schedule.update');
+            Route::post('cancle', [ScheduleController::class, 'cancle'])->name('schedule.cancle');
         });
         //Slider
         Route::prefix('slider')->group(function () {
-            Route::get('/list', [SliderController::class, 'list_slider'])->name('list-slider');
-            Route::get('/add', [SliderController::class, 'add_slider'])->name('add-slider');
-            Route::get('/delete/{slider_id}', [SliderController::class, 'delete_slider'])->name('delete-slider');
-            Route::get('/edit/{slider_id}', [SliderController::class, 'edit_slider'])->name('edit-slider');
-            Route::post('/insert', [SliderController::class, 'insert_slider'])->name('insert-slider');
-            Route::post('/update/{slider_id}', [SliderController::class, 'update_slider'])->name('update-slider');
+            Route::get('/', [SliderController::class, 'index'])->name('slider.index');
+            Route::get('create', [SliderController::class, 'create'])->name('slider.create');
+            Route::post('insert', [SliderController::class, 'insert'])->name('slider.insert');
+            Route::get('edit/{id}', [SliderController::class, 'edit'])->name('slider.edit');
+            Route::patch('update/{id}', [SliderController::class, 'update'])->name('slider.update');
+            Route::delete('destroy/{id}', [SliderController::class, 'destroy'])->name('slider.destroy');
         });
     });
 
@@ -189,50 +196,44 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::group(['middleware' => 'isAdmin'], function () {
         //Staff
         Route::prefix('staff')->group(function () {
-            Route::get('/add', [StaffController::class, 'add_staff'])->name('add-staff');
-            Route::get('/list', [StaffController::class, 'list_staff'])->name('list-staff');
-            Route::get('/edit/{staff_id}', [StaffController::class, 'edit_staff'])->name('edit-staff');
-            Route::get('/delete/{staff_id}', [StaffController::class, 'delete_staff'])->name('delete-staff');
-            Route::post('/save', [StaffController::class, 'save_staff'])->name('save-staff');
-            Route::post('/update/{staff_id}', [StaffController::class, 'update_staff'])->name('update-staff');
+            Route::get('/', [StaffController::class, 'index'])->name('staff.index');
+            Route::get('create', [StaffController::class, 'create'])->name('staff.create');
+            Route::post('save', [StaffController::class, 'save'])->name('staff.save');
+            Route::get('edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
+            Route::patch('update/{id}', [StaffController::class, 'update'])->name('staff.update');
+            Route::delete('destroy/{id}', [StaffController::class, 'destroy'])->name('staff.destroy');
         });
         //History
         Route::prefix('history')->group(function () {
-            Route::get('/list', [OrderController::class, 'list_history_order'])->name('list-history');
+            Route::get('/', [OrderController::class, 'index'])->name('history.index');
         });
     });
-    
+
     //Accountant
     Route::prefix('accountant')->group(function () {
-        Route::get('/update-order/{order_id}', [AccountantController::class, 'update_order_accountant'])->name('update-order-accountant');
-        Route::post('/save-order/{order_id}', [AccountantController::class, 'save_order_accountant'])->name('save-order-accountant');
+        Route::get('update-order/{id}', [AccountantController::class, 'update_order'])->name('accountant.update_order');
+        Route::post('save-order/{id}', [AccountantController::class, 'save_order'])->name('accountant.save_order');
     });
     Route::group(['middleware' => 'isAccountant'], function () {
         //Accountant
         Route::prefix('accountant')->group(function () {
-            Route::post('/get-list-order', [AccountantController::class, 'call_list_order_accountant'])->name('url-get-list-accountant');
-            Route::get('/list-order', [AccountantController::class, 'list_order_accountant'])->name('list-order-accountant');
-            Route::post('/update/{order_id}', [AccountantController::class, 'update_accountant'])->name('url-update-accountant');
-            Route::post('/complete/{order_id}', [AccountantController::class, 'complete_accountant'])->name('url-complete-accountant');
-            Route::post('/filter-accountant', [AccountantController::class, 'filter_accountant'])->name('url-filter-accountant');
+            Route::get('/', [AccountantController::class, 'index'])->name('accountant.index');
+            Route::post('/get-list', [AccountantController::class, 'get_list'])->name('accountant.get_list');
+            Route::patch('/update/{id}', [AccountantController::class, 'update'])->name('url-update-accountant');
+            Route::post('/complete/{id}', [AccountantController::class, 'complete'])->name('accountant.complete');
+            Route::post('/filter', [AccountantController::class, 'filter'])->name('accountant.filter');
         });
     });
 });
 
-Route::get('/create-order', [OrderController::class, 'create_order']);
-Route::post('/save-order-f', [OrderController::class, 'save_order_f']);
-Route::get('/successful-medical-registration', [OrderController::class, 'successful_medical_registration']);
-Route::get('/create-order/customer-autocomplete', [OrderController::class, 'createCustomerAuto']);
-Route::post('/save-order-customer', [OrderController::class, 'save_order_customer']);
-
-//Document
-Route::delete('delete-file-order/{path}', [OrderController::class, 'delete_file_order'])->name('url-delete-file-order');
-Route::get('upload_file', 'App\Http\Controllers\DocumentController@upload_file');
-Route::get('upload_image', 'App\Http\Controllers\DocumentController@upload_image');
-Route::get('create_folder', 'App\Http\Controllers\DocumentController@create_folder');
-Route::get('rename_folder', 'App\Http\Controllers\DocumentController@rename_folder');
-Route::get('list_document', 'App\Http\Controllers\DocumentController@list_document');
-Route::get('read_data', 'App\Http\Controllers\DocumentController@read_data');
+// //Document
+// Route::destroy('destroy-file-order/{path}', [OrderController::class, 'destroy_file_order'])->name('url-destroy-file-order');
+// Route::get('upload_file', 'App\Http\Controllers\DocumentController@upload_file');
+// Route::get('upload_image', 'App\Http\Controllers\DocumentController@upload_image');
+// Route::get('create_folder', 'App\Http\Controllers\DocumentController@create_folder');
+// Route::get('rename_folder', 'App\Http\Controllers\DocumentController@rename_folder');
+// Route::get('list_document', 'App\Http\Controllers\DocumentController@list_document');
+// Route::get('read_data', 'App\Http\Controllers\DocumentController@read_data');
 
 //Zalo
 //Route::get('get-access-token','App\Http\Controllers\OrderController@getAccessToken');
@@ -240,20 +241,20 @@ Route::get('test-zalo', [OrderController::class, 'test_zalo']);
 Route::get('test-zalo-cancle', [OrderController::class, 'test_zalo_cancle']);
 Route::get('get-access-token', [OrderController::class, 'getAccessTokenFromRefreshToken']);
 
-Route::get('/config-cache', function() {
+Route::get('/config-cache', function () {
     Artisan::call('config:cache');
-    echo('Config cache is available for configuration ');
+    echo ('Config cache is available for configuration ');
 });
 
-Route::get('/view-clear', function() {
+Route::get('/view-clear', function () {
     // Artisan::call('view:clear');
     Artisan::call('optimize:clear');
-    echo('View clear succcess');
+    echo ('View clear succcess');
 });
 
-Route::get('/route-clear', function() {
+Route::get('/route-clear', function () {
     Artisan::call('route:clear');
-    echo('route clear is available for configuration ');
+    echo ('route clear is available for configuration ');
 });
 
 Route::post('/upload-image-ck', [PostController::class, 'upload_image_ck'])->name('upload-image-ck');

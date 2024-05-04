@@ -24,11 +24,11 @@ class AccountantController extends Controller
 	{
 		$data = $request->all();
 		$order = Order::find($order_id);
-		if($order->order_status == 4){
+		if ($order->order_status == 4) {
 			$orderDetail = OrderDetail::find($order->order_detail_id);
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->save();
-		}else{
+		} else {
 			$order->order_cost = formatPrice($data['order_cost']);
 			$order->order_percent_discount =  $data['order_percent_discount'];
 			$order->order_vat =  $data['order_vat'];
@@ -46,15 +46,15 @@ class AccountantController extends Controller
 
 	public function call_list_order_accountant()
 	{
-		$all_order_accountant = Accountant::join('tbl_orders', 'tbl_orders.order_id', '=', 'tbl_accountant.order_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->where('tbl_car_ktv.car_active', 1)
-			->orderBy('tbl_accountant.accountant_id', 'ASC')
+		$all_order_accountant = Accountant::join('orders', 'orders.order_id', '=', 'accountant.order_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->where('car_ktv.car_active', 1)
+			->orderBy('accountant.accountant_id', 'ASC')
 			->get();
 		$html = view('admin.Accountant.list_order_render')->with(compact('all_order_accountant'))->render();
-		return response()->json(array('success' => true, 'html'=>$html));
+		return response()->json(array('success' => true, 'html' => $html));
 	}
 
 	public function list_order_accountant()
@@ -192,44 +192,44 @@ class AccountantController extends Controller
 		$total_quantity = 0;
 		$total_discount = 0;
 
-		$query = Accountant::join('tbl_orders', 'tbl_orders.order_id', '=', 'tbl_accountant.order_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_unit', 'tbl_unit.unit_id', '=', 'tbl_orders.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->where('tbl_car_ktv.car_active', 1);
+		$query = Accountant::join('orders', 'orders.order_id', '=', 'accountant.order_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->join('unit', 'unit.unit_id', '=', 'orders.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->where('car_ktv.car_active', 1);
 
 		if (empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
 			$query->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
+			$query->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && !empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (empty($data['month']) && !empty($data['unitCode']) && !empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} elseif (!empty($data['month']) && !empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		} else {
-			$query->where('tbl_accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('tbl_unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('tbl_unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('tbl_order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity','order_discount');
+			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
 		}
 		$result = $query->get();
 		foreach ($result as $key => $val) {

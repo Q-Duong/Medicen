@@ -21,15 +21,15 @@ class ScheduleController extends Controller
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
-		$order = Order::join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			// ->orderBy('tbl_orders.created_at', 'DESC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+		$order = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			// ->orderBy('orders.created_at', 'DESC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
 		for ($m = 1; $m <= 12; $m++) {
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
@@ -52,15 +52,15 @@ class ScheduleController extends Controller
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			// ->orderBy('tbl_orders.created_at', 'DESC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+		$order = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			// ->orderBy('orders.created_at', 'DESC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
 		$view = view('pages.schedule.schedule.view_schedule_render')->with(compact('order', 'dayInMonth'))->render();
 
@@ -122,22 +122,22 @@ class ScheduleController extends Controller
 			$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
 		}
 
-		$order = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			// ->orderBy('tbl_orders.created_at', 'DESC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			// ->orderBy('orders.created_at', 'DESC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
-		$accountant = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
+		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
 			->get();
 
 		foreach ($accountant as $key => $accountant_t) {
@@ -186,8 +186,8 @@ class ScheduleController extends Controller
 		$data = $request->all();
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
-		$ctyName = OrderDetail::whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+		$ctyName = OrderDetail::whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->where('ord_cty_name', 'LIKE', '%' . $data['query'] . '%')
 			->orderBy('ord_cty_name', 'ASC')
 			->get();
@@ -208,16 +208,16 @@ class ScheduleController extends Controller
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
 
-		$order = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->where('ord_cty_name', $data['value'])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+			->orderBy('order_details.ord_start_day', 'ASC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
 
 		$html = view('pages.schedule.schedule_details.view_schedule_details_search')->with(compact('order', 'dayInMonth'))->render();
@@ -243,24 +243,24 @@ class ScheduleController extends Controller
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
-		$order = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->select(['order_status', 'ord_start_day', 'ord_end_day', 'order_warning', 'tbl_orders.order_id', 'car_ktv_id', 'car_ktv_name_1', 'car_ktv_name_2', 'unit_code', 'unit_name', 'ord_select', 'ord_cty_name', 'customer_address', 'customer_note', 'ord_list_file', 'ord_list_file_path', 'customer_name', 'customer_phone', 'ord_time', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet', 'ord_note', 'ord_deadline', 'ord_deliver_results', 'ord_email', 'accountant_doctor_read', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag', 'accountant_note', 'car_active', 'car_name', 'order_surcharge', 'order_child', 'ord_delivery_date', 'order_updated'])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			// ->orderBy('tbl_orders.created_at', 'DESC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->select(['order_status', 'ord_start_day', 'ord_end_day', 'order_warning', 'orders.order_id', 'car_ktv_id', 'car_ktv_name_1', 'car_ktv_name_2', 'unit_code', 'unit_name', 'ord_select', 'ord_cty_name', 'customer_address', 'customer_note', 'ord_list_file', 'ord_list_file_path', 'customer_name', 'customer_phone', 'ord_time', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet', 'ord_note', 'ord_deadline', 'ord_deliver_results', 'ord_email', 'accountant_doctor_read', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag', 'accountant_note', 'car_active', 'car_name', 'order_surcharge', 'order_child', 'ord_delivery_date', 'order_updated'])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			// ->orderBy('orders.created_at', 'DESC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
 
-		$accountant = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
+		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
 			->get();
 
 		foreach ($accountant as $key => $accountant_t) {
@@ -318,22 +318,22 @@ class ScheduleController extends Controller
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			// ->orderBy('tbl_orders.created_at', 'DESC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			// ->orderBy('orders.created_at', 'DESC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
-		$accountant = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
+		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
 			->get();
 
 		foreach ($accountant as $key => $accountant_t) {
@@ -389,24 +389,24 @@ class ScheduleController extends Controller
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_unit', 'tbl_orders.unit_id', '=', 'tbl_unit.unit_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->join('tbl_customers', 'tbl_customers.customer_id', '=', 'tbl_orders.customer_id')
-			->join('tbl_car_ktv', 'tbl_car_ktv.order_id', '=', 'tbl_orders.order_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->select(['order_status', 'ord_start_day', 'ord_end_day', 'order_warning', 'tbl_orders.order_id', 'car_ktv_id', 'car_ktv_name_1', 'car_ktv_name_2', 'unit_code', 'unit_name', 'ord_select', 'ord_cty_name', 'customer_address', 'customer_note', 'ord_list_file', 'ord_list_file_path', 'customer_name', 'customer_phone', 'ord_time', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet', 'ord_note', 'ord_deadline', 'ord_deliver_results', 'ord_email', 'accountant_doctor_read', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag', 'accountant_note', 'car_active', 'car_name', 'order_surcharge', 'order_child', 'ord_delivery_date', 'order_updated'])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
-			// ->orderBy('tbl_orders.created_at', 'DESC')
-			->orderBy('tbl_orders.order_child', 'DESC')
+		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
+			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->select(['order_status', 'ord_start_day', 'ord_end_day', 'order_warning', 'orders.order_id', 'car_ktv_id', 'car_ktv_name_1', 'car_ktv_name_2', 'unit_code', 'unit_name', 'ord_select', 'ord_cty_name', 'customer_address', 'customer_note', 'ord_list_file', 'ord_list_file_path', 'customer_name', 'customer_phone', 'ord_time', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet', 'ord_note', 'ord_deadline', 'ord_deliver_results', 'ord_email', 'accountant_doctor_read', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag', 'accountant_note', 'car_active', 'car_name', 'order_surcharge', 'order_child', 'ord_delivery_date', 'order_updated'])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			// ->orderBy('orders.created_at', 'DESC')
+			->orderBy('orders.order_child', 'DESC')
 			->get();
 
-		$accountant = Order::join('tbl_accountant', 'tbl_accountant.order_id', '=', 'tbl_orders.order_id')
-			->join('tbl_order_details', 'tbl_order_details.order_detail_id', '=', 'tbl_orders.order_detail_id')
-			->whereBetween('tbl_order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('tbl_order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('tbl_order_details.ord_start_day', 'ASC')
+		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
+			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
 			->get();
 
 		foreach ($accountant as $key => $accountant_t) {
