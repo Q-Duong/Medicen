@@ -2,44 +2,69 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    public $timestamps = true;
-    protected $fillable = [
-        'customer_id', 'order_detail_id', 'unit_id', 'order_vat', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'order_cost', 'order_price', 'order_percent_discount', 'order_discount', 'order_profit', 'order_status', 'schedule_status', 'order_warning', 'accountant_updated', 'order_all_in_one', 'order_child', 'order_surcharge', 'order_updated'
-    ];
-    // protected $primaryKey = 'order_id';
+    use HasFactory;
+    
     protected $table = 'orders';
+
+    public $timestamps = true;
+
+    protected $fillable = [
+        'customer_id',
+        'order_detail_id',
+        'unit_id',
+        'status_id',
+        'order_vat',
+        'order_quantity', 
+        'order_quantity_draft',
+        'order_note_ktv',
+        'order_cost',
+        'order_price',
+        'order_percent_discount',
+        'order_discount',
+        'order_profit',
+        'schedule_status',
+        'order_warning',
+        'accountant_updated',
+        'order_all_in_one',
+        'order_child',
+        'order_surcharge',
+        'order_updated'
+    ];
 
     public function unit()
     {
-        return $this->belongsTo('App\Models\Unit', 'unit_id');
+        return $this->belongsTo(Unit::class);
     }
 
     public function customer()
     {
-        return $this->belongsTo('App\Models\Customer', 'customer_id');
+        return $this->belongsTo(Customer::class);
     }
 
     public function orderdetail()
     {
-        return $this->belongsTo('App\Models\OrderDetail', 'order_detail_id');
-    }
-
-    public function carktv()
-    {
-        $this->hasMany('App\Models\CarKTV');
-    }
-
-    public function accountant()
-    {
-        $this->hasMany('App\Models\Accountant');
+        return $this->belongsTo(OrderDetail::class);
     }
 
     public function status()
     {
-        return $this->belongsTo('App\Models\Status', 'order_status');
+        return $this->belongsTo(Status::class);
     }
+
+    public function carktv()
+    {
+        $this->hasMany(CarKTV::class);
+    }
+
+    public function accountant()
+    {
+        $this->hasMany(Accountant::class);
+    }
+
+    
 }

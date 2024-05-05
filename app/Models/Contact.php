@@ -2,14 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Contact extends Model
 {
-    public $timestamps = true; //set time to false
+    use HasFactory;
+    
+    protected $table = 'contacts';
+
+    public $timestamps = true;
+
     protected $fillable = [
-        'info_contact', 'info_map', 'info_logo'
+        'contact',
+        'contact_map',
     ];
-    // protected $primaryKey = 'info_id';
-    protected $table = 'infomation';
 }
