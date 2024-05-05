@@ -8,8 +8,8 @@ class Contact extends Model
 {
     public $timestamps = true; //set time to false
     protected $fillable = [
-        'info_contact', 'info_map', 'info_logo'
+        'contact', 'contact_map'
     ];
     // protected $primaryKey = 'info_id';
-    protected $table = 'infomation';
+    protected $table = 'contacts';
 }

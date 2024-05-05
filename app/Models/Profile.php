@@ -8,7 +8,6 @@ class Profile extends Model
 {
     public $timestamps = true; //set time to false
     protected $fillable = [
-        'profile_id',
         'profile_firstname',
         'profile_lastname',
         'profile_phone',
@@ -18,7 +17,7 @@ class Profile extends Model
         'profile_gender'
     ];
     // protected $primaryKey = 'profile_id';
-    protected $table = 'profile';
+    protected $table = 'profiles';
 
     public function user()
     {
