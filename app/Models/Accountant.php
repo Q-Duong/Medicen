@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Builders\AccountantBuilder;
 use Illuminate\Database\Eloquent\Model;
 
 class Accountant extends Model
 {
-    use HasFactory;
-    
+
     protected $table = 'accountants';
 
     public $timestamps = true;
@@ -21,24 +20,29 @@ class Accountant extends Model
         'accountant_number',
         'accountant_date',
         'accountant_payment',
-        'accountant_day', 
-        'accountant_day_payment', 
-        'accountant_method', 
-        'accountant_amount_paid', 
-        'accountant_owe', 
-        'accountant_discount_day', 
-        'accountant_doctor_read', 
-        'accountant_doctor_date_payment', 
-        'accountant_35X43', 
-        'accountant_polime', 
-        'accountant_8X10', 
-        'accountant_10X12', 
+        'accountant_day',
+        'accountant_day_payment',
+        'accountant_method',
+        'accountant_amount_paid',
+        'accountant_owe',
+        'accountant_discount_day',
+        'accountant_doctor_read',
+        'accountant_doctor_date_payment',
+        'accountant_35X43',
+        'accountant_polime',
+        'accountant_8X10',
+        'accountant_10X12',
         'accountant_film_bag',
         'accountant_note'
     ];
-   
+
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function newEloquentBuilder($query): AccountantBuilder
+    {
+        return new AccountantBuilder($query);
     }
 }

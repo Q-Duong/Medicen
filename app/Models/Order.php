@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Builders\OrderBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -65,6 +66,10 @@ class Order extends Model
     {
         $this->hasMany(Accountant::class);
     }
-
+    
+    public function newEloquentBuilder($query): OrderBuilder
+    {
+        return new OrderBuilder($query);
+    }
     
 }

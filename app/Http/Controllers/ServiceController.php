@@ -13,7 +13,7 @@ class ServiceController extends Controller
     }
 
     public function list_service(){
-        $getAllService = Service::orderBy('service_id','DESC')->get();
+        $getAllService = Service::orderBy('id','DESC')->get();
     	return view('admin.Service.list_service')->with(compact('getAllService'));
     }
 
@@ -48,16 +48,16 @@ class ServiceController extends Controller
 
     }
     
-    public function edit_service($service_id){
-        $service = Service::find($service_id);
+    public function edit_service($id){
+        $service = Service::find($id);
         return view('admin.Service.edit_service')->with(compact('service'));
     }
 
-    public function update_service(Request $request,$service_id){
+    public function update_service(Request $request,$id){
         //$this->checkPostUpdate($request);
         
         $data = $request->all();
-        $service = Service::find($service_id);
+        $service = Service::find($id);
     	$service->service_title = $data['service_title'];
         $service->service_slug = $data['service_slug'];
         $service->service_content = $data['service_content'];
@@ -80,8 +80,8 @@ class ServiceController extends Controller
         return Redirect::to('admin/service/list')->with('success','Cập nhật dịch vụ thành công');
     }
 
-    public function delete_service($service_id){
-        $service = Service::find($service_id);
+    public function delete_service($id){
+        $service = Service::find($id);
         $service_image = $service->service_image;
         if($service_image){
             unlink(public_path('uploads/service/').$service_image);

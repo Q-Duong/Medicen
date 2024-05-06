@@ -12,19 +12,19 @@
             </header>
             <div class="panel-body">
                 <div class="position-center">
-                    <form action="{{ route('update-category-post', $category_post -> category_post_id)}}"
+                    <form action="{{ route('update-category-post', $post_category -> post_category_id)}}"
                         method="post">
                         @csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1">Tên danh mục bài viết</label>
-                            <input type="text" name="category_post_name" class="input-control" id="slug"
+                            <input type="text" name="post_category_name" class="input-control" id="slug"
                                 placeholder="Điền tên danh mục bài viết" onkeyup="ChangeToSlug();"
-                                value="{{$category_post->category_post_name}}">
+                                value="{{$post_category->post_category_name}}">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Slug danh mục bài viết</label>
-                            <input type="text" name="category_post_slug" class="input-control" id="convert_slug"
-                                placeholder="Điền Slug danh mục bài viết" value="{{$category_post->category_post_slug}}" readonly>
+                            <input type="text" name="post_category_slug" class="input-control" id="convert_slug"
+                                placeholder="Điền Slug danh mục bài viết" value="{{$post_category->post_category_slug}}" readonly>
                         </div>
                         <button type="submit" class="primary-btn-submit">Cập nhật danh mục bài
                             viết</button>

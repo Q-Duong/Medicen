@@ -12,7 +12,7 @@
             </header>
             <div class="panel-body">
                 <div class="position-center">
-                    <form action="{{route('update-post',$post->post_id)}}" method="post" enctype="multipart/form-data">
+                    <form action="{{route('update-post',$post->id)}}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group {{ $errors->has('post_title') ? 'has-error' : ''}}">
                             <label for="exampleInputEmail1">Tên bài viết</label>
@@ -47,9 +47,9 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Danh mục bài viết</label>
-                            <select name="category_post_id" class="input-control">
-                                @foreach($cate_post as $key =>$cate)
-                                <option {{$post->category_post_id == $cate->category_post_id ? 'selected' : ''}} value="{{$cate->category_post_id}}">{{$cate->category_post_name}}</option>
+                            <select name="post_category_id" class="input-control">
+                                @foreach($post_category as $key =>$cate)
+                                <option {{$post->post_category_id == $cate->post_category_id ? 'selected' : ''}} value="{{$cate->post_category_id}}">{{$cate->post_category_name}}</option>
                                 @endforeach
                             </select>
                         </div>

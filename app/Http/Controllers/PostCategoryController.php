@@ -10,12 +10,12 @@ class PostCategoryController extends Controller
 {
     public function add()
     {
-        return view('admin.CategoryPost.add_post_category');
+        return view('admin.PostCategory.add_post_category');
     }
 
     public function list()
     {
-        $getAllCategoryPost = PostCategory::orderBy('post_category_id', 'ASC')->get();
+        $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->get();
         return view('admin.PostCategory.list_post_category')->with(compact('getAllPostCategory'));
     }
     public function save(Request $request)
@@ -34,24 +34,24 @@ class PostCategoryController extends Controller
         return Redirect()->back()->with('success', 'Thêm danh mục bài viết thành công');
     }
 
-    public function edit($post_category_id)
+    public function edit($id)
     {
-        $post_category = PostCategory::find($post_category_id);
+        $post_category = PostCategory::find($id);
         return view('admin.PostCategory.edit_post_category')->with(compact('post_category'));
     }
-    public function update(Request $request, $post_category_id)
+    public function update(Request $request, $id)
     {
         $data = $request->all();
-        $post_category = PostCategory::find($post_category_id);
+        $post_category = PostCategory::find($id);
         $post_category->post_category_name = $data['post_category_name'];
         $post_category->post_category_slug = $data['post_category_slug'];
         $post_category->save();
 
         return Redirect::to('/list-category-post')->with('success', 'Cập nhật danh mục bài viết thành công');
     }
-    public function delete($post_category_id)
+    public function delete($id)
     {
-        $post_category = PostCategory::find($post_category_id);
+        $post_category = PostCategory::find($id);
         $post_category->delete();
         return Redirect()->back()->with('success', 'Xóa danh mục bài viết thành công');
     }

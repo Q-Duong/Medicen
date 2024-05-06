@@ -150,9 +150,9 @@
                     <div class="footer__widget">
                         <p>Tin tức</p>
                         <ul>
-                            @foreach ($getAllCategoryPost as $key => $cate_post)
+                            @foreach ($getAllPostCategory as $key => $cate_post)
                                 <li><a
-                                        href="{{ asset(URL::to('/blogs/' . $cate_post->category_post_slug)) }}">{{ $cate_post->category_post_name }}</a>
+                                        href="{{ asset(URL::to('/blogs/' . $cate_post->post_category_slug)) }}">{{ $cate_post->post_category_name }}</a>
                                 </li>
                             @endforeach
                         </ul>

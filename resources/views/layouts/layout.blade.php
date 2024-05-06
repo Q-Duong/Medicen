@@ -124,8 +124,8 @@
                                 </li>
                                 <li class="nav-item"><a href="{{URL::to('/blog-list')}}">Tin tức</a>
                                     <ul class="dropdown">
-                                        @foreach($getAllCategoryPost as $key => $cate_post)
-                                            <li><a href="{{asset(URL::to('/blogs/'.$cate_post->category_post_slug))}}">{{$cate_post->category_post_name}}</a>
+                                        @foreach($getAllPostCategory as $key => $cate_post)
+                                            <li><a href="{{asset(URL::to('/blogs/'.$cate_post->post_category_slug))}}">{{$cate_post->post_category_name}}</a>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -229,8 +229,8 @@
                     <div class="footer__widget">
                         <h6>Tin tức</h6>
                         <ul>
-                        @foreach($getAllCategoryPost as $key => $cate_post)
-                            <li><a href="{{asset(URL::to('/blogs/'.$cate_post->category_post_slug))}}">{{$cate_post->category_post_name}}</a>
+                        @foreach($getAllPostCategory as $key => $cate_post)
+                            <li><a href="{{asset(URL::to('/blogs/'.$cate_post->post_category_slug))}}">{{$cate_post->post_category_name}}</a>
                             </li>
                         @endforeach
                         </ul>

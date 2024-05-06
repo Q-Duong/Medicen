@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Redirect;
 class PostController extends Controller
 {
     public function add_post(){
-        $cate_post = CategoryPost::orderBy('category_post_id','ASC')->get();
-    	return view('admin.Post.add_post')->with(compact('cate_post'));
+        $post_category = PostCategory::orderBy('post_category_id','ASC')->get();
+    	return view('admin.Post.add_post')->with(compact('post_category'));
     }
 
     public function list_post(){
-        $all_post = Post::with('category_post')->orderBy('post_id','DESC')->get();
+        $all_post = Post::with('post_category')->orderBy('id','DESC')->get();
     	return view('admin.Post.list_post')->with(compact('all_post'));
     }
 
@@ -39,7 +39,7 @@ class PostController extends Controller
         $post->post_slug = $data['post_slug'];
         $post->post_desc = $data['post_desc'];
         $post->post_content = $data['post_content'];
-        $post->category_post_id = $data['category_post_id'];
+        $post->post_category_id = $data['post_category_id'];
 
         $get_image = $request->file('post_image');
         $name = $post->post_title;
@@ -63,21 +63,21 @@ class PostController extends Controller
         }
     }
     
-    public function edit_post($post_id){
-        $cate_post = CategoryPost::orderBy('category_post_id','ASC')->get();
-        $post = Post::find($post_id);
-        return view('admin.Post.edit_post')->with(compact('post'))->with(compact('cate_post'));
+    public function edit_post($id){
+        $post_category = PostCategory::orderBy('post_category_id','ASC')->get();
+        $post = Post::find($id);
+        return view('admin.Post.edit_post')->with(compact('post'))->with(compact('post_category'));
     }
 
-    public function update_post(Request $request,$post_id){
+    public function update_post(Request $request,$id){
         $this->checkPostUpdate($request);
         $data = $request->all();
-        $post = Post::find($post_id);
+        $post = Post::find($id);
     	$post->post_title = $data['post_title'];
         $post->post_slug = $data['post_slug'];
         $post->post_desc = $data['post_desc'];
         $post->post_content = $data['post_content'];
-        $post->category_post_id = $data['category_post_id'];
+        $post->post_category_id = $data['post_category_id'];
         $get_image = $request->file('post_image');
       
         if($get_image){
@@ -96,8 +96,8 @@ class PostController extends Controller
         return Redirect::to('admin/post/list')->with('success','Cập nhật bài viết thành công');
     }
 
-    public function delete_post($post_id){
-        $post = Post::find($post_id);
+    public function delete_post($id){
+        $post = Post::find($id);
         $post_image = $post->post_image;
         if($post_image){
             unlink(public_path('uploads/post/').$post_image);
