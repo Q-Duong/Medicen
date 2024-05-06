@@ -12,7 +12,7 @@
             </header>
             <div class="panel-body">
                 <div class="position-center">
-                    <form action="{{route('update-service',$service->service_id)}}" method="post" enctype="multipart/form-data">
+                    <form action="{{route('update-service',$service->id)}}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group {{ $errors->has('service_title') ? 'has-error' : ''}}">
                             <label for="exampleInputEmail1">Tên dịch vụ</label>

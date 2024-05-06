@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Service;
-use App\Models\CategoryPost;
+use App\Models\PostCategory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,13 +14,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        view()->composer('*',function($view) {
-            $getAllCategoryPost = CategoryPost::orderBy('category_post_id','ASC')->get();
-		    $getAllService = Service::orderBy('service_id','ASC')->get();
-            $view->with(compact('getAllCategoryPost','getAllService'));
+        view()->composer('*', function ($view) {
+            $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->get();
+            $getAllService = Service::orderBy('id', 'ASC')->get();
+            $view->with(compact('getAllPostCategory', 'getAllService'));
         });
         try {
-            \Storage::extend('google', function($app, $config) {
+            Storage::extend('google', function ($app, $config) {
                 $options = [];
 
                 if (!empty($config['teamDriveId'] ?? null)) {
@@ -35,14 +35,14 @@ class AppServiceProvider extends ServiceProvider
                 $client->setClientId($config['clientId']);
                 $client->setClientSecret($config['clientSecret']);
                 $client->refreshToken($config['refreshToken']);
-                
+
                 $service = new \Google\Service\Drive($client);
                 $adapter = new \Masbug\Flysystem\GoogleDriveAdapter($service, $config['folder'] ?? '/', $options);
                 $driver = new \League\Flysystem\Filesystem($adapter);
 
                 return new \Illuminate\Filesystem\FilesystemAdapter($driver, $adapter);
             });
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             // your exception handling logic
         }
     }

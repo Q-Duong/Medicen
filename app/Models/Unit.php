@@ -2,19 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Unit extends Model
 {
-    public $timestamps = true;
-    protected $fillable = [
-        'unit_code', 'unit_name'
-    ];
-    // protected $primaryKey = 'unit_id';
+    use HasFactory;
+    
     protected $table = 'units';
 
+    public $timestamps = true;
+
+    protected $fillable = [
+        'unit_code',
+        'unit_name'
+    ];
+    
     public function order()
     {
-        $this->hasMany('App\Models\Order');
+        $this->hasMany(Order::class);
     }
 }

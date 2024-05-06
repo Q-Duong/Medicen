@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
-    public $timestamps = true; //set time to false
+    use HasFactory;
+
+    protected $table = 'profiles';
+
+    public $timestamps = true;
+
     protected $fillable = [
         'profile_firstname',
         'profile_lastname',
@@ -16,11 +22,8 @@ class Profile extends Model
         'date_of_birth',
         'profile_gender'
     ];
-    // protected $primaryKey = 'profile_id';
-    protected $table = 'profiles';
-
     public function user()
     {
-        return $this->hasOne('App\Models\User');
+        return $this->hasOne(User::class);
     }
 }

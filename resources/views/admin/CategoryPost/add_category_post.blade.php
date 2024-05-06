@@ -16,12 +16,12 @@
                         @csrf
                         <div class="form-group">
                             <label for="exampleInputEmail1">Tên danh mục bài viết</label>
-                            <input type="text" name="category_post_name" class="input-control" id="slug"
+                            <input type="text" name="post_category_name" class="input-control" id="slug"
                                 placeholder="Điền tên danh mục bài viết" onkeyup="ChangeToSlug();">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1">Slug danh mục bài viết</label>
-                            <input type="text" name="category_post_slug" class="input-control" id="convert_slug"
+                            <input type="text" name="post_category_slug" class="input-control" id="convert_slug"
                                 placeholder="Điền Slug danh mục bài viết" readonly>
                         </div>
                         <button type="submit" class="primary-btn-submit">Thêm danh mục bài

@@ -48,9 +48,9 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Danh mục bài viết</label>
-                            <select name="category_post_id" class="input-control">
+                            <select name="post_category_id" class="input-control">
                                 @foreach($cate_post as $key =>$cate)
-                                <option value="{{$cate->category_post_id}}">{{$cate->category_post_name}}</option>
+                                <option value="{{$cate->post_category_id}}">{{$cate->post_category_name}}</option>
                                 @endforeach
                             </select>
                         </div>

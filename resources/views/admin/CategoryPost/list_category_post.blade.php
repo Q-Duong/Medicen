@@ -14,17 +14,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($getAllCategoryPost as $key => $cate_post)
+                    @foreach ($getAllPostCategory as $key => $cate_post)
                         <tr>
-                            <td>{{ $cate_post->category_post_name }}</td>
-                            <td>{{ $cate_post->category_post_slug }}</td>
+                            <td>{{ $cate_post->post_category_name }}</td>
+                            <td>{{ $cate_post->post_category_slug }}</td>
                             <td>
-                                <a href="{{ route('edit-category-post', $cate_post->category_post_id) }}"
+                                <a href="{{ route('edit-category-post', $cate_post->post_category_id) }}"
                                     class="active style-edit" ui-toggle-class=""><i
                                         class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
                                 <a onclick="return confirm('Nếu bạn xóa Danh mục tin tức thì tin túc thuộc danh mục cũng sẻ bị xóa. Bạn có chắc muốn xóa danh mục?')"
-                                    href="{{ route('delete-category-post', $cate_post->category_post_id) }}"
+                                    href="{{ route('delete-category-post', $cate_post->post_category_id) }}"
                                     class="active style-edit" ui-toggle-class="">
                                     <i class="fa fa-times text-danger text"></i>
                                 </a>

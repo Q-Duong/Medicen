@@ -23,11 +23,11 @@
                                     alt="">
                             </td>
                             <td>
-                                <a href="{{ route('edit-service', $service->service_id) }}" class="active style-edit"
+                                <a href="{{ route('edit-service', $service->id) }}" class="active style-edit"
                                     ui-toggle-class=""><i class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
                                 <a onclick="return confirm('Bạn có chắc muốn xóa bài viết?')"
-                                    href="{{ route('delete-service', $service->service_id) }}" class="active style-edit"
+                                    href="{{ route('delete-service', $service->id) }}" class="active style-edit"
                                     ui-toggle-class="">
                                     <i class="fa fa-times text-danger text"></i>
                                 </a>

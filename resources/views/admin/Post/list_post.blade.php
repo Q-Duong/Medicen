@@ -24,13 +24,13 @@
                             <td>{{ $post->post_slug }}</td>
                             <td><img class="img-fluid" src="{{ asset('uploads/post/' . $post->post_image) }}" alt="">
                             </td>
-                            <td>{{ $post->category_post->category_post_name }}</td>
+                            <td>{{ $post->post_category->post_category_name }}</td>
                             <td>
-                                <a href="{{ route('edit-post', $post->post_id) }}" class="active style-edit"
+                                <a href="{{ route('edit-post', $post->id) }}" class="active style-edit"
                                     ui-toggle-class=""><i class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
                                 <a onclick="return confirm('Bạn có chắc muốn xóa bài viết?')"
-                                    href="{{ route('delete-post', $post->post_id) }}" class="active style-edit"
+                                    href="{{ route('delete-post', $post->id) }}" class="active style-edit"
                                     ui-toggle-class="">
                                     <i class="fa fa-times text-danger text"></i>
                                 </a>

@@ -2,19 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-   public $timestamps = true; //set time to false
-   protected $fillable = [
-      'customer_name', 'customer_phone', 'customer_address', 'customer_note'
-   ];
-   // protected $primaryKey = 'customer_id';
+   use HasFactory;
+   
    protected $table = 'customers';
 
-   public function orders()
+   public $timestamps = true;
+   
+   protected $fillable = [
+      'customer_name',
+      'customer_phone',
+      'customer_address',
+      'customer_note'
+   ];
+  
+   public function order()
    {
-      $this->hasMany('App\Models\Select');
+      $this->hasMany(Order::class);
    }
 }

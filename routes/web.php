@@ -36,7 +36,7 @@ Route::post('/search', [HomeController::class, 'search']);
 Route::post('/autocomplete-ajax', [HomeController::class, 'autocomplete_ajax']);
 
 //Danh muc bai viet
-Route::get('/blogs/{post_slug}', [PostController::class, 'show_category_post_home']);
+Route::get('/blogs/{post_slug}', [PostController::class, 'show_post_category_home']);
 Route::get('/blog/{post_slug}', [PostController::class, 'show_post_home']);
 
 //Dịch vụ
@@ -47,7 +47,7 @@ Route::get('/gioi-thieu', [AboutController::class, 'about']);
 Route::get('/gioi-thieu/tai-sao-chon-chung-toi', [AboutController::class, 'aboutWhy']);
 Route::get('/gioi-thieu/co-so-vat-chat', [AboutController::class, 'aboutInfrastructure']);
 
-Route::get('/blogs/{category_post_slug}', 'App\Http\Controllers\CategoryPostController@danh_muc_bai_viet');
+Route::get('/blogs/{post_category_slug}', 'App\Http\Controllers\PostCategoryController@danh_muc_bai_viet');
 
 //Service
 Route::get('/dich-vu/thue-xe-x-quang', [AboutController::class, 'serviceX']);
