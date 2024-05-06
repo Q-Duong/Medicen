@@ -100,4 +100,11 @@
     <script src="{{ versionResource('backend/js/datatables/api.sum.min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/datatables/dataTables-custom.min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/tool/accountant.min.js') }}" defer></script>
+    <script type="">
+         // Accountant Url
+         var urlGetAccountant = "{{route('url-get-list-accountant')}}";
+        var urlUpdateAccountant = "{{route('url-update-accountant',':id')}}";
+        var urlCompleteAccountant = "{{route('url-complete-accountant',':id')}}";
+        var urlFilterAccountant = "{{route('url-filter-accountant')}}";
+    </script>
 @endpush

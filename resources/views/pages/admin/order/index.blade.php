@@ -1,4 +1,4 @@
-@extends('admin_layout')
+@extends('layouts.default_auth')
 @section('admin_content')
     <div class="table-agile-info">
         <div class="panel-heading">
@@ -25,22 +25,22 @@
                 <tbody>
                     @foreach ($getAllOrder as $key => $order)
                         <tr>
-                            <td>{{ $order->order_id }}</td>
+                            <td>{{ $order->id }}</td>
                             <td>{{ date('d/m/Y', strtotime($order->created_at)) }}</td>
                             <td>{{ $order->unit_name }}</td>
                             <td>{{ $order->unit_code }}</td>
                             <td>{{ $order->order_quantity }}</td>
                             <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
                             <td>
-                                @if ($order->order_status == 0)
+                                @if ($order->status_id == 0)
                                     <span style="color: #27c24c;">Đơn hàng mới</span>
-                                @elseif($order->order_status == 1)
+                                @elseif($order->status_id == 1)
                                     <span style="color: #FCB322;">Đang xử lý</span>
-                                @elseif($order->order_status == 2)
+                                @elseif($order->status_id == 2)
                                     <span style="color: #c037df;">Đã cập nhật số Cas thực tế</span>
-                                @elseif($order->order_status == 3)
+                                @elseif($order->status_id == 3)
                                     <span style="color: #0071e3;">Đã xử lý</span>
-                                @elseif($order->order_status == 4)
+                                @elseif($order->status_id == 4)
                                     <span style="color: #00d0e3;">Đã cập nhật doanh thu</span>
                                 @else
                                     <span style="color: #e53637;">Hủy đơn hàng</span>
@@ -51,32 +51,32 @@
                             <td>{{ $order->ord_select }}</td>
                             @if (Auth::user()->role == 0)
                                 <td>
-                                    <a href="{{ route('edit-order', $order->order_id) }}"
+                                    <a href="{{ route('order.edit', $order->id) }}"
                                         class="active style-edit space_manage" ui-toggle-class=""><i
                                             class="fa fa-pencil-square-o text-success text-active"></i>
                                     </a>
                                     <a onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"
-                                        href="{{ route('delete-order', $order->order_id) }}"
+                                        href="{{ route('order.destroy', $order->id) }}"
                                         class="active style-edit space_manage" ui-toggle-class="">
                                         <i class="fa fa-times text-danger text"></i>
                                     </a>
-                                    <a href="{{ route('coppy-order', $order->order_id) }}"
+                                    <a href="{{ route('order.copy', $order->id) }}"
                                         class="active style-edit space_manage" ui-toggle-class=""><i
                                             class="far fa-copy"></i></i>
                                     </a>
-                                    <a href="{{ route('update-order-accountant', $order->order_id) }}"
+                                    <a href="{{ route('accountant.update_order', $order->id) }}"
                                         class="active style-edit" ui-toggle-class=""><i
                                             class="fas fa-file-import text-warning "></i>
                                     </a>
                                 </td>
                                 <td>
                                     @if ($order->schedule_status == 0)
-                                        <a href="{{ route('add-schedule', $order->order_id) }}" class="active styling-edit"
+                                        <a href="{{ route('schedule.create', $order->id) }}" class="active styling-edit"
                                             ui-toggle-class="">
                                             Thêm lịch <i class="fa fa-calendar-plus"></i>
                                         </a>
                                     @else
-                                        <a href="{{ route('edit-schedule', $order->order_id) }}"
+                                        <a href="{{ route('schedule.edit', $order->id) }}"
                                             class="active styling-edit" ui-toggle-class="">
                                             Sửa lịch <i class="fas fa-calendar-week"></i>
                                         </a>
@@ -85,32 +85,32 @@
                             @else
                                 @if (Carbon\Carbon::now() < $order->ord_start_day)
                                     <td>
-                                        <a href="{{ route('edit-order', $order->order_id) }}"
+                                        <a href="{{ route('order.edit', $order->id) }}"
                                             class="active style-edit space_manage" ui-toggle-class=""><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
                                         <a onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"
-                                            href="{{ route('delete-order', $order->order_id) }}"
+                                            href="{{ route('order.destroy', $order->id) }}"
                                             class="active style-edit space_manage" ui-toggle-class="">
                                             <i class="fa fa-times text-danger text"></i>
                                         </a>
-                                        <a href="{{ route('coppy-order', $order->order_id) }}"
+                                        <a href="{{ route('order.copy', $order->id) }}"
                                             class="active style-edit space_manage" ui-toggle-class=""><i
                                                 class="far fa-copy"></i></i>
                                         </a>
-                                        <a href="{{ route('update-order-accountant', $order->order_id) }}"
+                                        <a href="{{ route('accountant.update_order', $order->id) }}"
                                             class="active style-edit" ui-toggle-class=""><i
                                                 class="fas fa-file-import text-warning "></i>
                                         </a>
                                     </td>
                                     <td>
                                         @if ($order->schedule_status == 0)
-                                            <a href="{{ route('add-schedule', $order->order_id) }}"
-                                                class="active styling-edit" ui-toggle-class="">
+                                            <a href="{{ route('schedule.create', $order->id) }}" class="active styling-edit"
+                                                ui-toggle-class="">
                                                 Thêm lịch <i class="fa fa-calendar-plus"></i>
                                             </a>
                                         @else
-                                            <a href="{{ route('edit-schedule', $order->order_id) }}"
+                                            <a href="{{ route('schedule.edit', $order->id) }}"
                                                 class="active styling-edit" ui-toggle-class="">
                                                 Sửa lịch <i class="fas fa-calendar-week"></i>
                                             </a>
@@ -118,15 +118,15 @@
                                     </td>
                                 @else
                                     <td>
-                                        <a href="{{ route('edit-order', $order->order_id) }}"
+                                        <a href="{{ route('order.edit', $order->order_id) }}"
                                             class="active style-edit space_manage" ui-toggle-class=""><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
-                                        <a href="{{ route('coppy-order', $order->order_id) }}"
+                                        <a href="{{ route('order.copy', $order->id) }}"
                                             class="active style-edit space_manage" ui-toggle-class=""><i
                                                 class="far fa-copy"></i></i>
                                         </a>
-                                        <a href="{{ route('update-order-accountant', $order->order_id) }}"
+                                        <a href="{{ route('accountant.update_order', $order->id) }}"
                                             class="active style-edit" ui-toggle-class=""><i
                                                 class="fas fa-file-import text-warning "></i>
                                         </a>
@@ -135,7 +135,7 @@
                                 @endif
                             @endif
                             <td>
-                                <a href="{{ route('view-order', $order->order_id) }}" class="active styling-edit"
+                                <a href="{{ route('order.view', $order->id) }}" class="active styling-edit"
                                     ui-toggle-class="">
                                     <i class="fa fa-arrow-right"></i></a>
                             </td>
@@ -145,7 +145,7 @@
             </table>
         </div>
         <div class="export-excel">
-            <form action="{{ route('export-excel') }}" method="POST" id="myForm">
+            <form action="{{ route('export_excel') }}" method="POST" id="myForm">
                 @csrf
                 <div class="col-md-4">
                     <p class="export-excel-title">Xuất file Excel Công Nợ</p>

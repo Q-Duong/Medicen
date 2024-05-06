@@ -32,16 +32,16 @@ class AdminController extends Controller
         $order = Order::all()->count();
         $customer = Customer::all()->count();
         $getAllUnit = Unit::orderBy('unit_code','ASC')->get();
-        return view('admin.dashboard')->with(compact('service','post','order','customer','getAllUnit'));
+        return view('pages.admin.index')->with(compact('service','post','order','customer','getAllUnit'));
     }
     public function login(){
         if(Auth::check()){
             return Redirect::route('dashboard.index');
         }else{
-            return view('layouts.default_auth');
+            return view('pages.admin.login.index');
         }
     }
-    public function admin_logout(){
+    public function logout(){
         Auth::logout();
         return Redirect::to('login');
     }

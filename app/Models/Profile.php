@@ -23,7 +23,6 @@ class Profile extends Model
         'profile_gender'
     ];
 
-
     public function user()
     {
         return $this->hasOne(User::class);

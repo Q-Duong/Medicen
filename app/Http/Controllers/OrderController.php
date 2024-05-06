@@ -208,18 +208,14 @@ class OrderController extends Controller
 
 	//Admin
 
-	public function add_order()
+	public function index()
 	{
-		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
-		return view('admin.Order.add_order')->with(compact('getAllUnit'));
-	}
-
-	public function list_order()
-	{
-		$getAllOrder = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->join('unit', 'unit.unit_id', '=', 'orders.unit_id')
-			->orderBy('order_id', 'DESC')->select('order_id', 'orders.created_at', 'order_quantity', 'order_price', 'order_status', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')->get();
-		return view('admin.Order.list_order')->with(compact('getAllOrder'));
+		$getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
+			->orderBy('orders.id', 'DESC')
+			->select('orders.id', 'orders.created_at', 'order_quantity', 'order_price', 'status_id', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')
+			->get();
+		return view('pages.admin.order.index')->with(compact('getAllOrder'));
 	}
 
 	public function upload(Request $request)
@@ -238,7 +234,13 @@ class OrderController extends Controller
 		return response('Failed upload', 500);
 	}
 
-	public function save_order(Request $request)
+	public function create()
+	{
+		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
+		return view('pages.admin.order.create')->with(compact('getAllUnit'));
+	}
+
+	public function store(Request $request)
 	{
 		$this->checkOrderAdmin($request);
 		DB::beginTransaction();
@@ -286,8 +288,8 @@ class OrderController extends Controller
 			$customer->save();
 
 			$order = new Order();
-			$order->customer_id = $customer->customer_id;
-			$order->order_detail_id = $orderDetail->order_detail_id;
+			$order->customer_id = $customer->id;
+			$order->order_detail_id = $orderDetail->id;
 			$order->unit_id = $data['unit_id'];
 			$order->order_quantity = $data['order_quantity'];
 			$order->order_price = formatPrice($data['order_price']);
@@ -297,7 +299,7 @@ class OrderController extends Controller
 			$order->order_vat = $data['order_vat'];
 			$order->order_discount = 0;
 			$order->order_profit = 0;
-			$order->order_status = 1;
+			$order->status_id = 1;
 			$order->schedule_status = 0;
 			$order->accountant_updated = 0;
 			$order->order_warning = $data['order_warning'];
@@ -308,7 +310,7 @@ class OrderController extends Controller
 			$format = explode("-", $data['ord_start_day']);
 
 			$accountant = new Accountant();
-			$accountant->order_id = $order->order_id;
+			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = formatPrice($data['order_price']);
 			$accountant->accountant_distance = $data['accountant_distance'];
 
@@ -324,12 +326,10 @@ class OrderController extends Controller
 			}
 			$accountant->save();
 
-			$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 			$history = new HistoryEdit();
-			$history->order_id = $order->order_id;
+			$history->order_id = $order->id;
 			$history->user_name = Auth::user()->email;
 			$history->history_action = 'Thêm đơn hàng';
-			$history->created_at = $now;
 			$history->save();
 			DB::commit();
 			return Redirect()->back()->with('success', 'Thêm đơn hàng thành công');
@@ -339,58 +339,7 @@ class OrderController extends Controller
 		}
 	}
 
-	public function getAccessToken($value)
-	{
-		$response = Http
-			::withHeaders([
-				'secret_key' => env('ZALO_SECRET_KEY'),
-			])->post(
-				'https://oauth.zaloapp.com/v4/oa/access_token',
-				[
-					'code' => $value,
-					'app_id' => env('ZALO_APP_ID'),
-					'grant_type' => 'authorization_code',
-					'code_verifier' => env('CODE_VERIFIER')
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function getAccessTokenFromRefreshToken()
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/x-www-form-urlencoded',
-				'secret_key' => config("app.zaloSecretKey"),
-			])->withBody(http_build_query([
-				'refresh_token' => $this->getRefreshTokenDB(),
-				'app_id' => config("app.zaloAppId"),
-				'grant_type' => 'refresh_token',
-			]), 'application/json')->post('https://oauth.zaloapp.com/v4/oa/access_token');
-
-		$jsonData = $response->json();
-
-		$value = collect($jsonData);
-		$zalo = Zalo::find(1);
-		$zalo->access_token = $value['access_token'];
-		$zalo->refresh_token = $value['refresh_token'];
-		$zalo->save();
-	}
-
-	public function getAccessTokenDB()
-	{
-		$zalo = Zalo::first();
-		$access_token = $zalo->access_token;
-		return $access_token;
-	}
-
-	public function getRefreshTokenDB()
-	{
-		$zalo = Zalo::first();
-		$refresh_token = $zalo->refresh_token;
-		return $refresh_token;
-	}
+	
 
 	public function zaloNotificationServiceD($carActive)
 	{
@@ -592,216 +541,6 @@ class OrderController extends Controller
 
 		$jsonData = $response->json();
 		return $jsonData;
-	}
-
-	public function add_schedule($order_id)
-	{
-		$order = Order::find($order_id);
-		$staff = Staff::orderBy('staff_id', 'ASC')->get();
-		return view('admin.Order.add_schedule')->with(compact('staff', 'order'));
-	}
-
-	public function save_schedule(Request $request)
-	{
-		$data = $request->all();
-		if (!empty($data['zalo'])) {
-			foreach ($request->car_name as $key => $car_name) {
-				$car = new CarKTV();
-				$driver[$key] = explode("_", $request->car_driver_name[$key]);
-				$name_driver[$key] = array_shift($driver[$key]);
-				$phone_driver[$key] = array_pop($driver[$key]);
-
-				$ktv1[$key] = explode("_", $request->car_ktv_name_1[$key]);
-				$name_ktv1[$key] = array_shift($ktv1[$key]);
-				$phone_ktv1[$key] = array_pop($ktv1[$key]);
-
-				$ktv2[$key] = explode("_", $request->car_ktv_name_2[$key]);
-				$name_ktv2[$key] = array_shift($ktv2[$key]);
-				$phone_ktv2[$key] = array_pop($ktv2[$key]);
-
-				$car->order_id = $data['order_id'];
-				$car->car_name = $request->car_name[$key];
-				$car->car_active = $request->car_active[$key];
-				$car->car_driver_name = $name_driver[$key];
-				$car->car_driver_phone = $phone_driver[$key];
-				$car->car_ktv_name_1 = $name_ktv1[$key];
-				$car->car_ktv_phone_1 = $phone_ktv1[$key];
-				$car->car_ktv_name_2 = $name_ktv2[$key];
-				$car->car_ktv_phone_2 = $phone_ktv2[$key];
-				$car->save();
-			}
-			$order = Order::find($data['order_id']);
-			$order->schedule_status = 1;
-			$order->save();
-
-			$getOrderId = CarKTV::orderBy('updated_at', 'DESC')->first();
-			$carActive = CarKTV::orderBy('updated_at', 'DESC')->where('order_id', $getOrderId->order_id)->where('car_active', 1)->get();
-
-			foreach ($carActive as $key => $value) {
-				if ($value->car_driver_phone != null && $value->car_driver_name != null) {
-					$this->zaloNotificationServiceD($value);
-				}
-				if ($value->car_ktv_phone_1 != null && $value->car_ktv_name_1 != null) {
-					$this->zaloNotificationServiceK1($value);
-				}
-				if ($value->car_ktv_phone_2 != null && $value->car_ktv_name_2 != null) {
-					$this->zaloNotificationServiceK2($value);
-				}
-			}
-
-			return Redirect()->back()->with('success', 'Thêm lịch gửi Zalo thành công');
-		}
-		if (!empty($data['notZalo'])) {
-			foreach ($request->car_name as $key => $car_name) {
-				$car = new CarKTV();
-				$driver[$key] = explode("_", $request->car_driver_name[$key]);
-				$name_driver[$key] = array_shift($driver[$key]);
-				$phone_driver[$key] = array_pop($driver[$key]);
-
-				$ktv1[$key] = explode("_", $request->car_ktv_name_1[$key]);
-				$name_ktv1[$key] = array_shift($ktv1[$key]);
-				$phone_ktv1[$key] = array_pop($ktv1[$key]);
-
-				$ktv2[$key] = explode("_", $request->car_ktv_name_2[$key]);
-				$name_ktv2[$key] = array_shift($ktv2[$key]);
-				$phone_ktv2[$key] = array_pop($ktv2[$key]);
-
-				$car->order_id = $data['order_id'];
-				$car->car_name = $request->car_name[$key];
-				$car->car_active = $request->car_active[$key];
-				$car->car_driver_name = $name_driver[$key];
-				$car->car_driver_phone = $phone_driver[$key];
-				$car->car_ktv_name_1 = $name_ktv1[$key];
-				$car->car_ktv_phone_1 = $phone_ktv1[$key];
-				$car->car_ktv_name_2 = $name_ktv2[$key];
-				$car->car_ktv_phone_2 = $phone_ktv2[$key];
-				$car->save();
-			}
-			$order = Order::find($data['order_id']);
-			$order->schedule_status = 1;
-			$order->save();
-
-			return Redirect()->back()->with('success', 'Thêm lịch không gửi Zalo thành công');
-		}
-	}
-
-	public function edit_schedule($order_id)
-	{
-		$order = $order_id;
-		$staff = Staff::orderBy('staff_id', 'ASC')->get();
-		$car = CarKTV::where('order_id', $order_id)->get();
-		return view('admin.Order.edit_schedule')->with(compact('staff', 'order', 'car'));
-	}
-
-	public function update_schedule(Request $request, $order_id)
-	{
-		$data = $request->all();
-
-		if (!empty($data['zalo'])) {
-			foreach ($request->car_name as $key => $car_name) {
-				$car_id = CarKTV::where('order_id', $order_id)->get();
-				foreach ($car_id as $key => $car_i) {
-					$car = CarKTV::find($car_i->car_ktv_id);
-
-					$driver[$key] = explode("_", $request->car_driver_name[$key]);
-					$name_driver[$key] = array_shift($driver[$key]);
-					$phone_driver[$key] = array_pop($driver[$key]);
-
-					$ktv1[$key] = explode("_", $request->car_ktv_name_1[$key]);
-					$name_ktv1[$key] = array_shift($ktv1[$key]);
-					$phone_ktv1[$key] = array_pop($ktv1[$key]);
-
-					$ktv2[$key] = explode("_", $request->car_ktv_name_2[$key]);
-					$name_ktv2[$key] = array_shift($ktv2[$key]);
-					$phone_ktv2[$key] = array_pop($ktv2[$key]);
-
-					$car->order_id = $order_id;
-					$car->car_name = $request->car_name[$key];
-					$car->car_active = $request->car_active[$key];
-					$car->car_driver_name = $name_driver[$key];
-					$car->car_driver_phone = $phone_driver[$key];
-					$car->car_ktv_name_1 = $name_ktv1[$key];
-					$car->car_ktv_phone_1 = $phone_ktv1[$key];
-					$car->car_ktv_name_2 = $name_ktv2[$key];
-					$car->car_ktv_phone_2 = $phone_ktv2[$key];
-					$car->save();
-				}
-			}
-
-			$getOrderId = CarKTV::orderBy('updated_at', 'DESC')->first();
-			$carActive = CarKTV::orderBy('updated_at', 'DESC')->where('order_id', $getOrderId->order_id)->where('car_active', 1)->get();
-
-			foreach ($carActive as $key => $value) {
-				if ($value->car_driver_phone != null && $value->car_driver_name != null) {
-					$this->zaloNotificationServiceD($value);
-				}
-				if ($value->car_ktv_phone_1 != null && $value->car_ktv_name_1 != null) {
-					$this->zaloNotificationServiceK1($value);
-				}
-				if ($value->car_ktv_phone_2 != null && $value->car_ktv_name_2 != null) {
-					$this->zaloNotificationServiceK2($value);
-				}
-			}
-			return Redirect()->back()->with('success', 'Cập nhật lịch xe gửi Zalo thành công');
-		}
-		if (!empty($data['notZalo'])) {
-			foreach ($request->car_name as $key => $car_name) {
-				$car_id = CarKTV::where('order_id', $order_id)->get();
-				foreach ($car_id as $key => $car_i) {
-					$car = CarKTV::find($car_i->car_ktv_id);
-
-					$driver[$key] = explode("_", $request->car_driver_name[$key]);
-					$name_driver[$key] = array_shift($driver[$key]);
-					$phone_driver[$key] = array_pop($driver[$key]);
-
-					$ktv1[$key] = explode("_", $request->car_ktv_name_1[$key]);
-					$name_ktv1[$key] = array_shift($ktv1[$key]);
-					$phone_ktv1[$key] = array_pop($ktv1[$key]);
-
-					$ktv2[$key] = explode("_", $request->car_ktv_name_2[$key]);
-					$name_ktv2[$key] = array_shift($ktv2[$key]);
-					$phone_ktv2[$key] = array_pop($ktv2[$key]);
-
-					$car->order_id = $order_id;
-					$car->car_name = $request->car_name[$key];
-					$car->car_active = $request->car_active[$key];
-					$car->car_driver_name = $name_driver[$key];
-					$car->car_driver_phone = $phone_driver[$key];
-					$car->car_ktv_name_1 = $name_ktv1[$key];
-					$car->car_ktv_phone_1 = $phone_ktv1[$key];
-					$car->car_ktv_name_2 = $name_ktv2[$key];
-					$car->car_ktv_phone_2 = $phone_ktv2[$key];
-					$car->save();
-				}
-			}
-			return Redirect()->back()->with('success', 'Cập nhật lịch xe không gửi Zalo thành công');
-		}
-	}
-
-	public function cancle_schedule(Request $request)
-	{
-		$data = $request->all();
-		$car = CarKTV::where('order_id', $data['order_id'])->where('car_name', $data['car_name'])->first();
-		if ($car->car_driver_phone != null && $car->car_driver_name != null) {
-			$this->zaloNotificationCancleD($car);
-		}
-		if ($car->car_ktv_phone_1 != null && $car->car_ktv_name_1 != null) {
-			$this->zaloNotificationCancleK1($car);
-		}
-		if ($car->car_ktv_phone_2 != null && $car->car_ktv_name_2 != null) {
-			$this->zaloNotificationCancleK2($car);
-		}
-
-		$car->car_active = 0;
-		$car->car_driver_name = '';
-		$car->car_driver_phone = '';
-		$car->car_ktv_name_1 = '';
-		$car->car_ktv_phone_1 = '';
-		$car->car_ktv_name_2 = '';
-		$car->car_ktv_phone_2 = '';
-		$car->save();
-
-		return response()->json(['success' => 'Huỷ lịch thành công.']);
 	}
 
 	public function edit_order($order_id)

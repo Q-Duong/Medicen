@@ -44,7 +44,7 @@ class LoginController extends Controller
         if(Auth::check()){
             return Redirect::route('dashboard.index');
         }else{
-            return view('layouts.default_auth');
+            return view('pages.admin.login.index');
         }
     }
     function login(Request $request){

@@ -1,4 +1,4 @@
-@extends('admin_layout')
+@extends('layouts.default_auth')
 @section('admin_content')
     <div class="row">
         <div class="col-lg-12">
@@ -6,13 +6,13 @@
                 <header class="panel-heading">
                     Thêm đơn hàng
                     <span class="tools pull-right">
-                        <a href="{{ route('list-order') }}" class="primary-btn-submit">Quản lý</a>
+                        <a href="{{ route('order.index') }}" class="primary-btn-submit">Quản lý</a>
                         <a class="fa fa-chevron-down" href="javascript:;"></a>
                     </span>
                 </header>
                 <div class="panel-body">
                     <div class="position-center">
-                        <form role="form" action="{{ route('save-order') }}" method="post"
+                        <form role="form" action="{{ route('order.store') }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
                             <div class="form-group {{ $errors->has('customer_name') ? 'has-error' : '' }}">
@@ -66,7 +66,7 @@
                                 <label for="exampleInputPassword1">Đơn vị thuê xe</label>
                                 <select name="unit_id" class="select-2">
                                     @foreach ($getAllUnit as $key => $unit)
-                                        <option value="{{ $unit->unit_id }}">{{ $unit->unit_name }}</option>
+                                        <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
                                     @endforeach
                                 </select>
                             </div>

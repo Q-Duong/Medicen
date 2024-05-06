@@ -1,8 +1,8 @@
-@extends('admin_layout')
+@extends('layouts.default_auth')
 @section('admin_content')
     <div class="market-updates">
         <div class="col-md-3 market-update-gd">
-            <a href="{{ URL::to('/list-customer') }}">
+            <a href="{{ route('customer.index') }}">
                 <div class="market-update-block clr-block-1">
                     <div class="col-md-4 market-update-right">
                         <i class="fa fa-users"></i>
@@ -32,7 +32,7 @@
             </a>
         </div>
         <div class="col-md-3 market-update-gd">
-            <a href="{{ route('list-order') }}">
+            <a href="{{ route('order.index') }}">
                 <div class="market-update-block clr-block-4">
                     <div class="col-md-4 market-update-right">
                         <i class="fa fa-shopping-cart" aria-hidden="true"></i>

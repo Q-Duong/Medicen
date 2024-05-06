@@ -109,5 +109,10 @@
 </div>
 @endsection
 @push('js')
+<script type="text/javascript">
+     var url_cancle_schedule = "{{route('cancle-schedule')}}";
+        var url_upload_image_ck = "{{ route('upload-image-ck',['_token'=>csrf_token()]) }}";
+        var url_delete_file_order = "{{route('url-delete-file-order',':path')}}";
+</script>
     <script src="{{ versionResource('backend/js/tool/order.min.js') }}" defer></script>
 @endpush

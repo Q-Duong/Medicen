@@ -181,7 +181,7 @@
                                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                         <i class="fas fa-sign-out-alt"></i> Đăng xuất
                                     </a>
-                                    <form id="logout-form" action="{{ route('admin-logout') }}" method="POST"
+                                    <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
                                         class="d-none">
                                         @csrf
                                     </form>
@@ -202,38 +202,35 @@
                 <div class="leftside-navigation">
                     <ul class="sidebar-menu" id="nav-accordion">
                         <li>
-                            @php
-                                $route = Route::current();
-                            @endphp
-                            <a class="{{ $route->uri == 'admin/dashboard' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('dashboard.index') ? 'active' : '' }}"
                                 href="{{ route('dashboard.index') }}">
                                 <i class="far fa-chart-bar"></i>
                                 <span>Thống kê doanh thu</span>
                             </a>
                         </li>
                         <li>
-                            <a class="{{ $route->uri == 'admin/contact/edit' ? 'active' : '' }}"
-                                href="{{ route('edit-contact') }}">
+                            <a class="{{ request()->routeIs('contact.edit') ? 'active' : '' }}"
+                                href="{{ route('contact.edit') }}">
                                 <i class="fa fa-info-circle"></i>
                                 <span>Thông tin Web NKL</span>
                             </a>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/order/add' || $route->uri == 'admin/order/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fas fa-file-alt"></i>
                                 <span>Quản lý đơn hàng</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/order/add' ? 'active' : '' }}"
-                                        href="{{ route('add-order') }}">
+                                    <a class="{{ request()->routeIs('order.create') ? 'active' : '' }}"
+                                        href="{{ route('order.create') }}">
                                         <i class="fas fa-user-plus"></i> Thêm đơn hàng
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/order/list' ? 'active' : '' }}"
-                                        href="{{ route('list-order') }}">
+                                    <a class="{{ request()->routeIs('order.index') ? 'active' : '' }}"
+                                        href="{{ route('order.index') }}">
                                         <i class="fas fa-list-ol"></i> Danh sách đơn hàng
                                     </a>
                                 </li>
@@ -247,58 +244,50 @@
                             </a>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/unit/add' || $route->uri == 'admin/unit/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('unit.index') || request()->routeIs('unit.create') || request()->routeIs('unit.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fas fa-file-alt"></i>
                                 <span>Quản lý đơn vị</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/unit/add' ? 'active' : '' }}"
-                                        href="{{ route('add-unit') }}">
+                                    <a class="{{ request()->routeIs('unit.create') ? 'active' : '' }}"
+                                        href="{{ route('unit.create') }}">
                                         <i class="fas fa-user-plus"></i> Thêm đơn vị
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/unit/list' ? 'active' : '' }}"
-                                        href="{{ route('list-unit') }}">
+                                    <a class="{{ request()->routeIs('unit.index') ? 'active' : '' }}"
+                                        href="{{ route('unit.index') }}">
                                         <i class="fas fa-list-ol"></i> Danh sách đơn vị
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/customer/list' ? 'active' : '' }}"
-                                href="javascript:;">
+                            <a class="{{ request()->routeIs('customer.index') ? 'active' : '' }}"
+                                href="{{ route('customer.index') }}">
                                 <i class="fas fa-users"></i>
                                 <span>Quản lý khách hàng</span>
                             </a>
-                            <ul class="sub">
-                                <li>
-                                    <a class="{{ $route->uri == 'admin/customer/list' ? 'active' : '' }}"
-                                        href="{{ route('list-customer') }}">
-                                        <i class="fas fa-list-ol"></i> Danh sách khách hàng
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
 
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/staff/add' || $route->uri == 'admin/staff/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('staff.index') || request()->routeIs('staff.create') || request()->routeIs('staff.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fas fa-file-alt"></i>
                                 <span>Quản lý nhân viên</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/staff/add' ? 'active' : '' }}"
-                                        href="{{ route('add-staff') }}">
+                                    <a class="{{ request()->routeIs('staff.create') ? 'active' : '' }}"
+                                        href="{{ route('staff.create') }}">
                                         <i class="fas fa-user-plus"></i> Thêm nhân viên
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/staff/list' ? 'active' : '' }}"
-                                        href="{{ route('list-staff') }}">
+                                    <a class="{{ request()->routeIs('staff.index') ? 'active' : '' }}"
+                                        href="{{ route('staff.index') }}">
                                         <i class="fas fa-list-ol"></i> Danh sách nhân viên
                                     </a>
                                 </li>
@@ -306,21 +295,21 @@
                         </li>
 
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/service/add' || $route->uri == 'admin/service/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('service.index') || request()->routeIs('service.create') || request()->routeIs('service.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fas fa-file-alt"></i>
                                 <span>Quản lý dịch vụ</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/service/add' ? 'active' : '' }}"
-                                        href="{{ route('add-service') }}">
+                                    <a class="{{ request()->routeIs('service.create') ? 'active' : '' }}"
+                                        href="{{ route('service.create') }}">
                                         <i class="fas fa-user-plus"></i> Thêm dịch vụ
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/service/list' ? 'active' : '' }}"
-                                        href="{{ route('list-service') }}">
+                                    <a class="{{ request()->routeIs('service.index') ? 'active' : '' }}"
+                                        href="{{ route('service.index') }}">
                                         <i class="fas fa-list-ol"></i> Danh sách dịch vụ
                                     </a>
                                 </li>
@@ -328,21 +317,21 @@
                         </li>
 
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/category-post/add' || $route->uri == 'admin/category-post/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('post_category.index') || request()->routeIs('post_category.create') || request()->routeIs('post_category.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fas fa-th"></i>
                                 <span>Quản lý danh mục bài viết</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/category-post/add' ? 'active' : '' }}"
-                                        href="{{ route('add-category-post') }}">
+                                    <a class="{{ request()->routeIs('post_category.create') ? 'active' : '' }}"
+                                        href="{{ route('post_category.create') }}">
                                         <i class="far fa-plus-square"></i> Thêm danh mục bài viết
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/category-post/list' ? 'active' : '' }}"
-                                        href="{{ route('list-category-post') }}">
+                                    <a class="{{ request()->routeIs('post_category.index') ? 'active' : '' }}"
+                                        href="{{ route('post_category.index') }}">
                                         <i class="far fa-list-alt"></i> Danh mục bài viết
                                     </a>
                                 </li>
@@ -350,57 +339,57 @@
                         </li>
 
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/post/add' || $route->uri == 'admin/post/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('post.index') || request()->routeIs('post.create') || request()->routeIs('post.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fab fa-blogger-b"></i>
                                 <span>Quản lý bài viết</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/post/add' ? 'active' : '' }}"
-                                        href="{{ route('add-post') }}">
+                                    <a class="{{ request()->routeIs('post.create') ? 'active' : '' }}"
+                                        href="{{ route('post.create') }}">
                                         <i class="far fa-plus-square"></i> Thêm bài viết
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/post/list' ? 'active' : '' }}"
-                                        href="{{ route('list-post') }}">
+                                    <a class="{{ request()->routeIs('post.index') ? 'active' : '' }}"
+                                        href="{{ route('post.index') }}">
                                         <i class="far fa-list-alt"></i> Danh sách bài viết
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/slider/add' || $route->uri == 'admin/slider/list' ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('slider.index') || request()->routeIs('slider.create') || request()->routeIs('slider.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fa fa-picture-o"></i>
                                 <span>Slider</span>
                             </a>
                             <ul class="sub">
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/slider/add' ? 'active' : '' }}"
-                                        href="{{ route('add-slider') }}">
+                                    <a class="{{ request()->routeIs('slider.create') ? 'active' : '' }}"
+                                        href="{{ route('slider.create') }}">
                                         <i class="far fa-plus-square"></i> Thêm slider
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ $route->uri == 'admin/post/list' ? 'active' : '' }}"
-                                        href="{{ route('list-slider') }}">
+                                    <a class="{{ request()->routeIs('slider.index') ? 'active' : '' }}"
+                                        href="{{ route('slider.index') }}">
                                         <i class="far fa-list-alt"></i> Quản lý slider
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/accountant/list-order' ? 'active' : '' }}"
-                                href="{{ route('list-order-accountant') }}">
+                            <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
+                                href="{{ route('accountant.index') }}">
                                 <i class="fa fa-picture-o"></i>
                                 <span>Quản lý công nợ</span>
                             </a>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ $route->uri == 'admin/history/list' ? 'active' : '' }}"
-                                href="{{ route('list-history') }}">
+                            <a class="{{ request()->routeIs('history.index') ? 'active' : '' }}"
+                                href="{{ route('history.index') }}">
                                 <i class="fa fa-picture-o"></i>
                                 <span>Quản lý chỉnh sửa đơn hàng</span>
                             </a>
@@ -501,20 +490,13 @@
     @stack('js')
 
     <script type="text/javascript">
-        //Handle sales
-        var url_cancle_schedule = "{{route('cancle-schedule')}}";
-        var url_upload_image_ck = "{{ route('upload-image-ck',['_token'=>csrf_token()]) }}";
-        var url_delete_file_order = "{{route('url-delete-file-order',':path')}}";
+       
         // Revenue Statistics Url
         var url_revenue_statistics_for_the_month = "{{route('url-revenue-statistics-for-the-month')}}";
         var url_optional_revenue_statistics = "{{route('url-optional-revenue-statistics')}}";
         var url_revenue_statistics_by_unit = "{{route('url-revenue-statistics-by-unit')}}";
         var url_revenue_statistics_by_date = "{{route('url-revenue-statistics-by-date')}}";
-         // Accountant Url
-        var urlGetAccountant = "{{route('url-get-list-accountant')}}";
-        var urlUpdateAccountant = "{{route('url-update-accountant',':id')}}";
-        var urlCompleteAccountant = "{{route('url-complete-accountant',':id')}}";
-        var urlFilterAccountant = "{{route('url-filter-accountant')}}";
+        
         var _token = "{{ csrf_token() }}";
     </script>
 
