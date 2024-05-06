@@ -51,7 +51,7 @@
         <header class="header fixed-top clearfix">
             <!--logo start-->
             <div class="brand">
-                <a href="{{ route('dashboard') }}" class="logo">
+                <a href="{{ route('dashboard.index') }}" class="logo">
                     Medicen
                 </a>
                 <div class="sidebar-toggle-box">
@@ -206,7 +206,7 @@
                                 $route = Route::current();
                             @endphp
                             <a class="{{ $route->uri == 'admin/dashboard' ? 'active' : '' }}"
-                                href="{{ route('dashboard') }}">
+                                href="{{ route('dashboard.index') }}">
                                 <i class="far fa-chart-bar"></i>
                                 <span>Thống kê doanh thu</span>
                             </a>

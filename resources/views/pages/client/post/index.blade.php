@@ -1,6 +1,6 @@
-@extends('layout_not_slider')
+@extends('layouts.default')
 @section('content')
-@section('title', 'Blog - ')
+@section('title', 'Tin tức - ')
 <section>
     <div class="container">
         <div class="row">
@@ -8,7 +8,7 @@
                 <div class="breadcrumb__text">
                     <h4>Danh mục tin tức</h4>
                     <div class="breadcrumb__links">
-                        <a href="{{URL::to('/')}}">Trang chủ</a>
+                        <a href="{{ route('home.index') }}">Trang chủ</a>
                         <span>Danh mục tin tức</span>
                     </div>
                 </div>
@@ -25,23 +25,21 @@
         </div>
     </div>
 </section>
-<!-- Breadcrumb Section End -->
 <div class="container">
     <div class="border-style"></div>
 </div>
-<!-- Blog Section Begin -->
 <section class="blog spad">
     <div class="container">
         <div class="row">
-            @foreach($getAllCategoryPost as $key => $category_post)
+            @foreach($getAllPostCategory as $key => $category)
             <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="blog__item">
                     <!-- <div class="blog__item__pic set-bg"
                             data-setbg="{{asset('frontend/img/hero_homepod_lockup__4j6sxrq610y2_large.jpg')}}"></div> -->
                     <div class="blog__item__text">
                         <span><img src="img/icon/calendar.png" alt="">-------------------</span>
-                        <h5>{{$category_post->category_post_name}}</h5>
-                        <a href="{{asset(URL::to('/blogs/'.$category_post->category_post_slug))}}">Xem danh mục</a>
+                        <h5>{{$category->post_category_name}}</h5>
+                        <a href="{{ route('blog.category_slug' ,$category->post_category_slug) }}">Xem danh mục</a>
                     </div>
                 </div>
             </div>
@@ -49,8 +47,4 @@
         </div>
     </div>
 </section>
-
-<!-- Blog Section End -->
-
-
 @endsection

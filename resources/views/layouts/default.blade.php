@@ -55,7 +55,7 @@
                     <div class="col-lg-12 col-md-12">
                         <div class="header__top__right">
                             <div class="header__top__links">
-                                <a href="{{ URL::to('/create-order') }}" class="primary-btn-top blue">Đăng ký</a>
+                                <a href="{{ route('order.clients.create') }}" class="primary-btn-top blue">Đăng ký</a>
                                 <a href="tel:098 708 7230" class="primary-btn-top red">Tư vấn : 0987.087.230</a>
                             </div>
                         </div>
@@ -68,7 +68,7 @@
                 <div class="row">
                     <div class="col-lg-2 col-md-2">
                         <div class="header__logo">
-                            <a href="{{ URL::to('/') }}"><img src="{{ asset('frontend/img/new-logo.jpg') }}"
+                            <a href="{{ route('home.index') }}"><img src="{{ asset('frontend/img/new-logo.jpg') }}"
                                     class="img_logo" alt="Medicen"></a>
                         </div>
                     </div>
@@ -78,17 +78,7 @@
                                 <li class="nav-item"><a href="{{ URL::to('/gioi-thieu') }}">Giới thiệu</a>
                                     <ul class="dropdown">
                                         <li>
-                                            <a href="{{ URL::to('/gioi-thieu') }}">Giới thiệu
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ asset(URL::to('/gioi-thieu/tai-sao-chon-chung-toi')) }}">Tại
-                                                sao chọn chúng tôi
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ asset(URL::to('/gioi-thieu/co-so-vat-chat')) }}">Cơ sở vật
-                                                chất
+                                            <a href="">Giới thiệu
                                             </a>
                                         </li>
                                     </ul>
@@ -97,21 +87,21 @@
                                     <ul class="dropdown">
                                         @foreach ($getAllService as $key => $service)
                                             <li><a
-                                                    href="{{ asset(URL::to('/dich-vu/' . $service->service_slug)) }}">{{ $service->service_title }}</a>
+                                                    href="{{ route('service.show',$service->service_slug) }}">{{ $service->service_title }}</a>
                                             </li>
                                         @endforeach
                                     </ul>
                                 </li>
-                                <li class="nav-item"><a href="{{ URL::to('/blog-list') }}">Tin tức</a>
+                                <li class="nav-item"><a href="{{ route('blog.category') }}">Tin tức</a>
                                     <ul class="dropdown">
-                                        @foreach ($getAllCategoryPost as $key => $cate_post)
+                                        @foreach ($getAllPostCategory as $key => $category)
                                             <li><a
-                                                    href="{{ asset(URL::to('/blogs/' . $cate_post->category_post_slug)) }}">{{ $cate_post->category_post_name }}</a>
+                                                    href="{{ route('blog.category_slug', $category->post_category_slug) }}">{{ $category->post_category_name }}</a>
                                             </li>
                                         @endforeach
                                     </ul>
                                 </li>
-                                <li class="nav-item"><a href="{{ URL::to('/lien-he') }}">Liên hệ</a></li>
+                                <li class="nav-item"><a href="{{ route('contact.show') }}">Liên hệ</a></li>
                             </ul>
                         </nav>
                     </div>
@@ -204,7 +194,7 @@
                         <p>Dịch vụ</p>
                         <ul>
                             @foreach ($getAllService as $key => $service)
-                                <li><a href="{{ asset(URL::to('/dich-vu/' . $service->service_slug)) }}">
+                                <li><a href="{{ route('service.show', $service->service_slug) }}">
                                         {{ $service->service_title }}</a>
                                 </li>
                             @endforeach
@@ -215,9 +205,9 @@
                     <div class="footer__widget">
                         <p>Tin tức</p>
                         <ul>
-                            @foreach ($getAllCategoryPost as $key => $cate_post)
+                            @foreach ($getAllPostCategory as $key => $category)
                                 <li><a
-                                        href="{{ asset(URL::to('/blogs/' . $cate_post->category_post_slug)) }}">{{ $cate_post->category_post_name }}</a>
+                                        href="{{ route('blog.category_slug', $category->post_category_slug) }}">{{ $category->post_category_name }}</a>
                                 </li>
                             @endforeach
                         </ul>

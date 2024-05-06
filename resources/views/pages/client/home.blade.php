@@ -1,18 +1,15 @@
-@extends('layout_not_slider')
+@extends('layouts.default')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('frontend/css/owl.carousel.min.css') }}" type="text/css" as="style">
     <link rel="stylesheet" href="{{ versionResource('frontend/css/banner.min.css') }}" type="text/css" as="style">
 @endpush
 @section('content')
-    {{-- <section class="hero"> --}}
     <div class="hero__slider owl-carousel">
         @foreach ($getAllSlider as $key => $slider)
             <div class="hero__items set-bg active" data-setbg="{{ asset('uploads/slider/' . $slider->slider_image) }}">
             </div>
         @endforeach
     </div>
-    {{-- </section> --}}
-
     <section class="main-content">
         <div class="container">
             <div class="form-block">
@@ -25,79 +22,73 @@
                         <i class="fas fa-x-ray"></i> Thông tin đặt xe X-Quang
                     </div>
                     <div class="form-content">
-                        <form action="{{ URL::to('/save-order-f') }}" method="POST">
+                        <form action="{{ route('order.clients.store') }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-lg-7 col-md-7 centered">
-                                    <div class="form-group  {{ $errors->has('customer_name') ? 'has-error' : '' }}">
+                                    <div class="form-group @error('customer_name') has-error @enderror">
                                         <p>Thông tin liên hệ<span>*</span></p>
                                         <input type="text" class="input-control" name="customer_name"
                                             placeholder="Điền họ và tên" value="{{ old('customer_name') }}">
-                                        {!! $errors->first(
-                                            'customer_name',
-                                            '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                        ) !!}
+                                        @error('customer_name')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="col-lg-5 col-md-5 centered">
-                                    <div class="form-group  {{ $errors->has('customer_phone') ? 'has-error' : '' }}">
+                                    <div class="form-group @error('customer_phone') has-error @enderror">
                                         <p>&nbsp;</p>
                                         <input type="text" class="input-control" name="customer_phone"
                                             placeholder="Điền số điện thoại" value="{{ old('customer_phone') }}">
-                                        {!! $errors->first(
-                                            'customer_phone',
-                                            '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                        ) !!}
+                                        @error('customer_phone')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group  {{ $errors->has('customer_address') ? 'has-error' : '' }}">
+                            <div class="form-group @error('customer_address') has-error @enderror">
                                 <p>Địa chỉ chụp<span>*</span></p>
                                 <input type="text" class="input-control" name="customer_address"
                                     placeholder="Điền địa chỉ" value="{{ old('customer_address') }}">
-                                {!! $errors->first(
-                                    'customer_address',
-                                    '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('customer_address')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
-                                    <div class="form-group  {{ $errors->has('ord_start_day') ? 'has-error' : '' }}">
+                                    <div class="form-group @error('ord_start_day') has-error @enderror">
                                         <p>Ngày chụp<span>*</span></p>
                                         <input type="date" class="input-control" name="ord_start_day"
                                             placeholder="Từ ngày" value="{{ old('ord_start_day') }}">
-                                        {!! $errors->first(
-                                            'ord_start_day',
-                                            '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                        ) !!}
+                                        @error('ord_start_day')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6 centered">
-                                    <div class="form-group  {{ $errors->has('ord_end_day') ? 'has-error' : '' }}">
+                                    <div class="form-group @error('ord_end_day') has-error @enderror">
                                         <p>&nbsp;</p>
                                         <input type="date" class="input-control" name="ord_end_day"
                                             placeholder="Đến ngày" value="{{ old('ord_end_day') }}">
-                                        {!! $errors->first(
-                                            'ord_end_day',
-                                            '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                        ) !!}
+                                        @error('ord_end_day')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group  {{ $errors->has('order_quantity') ? 'has-error' : '' }}">
+                            <div class="form-group @error('order_quantity') has-error @enderror">
                                 <p>Số lượng<span>*</span></p>
                                 <input type="text" class="input-control" name="order_quantity"
                                     placeholder="Điền số lượng chụp" value="{{ old('order_quantity') }}">
-                                {!! $errors->first(
-                                    'order_quantity',
-                                    '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('order_quantity')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div class="form-group  {{ $errors->has('ord_select') ? 'has-error' : '' }}">
+                            <div class="form-group">
                                 <label for="label">Bộ phận chụp<span>*</span></label>
                                 <select id="label" name="ord_select" class="input-control">
                                     <option value="Phổi (1 Tư thế)">Phổi</option>
@@ -157,7 +148,8 @@
                         @foreach ($getAllPost as $key => $post)
                             <div class="card-content transition-hover">
                                 <a href="{{ URL::to('/blog/' . $post->post_slug) }}">
-                                    <img src="{{ URL::to('uploads/post/' . $post->post_image) }}" class="service-img-full"
+                                    <img src="{{ URL::to('uploads/post/' . $post->post_image) }}"
+                                        class="service-img-full"
                                         alt="{{ URL::to('uploads/post/' . $post->post_image) }}">
                                     <div class="card-content-info">
                                         <div class="card-content-header">
@@ -210,6 +202,6 @@
     </section>
 @endsection
 @push('js')
-    <script src="{{ versionResource('frontend/js/owl.carousel.min.js') }}" defer ></script>
-    <script src="{{ versionResource('frontend/js/home.min.js') }}" defer ></script>
+    <script src="{{ versionResource('frontend/js/owl.carousel.min.js') }}" defer></script>
+    <script src="{{ versionResource('frontend/js/home.min.js') }}" defer></script>
 @endpush

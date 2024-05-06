@@ -7,10 +7,6 @@ use App\Models\Contact;
 
 class ContactController extends Controller
 {
-    public function contact(Request $request){
-        $contact = Contact::find(1);
-        return view('pages.contact.contact')->with(compact('contact'));
-    }
     public function edit(){
         $contact = Contact::find(1);
         return view('admin.Contact.edit_contact')->with(compact('contact'));
@@ -31,5 +27,11 @@ class ContactController extends Controller
 
         $contact->save();
         return redirect()->back()->with('success','Cập nhật thông tin website thành công');
+    }
+
+    //Client
+    public function show(){
+        $contact = Contact::find(1);
+        return view('pages.client.contact.index',compact('contact'));
     }
 }

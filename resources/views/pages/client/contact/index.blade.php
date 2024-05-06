@@ -1,14 +1,9 @@
-@extends('layout_not_slider')
+@extends('layouts.default')
 @section('content')
-@section('title', 'Contact - ')
-<!-- Blog Details Hero Begin -->
-<!-- Map Begin -->
+@section('title', 'Liên hệ - ')
 <div class="map">
-    {!!$contact->info_map!!}
+    {!!$contact->contact_map!!}
 </div>
-<!-- Map End -->
-
-<!-- Contact Section Begin -->
 <section class="contact spad">
     <div class="container">
         <div class="row">
@@ -21,7 +16,7 @@
                     </div>
                     <ul>
                         <li>
-                            {!!$contact->info_contact!!}
+                            {!!$contact->contact!!}
                         </li>
                     </ul>
                 </div>
@@ -47,5 +42,4 @@
         </div>
     </div>
 </section>
-<!-- Contact Section End -->
 @endsection

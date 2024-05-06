@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
-use App\Models\CategoryPost;
+use App\Models\PostCategory;
 use Illuminate\Support\Facades\Redirect;
 
 class PostController extends Controller
@@ -105,30 +105,23 @@ class PostController extends Controller
         $post->delete();
         return Redirect()->back()->with('success','Xóa bài viết thành công');
     }
-    //Front End
 
-    public function show_category_post_home(Request $request,$post_slug){
-        $catepost = CategoryPost::where('category_post_slug',$post_slug)->take(1)->get();
-        foreach($catepost as $key =>$cate){
-            $cate_id = $cate->category_post_id;
-        }
-        $post = Post::with('category_post')->where('category_post_id',$cate_id)->paginate(12);
-
-        return view('pages.blog.category_blog')->with(compact('post'));
+    //Client
+    public function showPostCategories(){
+    	return view('pages.client.post.index');
     }
 
-    public function show_post_home(Request $request,$post_slug){
-        $post = Post::with('category_post')->where('post_slug',$post_slug)->take(1)->get();
+    public function showPostCategoriesSlug($post_category_slug){
+        $postCategory = PostCategory::where('post_category_slug',$post_category_slug)->first();
+        $posts = Post::where('post_category_id',$postCategory->id)->get();
+        return view('pages.client.post.category_blog',compact('postCategory', 'posts'));
+    }
 
-        foreach($post as $key =>$pst){
-            $cate_id = $pst->category_post_id;
-            $title = $pst->post_title;
-            $cate_post_id = $pst->category_post_id;
-        }
-
-        $related = Post::with('category_post')->where('category_post_id',$cate_post_id)->whereNotIn('post_slug',[$post_slug])->take(3)->get();
-
-        return view('pages.blog.blog_details')->with(compact('post','title','related'));
+    public function showPostInCategories($post_category_slug, $post_slug){
+        $postCategory = PostCategory::where('post_category_slug',$post_category_slug)->first();
+        $post = Post::where('post_slug',$post_slug)->first();
+        $getAllRelatedPost = Post::where('post_category_id',$postCategory->post_category_id)->whereNotIn('post_slug',[$post_slug])->take(3)->get();
+        return view('pages.client.post.post_details', compact('post','postCategory','getAllRelatedPost'));
     }
 
     //Validation

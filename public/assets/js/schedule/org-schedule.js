@@ -1342,7 +1342,7 @@ $(".select-month").on("change", function () {
     $(".loader").fadeIn();
     $("#preloder").fadeIn("slow");
     $.ajax({
-        url: url_select_month,
+        url: url_select_month_ktv,
         method: "POST",
         data: {
             _token: _token,
@@ -1508,11 +1508,11 @@ $(document).on("click", ".send_quantity_draft", function () {
     var id = $(".event-info").find(".event-id").text();
     var order_quantity_draft = $(".order_quantity_draft").val();
     var order_note_ktv = $(".order_note_ktv").val();
-    url_update_order_quantity_draft = url_update_order_quantity_draft.replace(":id",id);
+    url_update_quantity_ktv = url_update_quantity_ktv.replace(":id",id);
     $(".loader").fadeIn();
     $("#preloder").fadeIn("slow");
     $.ajax({
-        url: url_update_order_quantity_draft,
+        url: url_update_quantity_ktv,
         method: "POST",
         data: {
             _token: _token,

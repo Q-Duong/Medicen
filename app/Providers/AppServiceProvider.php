@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Service;
-use App\Models\CategoryPost;
+use App\Models\PostCategory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,9 +15,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         view()->composer('*',function($view) {
-            $getAllCategoryPost = CategoryPost::orderBy('category_post_id','ASC')->get();
-		    $getAllService = Service::orderBy('service_id','ASC')->get();
-            $view->with(compact('getAllCategoryPost','getAllService'));
+            $getAllPostCategory = PostCategory::orderBy('id','ASC')->get();
+		    $getAllService = Service::orderBy('id','ASC')->get();
+            $view->with(compact('getAllPostCategory','getAllService'));
         });
         try {
             \Storage::extend('google', function($app, $config) {

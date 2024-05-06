@@ -27,173 +27,183 @@ use PDF;
 class OrderController extends Controller
 {
 	//Customer
-	public function create_order()
+	public function createOrderClient()
 	{
-		return view('pages.Order.create_order');
+		return view('pages.client.order.index');
 	}
 
-	public function save_order_f(Request $request)
+	public function storeOrderClient(Request $request)
 	{
-
 		$this->checkOrder($request);
-		$data = $request->all();
+		DB::beginTransaction();
+		try {
+			$data = $request->all();
+			$customer = new Customer();
+			$customer->customer_name = $data['customer_name'];
+			$customer->customer_phone = $data['customer_phone'];
+			$customer->customer_address = $data['customer_address'];
+			$customer->customer_note = '';
+			$customer->save();
 
-		$customer = new Customer();
-		$customer->customer_name = $data['customer_name'];
-		$customer->customer_phone = $data['customer_phone'];
-		$customer->customer_address = $data['customer_address'];
-		$customer->customer_note = '';
-		$customer->save();
+			$orderDetail = new OrderDetail();
+			$orderDetail->ord_start_day = $data['ord_start_day'];
+			$orderDetail->ord_end_day = $data['ord_end_day'];
+			$orderDetail->ord_select = $data['ord_select'];
+			$orderDetail->ord_doctor_read = '';
+			$orderDetail->ord_film = '';
+			$orderDetail->ord_form = 'ko in';
+			$orderDetail->ord_print = '';
+			$orderDetail->ord_form_print = '';
+			$orderDetail->ord_print_result = '';
+			$orderDetail->ord_film_sheet = '';
+			$orderDetail->ord_note = '';
+			$orderDetail->ord_deadline = '';
+			$orderDetail->ord_deliver_results = '';
+			$orderDetail->ord_cty_name = '';
+			$orderDetail->ord_time = '';
+			$orderDetail->ord_list_file = '';
+			$orderDetail->ord_list_file_path = '';
+			$orderDetail->ord_email = '';
+			$orderDetail->save();
 
-		$orderDetail = new OrderDetail();
-		$orderDetail->ord_start_day = $data['ord_start_day'];
-		$orderDetail->ord_end_day = $data['ord_end_day'];
-		$orderDetail->ord_select = $data['ord_select'];
-		$orderDetail->ord_doctor_read = '';
-		$orderDetail->ord_film = '';
-		$orderDetail->ord_form = 'ko in';
-		$orderDetail->ord_print = '';
-		$orderDetail->ord_form_print = '';
-		$orderDetail->ord_print_result = '';
-		$orderDetail->ord_film_sheet = '';
-		$orderDetail->ord_note = '';
-		$orderDetail->ord_deadline = '';
-		$orderDetail->ord_deliver_results = '';
-		$orderDetail->ord_cty_name = '';
-		$orderDetail->ord_time = '';
-		$orderDetail->ord_list_file = '';
-		$orderDetail->ord_list_file_path = '';
-		$orderDetail->ord_email = '';
-		$orderDetail->save();
+			$order = new Order();
+			$order->customer_id = $customer->id;
+			$order->order_detail_id = $orderDetail->id;
+			$order->unit_id = 1;
+			$order->order_quantity = $data['order_quantity'];
+			$order->order_cost = 0;
+			$order->order_all_in_one = 0;
+			$order->order_price = 0;
+			$order->order_discount = 0;
+			$order->order_profit = 0;
+			$order->status_id = 0;
+			$order->schedule_status = 0;
+			$order->order_warning = 'Không';
+			$order->accountant_updated = 0;
+			$order->save();
 
-		$order = new Order();
-		$order->customer_id = $customer->customer_id;
-		$order->order_detail_id = $orderDetail->order_detail_id;
-		$order->unit_id = 1;
-		$order->order_quantity = $data['order_quantity'];
-		$order->order_cost = 0;
-		$order->order_all_in_one = 0;
-		$order->order_price = 0;
-		$order->order_discount = 0;
-		$order->order_profit = 0;
-		$order->order_status = 0;
-		$order->schedule_status = 0;
-		$order->order_warning = 'Không';
-		$order->accountant_updated = 0;
-		$order->save();
+			$format = explode("-", $data['ord_start_day']);
 
-		$format = explode("-", $data['ord_start_day']);
+			$accountant = new Accountant();
+			$accountant->order_id = $order->id;
+			$accountant->accountant_owe = 0;
 
-		$accountant = new Accountant();
-		$accountant->order_id = $order->order_id;
-		$accountant->accountant_owe = 0;
-
-		if ($format[1] == 10) {
-			$accountant->accountant_month = $format[1];
-		} else {
-			$month = explode("0", $format[1]);
-			if (count($month) > 1) {
-				$accountant->accountant_month = $month[1];
+			if ($format[1] == 10) {
+				$accountant->accountant_month = $format[1];
 			} else {
-				$accountant->accountant_month = $month[0];
+				$month = explode("0", $format[1]);
+				if (count($month) > 1) {
+					$accountant->accountant_month = $month[1];
+				} else {
+					$accountant->accountant_month = $month[0];
+				}
 			}
-		}
-		$accountant->save();
+			$accountant->save();
 
-		return Redirect::to('/successful-medical-registration');
+			DB::commit();
+			return Redirect::route('order.clients.alert');
+		} catch (\Exception $e) {
+			DB::rollback();
+			return Redirect()->back();
+		}
 	}
 
-	public function createCustomerAuto()
+	public function createOrderDetailsClient()
 	{
-		return view('pages.Order.create_order_customer');
+		return view('pages.client.order.index_details');
 	}
 
 	public function save_order_customer(Request $request)
 	{
 
 		$this->checkOrderCustomer($request);
-		$data = $request->all();
+		DB::beginTransaction();
+		try {
+			$data = $request->all();
+			$customer = new Customer();
+			$customer->customer_name = $data['customer_name'];
+			$customer->customer_phone = $data['customer_phone'];
+			$customer->customer_address = $data['customer_address'];
+			$customer->customer_note = $data['customer_note'];
+			$customer->save();
 
-		$customer = new Customer();
-		$customer->customer_name = $data['customer_name'];
-		$customer->customer_phone = $data['customer_phone'];
-		$customer->customer_address = $data['customer_address'];
-		$customer->customer_note = $data['customer_note'];
-		$customer->save();
+			$orderDetail = new OrderDetail();
+			$orderDetail->ord_start_day = $data['ord_start_day'];
+			$orderDetail->ord_end_day = $data['ord_end_day'];
+			$orderDetail->ord_select = $data['ord_select'];
+			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
+			$orderDetail->ord_film = $data['ord_film'];
+			$orderDetail->ord_form = $data['ord_form'];
+			$orderDetail->ord_print = $data['ord_print'];
+			$orderDetail->ord_form_print = $data['ord_form_print'];
+			$orderDetail->ord_print_result = $data['ord_print_result'];
+			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
+			$orderDetail->ord_note = $data['ord_note'];
+			$orderDetail->ord_deadline = $data['ord_deadline'];
+			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
+			$orderDetail->ord_cty_name = $data['ord_cty_name'];
+			$orderDetail->ord_time = $data['ord_time'];
+			$orderDetail->ord_list_file = '';
+			$orderDetail->ord_list_file_path = '';
+			$orderDetail->ord_email = '';
+			$orderDetail->save();
 
-		$orderDetail = new OrderDetail();
-		$orderDetail->ord_start_day = $data['ord_start_day'];
-		$orderDetail->ord_end_day = $data['ord_end_day'];
-		$orderDetail->ord_select = $data['ord_select'];
-		$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
-		$orderDetail->ord_film = $data['ord_film'];
-		$orderDetail->ord_form = $data['ord_form'];
-		$orderDetail->ord_print = $data['ord_print'];
-		$orderDetail->ord_form_print = $data['ord_form_print'];
-		$orderDetail->ord_print_result = $data['ord_print_result'];
-		$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
-		$orderDetail->ord_note = $data['ord_note'];
-		$orderDetail->ord_deadline = $data['ord_deadline'];
-		$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
-		$orderDetail->ord_cty_name = $data['ord_cty_name'];
-		$orderDetail->ord_time = $data['ord_time'];
-		$orderDetail->ord_list_file = '';
-		$orderDetail->ord_list_file_path = '';
-		$orderDetail->ord_email = '';
-		$orderDetail->save();
+			$order = new Order();
+			$order->customer_id = $customer->customer_id;
+			$order->order_detail_id = $orderDetail->order_detail_id;
+			$order->unit_id = 1;
+			$order->order_quantity = $data['order_quantity'];
+			$order->order_price = 0;
+			$order->order_all_in_one = 0;
+			$order->order_cost = 0;
+			$order->order_discount = 0;
+			$order->order_profit = 0;
+			$order->order_status = 0;
+			$order->schedule_status = 0;
+			$order->order_warning = 'Không';
+			$order->accountant_updated = 0;
+			$order->save();
 
-		$order = new Order();
-		$order->customer_id = $customer->customer_id;
-		$order->order_detail_id = $orderDetail->order_detail_id;
-		$order->unit_id = 1;
-		$order->order_quantity = $data['order_quantity'];
-		$order->order_price = 0;
-		$order->order_all_in_one = 0;
-		$order->order_cost = 0;
-		$order->order_discount = 0;
-		$order->order_profit = 0;
-		$order->order_status = 0;
-		$order->schedule_status = 0;
-		$order->order_warning = 'Không';
-		$order->accountant_updated = 0;
-		$order->save();
+			// for($i=0 ;$i<=4; $i++){
+			//     $car = new CarKTV();
+			//     $car->order_id = $order->order_id;
+			//     $car->car_name = $i+1;
+			// 	$car->car_active = 0;
+			// 	$car->car_driver_name = '';
+			// 	$car->car_ktv_name_1 = '';
+			// 	$car->car_ktv_name_2 = '';
+			// 	$car->order_quantity_draft = 0;
+			//     $car->save();
+			// }
 
-		// for($i=0 ;$i<=4; $i++){
-		//     $car = new CarKTV();
-		//     $car->order_id = $order->order_id;
-		//     $car->car_name = $i+1;
-		// 	$car->car_active = 0;
-		// 	$car->car_driver_name = '';
-		// 	$car->car_ktv_name_1 = '';
-		// 	$car->car_ktv_name_2 = '';
-		// 	$car->order_quantity_draft = 0;
-		//     $car->save();
-		// }
+			$format = explode("-", $data['ord_start_day']);
 
-		$format = explode("-", $data['ord_start_day']);
+			$accountant = new Accountant();
+			$accountant->order_id = $order->order_id;
+			$accountant->accountant_owe = 0;
 
-		$accountant = new Accountant();
-		$accountant->order_id = $order->order_id;
-		$accountant->accountant_owe = 0;
-
-		if ($format[1] == 10) {
-			$accountant->accountant_month = $format[1];
-		} else {
-			$month = explode("0", $format[1]);
-			if (count($month) > 1) {
-				$accountant->accountant_month = $month[1];
+			if ($format[1] == 10) {
+				$accountant->accountant_month = $format[1];
 			} else {
-				$accountant->accountant_month = $month[0];
+				$month = explode("0", $format[1]);
+				if (count($month) > 1) {
+					$accountant->accountant_month = $month[1];
+				} else {
+					$accountant->accountant_month = $month[0];
+				}
 			}
+			$accountant->save();
+			DB::commit();
+			return Redirect::route('order.clients.alert');
+		} catch (\Exception $e) {
+			DB::rollback();
+			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
 		}
-		$accountant->save();
-
-		return Redirect::to('/successful-medical-registration');
 	}
 
-	public function successful_medical_registration()
+	public function successfulRegistration()
 	{
-		return view('pages.successful_medical_registration');
+		return view('pages.client.successful_medical_registration');
 	}
 
 	//Admin

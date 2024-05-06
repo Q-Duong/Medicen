@@ -30,50 +30,45 @@ use Illuminate\Support\Facades\Auth;
 */
 
 //-------------------------------------------- Frontend --------------------------------------------
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/blog-list', [HomeController::class, 'blog_list']);
+Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::post('/search', [HomeController::class, 'search']);
 Route::post('/autocomplete-ajax', [HomeController::class, 'autocomplete_ajax']);
-
-//Danh muc bai viet
-Route::get('/blogs/{post_slug}', [PostController::class, 'show_category_post_home']);
-Route::get('/blog/{post_slug}', [PostController::class, 'show_post_home']);
-
-//Dịch vụ
-Route::get('/dich-vu/{service_slug}', [ServiceController::class, 'show_service']);
-
-//About
-Route::get('/gioi-thieu', [AboutController::class, 'about']);
-Route::get('/gioi-thieu/tai-sao-chon-chung-toi', [AboutController::class, 'aboutWhy']);
-Route::get('/gioi-thieu/co-so-vat-chat', [AboutController::class, 'aboutInfrastructure']);
-
-Route::get('/blogs/{category_post_slug}', 'App\Http\Controllers\CategoryPostController@danh_muc_bai_viet');
-
+//News
+Route::prefix('tin-tuc')->group(function () {
+    Route::get('/', [PostController::class, 'showPostCategories'])->name('blog.category');
+    Route::get('/{post_category_slug}', [PostController::class, 'showPostCategoriesSlug'])->name('blog.category_slug');
+    Route::get('/{post_category_slug}/{post_slug}', [PostController::class, 'showPostInCategories'])->name('blog.post_in_category');
+});
 //Service
-Route::get('/dich-vu/thue-xe-x-quang', [AboutController::class, 'serviceX']);
-
+Route::get('/dich-vu/{service_slug}', [ServiceController::class, 'show'])->name('service.show');
+//About
+Route::prefix('gioi-thieu')->group(function () {
+    Route::get('/', [AboutController::class, 'show'])->name('about.show');
+    Route::get('/{about_slug}', [AboutController::class, 'showBySlug'])->name('about.show_by_slug');
+});
 //Contact
-Route::get('/lien-he', [ContactController::class, 'contact']);
-
+Route::get('lien-he', [ContactController::class, 'show'])->name('contact.show');
+//Order
+Route::get('dang-ky', [OrderController::class, 'createOrderClient'])->name('order.clients.create');
+Route::post('save-order-client', [OrderController::class, 'storeOrderClient'])->name('order.clients.store');
+Route::get('dang-ky/chi-tiet', [OrderController::class, 'createOrderDetailsClient'])->name('order.clients.create_details');
+Route::post('save-order-details-client', [OrderController::class, 'storeOrderDetailsClient'])->name('order.clients.store_details');
+Route::get('successful-medical-registration', [OrderController::class, 'successfulRegistration'])->name('order.clients.alert');
 //Schedule
-Route::get('/lichxe', [ScheduleController::class, 'show_schedule']);
-Route::post('/select-month', [ScheduleController::class, 'select_month'])->name('select_month');
-Route::get('/lichchitiet', [ScheduleController::class, 'login_schedule_details'])->name('schedule-details');
+Route::get('lichxe', [ScheduleController::class, 'showSchedule'])->name('schedule.show_ktv');
+Route::post('schedule-select-month', [ScheduleController::class, 'selectMonth'])->name('schedule.select_month');
+Route::post('/update-quantity-ktv/{id}', [ScheduleController::class, 'updateQuantityKTV'])->name('schedule.update_quantity_ktv');
+Route::get('/lichchitiet', [ScheduleController::class, 'loginScheduleDetails'])->name('schedule.login_details');
 Route::post('/login-schedule', [ScheduleController::class, 'login_schedule']);
 Route::group(['middleware' => 'checkSchedule'], function () {
-    Route::get('/show-schedule-details', [ScheduleController::class, 'show_schedule_details'])->middleware('checkRoleSchedule')->name('schedule-office');
-    Route::post('/call-schedule-details', [ScheduleController::class, 'call_schedule_details'])->middleware('checkRoleSchedule')->name('call-schedule-office');
-    Route::post('/suggest-schedule-search', [ScheduleController::class, 'suggest_schedule_search'])->middleware('checkRoleSchedule')->name('suggest-schedule-search');
-    Route::post('/schedule-search', [ScheduleController::class, 'schedule_search'])->middleware('checkRoleSchedule')->name('schedule-search');
-    Route::get('/lichxechitiet', [ScheduleController::class, 'show_schedule_details_clone'])->name('schedule-sale');
+    Route::get('/show-schedule-details', [ScheduleController::class, 'showScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.show_details');
+    Route::post('/call-schedule-details', [ScheduleController::class, 'getScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.get');
+    Route::post('/schedule-search-suggest', [ScheduleController::class, 'scheduleSearchSuggest'])->middleware('checkRoleSchedule')->name('schedule.search_suggest');
+    Route::post('/schedule-search', [ScheduleController::class, 'scheduleSearch'])->middleware('checkRoleSchedule')->name('schedule.search');
+    Route::get('/lichxechitiet', [ScheduleController::class, 'showScheduleSale'])->name('schedule.show_sale');
 });
 
-//Order
-Route::get('/create-order', [OrderController::class, 'create_order']);
-Route::post('/save-order-f', [OrderController::class, 'save_order_f']);
-Route::get('/successful-medical-registration', [OrderController::class, 'successful_medical_registration']);
-Route::get('/create-order/customer-autocomplete', [OrderController::class, 'createCustomerAuto']);
-Route::post('/save-order-customer', [OrderController::class, 'save_order_customer']);
+
 
 Route::post('/select-month-details', [ScheduleController::class, 'select_month_details'])->name('select_month_details');
 Route::post('/select-month-details-clone', [ScheduleController::class, 'select_month_details_clone'])->name('select_month_details_clone');
@@ -90,7 +85,7 @@ Route::post('admin/logout', [AdminController::class, 'admin_logout'])->name('adm
 //-------------------------------------------- Backend --------------------------------------------
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Dashboard
-    Route::get('/dashboard', [AdminController::class, 'show_dashboard'])->name('dashboard');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index');
 
     Route::post('/revenue-statistics-by-date', [AdminController::class, 'revenue_statistics_by_date'])->name('url-revenue-statistics-by-date');
     Route::post('/optional-revenue-statistics', [AdminController::class, 'optional_revenue_statistics'])->name('url-optional-revenue-statistics');

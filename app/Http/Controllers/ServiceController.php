@@ -90,15 +90,10 @@ class ServiceController extends Controller
         return Redirect()->back()->with('success','Xóa dịch vụ thành công');
     }
 
-    //Front End
-
-    public function show_service(Request $request,$service_slug){
-        $service = Service::where('service_slug',$service_slug)->take(1)->get();
-        foreach($service as $key =>$ser){
-            $title = $ser->service_title;
-            $created_at = $ser->created_at;
-        }
-        return view('pages.service.service_x')->with(compact('service','title','created_at'));
+    //Client
+    public function show($service_slug){
+        $service = Service::where('service_slug',$service_slug)->first();
+        return view('pages.client.service.index')->with(compact('service'));
     }
 
     //Validation

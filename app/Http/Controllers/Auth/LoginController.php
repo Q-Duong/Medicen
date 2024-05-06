@@ -42,9 +42,9 @@ class LoginController extends Controller
     }
     function showLoginForm(){
         if(Auth::check()){
-            return Redirect::to('admin/dashboard');
+            return Redirect::route('dashboard.index');
         }else{
-            return view('admin_login');
+            return view('layouts.default_auth');
         }
     }
     function login(Request $request){
@@ -53,9 +53,9 @@ class LoginController extends Controller
                 'email' => $data['account_username'],
                 'password' => $data['account_password']
             ],true)){
-            return Redirect::to('admin/dashboard');
+            return Redirect::route('dashboard.index');
         }else{
-            return Redirect::to('login')->with('error','Tài khoản hoặc mật khẩu không đúng');
+            return Redirect::route('login')->with('error','Tài khoản hoặc mật khẩu không đúng');
         }
    }
 }

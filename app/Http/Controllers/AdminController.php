@@ -26,7 +26,7 @@ class AdminController extends Controller
 		$dateFormat= $year."-".$month."-".$day;
     	return $dateFormat;
     }
-    public function show_dashboard(Request $request){
+    public function index(Request $request){
         $service = Service::all()->count();
         $post = Post::all()->count();
         $order = Order::all()->count();
@@ -36,9 +36,9 @@ class AdminController extends Controller
     }
     public function login(){
         if(Auth::check()){
-            return Redirect::to('admin/dashboard');
+            return Redirect::route('dashboard.index');
         }else{
-            return view('admin_login');
+            return view('layouts.default_auth');
         }
     }
     public function admin_logout(){

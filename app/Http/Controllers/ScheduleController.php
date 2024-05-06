@@ -13,32 +13,58 @@ use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
-	public function show_schedule()
+	//Client
+	public function showSchedule()
 	{
-		$month = [];
+		$months = [];
 		$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::now()->endOfMonth()->toDateString();
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
-		$order = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
-			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
-			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+		$orders = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('units', 'units.id', '=', 'orders.unit_id' )
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->select([
+				'car_name',
+				'car_active',
+				'status_id', 
+				'order_surcharge',
+				'car_ktv_name_1', 
+				'car_ktv_name_2', 
+				'ord_start_day', 
+				'ord_end_day', 
+				'order_child', 
+				'order_updated', 
+				'orders.id', 
+				'unit_name', 
+				'car_ktvs.id', 
+				'ord_select', 
+				'ord_cty_name', 
+				'customer_address', 
+				'ord_note', 
+				'ord_list_file', 
+				'ord_list_file_path', 
+				'customer_name', 
+				'customer_phone', 
+				'ord_time', 
+				'order_quantity', 
+				'order_quantity_draft', 
+				'order_note_ktv'])
 			->orderBy('order_details.ord_start_day', 'ASC')
-			// ->orderBy('orders.created_at', 'DESC')
 			->orderBy('orders.order_child', 'DESC')
 			->get();
+			// dd($orders);
 		for ($m = 1; $m <= 12; $m++) {
-			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
+			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
-
-		return view('pages.schedule.schedule.view_schedule')->with(compact('order', 'month', 'dayInMonth', 'currentMonth', 'currentYear'));
+		return view('pages.client.schedule.ktv.index')->with(compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
 	}
 
-	public function select_month(Request $request)
+	public function selectMonth(Request $request)
 	{
 		// if($data['month']!= 1 && $data['month']!= 8){
 		// 	$firstDayofThisMonth = Carbon::now()->month($data['month'])->subMonth()->startOfMonth()->toDateString();
@@ -52,17 +78,16 @@ class ScheduleController extends Controller
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
-			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
-			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+		$order = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('units', 'units.id', '=', 'orders.unit_id' )
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->orderBy('order_details.ord_start_day', 'ASC')
-			// ->orderBy('orders.created_at', 'DESC')
 			->orderBy('orders.order_child', 'DESC')
 			->get();
-		$view = view('pages.schedule.schedule.view_schedule_render')->with(compact('order', 'dayInMonth'))->render();
+		$view = view('pages.client.schedule.ktv.render')->with(compact('order', 'dayInMonth'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
