@@ -4,18 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
-use App\Models\CategoryPost;
+use App\Models\PostCategory;
 use Illuminate\Support\Facades\Redirect;
 
 class PostController extends Controller
 {
     public function add_post(){
-        $cate_post = CategoryPost::orderBy('category_post_id','ASC')->get();
-    	return view('admin.Post.add_post')->with(compact('cate_post'));
+        $post_category = PostCategory::orderBy('post_category_id','ASC')->get();
+    	return view('admin.Post.add_post')->with(compact('post_category'));
     }
 
     public function list_post(){
-        $all_post = Post::with('category_post')->orderBy('post_id','DESC')->get();
+        $all_post = Post::with('post_category')->orderBy('post_id','DESC')->get();
     	return view('admin.Post.list_post')->with(compact('all_post'));
     }
 
@@ -39,7 +39,7 @@ class PostController extends Controller
         $post->post_slug = $data['post_slug'];
         $post->post_desc = $data['post_desc'];
         $post->post_content = $data['post_content'];
-        $post->category_post_id = $data['category_post_id'];
+        $post->post_category_id = $data['post_category_id'];
 
         $get_image = $request->file('post_image');
         $name = $post->post_title;
@@ -64,9 +64,9 @@ class PostController extends Controller
     }
     
     public function edit_post($post_id){
-        $cate_post = CategoryPost::orderBy('category_post_id','ASC')->get();
+        $post_category = PostCategory::orderBy('post_category_id','ASC')->get();
         $post = Post::find($post_id);
-        return view('admin.Post.edit_post')->with(compact('post'))->with(compact('cate_post'));
+        return view('admin.Post.edit_post')->with(compact('post'))->with(compact('post_category'));
     }
 
     public function update_post(Request $request,$post_id){
@@ -77,7 +77,7 @@ class PostController extends Controller
         $post->post_slug = $data['post_slug'];
         $post->post_desc = $data['post_desc'];
         $post->post_content = $data['post_content'];
-        $post->category_post_id = $data['category_post_id'];
+        $post->post_category_id = $data['post_category_id'];
         $get_image = $request->file('post_image');
       
         if($get_image){
@@ -107,26 +107,26 @@ class PostController extends Controller
     }
     //Front End
 
-    public function show_category_post_home(Request $request,$post_slug){
-        $catepost = CategoryPost::where('category_post_slug',$post_slug)->take(1)->get();
+    public function show_post_category_home(Request $request,$post_slug){
+        $catepost = PostCategory::where('post_category_slug',$post_slug)->take(1)->get();
         foreach($catepost as $key =>$cate){
-            $cate_id = $cate->category_post_id;
+            $cate_id = $cate->post_category_id;
         }
-        $post = Post::with('category_post')->where('category_post_id',$cate_id)->paginate(12);
+        $post = Post::with('post_category')->where('post_category_id',$cate_id)->paginate(12);
 
         return view('pages.blog.category_blog')->with(compact('post'));
     }
 
     public function show_post_home(Request $request,$post_slug){
-        $post = Post::with('category_post')->where('post_slug',$post_slug)->take(1)->get();
+        $post = Post::with('post_category')->where('post_slug',$post_slug)->take(1)->get();
 
         foreach($post as $key =>$pst){
-            $cate_id = $pst->category_post_id;
+            $cate_id = $pst->post_category_id;
             $title = $pst->post_title;
-            $cate_post_id = $pst->category_post_id;
+            $post_category_id = $pst->post_category_id;
         }
 
-        $related = Post::with('category_post')->where('category_post_id',$cate_post_id)->whereNotIn('post_slug',[$post_slug])->take(3)->get();
+        $related = Post::with('post_category')->where('post_category_id',$post_category_id)->whereNotIn('post_slug',[$post_slug])->take(3)->get();
 
         return view('pages.blog.blog_details')->with(compact('post','title','related'));
     }

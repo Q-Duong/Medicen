@@ -46,14 +46,8 @@ class AccountantController extends Controller
 
 	public function call_list_order_accountant()
 	{
-		$all_order_accountant = Accountant::join('orders', 'orders.order_id', '=', 'accountant.order_id')
-			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
-			->where('car_ktv.car_active', 1)
-			->orderBy('accountant.accountant_id', 'ASC')
-			->get();
-		$html = view('admin.Accountant.list_order_render')->with(compact('all_order_accountant'))->render();
+		$listOrderAccountant = Accountant::getListOrderAccountant();
+		$html = view('admin.Accountant.list_order_render')->with(compact('listOrderAccountant'))->render();
 		return response()->json(array('success' => true, 'html' => $html));
 	}
 

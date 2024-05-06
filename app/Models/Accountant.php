@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Builders\AccountantBuilder;
 use Illuminate\Database\Eloquent\Model;
 
 class Accountant extends Model
@@ -15,5 +16,10 @@ class Accountant extends Model
     public function order()
     {
         return $this->belongsTo('App\Models\Order', 'order_id');
+    }
+
+    public function newEloquentBuilder($query): AccountantBuilder
+    {
+        return new AccountantBuilder($query);
     }
 }
