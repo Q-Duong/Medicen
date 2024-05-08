@@ -14,11 +14,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        view()->composer('*',function($view) {
-            $getAllPostCategory = PostCategory::orderBy('id','ASC')->get();
-		    $getAllService = Service::orderBy('id','ASC')->get();
-            $view->with(compact('getAllPostCategory','getAllService'));
-        });
         try {
             \Storage::extend('google', function ($app, $config) {
                 $options = [];

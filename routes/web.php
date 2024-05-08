@@ -93,7 +93,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Information Account
     Route::get('/information', [AdminController::class, 'information'])->name('information');
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::post('/store-infomation', [AdminController::class, 'store_information'])->name('store-information');
+    Route::post('/save-infomation', [AdminController::class, 'store_information'])->name('store-information');
 
     //Customer
     Route::prefix('customer')->group(function () {
@@ -101,8 +101,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
     Route::prefix('contact')->group(function () {
         Route::get('edit', [ContactController::class, 'edit'])->name('contact.edit');
-        Route::post('store-info', [ContactController::class, 'store_info']);
-        Route::post('update', [ContactController::class, 'update'])->name('contact.update');
+        Route::patch('update', [ContactController::class, 'update'])->name('contact.update');
     });
     //403
     Route::get('/403', function () {
@@ -132,6 +131,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Export Excel
     Route::post('/export-excel', [OrderController::class, 'export_excel'])->name('export_excel');
 
+    
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
         //Service
@@ -139,9 +139,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('/', [ServiceController::class, 'index'])->name('service.index');
             Route::get('create', [ServiceController::class, 'create'])->name('service.create');
             Route::post('save', [ServiceController::class, 'store'])->name('service.store');
-            Route::get('edit/{service}', [ServiceController::class, 'edit'])->name('service.edit');
-            Route::patch('update/{service}', [ServiceController::class, 'update'])->name('service.update');
-            Route::delete('delete/{service}', [ServiceController::class, 'destroy'])->name('service.destroy');
+            Route::get('edit/{id}', [ServiceController::class, 'edit'])->name('service.edit');
+            Route::patch('update/{id}', [ServiceController::class, 'update'])->name('service.update');
+            Route::delete('delete/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
+        });
+        //About
+        Route::prefix('about')->group(function () {
+            Route::get('/', [AboutController::class, 'index'])->name('about.index');
+            Route::get('create', [AboutController::class, 'create'])->name('about.create');
+            Route::post('save', [AboutController::class, 'store'])->name('about.store');
+            Route::get('edit/{id}', [AboutController::class, 'edit'])->name('about.edit');
+            Route::patch('update/{id}', [AboutController::class, 'update'])->name('about.update');
+            Route::delete('delete/{id}', [AboutController::class, 'destroy'])->name('about.destroy');
         });
         //Post
         Route::prefix('post')->group(function () {
@@ -178,7 +187,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::prefix('slider')->group(function () {
             Route::get('/', [SliderController::class, 'index'])->name('slider.index');
             Route::get('create', [SliderController::class, 'create'])->name('slider.create');
-            Route::post('save', [SliderController::class, 'store'])->name('slider.store');
+            Route::post('save', [SliderController::class, 'insert'])->name('slider.insert');
             Route::get('edit/{id}', [SliderController::class, 'edit'])->name('slider.edit');
             Route::patch('update/{id}', [SliderController::class, 'update'])->name('slider.update');
             Route::delete('delete/{id}', [SliderController::class, 'destroy'])->name('slider.destroy');
@@ -198,7 +207,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         });
         //History
         Route::prefix('history')->group(function () {
-            Route::get('/', [OrderController::class, 'index'])->name('history.index');
+            Route::get('/', [OrderController::class, 'list_history_order'])->name('history.list_history');
         });
     });
 

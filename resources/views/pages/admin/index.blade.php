@@ -47,7 +47,7 @@
             </a>
         </div>
         <div class="col-md-3 market-update-gd">
-            <a href="{{ URL::to('/list-post') }}">
+            <a href="{{ route('post.index') }}">
                 <div class="market-update-block clr-block-2">
                     <div class="col-md-4 market-update-right">
                         <i class="fab fa-blogger-b"></i>
@@ -93,7 +93,7 @@
                                 <p class="filter-content-title">Tên đơn vị:</p>
                                 <select name="unit_id" class="select-2 unit_id">
                                     @foreach ($getAllUnit as $key => $unit )
-                                        <option value="{{$unit->unit_id}}">{{$unit->unit_name}}</option>
+                                        <option value="{{$unit->id}}">{{$unit->unit_name}}</option>
                                     @endforeach
                                 </select>
                             </div>

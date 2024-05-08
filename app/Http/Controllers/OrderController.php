@@ -179,7 +179,7 @@ class OrderController extends Controller
 			$format = explode("-", $data['ord_start_day']);
 
 			$accountant = new Accountant();
-			$accountant->order_id = $order->order_id;
+			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = 0;
 
 			if ($format[1] == 10) {
@@ -339,7 +339,7 @@ class OrderController extends Controller
 		}
 	}
 
-	
+
 
 	public function zaloNotificationServiceD($carActive)
 	{
@@ -543,9 +543,9 @@ class OrderController extends Controller
 		return $jsonData;
 	}
 
-	public function edit_order($order_id)
+	public function edit_order($id)
 	{
-		$order = Accountant::where('order_id', $order_id)->first();
+		$order = Accountant::where('id', $id)->first();
 		$name_path = array_combine(explode(',', $order->order->orderdetail->ord_list_file), explode(',', $order->order->orderdetail->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		$files = [
@@ -568,11 +568,11 @@ class OrderController extends Controller
 		$orderDetail->save();
 		return response()->json($content);
 	}
-	public function update_order(Request $request, $order_id)
+	public function update_order(Request $request, $id)
 	{
 		$this->checkOrderAdmin($request);
 		$data = $request->all();
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$order->unit_id = $data['unit_id'];
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
@@ -588,7 +588,7 @@ class OrderController extends Controller
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->save();
 
-		$accountant = Accountant::where('order_id', $order_id)->first();
+		$accountant = Accountant::where('id', $id)->first();
 		$accountant->accountant_owe = formatPrice($data['order_price']);
 		$accountant->accountant_distance = $data['accountant_distance'];
 		$accountant->save();
@@ -642,7 +642,7 @@ class OrderController extends Controller
 
 		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $order->id;
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Sửa đơn hàng';
 		$history->created_at = $now;
@@ -650,9 +650,9 @@ class OrderController extends Controller
 
 		return Redirect::to('admin/order/list')->with('success', 'Cập nhật thông tin đơn hàng thành công');
 	}
-	public function coppy_order($order_id)
+	public function coppy_order($id)
 	{
-		$order = Accountant::where('order_id', $order_id)->first();
+		$order = Accountant::where('id', $id)->first();
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		return view('admin.Order.coppy_order')->with(compact('order', 'getAllUnit'));
 	}
@@ -736,7 +736,7 @@ class OrderController extends Controller
 		$format = explode("-", $data['ord_start_day']);
 
 		$accountant = new Accountant();
-		$accountant->order_id = $order->order_id;
+		$accountant->order_id = $order->id;
 		$accountant->accountant_owe = formatPrice($data['order_price']);
 		$accountant->accountant_distance = $data['accountant_distance'];
 		$accountant->save();
@@ -755,7 +755,7 @@ class OrderController extends Controller
 
 		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $order->id;
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Thêm đơn hàng';
 		$history->created_at = $now;
@@ -763,12 +763,12 @@ class OrderController extends Controller
 
 		return Redirect::to('admin/order/list')->with('success', 'Thêm đơn hàng thành công');
 	}
-	public function update_order_schedule(Request $request, $order_id)
+	public function update_order_schedule(Request $request, $id)
 	{
 		//$this->checkOrderAdmin($request);
 		$data = $request->all();
 
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$order->order_warning = $data['order_warning'];
 		$order->save();
 
@@ -798,7 +798,7 @@ class OrderController extends Controller
 
 		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $order->id;
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Sửa đơn hàng';
 		$history->created_at = $now;
@@ -818,9 +818,9 @@ class OrderController extends Controller
 		// return Excel::download(new ExcelExport($date), $date.'.xlsx');
 		return Excel::download(new ExcelExport($firstDayofThisMonth, $lastDayofThisMonth), 'Acountant.xlsx');
 	}
-	public function delete_order($order_id)
+	public function delete_order($id)
 	{
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$order->delete();
 		$customer = Customer::find($order->customer_id);
 		$customer->delete();
@@ -829,9 +829,9 @@ class OrderController extends Controller
 
 		return Redirect()->back()->with('success', 'Xóa đơn hàng thành công');
 	}
-	public function view_order($order_id)
+	public function view_order($id)
 	{
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$customer = Customer::find($order->customer_id);
 		$order_detail = OrderDetail::find($order->order_detail_id);
 		return view('admin.Order.view_order')->with(compact('order', 'customer', 'order_detail'));
@@ -839,18 +839,18 @@ class OrderController extends Controller
 
 	public function list_history_order()
 	{
-		$all_history = HistoryEdit::orderBy('history_id', 'DESC')->get();
-		return view('admin.History.list_history')->with(compact('all_history'));
+		$all_history = HistoryEdit::orderBy('id', 'DESC')->paginate(10);
+		return view('pages.admin.history.index', compact('all_history'));
 	}
 
-	public function print_order($order_id)
+	public function print_order($id)
 	{
 		// $pdf = \App::make('dompdf.wrapper');
-		// $pdf->loadHTML($this->print_order_convert($order_id));
+		// $pdf->loadHTML($this->print_order_convert($id));
 
 		// return $pdf->stream();
 
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$customer = Customer::find($order->customer_id);
 		$order_detail = OrderDetail::find($order->order_detail_id);
 		$now = Carbon::now('Asia/Ho_Chi_Minh')->format('d/m/Y H:i');
@@ -858,9 +858,9 @@ class OrderController extends Controller
 		return $pdf->stream();
 	}
 
-	public function print_order_convert($order_id)
+	public function print_order_convert($id)
 	{
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$customer = Customer::find($order->customer_id);
 		$order_detail = OrderDetail::find($order->order_detail_id);
 		// foreach($order as $key => $ord){
@@ -978,7 +978,7 @@ class OrderController extends Controller
 			</div>
 			<div class="content_right">
 			<h5>Ngày lập hóa đơn: ' . $now . '</h5>
-			<h5>Mã hóa đơn: ' . $order_id . '</h5>
+			<h5>Mã hóa đơn: ' . $id . '</h5>
 			<h5>Loại tiền: VNĐ</h5>
 			</div>
 		</div>

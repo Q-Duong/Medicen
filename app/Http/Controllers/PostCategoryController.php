@@ -8,17 +8,18 @@ use Illuminate\Support\Facades\Redirect;
 
 class PostCategoryController extends Controller
 {
-    public function add()
+    public function create()
     {
-        return view('admin.PostCategory.add_post_category');
+        return view('pages.admin.postCategory.create');
     }
 
-    public function list()
+    public function index()
     {
-        $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->get();
-        return view('admin.PostCategory.list_post_category')->with(compact('getAllPostCategory'));
+
+        $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->paginate(10);
+        return view('pages.admin.postCategory.index', compact('getAllPostCategory'));
     }
-    public function save(Request $request)
+    public function store(Request $request)
     {
         $data = $request->all();
         $post_category = new PostCategory();
@@ -37,7 +38,7 @@ class PostCategoryController extends Controller
     public function edit($id)
     {
         $post_category = PostCategory::find($id);
-        return view('admin.PostCategory.edit_post_category')->with(compact('post_category'));
+        return view('pages.admin.postCategory.edit', compact('post_category'));
     }
     public function update(Request $request, $id)
     {
@@ -47,9 +48,9 @@ class PostCategoryController extends Controller
         $post_category->post_category_slug = $data['post_category_slug'];
         $post_category->save();
 
-        return Redirect::to('/list-category-post')->with('success', 'Cập nhật danh mục bài viết thành công');
+        return Redirect::route('post_category.index')->with('success', 'Cập nhật danh mục bài viết thành công');
     }
-    public function delete($id)
+    public function destroy($id)
     {
         $post_category = PostCategory::find($id);
         $post_category->delete();

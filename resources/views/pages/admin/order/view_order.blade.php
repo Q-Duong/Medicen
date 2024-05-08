@@ -1,4 +1,4 @@
-@extends('admin_layout')
+@extends('layouts.default_auth')
 @section('admin_content')
 <div class="table-agile-info">
     <input type="hidden" value="{{$order -> order_quantity}}"

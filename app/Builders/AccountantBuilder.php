@@ -51,7 +51,7 @@ final class AccountantBuilder extends Builder
                 'accountant_film_bag',
                 'accountant_note',
                 'ord_note',
-                'order_status'
+                'status_id'
             )->get();
         return $listOrderAccountant;
     }
