@@ -507,5 +507,5 @@
     var url_select_month_ktv = "{{ route('schedule.show_ktv') }}";
     var url_update_quantity_ktv = "{{ route('schedule.update_quantity_ktv', ':id') }}";
 </script>
-<script src="{{ asset('assets/js/schedule/org-schedule.js') }}" defer></script>
+<script src="{{ asset('assets/js/tool/schedule/org-schedule-client.js') }}" defer></script>
 @endpush

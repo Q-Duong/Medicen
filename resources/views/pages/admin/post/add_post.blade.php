@@ -65,4 +65,7 @@
 @push('js')
 <script src="{{ versionResource('backend/js/ckeditor/ckeditor.min.js') }}" defer></script>
 <script src="{{ versionResource('backend/js/ckeditor/ckeditor-custom.min.js') }}" defer></script>
+<script>
+    var url_upload_image_ck = "{{ route('upload-image-ck',['_token'=>csrf_token()]) }}";
+</script>
 @endpush

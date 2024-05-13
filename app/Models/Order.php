@@ -47,7 +47,7 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function orderdetail()
+    public function orderDetail()
     {
         return $this->belongsTo(OrderDetail::class);
     }
@@ -57,7 +57,7 @@ class Order extends Model
         return $this->belongsTo(Status::class);
     }
 
-    public function carktv()
+    public function carKTV()
     {
         $this->hasMany(CarKTV::class);
     }

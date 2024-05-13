@@ -24,7 +24,7 @@ class Post extends Model
         'post_image'
     ];
    
-    public function post_category()
+    public function postCategory()
     {
         return $this->belongsTo(PostCategory::class);
     }

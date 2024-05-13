@@ -111,7 +111,8 @@ function formatQuantity(input) {
 (function ($) {
     
     $(window).on("load", function () {
-        $(".loader-over").fadeOut();
+        $(".loader").fadeOut();
+        $("#preloder").fadeOut("slow");
     });
 
     // Tool select2

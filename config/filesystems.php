@@ -60,7 +60,8 @@ return [
             'clientId' => env('GOOGLE_DRIVE_CLIENT_ID'),
             'clientSecret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
             'refreshToken' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
-            'folderId' => env('GOOGLE_DRIVE_FOLDER_ID'), // without folder is root of drive or team drive
+            'folder' => env('GOOGLE_DRIVE_FOLDER'),
+            //'folderId' => env('GOOGLE_DRIVE_FOLDER_ID'), // without folder is root of drive or team drive
             //'teamDriveId' => env('GOOGLE_DRIVE_TEAM_DRIVE_ID'),
             //'sharedFolderId' => env('GOOGLE_DRIVE_SHARED_FOLDER_ID'),
         ],

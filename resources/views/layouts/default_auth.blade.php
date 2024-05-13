@@ -25,7 +25,7 @@
     <link href="{{ versionResource('backend/css/jquery.dataTables.min.css') }}" rel="stylesheet" as="style"/>
     <link href="{{ versionResource('backend/css/responsive-jqueryui.min.css') }}" rel="stylesheet" as="style"/>
     <link href="{{ versionResource('backend/css/themes-base-jquery-ui.css') }}" rel="stylesheet" as="style"/>
-    
+    <link href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet' type='text/css' as="style"/>
     <!-- font CSS -->
     {{-- <link
         href='//fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic'
@@ -42,7 +42,7 @@
     <link rel="stylesheet" href="{{ versionResource('backend/fontawesome-free-5.15.4-web/css/all.css') }}" as="style" />
     <!-- //select2 -->
     <link href="{{ versionResource('backend/css/select2.min.css') }}" rel="stylesheet" as="style"/>
-    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+    @stack('css')
 </head>
 
 <body>
@@ -216,7 +216,7 @@
                             </a>
                         </li>
                         <li class="sub-menu">
-                            <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') ? 'active' : '' }}"
+                            <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                                 href="javascript:;">
                                 <i class="fas fa-file-alt"></i>
                                 <span>Quản lý đơn hàng</span>
@@ -229,7 +229,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="{{ request()->routeIs('order.index') ? 'active' : '' }}"
+                                    <a class="{{ request()->routeIs('order.index') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                                         href="{{ route('order.index') }}">
                                         <i class="fas fa-list-ol"></i> Danh sách đơn hàng
                                     </a>
@@ -471,8 +471,11 @@
         <!--End Noti Popup -->
     </section>
     <!-- Page Preloder -->
-    <div id="preloder">
+    {{-- <div id="preloder">
         <div class="loader"></div>
+    </div> --}}
+    <div class="loader-over">
+        <span class="loader"></span>
     </div>
     <script src="{{ versionResource('backend/js/jquery2.0.3.min.js') }}"></script>
     <script src="{{ versionResource('backend/js/bootstrap.js') }}"></script>
@@ -485,21 +488,7 @@
     {{-- <script src="{{ versionResource('backend/js/responsive.jqueryui.min.js') }}"></script> --}}
     <script src="{{ versionResource('backend/js/tool/select2.min.js') }}" ></script>
     <script src="{{ versionResource('backend/js/tool/main.min.js') }}" ></script>
-    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
- 
     @stack('js')
-
-    <script type="text/javascript">
-       
-        // Revenue Statistics Url
-        var url_revenue_statistics_for_the_month = "{{route('url-revenue-statistics-for-the-month')}}";
-        var url_optional_revenue_statistics = "{{route('url-optional-revenue-statistics')}}";
-        var url_revenue_statistics_by_unit = "{{route('url-revenue-statistics-by-unit')}}";
-        var url_revenue_statistics_by_date = "{{route('url-revenue-statistics-by-date')}}";
-        
-        var _token = "{{ csrf_token() }}";
-    </script>
-
     {{-- [if lte IE 8]><script language="javascript" type="text/javascript" src="js/flot-chart/excanvas.min.js"></script><![endif] --}}
     <script src="{{ asset('backend/js/jquery.scrollTo.js') }}"></script>
     <!-- calendar -->

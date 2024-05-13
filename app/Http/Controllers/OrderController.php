@@ -4,19 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Http;
 use App\Exports\ExcelExport;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Models\Staff;
 use App\Models\Unit;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Customer;
-use App\Models\CarKTV;
 use App\Models\Accountant;
 use App\Models\HistoryEdit;
 use App\Models\TempFile;
-use App\Models\Zalo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +22,7 @@ use PDF;
 
 class OrderController extends Controller
 {
-	//Customer
+	//Client
 	public function createOrderClient()
 	{
 		return view('pages.client.order.index');
@@ -214,24 +210,8 @@ class OrderController extends Controller
 			->join('units', 'units.id', '=', 'orders.unit_id')
 			->orderBy('orders.id', 'DESC')
 			->select('orders.id', 'orders.created_at', 'order_quantity', 'order_price', 'status_id', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')
-			->get();
+			->paginate(10);
 		return view('pages.admin.order.index')->with(compact('getAllOrder'));
-	}
-
-	public function upload(Request $request)
-	{
-		$getFile = $request->file('ord_list_file');
-		if ($getFile) {
-			foreach ($getFile as $key => $file) {
-				$fileUploaded = saveImageFileDrive($file);
-				TempFile::create([
-					'folder' => $fileUploaded['path'],
-					'filename' => $fileUploaded['fileName'],
-				]);
-			}
-			return $fileUploaded['path'];
-		}
-		return response('Failed upload', 500);
 	}
 
 	public function create()
@@ -246,6 +226,13 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			$customer = new Customer();
+			$customer->customer_name = $data['customer_name'];
+			$customer->customer_phone = $data['customer_phone'];
+			$customer->customer_address = $data['customer_address'];
+			$customer->customer_note = $data['customer_note'];
+			$customer->save();
+
 			$orderDetail = new OrderDetail();
 			$orderDetail->ord_start_day = $data['ord_start_day'];
 			$orderDetail->ord_end_day = $data['ord_end_day'];
@@ -268,9 +255,10 @@ class OrderController extends Controller
 				$name = '';
 				$path = '';
 				foreach ($get_file as $key => $file) {
-					$tmp_file = TempFile::where('folder', $file)->first();
+					$tmp_file = TempFile::where('filename', $file)->first();
 					$name .= $tmp_file->filename . ',';
-					$path .= $file . ',';
+					$path .= $tmp_file->folder . ',';
+					$tmp_file->delete();
 				}
 				$orderDetail->ord_list_file = substr($name, 0, -1);
 				$orderDetail->ord_list_file_path = substr($path, 0, -1);
@@ -280,17 +268,11 @@ class OrderController extends Controller
 			}
 			$orderDetail->save();
 
-			$customer = new Customer();
-			$customer->customer_name = $data['customer_name'];
-			$customer->customer_phone = $data['customer_phone'];
-			$customer->customer_address = $data['customer_address'];
-			$customer->customer_note = $data['customer_note'];
-			$customer->save();
-
 			$order = new Order();
 			$order->customer_id = $customer->id;
 			$order->order_detail_id = $orderDetail->id;
 			$order->unit_id = $data['unit_id'];
+			$order->status_id = 1;
 			$order->order_quantity = $data['order_quantity'];
 			$order->order_price = formatPrice($data['order_price']);
 			$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
@@ -299,7 +281,6 @@ class OrderController extends Controller
 			$order->order_vat = $data['order_vat'];
 			$order->order_discount = 0;
 			$order->order_profit = 0;
-			$order->status_id = 1;
 			$order->schedule_status = 0;
 			$order->accountant_updated = 0;
 			$order->order_warning = $data['order_warning'];
@@ -308,12 +289,10 @@ class OrderController extends Controller
 			$order->save();
 
 			$format = explode("-", $data['ord_start_day']);
-
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = formatPrice($data['order_price']);
 			$accountant->accountant_distance = $data['accountant_distance'];
-
 			if ($format[1] == 10) {
 				$accountant->accountant_month = $format[1];
 			} else {
@@ -339,241 +318,21 @@ class OrderController extends Controller
 		}
 	}
 
-	
-
-	public function zaloNotificationServiceD($carActive)
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => $carActive->car_driver_phone,
-					'template_id' => '259945',
-					'template_data' => [
-						'order_code' => $carActive->order_id,
-						'date' => date('d/m/Y', strtotime($carActive->order->orderdetail->ord_start_day)),
-						'car' => $carActive->car_name,
-						'name' => $carActive->car_driver_name,
-						'time' => $carActive->order->orderdetail->ord_time
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function zaloNotificationServiceK1($carActive)
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => $carActive->car_ktv_phone_1,
-					'template_id' => '259945',
-					'template_data' => [
-						'order_code' => $carActive->order_id,
-						'date' => date('d/m/Y', strtotime($carActive->order->orderdetail->ord_start_day)),
-						'car' => $carActive->car_name,
-						'name' => $carActive->car_ktv_name_1,
-						'time' => $carActive->order->orderdetail->ord_time
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function zaloNotificationServiceK2($carActive)
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => $carActive->car_ktv_phone_2,
-					'template_id' => '259945',
-					'template_data' => [
-						'order_code' => $carActive->order_id,
-						'date' => date('d/m/Y', strtotime($carActive->order->orderdetail->ord_start_day)),
-						'car' => $carActive->car_name,
-						'name' => $carActive->car_ktv_name_2,
-						'time' => $carActive->order->orderdetail->ord_time
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function zaloNotificationCancleD($carActive)
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => $carActive->car_driver_phone,
-					'template_id' => '261885',
-					'template_data' => [
-						'order_code' => $carActive->order_id,
-						'date' => date('d/m/Y', strtotime($carActive->order->orderdetail->ord_start_day)),
-						'car' => $carActive->car_name,
-						'name' => $carActive->car_driver_name,
-						'time' => $carActive->order->orderdetail->ord_time
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function zaloNotificationCancleK1($carActive)
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => $carActive->car_ktv_phone_1,
-					'template_id' => '261885',
-					'template_data' => [
-						'order_code' => $carActive->order_id,
-						'date' => date('d/m/Y', strtotime($carActive->order->orderdetail->ord_start_day)),
-						'car' => $carActive->car_name,
-						'name' => $carActive->car_ktv_name_1,
-						'time' => $carActive->order->orderdetail->ord_time
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function zaloNotificationCancleK2($carActive)
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => $carActive->car_ktv_phone_2,
-					'template_id' => '261885',
-					'template_data' => [
-						'order_code' => $carActive->order_id,
-						'date' => date('d/m/Y', strtotime($carActive->order->orderdetail->ord_start_day)),
-						'car' => $carActive->car_name,
-						'name' => $carActive->car_ktv_name_2,
-						'time' => $carActive->order->orderdetail->ord_time
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-	}
-
-	public function test_zalo()
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => '84943705326',
-					'template_id' => '259945',
-					'template_data' => [
-						'order_code' => 100,
-						'date' => date('d/m/Y', strtotime(2023 - 05 - 16)),
-						'car' => 1,
-						'name' => 'Quốc Dương',
-						'time' => '7'
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-		return $jsonData;
-	}
-
-	public function test_zalo_cancle()
-	{
-		$response = Http
-			::withHeaders([
-				'Content-Type' => 'application/json',
-				'access_token' => $this->getAccessTokenDB()
-			])->post(
-				'https://business.openapi.zalo.me/message/template',
-				[
-					'phone' => '84943705326',
-					'template_id' => '261885',
-					'template_data' => [
-						'order_code' => 100,
-						'date' => date('d/m/Y', strtotime(2023 - 05 - 16)),
-						'car' => 1,
-						'name' => 'Quốc Dương',
-						'time' => '7'
-					],
-					'tracking_id' => 'sadlkslfkdslkgldkgfdkjgfdjjjj'
-				]
-			);
-
-		$jsonData = $response->json();
-		return $jsonData;
-	}
-
-	public function edit_order($order_id)
+	public function edit($order_id)
 	{
 		$order = Accountant::where('order_id', $order_id)->first();
-		$name_path = array_combine(explode(',', $order->order->orderdetail->ord_list_file), explode(',', $order->order->orderdetail->ord_list_file_path));
+		$files = array_combine(explode(',', $order->order->orderDetail->ord_list_file), explode(',', $order->order->orderDetail->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
-		$files = [
-			[
-				'source' => Storage::url('path_to_your_file'),
-				'options' => [
-					'type' => 'local'
-				]
-			]
-		];
-		return view('admin.Order.edit_order')->with(compact('order', 'getAllUnit', 'name_path'));
+		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files'));
 	}
-	public function delete_file_order(Request $request)
-	{
-		$data = $request->all();
-		$content = Storage::cloud()->delete($data['path']);
-		$orderDetail = OrderDetail::find($data['order_detail_id']);
-		$orderDetail->ord_list_file = '';
-		$orderDetail->ord_list_file_path = '';
-		$orderDetail->save();
-		return response()->json($content);
-	}
-	public function update_order(Request $request, $order_id)
+
+	public function update(Request $request, $order_id)
 	{
 		$this->checkOrderAdmin($request);
 		$data = $request->all();
-		$order = Order::find($order_id);
+		$order = Order::findOrFail($order_id);
 		$order->unit_id = $data['unit_id'];
+		$order->status_id == 0 ? $order->status_id = 1 : '';
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
 		$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
@@ -581,9 +340,7 @@ class OrderController extends Controller
 		$order->order_percent_discount = $data['order_percent_discount'];
 		$order->order_vat = $data['order_vat'];
 		$order->order_warning = $data['order_warning'];
-		if ($order->order_status == 0) {
-			$order->order_status = 1;
-		}
+		
 		$order->order_child = $data['order_child'];
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->save();
@@ -596,14 +353,14 @@ class OrderController extends Controller
 		$customer_id = $order->customer_id;
 		$order_detail_id = $order->order_detail_id;
 
-		$customer = Customer::find($customer_id);
+		$customer = Customer::findOrFail($customer_id);
 		$customer->customer_name = $data['customer_name'];
 		$customer->customer_phone = $data['customer_phone'];
 		$customer->customer_address = $data['customer_address'];
 		$customer->customer_note = $data['customer_note'];
 		$customer->save();
 
-		$orderDetail = OrderDetail::find($order_detail_id);
+		$orderDetail = OrderDetail::findOrFail($order_detail_id);
 		$orderDetail->ord_start_day = $data['ord_start_day'];
 		$orderDetail->ord_end_day = $data['ord_end_day'];
 		$orderDetail->ord_select = $data['ord_select'];
@@ -620,148 +377,132 @@ class OrderController extends Controller
 		$orderDetail->ord_cty_name = $data['ord_cty_name'];
 		$orderDetail->ord_time = $data['ord_time'];
 		$orderDetail->ord_email = $data['ord_email'];
-		$get_file = $request->file('ord_list_file');
+		$get_file = $request->ord_list_file;
 		if ($get_file) {
 			$name = '';
 			$path = '';
 			foreach ($get_file as $key => $file) {
-				$fileData = File::get($file);
-				$get_name_file = $file->getClientOriginalName();
-				$name_file = current(explode('.', $get_name_file));
-				$new_file =  $name_file . rand(0, 99) . '.' . $file->getClientOriginalExtension();
-				Storage::cloud()->put($new_file, $fileData);
-				$content = collect(Storage::cloud()->listContents());
-				$file_path = $content->where('name', '=', $new_file)->first();
-				$name .= $new_file . ',';
-				$path .= $file_path['path'] . ',';
+				$tmp_file = TempFile::where('filename', $file)->first();
+				$name .= $tmp_file->filename . ',';
+				$path .= $tmp_file->folder . ',';
+				$tmp_file->delete();
 			}
-			$orderDetail->ord_list_file = substr($name, 0, -1);
-			$orderDetail->ord_list_file_path = substr($path, 0, -1);
+			$orderDetail->ord_list_file = $orderDetail->ord_list_file != '' ? $orderDetail->ord_list_file  . ',' . substr($name, 0, -1) : substr($name, 0, -1);
+			$orderDetail->ord_list_file_path = $orderDetail->ord_list_file_path != '' ? $orderDetail->ord_list_file_path . ',' . substr($path, 0, -1) : substr($path, 0, -1);
 		}
 		$orderDetail->save();
 
-		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $order_id;
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Sửa đơn hàng';
-		$history->created_at = $now;
 		$history->save();
 
-		return Redirect::to('admin/order/list')->with('success', 'Cập nhật thông tin đơn hàng thành công');
+		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin đơn hàng thành công');
 	}
-	public function coppy_order($order_id)
+
+	public function copy($order_id)
 	{
 		$order = Accountant::where('order_id', $order_id)->first();
+		$files = array_combine(explode(',', $order->order->orderDetail->ord_list_file), explode(',', $order->order->orderDetail->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
-		return view('admin.Order.coppy_order')->with(compact('order', 'getAllUnit'));
+		return view('pages.admin.order.copy', compact('order', 'getAllUnit', 'files'));
 	}
-	public function save_coppy_order(Request $request)
+	public function storeCopy(Request $request)
 	{
 		$this->checkOrderAdmin($request);
-		$data = $request->all();
-		// $ord_select = '';
+		DB::beginTransaction();
+		try {
+			$data = $request->all();
+			$customer = new Customer();
+			$customer->customer_name = $data['customer_name'];
+			$customer->customer_phone = $data['customer_phone'];
+			$customer->customer_address = $data['customer_address'];
+			$customer->customer_note = $data['customer_note'];
+			$customer->save();
 
-		// foreach($request->ord_select as $key => $ord_sel){
-		// 	$ord_select.=$request->ord_select[$key].', ';
-		// }
-		$customer = new Customer();
-		$customer->customer_name = $data['customer_name'];
-		$customer->customer_phone = $data['customer_phone'];
-		$customer->customer_address = $data['customer_address'];
-		$customer->customer_note = $data['customer_note'];
-		$customer->save();
-
-		$orderDetail = new OrderDetail();
-		$orderDetail->ord_start_day = $data['ord_start_day'];
-		$orderDetail->ord_end_day = $data['ord_end_day'];
-		$orderDetail->ord_select = $data['ord_select'];
-		$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
-		$orderDetail->ord_film = $data['ord_film'];
-		$orderDetail->ord_form = $data['ord_form'];
-		$orderDetail->ord_print = $data['ord_print'];
-		$orderDetail->ord_form_print = $data['ord_form_print'];
-		$orderDetail->ord_print_result = $data['ord_print_result'];
-		$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
-		$orderDetail->ord_note = $data['ord_note'];
-		$orderDetail->ord_deadline = $data['ord_deadline'];
-		$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
-		$orderDetail->ord_cty_name = $data['ord_cty_name'];
-		$orderDetail->ord_time = $data['ord_time'];
-		$orderDetail->ord_email = $data['ord_email'];
-		$get_file = $request->file('ord_list_file');
-
-		if ($get_file) {
-			$name = '';
-			$path = '';
-			foreach ($get_file as $key => $file) {
-				$fileData = File::get($file);
-				$get_name_file = $file->getClientOriginalName();
-				$name_file = current(explode('.', $get_name_file));
-				$new_file =  $name_file . rand(0, 99) . '.' . $file->getClientOriginalExtension();
-				Storage::cloud()->put($new_file, $fileData);
-				$content = collect(Storage::cloud()->listContents('test', true));
-				$file_path = $content->where('name', '=', $new_file)->first();
-				$name .= $new_file . ',';
-				$path .= $file_path['path'] . ',';
-			}
-
-			$orderDetail->ord_list_file = substr($name, 0, -1);
-			$orderDetail->ord_list_file_path = substr($path, 0, -1);
-		} else {
-			$orderDetail->ord_list_file = '';
-			$orderDetail->ord_list_file_path = '';
-		}
-		$orderDetail->save();
-
-		$order = new Order();
-		$order->customer_id = $customer->customer_id;
-		$order->order_detail_id = $orderDetail->order_detail_id;
-		$order->unit_id = $data['unit_id'];
-		$order->order_quantity = $data['order_quantity'];
-		$order->order_price = formatPrice($data['order_price']);
-		$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
-		$order->order_all_in_one = $data['order_all_in_one'];
-		$order->order_vat = $data['order_vat'];
-		$order->order_percent_discount = $data['order_percent_discount'];
-		$order->order_profit = 0;
-		$order->order_status = 1;
-		$order->schedule_status = 0;
-		$order->accountant_updated = 0;
-		$order->order_warning = $data['order_warning'];
-		$order->order_child = $data['order_child'];
-		$order->order_surcharge = $data['order_surcharge'];
-		$order->save();
-
-		$format = explode("-", $data['ord_start_day']);
-
-		$accountant = new Accountant();
-		$accountant->order_id = $order->order_id;
-		$accountant->accountant_owe = formatPrice($data['order_price']);
-		$accountant->accountant_distance = $data['accountant_distance'];
-		$accountant->save();
-
-		if ($format[1] == 10) {
-			$accountant->accountant_month = $format[1];
-		} else {
-			$month = explode("0", $format[1]);
-			if (count($month) > 1) {
-				$accountant->accountant_month = $month[1];
+			$orderDetail = new OrderDetail();
+			$orderDetail->ord_start_day = $data['ord_start_day'];
+			$orderDetail->ord_end_day = $data['ord_end_day'];
+			$orderDetail->ord_select = $data['ord_select'];
+			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
+			$orderDetail->ord_film = $data['ord_film'];
+			$orderDetail->ord_form = $data['ord_form'];
+			$orderDetail->ord_print = $data['ord_print'];
+			$orderDetail->ord_form_print = $data['ord_form_print'];
+			$orderDetail->ord_print_result = $data['ord_print_result'];
+			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
+			$orderDetail->ord_note = $data['ord_note'];
+			$orderDetail->ord_deadline = $data['ord_deadline'];
+			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
+			$orderDetail->ord_cty_name = $data['ord_cty_name'];
+			$orderDetail->ord_time = $data['ord_time'];
+			$orderDetail->ord_email = $data['ord_email'];
+			$get_file = $request->ord_list_file;
+			if ($get_file) {
+				$name = '';
+				$path = '';
+				foreach ($get_file as $key => $file) {
+					$tmp_file = TempFile::where('filename', $file)->first();
+					$name .= $tmp_file->filename . ',';
+					$path .= $tmp_file->folder . ',';
+					$tmp_file->delete();
+				}
+				$orderDetail->ord_list_file = substr($name, 0, -1);
+				$orderDetail->ord_list_file_path = substr($path, 0, -1);
 			} else {
-				$accountant->accountant_month = $month[0];
+				$orderDetail->ord_list_file = '';
+				$orderDetail->ord_list_file_path = '';
 			}
+			$orderDetail->save();
+
+			$order = new Order();
+			$order->customer_id = $customer->id;
+			$order->order_detail_id = $orderDetail->id;
+			$order->unit_id = $data['unit_id'];
+			$order->status_id = 1;
+			$order->order_quantity = $data['order_quantity'];
+			$order->order_price = formatPrice($data['order_price']);
+			$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
+			$order->order_all_in_one = $data['order_all_in_one'];
+			$order->order_percent_discount = $data['order_percent_discount'];
+			$order->order_vat = $data['order_vat'];
+			$order->order_profit = 0;
+			$order->schedule_status = 0;
+			$order->accountant_updated = 0;
+			$order->order_warning = $data['order_warning'];
+			$order->order_child = $data['order_child'];
+			$order->order_surcharge = $data['order_surcharge'];
+			$order->save();
+
+			$format = explode("-", $data['ord_start_day']);
+			$accountant = new Accountant();
+			$accountant->order_id = $order->id;
+			$accountant->accountant_owe = formatPrice($data['order_price']);
+			$accountant->accountant_distance = $data['accountant_distance'];
+			if ($format[1] == 10) {
+				$accountant->accountant_month = $format[1];
+			} else {
+				$month = explode("0", $format[1]);
+				if (count($month) > 1) {
+					$accountant->accountant_month = $month[1];
+				} else {
+					$accountant->accountant_month = $month[0];
+				}
+			}
+			$accountant->save();
+
+			$history = new HistoryEdit();
+			$history->order_id = $order->id;
+			$history->user_name = Auth::user()->email;
+			$history->history_action = 'Thêm đơn hàng';
+			$history->save();
+			DB::commit();
+			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công');
+		} catch (\Exception $e) {
+			DB::rollback();
+			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
 		}
-		$accountant->save();
-
-		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
-		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
-		$history->user_name = Auth::user()->email;
-		$history->history_action = 'Thêm đơn hàng';
-		$history->created_at = $now;
-		$history->save();
-
-		return Redirect::to('admin/order/list')->with('success', 'Thêm đơn hàng thành công');
 	}
 	public function update_order_schedule(Request $request, $order_id)
 	{
@@ -806,6 +547,23 @@ class OrderController extends Controller
 
 		return response()->json(['success' => 'Cập nhật thông tin đơn hàng thành công']);
 	}
+	public function destroy($order_id)
+	{
+		$order = Order::findOrFail($order_id);
+		$order->delete();
+		$customer = Customer::findOrFail($order->customer_id);
+		$customer->delete();
+		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
+		if($orderDetail->ord_list_file != ''){
+			$files = explode(',', $orderDetail->ord_list_file);
+			foreach($files as $file){
+				deleteImageFileDrive($file);
+			}
+		}
+		$orderDetail->delete();
+
+		return Redirect()->back()->with('success', 'Xóa đơn hàng thành công');
+	}
 	public function export_excel(Request $request)
 	{
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
@@ -817,17 +575,6 @@ class OrderController extends Controller
 
 		// return Excel::download(new ExcelExport($date), $date.'.xlsx');
 		return Excel::download(new ExcelExport($firstDayofThisMonth, $lastDayofThisMonth), 'Acountant.xlsx');
-	}
-	public function delete_order($order_id)
-	{
-		$order = Order::find($order_id);
-		$order->delete();
-		$customer = Customer::find($order->customer_id);
-		$customer->delete();
-		$order_detail = OrderDetail::find($order->order_detail_id);
-		$order_detail->delete();
-
-		return Redirect()->back()->with('success', 'Xóa đơn hàng thành công');
 	}
 	public function view_order($order_id)
 	{
@@ -1034,11 +781,6 @@ class OrderController extends Controller
 		return $output;
 	}
 
-	public function Storage()
-	{
-		$content = collect(Storage::cloud()->listContents('test', true));
-		dd($content);
-	}
 	//Validation
 	public function checkOrder(Request $request)
 	{

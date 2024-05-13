@@ -1,11 +1,14 @@
 @extends('layouts.default_auth')
+@push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/pagination.css') }}" type="text/css" as="style" />
+@endpush
 @section('admin_content')
     <div class="table-agile-info">
         <div class="panel-heading">
             Danh sách đơn hàng
         </div>
         <div class="table-responsive table-content">
-            <table class="table table-striped b-t b-light display responsive nowrap" style="width:100%" id="myTable">
+            <table class="table table-striped b-t b-light table-bordered">
                 <thead>
                     <tr>
                         <th>Mã ĐH</th>
@@ -50,100 +53,91 @@
                                 {{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}</td>
                             <td>{{ $order->ord_select }}</td>
                             @if (Auth::user()->role == 0)
-                                <td>
-                                    <a href="{{ route('order.edit', $order->id) }}"
-                                        class="active style-edit space_manage" ui-toggle-class=""><i
+                                <td class="management">
+                                    <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                             class="fa fa-pencil-square-o text-success text-active"></i>
                                     </a>
-                                    <a onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"
-                                        href="{{ route('order.destroy', $order->id) }}"
-                                        class="active style-edit space_manage" ui-toggle-class="">
-                                        <i class="fa fa-times text-danger text"></i>
+                                    <form action="{{ route('order.destroy', $order->id) }}" method="POST">
+                                        @method('delete')
+                                        @csrf
+                                        <button type="submit" class="management-btn button-submit"
+                                            title="@lang('vart_define.button.delete')"><i class="fa fa-times text-danger text"></i></button>
+                                    </form>
+                                    <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
+                                        <i class="far fa-copy"></i></i>
                                     </a>
-                                    <a href="{{ route('order.copy', $order->id) }}"
-                                        class="active style-edit space_manage" ui-toggle-class=""><i
-                                            class="far fa-copy"></i></i>
-                                    </a>
-                                    <a href="{{ route('accountant.update_order', $order->id) }}"
-                                        class="active style-edit" ui-toggle-class=""><i
-                                            class="fas fa-file-import text-warning "></i>
+                                    <a href="{{ route('accountant.update_order', $order->id) }}" class="management-btn">
+                                        <i class="fas fa-file-import text-warning "></i>
                                     </a>
                                 </td>
-                                <td>
+                                <td class="management-lite">
                                     @if ($order->schedule_status == 0)
-                                        <a href="{{ route('schedule.create', $order->id) }}" class="active styling-edit"
-                                            ui-toggle-class="">
-                                            Thêm lịch <i class="fa fa-calendar-plus"></i>
+                                        <a href="{{ route('schedule.create', $order->id) }}" class="management-btn">
+                                            <i class="fa fa-calendar-plus"></i>
                                         </a>
                                     @else
-                                        <a href="{{ route('schedule.edit', $order->id) }}"
-                                            class="active styling-edit" ui-toggle-class="">
-                                            Sửa lịch <i class="fas fa-calendar-week"></i>
+                                        <a href="{{ route('schedule.edit', $order->id) }}" class="management-btn">
+                                            <i class="fas fa-calendar-week"></i>
                                         </a>
                                     @endif
                                 </td>
                             @else
                                 @if (Carbon\Carbon::now() < $order->ord_start_day)
-                                    <td>
-                                        <a href="{{ route('order.edit', $order->id) }}"
-                                            class="active style-edit space_manage" ui-toggle-class=""><i
+                                    <td class="management">
+                                        <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
-                                        <a onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"
-                                            href="{{ route('order.destroy', $order->id) }}"
-                                            class="active style-edit space_manage" ui-toggle-class="">
-                                            <i class="fa fa-times text-danger text"></i>
-                                        </a>
-                                        <a href="{{ route('order.copy', $order->id) }}"
-                                            class="active style-edit space_manage" ui-toggle-class=""><i
+                                        <form action="{{ route('order.destroy', $order->id) }}" method="POST">
+                                            @method('delete')
+                                            @csrf
+                                            <button type="submit" class="management-btn button-submit"
+                                                title="@lang('vart_define.button.delete')"><i
+                                                    class="fa fa-times text-danger text"></i></button>
+                                        </form>
+                                        <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
                                                 class="far fa-copy"></i></i>
                                         </a>
                                         <a href="{{ route('accountant.update_order', $order->id) }}"
-                                            class="active style-edit" ui-toggle-class=""><i
-                                                class="fas fa-file-import text-warning "></i>
+                                            class="management-btn"><i class="fas fa-file-import text-warning "></i>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="management">
                                         @if ($order->schedule_status == 0)
-                                            <a href="{{ route('schedule.create', $order->id) }}" class="active styling-edit"
-                                                ui-toggle-class="">
+                                            <a href="{{ route('schedule.create', $order->id) }}" class="management-btn">
                                                 Thêm lịch <i class="fa fa-calendar-plus"></i>
                                             </a>
                                         @else
-                                            <a href="{{ route('schedule.edit', $order->id) }}"
-                                                class="active styling-edit" ui-toggle-class="">
+                                            <a href="{{ route('schedule.edit', $order->id) }}" class="management-btn">
                                                 Sửa lịch <i class="fas fa-calendar-week"></i>
                                             </a>
                                         @endif
                                     </td>
                                 @else
-                                    <td>
-                                        <a href="{{ route('order.edit', $order->order_id) }}"
-                                            class="active style-edit space_manage" ui-toggle-class=""><i
+                                    <td class="management">
+                                        <a href="{{ route('order.edit', $order->order_id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
-                                        <a href="{{ route('order.copy', $order->id) }}"
-                                            class="active style-edit space_manage" ui-toggle-class=""><i
+                                        <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
                                                 class="far fa-copy"></i></i>
                                         </a>
                                         <a href="{{ route('accountant.update_order', $order->id) }}"
-                                            class="active style-edit" ui-toggle-class=""><i
-                                                class="fas fa-file-import text-warning "></i>
+                                            class="management-btn"><i class="fas fa-file-import text-warning "></i>
                                         </a>
                                     </td>
                                     <td></td>
                                 @endif
                             @endif
-                            <td>
-                                <a href="{{ route('order.view', $order->id) }}" class="active styling-edit"
-                                    ui-toggle-class="">
-                                    <i class="fa fa-arrow-right"></i></a>
+                            <td class="management-lite">
+                                <a href="{{ route('order.view', $order->id) }}" class="management-btn">
+                                    <i class="fa fa-arrow-right"></i>
+                                </a>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        {{ $getAllOrder->links('pagination::bootstrap-4') }}
         <div class="export-excel">
             <form action="{{ route('export_excel') }}" method="POST" id="myForm">
                 @csrf
@@ -175,7 +169,7 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="primary-btn-filter">Xuất file Excel</button>
+                    <button type="submit" class="primary-btn-filter button-submit">Xuất file Excel</button>
                 </div>
             </form>
         </div>

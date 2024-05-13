@@ -19,8 +19,15 @@ class AppServiceProvider extends ServiceProvider
 		    $getAllService = Service::orderBy('id','ASC')->get();
             $view->with(compact('getAllPostCategory','getAllService'));
         });
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
         try {
-            \Storage::extend('google', function ($app, $config) {
+            Storage::extend('google', function ($app, $config) {
                 $options = [];
 
                 if (!empty($config['teamDriveId'] ?? null)) {
@@ -43,15 +50,7 @@ class AppServiceProvider extends ServiceProvider
                 return new \Illuminate\Filesystem\FilesystemAdapter($driver, $adapter);
             });
         } catch (\Exception $e) {
-            // your exception handling logic
+            // return $e->getMessage();
         }
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
-        //
     }
 }

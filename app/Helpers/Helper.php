@@ -33,17 +33,10 @@ if (!function_exists('saveImageFileDrive')) {
         $get_name_file = $file->getClientOriginalName();
         $name_file = current(explode('.', $get_name_file));
         $new_file =  $name_file . rand(0, 99) . '.' . $file->getClientOriginalExtension();
-        Storage::cloud()->put('test/'.$new_file, $fileData);
-        $content = collect(Storage::cloud()->listContents('test', true));
-        $filesWithExtraMetadata = $content
-        ->filter(function ($file) {
-            return isset($file['extraMetadata']);
-        })
-        ->map(function ($file) {
-            return $file['extraMetadata'];
-        });
-        $collectFile = $filesWithExtraMetadata->where('name', '=', $new_file)->first();
-        $response=['fileName' => $new_file, 'path' => $collectFile['id']];
+        $fileUploaded = Storage::cloud()->put($new_file, $fileData);
+        $getAllFileInDrive = collect(Storage::cloud()->listContents('', true));
+        $collectFile = $getAllFileInDrive->where('path', '=', $new_file)->first();
+        $response=['fileName' => $new_file, 'virtual_path' => $collectFile['extraMetadata']['virtual_path'] ];
         return $response;
     }
 }

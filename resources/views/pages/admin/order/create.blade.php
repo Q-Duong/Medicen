@@ -1,4 +1,9 @@
 @extends('layouts.default_auth')
+@push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond.css') }}" type="text/css" as="style" />
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond-preview.css') }}" type="text/css"
+        as="style" />
+@endpush
 @section('admin_content')
     <div class="row">
         <div class="col-lg-12">
@@ -455,8 +460,7 @@
                                 <label for="exampleInputEmail1">Danh sách chụp</label>
 
                             </div>
-                            <input type="file" name="ord_list_file[]" class="filepond"
-                                value="{{ old('ord_list_file') }}" multiple>
+                            <input type="file" name="ord_list_file[]" class="filepond" multiple>
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Xe đi xa hoặc gần</label>
                                 <select name="accountant_distance" class="input-control">
@@ -580,7 +584,8 @@
                                 ) !!}
                             </div>
 
-                            <button type="submit" class="primary-btn-submit">Thêm đơn hàng</button>
+                            <button type="submit" class="primary-btn-submit button-submit">Thêm đơn hàng 
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -589,20 +594,22 @@
     </div>
 @endsection
 @push('js')
+    <script src="{{ versionResource('assets/js/support/file/filepond.js') }}" defer></script>
+    <script src="{{ versionResource('assets/js/support/file/filepond-preview.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/tool/order.min.js') }}" defer></script>
+    <script src="{{ versionResource('assets/js/support/essential.js') }}" defer></script>
+    <script src="{{ versionResource('assets/js/support/file/org-handle-file.js') }}" defer></script>
     <script>
-        var url_upload = "{{ route('upload') }}";
-        const inputElement = document.querySelector('input[type="file"]');
-        FilePond.create(inputElement, {
-            labelIdle: `Kéo và thả tập tin của bạn hoặc <span class="filepond--label-action">Trình duyệt</span>`
-        }).setOptions({
-            server: {
-                url: url_upload,
-                timeout: 7000,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        var url_file_process = "{{ route('file.process') }}";
+        var url_file_revert = "{{ route('file.revert') }}";
+        var files = [];
+        @foreach (old('ord_list_file', []) as $file)
+            files.push({
+                source: '{{ $file }}',
+                options: {
+                    type: 'local'
                 }
-            }
-        });
+            });
+        @endforeach
     </script>
 @endpush

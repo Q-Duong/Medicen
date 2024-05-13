@@ -39,6 +39,6 @@ class OrderDetail extends Model
     
     public function order()
     {
-        $this->hasMany(Order::class);
+        $this->hasOne(Order::class);
     }
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\FileController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
@@ -164,7 +165,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::post('save-copy', [OrderController::class, 'storeCopy'])->name('order.store_copy');
             Route::get('view/{code}', [OrderController::class, 'view'])->name('order.view');
             Route::get('print/{id}', [OrderController::class, 'print'])->name('order.print');
-            Route::post('upload', [OrderController::class, 'upload'])->name('upload');
+        });
+        //File
+        Route::prefix('file')->group(function () {
+            Route::post('process', [FileController::class, 'process'])->name('file.process');
+            Route::delete('revert', [FileController::class, 'revert'])->name('file.revert');
+            Route::delete('delete-file-order', [FileController::class, 'destroyFileOrder'])->name('file.delete_file_order');
         });
         //Schuedule
         Route::prefix('schedule')->group(function () {

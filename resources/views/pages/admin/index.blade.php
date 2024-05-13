@@ -166,4 +166,11 @@
     <script src="{{ versionResource('backend/js/chart/raphael-min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/chart/morris.min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/chart/chart.min.js') }}" defer ></script>
+    <script type="text/javascript">
+        // Revenue Statistics Url
+        var url_revenue_statistics_for_the_month = "{{route('url-revenue-statistics-for-the-month')}}";
+        var url_optional_revenue_statistics = "{{route('url-optional-revenue-statistics')}}";
+        var url_revenue_statistics_by_unit = "{{route('url-revenue-statistics-by-unit')}}";
+        var url_revenue_statistics_by_date = "{{route('url-revenue-statistics-by-date')}}";
+    </script>
 @endpush
