@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AboutRequestForm;
 use App\Models\About;
 use Illuminate\Http\Request;
 use App\Models\Contact;
@@ -81,9 +82,8 @@ class AboutController extends Controller
         return view('pages.admin.about.index')->with(compact('getAllAbout'));
     }
 
-    public function store(Request $request)
+    public function store(AboutRequestForm $request)
     {
-        $this->checkValidateAbout($request);
         $data = $request->all();
         $about = new About();
         $about->about_title = $data['about_title'];
@@ -115,9 +115,8 @@ class AboutController extends Controller
         return view('pages.admin.about.edit', compact('about'));
     }
 
-    public function update(Request $request, $id)
+    public function update(AboutRequestForm $request, $id)
     {
-        $this->checkValidateAbout($request);
         $data = $request->all();
         $about = About::find($id);
         $about->about_title = $data['about_title'];
@@ -156,27 +155,6 @@ class AboutController extends Controller
     public function show($about_slug)
     {
         $about = About::where('about_slug', $about_slug)->first();
-        return view('pages.client.about.index')->with(compact('about'));
-    }
-
-    //Validation
-
-    public function checkValidateAbout(Request $request)
-    {
-        $this->validate(
-            $request,
-            [
-                'about_title' => 'required',
-                'about_slug' => 'required',
-                // 'about_image' => 'required',
-                'about_content' => 'required',
-            ],
-            [
-                'about_title.required' => 'Vui lòng điền thông tin',
-                'about_slug.required' => 'Vui lòng điền thông tin',
-                // 'about_image.required' => 'Vui lòng thêm hình ảnh',
-                'about_content.required' => 'Vui lòng điền thông tin',
-            ]
-        );
+        return view('pages.client.about.index', compact('about'));
     }
 }

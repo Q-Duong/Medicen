@@ -15,11 +15,14 @@
                         <form action="{{ route('post_category.update', $post_category->id) }}" method="post">
                             @method('patch')
                             @csrf
-                            <div class="form-group">
+                            <div class="form-group @error('post_category_name') has-error @enderror">
                                 <label for="exampleInputEmail1">Tên danh mục bài viết</label>
                                 <input type="text" name="post_category_name" class="input-control" id="slug"
                                     placeholder="Điền tên danh mục bài viết" onkeyup="ChangeToSlug();"
                                     value="{{ $post_category->post_category_name }}">
+                                @error('post_category_name')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group hidden">
                                 <label for="exampleInputEmail1">Slug danh mục bài viết</label>

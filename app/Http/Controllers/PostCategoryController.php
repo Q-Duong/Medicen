@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostCategoryRequestForm;
 use Illuminate\Http\Request;
 use App\Models\PostCategory;
 use Illuminate\Support\Facades\Redirect;
@@ -18,8 +19,7 @@ class PostCategoryController extends Controller
     {
         return view('pages.admin.postCategory.create');
     }
-
-    public function store(Request $request)
+    public function store(PostCategoryRequestForm $request)
     {
         $data = $request->all();
         $postCategory = new PostCategory();
@@ -40,8 +40,7 @@ class PostCategoryController extends Controller
         $postCategory = PostCategory::findOrFail($id);
         return view('pages.admin.postCategory.edit', compact('postCategory'));
     }
-
-    public function update(Request $request, $id)
+    public function update(PostCategoryRequestForm $request, $id)
     {
         $data = $request->all();
         $postCategory = PostCategory::find($id);
