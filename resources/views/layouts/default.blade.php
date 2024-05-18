@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="description" content="Medicen">
     <meta name="keywords" content="Medicen, Y tế, Thiết bị, Xe">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title')Medicen</title>
@@ -20,19 +21,15 @@
     <link rel="stylesheet" href="{{ versionResource('frontend/css/font-awesome.min.css') }}" type="text/css" as="style">
     <link rel="stylesheet" href="{{ versionResource('frontend/css/elegant-icons.min.css') }}" type="text/css" as="style">
     <link rel="stylesheet" href="{{ versionResource('frontend/css/slicknav.min.css') }}" type="text/css" as="style">
-    <link rel="stylesheet" href="{{ versionResource('frontend/css/style.min.css') }}" type="text/css" as="style">
+    <link rel="stylesheet" href="{{ versionResource('frontend/css/style.css') }}" type="text/css" as="style">
     <link rel="stylesheet" href="{{ versionResource('frontend/fontawesome-free-5.15.4-web/css/all.min.css') }}" as="style">
     <link rel="stylesheet" href="{{ versionResource('frontend/css/prettify.css') }}" as="style">
+    <link href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet' type='text/css' as="style"/>
 
     @stack('css')
 </head>
 
 <body>
-    <!-- Page Preloder -->
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
-
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
@@ -257,7 +254,6 @@
             </form>
         </div>
     </div>
-
     <!-- Search End -->
 
     <!-- scrollUp -->
@@ -288,7 +284,9 @@
         <i class="fas fa-times notifications-close"></i>
     </div>
     <!-- Noti Popup -->
-
+    <div class="loader-over">
+        <span class="loader"></span>
+    </div>
     <a id="buttonZalo" href="https://zalo.me/4496283275293639849" target="_blank" rel="noopener nofollow"
         class="btn-zalo-chat"><img src="{{ asset('frontend/img/icon/icon-zalo.png') }}" class="img-zalo"
             alt="Medicen"></a>

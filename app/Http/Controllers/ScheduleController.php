@@ -9,12 +9,14 @@ use App\Models\CarKTV;
 use App\Models\Accountant;
 use App\Models\OrderDetail;
 use App\Models\Staff;
+use App\Models\TempFile;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
 	//Client
+	//Technologist
 	public function showSchedule()
 	{
 		$months = [];
@@ -24,44 +26,48 @@ class ScheduleController extends Controller
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
 		$orders = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->join('units', 'units.id', '=', 'orders.unit_id' )
+			->join('units', 'units.id', '=', 'orders.unit_id')
 			->join('customers', 'customers.id', '=', 'orders.customer_id')
 			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->where('car_ktvs.car_active', 1)
 			->select([
 				'car_name',
 				'car_active',
-				'status_id', 
+				'status_id',
 				'order_surcharge',
-				'car_ktv_name_1', 
-				'car_ktv_name_2', 
-				'ord_start_day', 
-				'ord_end_day', 
-				'order_child', 
-				'order_updated', 
-				'orders.id', 
-				'unit_name', 
-				'car_ktvs.id', 
-				'ord_select', 
-				'ord_cty_name', 
-				'customer_address', 
-				'ord_note', 
-				'ord_list_file', 
-				'ord_list_file_path', 
-				'customer_name', 
-				'customer_phone', 
-				'ord_time', 
-				'order_quantity', 
-				'order_quantity_draft', 
-				'order_note_ktv'])
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'ord_start_day',
+				'ord_end_day',
+				'order_child',
+				'order_updated',
+				'car_ktvs.order_id',
+				'unit_name',
+				'car_ktvs.id',
+				'ord_select',
+				'ord_cty_name',
+				'customer_address',
+				'ord_note',
+				'ord_list_file',
+				'ord_list_file_path',
+				'customer_name',
+				'customer_phone',
+				'ord_time',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv'
+			])
 			->orderBy('order_details.ord_start_day', 'ASC')
 			->orderBy('orders.order_child', 'DESC')
 			->get();
+
 		for ($m = 1; $m <= 12; $m++) {
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
-		return view('pages.client.schedule.ktv.index')->with(compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
+
+		return view('pages.client.schedule.technologist.index', compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
 	}
 
 	public function selectMonth(Request $request)
@@ -78,19 +84,58 @@ class ScheduleController extends Controller
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->join('units', 'units.id', '=', 'orders.unit_id' )
+		$orders = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
 			->join('customers', 'customers.id', '=', 'orders.customer_id')
 			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->where('car_ktvs.car_active', 1)
+			->select([
+				'car_name',
+				'car_active',
+				'status_id',
+				'order_surcharge',
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'ord_start_day',
+				'ord_end_day',
+				'order_child',
+				'order_updated',
+				'car_ktvs.order_id',
+				'unit_name',
+				'car_ktvs.id',
+				'ord_select',
+				'ord_cty_name',
+				'customer_address',
+				'ord_note',
+				'ord_list_file',
+				'ord_list_file_path',
+				'customer_name',
+				'customer_phone',
+				'ord_time',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv'
+			])
 			->orderBy('order_details.ord_start_day', 'ASC')
 			->orderBy('orders.order_child', 'DESC')
 			->get();
-		$view = view('pages.client.schedule.ktv.render')->with(compact('order', 'dayInMonth'))->render();
+		$view = view('pages.client.schedule.technologist.render', compact('orders', 'dayInMonth'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
+
+	public function updateQuantityKTV(Request $request)
+	{
+		$data = $request->all();
+		$order = Order::findOrFail($request->id);
+		$order->order_quantity_draft = $data['order_quantity_draft'];
+		$order->order_note_ktv = $data['order_note_ktv'];
+		$order->save();
+		return response()->json(array('success' => true));
+	}
+	//End Technologist
 
 	public function login_schedule_details()
 	{
@@ -114,12 +159,13 @@ class ScheduleController extends Controller
 		}
 	}
 
-	public function show_schedule_details()
+	//Details
+	public function showScheduleDetails()
 	{
-		return view('pages.schedule.schedule_details.view_schedule_details');
+		return view('pages.client.schedule.details.index');
 	}
 
-	public function call_schedule_details(Request $request)
+	public function getScheduleDetails(Request $request)
 	{
 		$month = [];
 		$accountant_total_complete = 0;
@@ -147,8 +193,74 @@ class ScheduleController extends Controller
 			$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
 		}
 
-		$order = Order::getOrder();
-		$accountant = Order::getAccountant();
+		$orders = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->where('car_ktvs.car_active', 1)
+			->select([
+				'status_id',
+				'car_ktvs.order_id',
+				'car_ktvs.id',
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_active',
+				'car_name',
+				'unit_code',
+				'unit_name',
+				'customer_address',
+				'customer_note',
+				'customer_name',
+				'customer_phone',
+				'orders.order_detail_id',
+				'ord_select',
+				'ord_cty_name',
+				'ord_time',
+				'ord_list_file',
+				'ord_list_file_path',
+				'ord_total_file_name',
+				'ord_total_file_path',
+				'ord_delivery_date',
+				'ord_start_day',
+				'ord_end_day',
+				'ord_doctor_read',
+				'ord_film',
+				'ord_form',
+				'ord_print',
+				'ord_form_print',
+				'ord_print_result',
+				'ord_film_sheet',
+				'ord_note',
+				'ord_deadline',
+				'ord_deliver_results',
+				'ord_email',
+				'accountant_doctor_read',
+				'accountant_35X43',
+				'accountant_polime',
+				'accountant_8X10',
+				'accountant_10X12',
+				'accountant_film_bag',
+				'accountant_note',
+				'order_surcharge',
+				'order_child',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv',
+				'order_warning',
+				'order_updated'
+			])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			->orderBy('orders.order_child', 'DESC')
+			->get();
+		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			->get();
 
 		foreach ($accountant as $key => $accountant_t) {
 			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
@@ -181,17 +293,17 @@ class ScheduleController extends Controller
 				}
 			}
 		}
+
 		for ($m = 1; $m <= 12; $m++) {
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-
-		$html = view('pages.schedule.schedule_details.schedule_details_render')->with(compact('order', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
+		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
 
-	public function suggest_schedule_search(Request $request)
+	public function scheduleSearchSuggest(Request $request)
 	{
 		$data = $request->all();
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
@@ -199,6 +311,7 @@ class ScheduleController extends Controller
 		$ctyName = OrderDetail::whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->where('ord_cty_name', 'LIKE', '%' . $data['query'] . '%')
+			->select(['ord_cty_name'])
 			->orderBy('ord_cty_name', 'ASC')
 			->get();
 		$uniqueCtyName = $ctyName->unique('ord_cty_name');
@@ -211,21 +324,239 @@ class ScheduleController extends Controller
 		return response()->json(array('result' => true, 'html' => $html));
 	}
 
-	public function schedule_search(Request $request)
+	public function scheduleSearch(Request $request)
 	{
 		$data = $request->all();
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
+		$orders = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->where('car_ktvs.car_active', 1)
+			->where('ord_cty_name', $data['param'])
+			->select([
+				'status_id',
+				'car_ktvs.order_id',
+				'car_ktvs.id',
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_active',
+				'car_name',
+				'unit_code',
+				'unit_name',
+				'customer_address',
+				'customer_note',
+				'customer_name',
+				'customer_phone',
+				'orders.order_detail_id',
+				'ord_select',
+				'ord_cty_name',
+				'ord_time',
+				'ord_list_file',
+				'ord_list_file_path',
+				'ord_total_file_name',
+				'ord_total_file_path',
+				'ord_delivery_date',
+				'ord_start_day',
+				'ord_end_day',
+				'ord_doctor_read',
+				'ord_film',
+				'ord_form',
+				'ord_print',
+				'ord_form_print',
+				'ord_print_result',
+				'ord_film_sheet',
+				'ord_note',
+				'ord_deadline',
+				'ord_deliver_results',
+				'ord_email',
+				'accountant_doctor_read',
+				'accountant_35X43',
+				'accountant_polime',
+				'accountant_8X10',
+				'accountant_10X12',
+				'accountant_film_bag',
+				'accountant_note',
+				'order_surcharge',
+				'order_child',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv',
+				'order_warning',
+				'order_updated'
+			])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			->orderBy('orders.order_child', 'DESC')
+			->get();
 
-		$order = Order::getOrder();
-
-		$html = view('pages.schedule.schedule_details.view_schedule_details_search')->with(compact('order', 'dayInMonth'))->render();
+		$html = view('pages.client.schedule.details.search_render')->with(compact('orders', 'dayInMonth'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
 
-	public function show_schedule_details_clone()
+	public function selectMonthDetails(Request $request)
+	{
+		$data = $request->all();
+		$accountant_total_complete = 0;
+		$accountant_total_cas = 0;
+		$accountant_total_35 = 0;
+		$accountant_total_8 = 0;
+		$accountant_total_10 = 0;
+		$accountant_total_4 = 0;
+		$accountant_total_N = 0;
+		$accountant_total_T = 0;
+		$accountant_total_G = 0;
+		$accountant_total_K = 0;
+
+		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
+		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		$orders = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->where('car_ktvs.car_active', 1)
+			->select([
+				'status_id',
+				'car_ktvs.order_id',
+				'car_ktvs.id',
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_active',
+				'car_name',
+				'unit_code',
+				'unit_name',
+				'customer_address',
+				'customer_note',
+				'customer_name',
+				'customer_phone',
+				'orders.order_detail_id',
+				'ord_select',
+				'ord_cty_name',
+				'ord_time',
+				'ord_list_file',
+				'ord_list_file_path',
+				'ord_total_file_name',
+				'ord_total_file_path',
+				'ord_delivery_date',
+				'ord_start_day',
+				'ord_end_day',
+				'ord_doctor_read',
+				'ord_film',
+				'ord_form',
+				'ord_print',
+				'ord_form_print',
+				'ord_print_result',
+				'ord_film_sheet',
+				'ord_note',
+				'ord_deadline',
+				'ord_deliver_results',
+				'ord_email',
+				'accountant_doctor_read',
+				'accountant_35X43',
+				'accountant_polime',
+				'accountant_8X10',
+				'accountant_10X12',
+				'accountant_film_bag',
+				'accountant_note',
+				'order_surcharge',
+				'order_child',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv',
+				'order_warning',
+				'order_updated'
+			])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			->orderBy('orders.order_child', 'DESC')
+			->get();
+		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->orderBy('order_details.ord_start_day', 'ASC')
+			->get();
+
+		foreach ($accountant as $key => $accountant_t) {
+			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
+				$accountant_total_cas += $accountant_t->order_quantity;
+				$accountant_total_35 += $accountant_t->accountant_35X43;
+				$accountant_total_8 += $accountant_t->accountant_8X10;
+				$accountant_total_10 += $accountant_t->accountant_10X12;
+				if ($accountant_t->ord_select == 'Phổi (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống cổ (1 Tư thế)' || $accountant_t->ord_select == 'Vai (1 Tư thế)' || $accountant_t->ord_select == 'Gối (1 Tư thế)' || $accountant_t->ord_select == 'Khác') {
+					$accountant_total_complete += $accountant_t->order_quantity;
+					if ($accountant_t->accountant_doctor_read == 'Nhân') {
+						$accountant_total_N += $accountant_t->order_quantity;
+					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
+						$accountant_total_T += $accountant_t->order_quantity;
+					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
+						$accountant_total_G += $accountant_t->order_quantity;
+					} else {
+						$accountant_total_K += $accountant_t->order_quantity;
+					}
+				} else {
+					$accountant_total_complete += ($accountant_t->order_quantity) * 2;
+					if ($accountant_t->accountant_doctor_read == 'Nhân') {
+						$accountant_total_N += ($accountant_t->order_quantity) * 2;
+					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
+						$accountant_total_T += ($accountant_t->order_quantity) * 2;
+					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
+						$accountant_total_G += ($accountant_t->order_quantity) * 2;
+					} else {
+						$accountant_total_K += ($accountant_t->order_quantity) * 2;
+					}
+				}
+			}
+		}
+
+		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
+
+		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
+	}
+
+	public function updateQuantityDetails(Request $request)
+	{
+		$data = $request->all();
+		$order = Order::findOrFail($request->id);
+		$order->order_quantity = $data['order_quantity_details'];
+		if ($order->status_id == 4) {
+			$order->status_id = 4;
+		} else {
+			$order->status_id = 2;
+		}
+		$order->order_updated = 1;
+		$order->save();
+		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
+		$orderDetail->ord_delivery_date = $data['ord_delivery_date'];
+		if ($request->ord_total_file_name) {
+			$tmp_file = TempFile::where('filename', $request->ord_total_file_name)->first();
+			$orderDetail->ord_total_file_name = $tmp_file->filename;
+			$orderDetail->ord_total_file_path = $tmp_file->folder;
+			$tmp_file->delete();			
+		}
+		$orderDetail->save();
+
+		// $accountant = Accountant::where('order_id', $request->id)->first();
+		// $accountant->accountant_doctor_read = $data['accountant_doctor_read'];
+		// $accountant->accountant_35X43 = $data['accountant_35X43'];
+		// $accountant->accountant_polime = $data['accountant_polime'];
+		// $accountant->accountant_8X10 = $data['accountant_8X10'];
+		// $accountant->accountant_10X12 = $data['accountant_10X12'];
+		// $accountant->accountant_note = $data['accountant_note'];
+		// $accountant->save();
+	}
+	//End Details
+
+	//Sales
+	public function showScheduleSale()
 	{
 		$month = [];
 		$accountant_total_complete = 0;
@@ -243,21 +574,71 @@ class ScheduleController extends Controller
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
-		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
-			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
-			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+		$orders = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->select(['order_status', 'ord_start_day', 'ord_end_day', 'order_warning', 'orders.order_id', 'car_ktv_id', 'car_ktv_name_1', 'car_ktv_name_2', 'unit_code', 'unit_name', 'ord_select', 'ord_cty_name', 'customer_address', 'customer_note', 'ord_list_file', 'ord_list_file_path', 'customer_name', 'customer_phone', 'ord_time', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet', 'ord_note', 'ord_deadline', 'ord_deliver_results', 'ord_email', 'accountant_doctor_read', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag', 'accountant_note', 'car_active', 'car_name', 'order_surcharge', 'order_child', 'ord_delivery_date', 'order_updated'])
+			->where('car_ktvs.car_active', 1)
+			->select([
+				'status_id',
+				'car_ktvs.order_id',
+				'car_ktvs.id',
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_active',
+				'car_name',
+				'unit_code',
+				'unit_name',
+				'customer_address',
+				'customer_note',
+				'customer_name',
+				'customer_phone',
+				'orders.order_detail_id',
+				'ord_select',
+				'ord_cty_name',
+				'ord_time',
+				'ord_list_file',
+				'ord_list_file_path',
+				'ord_total_file_name',
+				'ord_total_file_path',
+				'ord_delivery_date',
+				'ord_start_day',
+				'ord_end_day',
+				'ord_doctor_read',
+				'ord_film',
+				'ord_form',
+				'ord_print',
+				'ord_form_print',
+				'ord_print_result',
+				'ord_film_sheet',
+				'ord_note',
+				'ord_deadline',
+				'ord_deliver_results',
+				'ord_email',
+				'accountant_doctor_read',
+				'accountant_35X43',
+				'accountant_polime',
+				'accountant_8X10',
+				'accountant_10X12',
+				'accountant_film_bag',
+				'accountant_note',
+				'order_surcharge',
+				'order_child',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv',
+				'order_warning',
+				'order_updated'
+			])
 			->orderBy('order_details.ord_start_day', 'ASC')
-			// ->orderBy('orders.created_at', 'DESC')
 			->orderBy('orders.order_child', 'DESC')
 			->get();
 
-		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->orderBy('order_details.ord_start_day', 'ASC')
@@ -298,10 +679,10 @@ class ScheduleController extends Controller
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.schedule.schedule_details_clone.view_schedule_details_clone')->with(compact('order', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'));
+		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'));
 	}
 
-	public function select_month_details(Request $request)
+	public function selectMonthSales(Request $request)
 	{
 		$data = $request->all();
 		$accountant_total_complete = 0;
@@ -314,23 +695,74 @@ class ScheduleController extends Controller
 		$accountant_total_T = 0;
 		$accountant_total_G = 0;
 		$accountant_total_K = 0;
-
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
-			->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
-			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
+		$orders = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('units', 'units.id', '=', 'orders.unit_id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+			->where('car_ktvs.car_active', 1)
+			->select([
+				'status_id',
+				'car_ktvs.order_id',
+				'car_ktvs.id',
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_active',
+				'car_name',
+				'unit_code',
+				'unit_name',
+				'customer_address',
+				'customer_note',
+				'customer_name',
+				'customer_phone',
+				'orders.order_detail_id',
+				'ord_select',
+				'ord_cty_name',
+				'ord_time',
+				'ord_list_file',
+				'ord_list_file_path',
+				'ord_total_file_name',
+				'ord_total_file_path',
+				'ord_delivery_date',
+				'ord_start_day',
+				'ord_end_day',
+				'ord_doctor_read',
+				'ord_film',
+				'ord_form',
+				'ord_print',
+				'ord_form_print',
+				'ord_print_result',
+				'ord_film_sheet',
+				'ord_note',
+				'ord_deadline',
+				'ord_deliver_results',
+				'ord_email',
+				'accountant_doctor_read',
+				'accountant_35X43',
+				'accountant_polime',
+				'accountant_8X10',
+				'accountant_10X12',
+				'accountant_film_bag',
+				'accountant_note',
+				'order_surcharge',
+				'order_child',
+				'order_quantity',
+				'order_quantity_draft',
+				'order_note_ktv',
+				'order_warning',
+				'order_updated'
+			])
 			->orderBy('order_details.ord_start_day', 'ASC')
-			// ->orderBy('orders.created_at', 'DESC')
 			->orderBy('orders.order_child', 'DESC')
 			->get();
-		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+
+		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
 			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->orderBy('order_details.ord_start_day', 'ASC')
@@ -367,121 +799,21 @@ class ScheduleController extends Controller
 				}
 			}
 		}
-
-		$view = view('pages.schedule.schedule_details.view_schedule_details_render')->with(compact('order', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
-
-		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
-	}
-
-	public function select_month_details_clone(Request $request)
-	{
-		$data = $request->all();
-		$accountant_total_complete = 0;
-		$accountant_total_cas = 0;
-		$accountant_total_35 = 0;
-		$accountant_total_8 = 0;
-		$accountant_total_10 = 0;
-		$accountant_total_4 = 0;
-		$accountant_total_N = 0;
-		$accountant_total_T = 0;
-		$accountant_total_G = 0;
-		$accountant_total_K = 0;
-		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		$order = Order::getOrder();
-
-		$accountant = Order::join('accountant', 'accountant.order_id', '=', 'orders.order_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('order_details.ord_start_day', 'ASC')
-			->get();
-
-		foreach ($accountant as $key => $accountant_t) {
-			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
-				$accountant_total_cas += $accountant_t->order_quantity;
-				$accountant_total_35 += $accountant_t->accountant_35X43;
-				$accountant_total_8 += $accountant_t->accountant_8X10;
-				$accountant_total_10 += $accountant_t->accountant_10X12;
-				if ($accountant_t->ord_select == 'Phổi (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống cổ (1 Tư thế)' || $accountant_t->ord_select == 'Vai (1 Tư thế)' || $accountant_t->ord_select == 'Gối (1 Tư thế)' || $accountant_t->ord_select == 'Khác') {
-					$accountant_total_complete += $accountant_t->order_quantity;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += $accountant_t->order_quantity;
-					} else {
-						$accountant_total_K += $accountant_t->order_quantity;
-					}
-				} else {
-					$accountant_total_complete += ($accountant_t->order_quantity) * 2;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += ($accountant_t->order_quantity) * 2;
-					} else {
-						$accountant_total_K += ($accountant_t->order_quantity) * 2;
-					}
-				}
-			}
-		}
-		$view = view('pages.schedule.schedule_details_clone.view_schedule_details_clone_render')->with(compact('order', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
+		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
-
-	public function update_order_quantity_draft(Request $request, $id)
-	{
-		$data = $request->all();
-		$order = Order::find($id);
-		$order->order_quantity_draft = $data['order_quantity_draft'];
-		$order->order_note_ktv = $data['order_note_ktv'];
-		$order->save();
-	}
-
-	public function update_order_quantity_details(Request $request, $id)
-	{
-		$data = $request->all();
-		$order = Order::find($id);
-		$order->order_quantity = $data['order_quantity_details'];
-		if ($order->order_status == 4) {
-			$order->order_status = 4;
-		} else {
-			$order->order_status = 2;
-		}
-		$order->order_updated = 1;
-		$order->save();
-		$order_detail = OrderDetail::find($order->order_detail_id);
-		$order_detail->ord_delivery_date = $data['ord_delivery_date'];
-		$order_detail->save();
-
-		$accountant = Accountant::where('order_id', $id)->first();
-		$accountant->accountant_doctor_read = $data['accountant_doctor_read'];
-		$accountant->accountant_35X43 = $data['accountant_35X43'];
-		$accountant->accountant_polime = $data['accountant_polime'];
-		$accountant->accountant_8X10 = $data['accountant_8X10'];
-		$accountant->accountant_10X12 = $data['accountant_10X12'];
-		$accountant->accountant_note = $data['accountant_note'];
-		$accountant->save();
-	}
-
-	public function update_order_warning(Request $request, $id)
-	{
-		$data = $request->all();
-		$order = Order::findOrFail($id);
-		$order->order_warning = $data['order_warning'];
-		$order->save();
-	}
+	//End Sales
 
 	//Admin
 	public function create($order_id)
 	{
 		$getAllStaff = Staff::orderBy('id', 'ASC')->get();
-		return view('pages.admin.order.schedule.create', compact('getAllStaff', 'order_id'));
+		$order = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->where('orders.id', $order_id)
+			->select(['order_details.ord_start_day'])
+			->first();
+		return view('pages.admin.order.schedule.create', compact('getAllStaff', 'order', 'order_id'));
 	}
 
 	public function store(Request $request)
@@ -533,18 +865,22 @@ class ScheduleController extends Controller
 			}
 			$message = 'Thêm lịch gửi Zalo thành công';
 		}
-		return Redirect()->back()->with('success', $message);
+		return Redirect::route('order.index')->with('success', $message);
 	}
 
 	public function edit($order_id)
 	{
 		$is_active = 0;
+		$order = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->where('orders.id', $order_id)
+			->select(['order_details.ord_start_day'])
+			->first();
 		$getAllStaff = Staff::orderBy('id', 'ASC')->get();
 		$cars = CarKTV::where('order_id', $order_id)->get();
-		if(in_array(1, $cars->pluck('car_active')->toArray())){
+		if (in_array(1, $cars->pluck('car_active')->toArray())) {
 			$is_active = 1;
 		}
-		return view('pages.admin.order.schedule.edit', compact('getAllStaff', 'order_id', 'cars', 'is_active'));
+		return view('pages.admin.order.schedule.edit', compact('getAllStaff', 'order', 'order_id', 'cars', 'is_active'));
 	}
 
 	public function update(Request $request, $order_id)
@@ -596,7 +932,7 @@ class ScheduleController extends Controller
 			}
 			$message = 'Cập nhật lịch xe gửi Zalo thành công';
 		}
-		return Redirect()->back()->with('success', $message);
+		return Redirect::route('order.index')->with('success', $message);
 	}
 
 	public function cancel(Request $request)

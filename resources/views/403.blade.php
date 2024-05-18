@@ -1,4 +1,4 @@
-@extends('admin_layout')
+@extends('layouts.default_auth')
 @section('admin_content')
 <div class="row">
     <div class="col-lg-12">

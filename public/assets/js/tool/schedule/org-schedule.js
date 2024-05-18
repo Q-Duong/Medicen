@@ -1,16 +1,18 @@
 function scheduleCancel(e) {
     var car_name = e.target.id;
     var order_id = $('input[name="order_id"]').val();
+    $(".loader-over").fadeIn();
     $.ajax({
         url: url_schedule_cancel,
         method: "POST",
         data: {
             car_name: car_name,
             order_id: order_id,
-            _token: _token
+            _token: $('meta[name="csrf-token"]').attr("content")
         },
         success: function(data) {
             successMsg(data.success);
+            $(".loader-over").fadeOut();
             window.setTimeout(function() {
                 location.reload();
             }, 1000);

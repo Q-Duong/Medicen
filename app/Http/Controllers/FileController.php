@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\TempFile;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ class FileController extends Controller
 	public function process(Request $request)
 	{
 		$getFile = $request->file('ord_list_file');
+		$getTotalFile = $request->file('ord_total_file_name');
 		if ($getFile) {
 			foreach ($getFile as $key => $file) {
 				$fileUploaded = saveImageFileDrive($file);
@@ -20,6 +22,14 @@ class FileController extends Controller
 					'filename' => $fileUploaded['fileName'],
 				]);
 			}
+			return $fileUploaded['fileName'];
+		}
+		if ($getTotalFile) {
+			$fileUploaded = saveImageFileDrive($getTotalFile);
+			TempFile::create([
+				'folder' => $fileUploaded['virtual_path'],
+				'filename' => $fileUploaded['fileName'],
+			]);
 			return $fileUploaded['fileName'];
 		}
 		return response('Failed upload', 500);
@@ -46,12 +56,22 @@ class FileController extends Controller
 		$orderDetail->ord_list_file_path = $this->removeElementInArray($orderDetail->ord_list_file_path, $request->path);
 		$orderDetail->save();
 		deleteImageFileDrive($request->name);
-		if($orderDetail->ord_list_file != ''){
+		if ($orderDetail->ord_list_file != '') {
 			$files = array_combine(explode(',', $orderDetail->ord_list_file), explode(',', $orderDetail->ord_list_file_path));
 			$count = count($files);
 		}
 		$html = view('pages.admin.order.edit_render', compact('files', 'order_detail_id', 'count'))->render();
 		return response()->json(array('success' => true, 'html' => $html));
+	}
+
+	public function destroyFileTotal(Request $request)
+	{
+		$orderDetail = OrderDetail::where('id',$request->id)->select(['ord_total_file_name','ord_total_file_path'])->first();
+		$orderDetail->ord_total_file_name = '';
+		$orderDetail->ord_total_file_path = '';
+		$orderDetail->save();
+		deleteImageFileDrive($request->name);
+		return response()->json(array('success' => true));
 	}
 
 	public function removeElementInArray($arr, $rm)

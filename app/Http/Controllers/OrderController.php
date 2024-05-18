@@ -175,7 +175,7 @@ class OrderController extends Controller
 			$format = explode("-", $data['ord_start_day']);
 
 			$accountant = new Accountant();
-			$accountant->order_id = $order->order_id;
+			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = 0;
 
 			if ($format[1] == 10) {
@@ -235,7 +235,7 @@ class OrderController extends Controller
 
 			$orderDetail = new OrderDetail();
 			$orderDetail->ord_start_day = $data['ord_start_day'];
-			$orderDetail->ord_end_day = $data['ord_end_day'];
+			$orderDetail->ord_end_day = $data['ord_start_day'];
 			$orderDetail->ord_select = $data['ord_select'];
 			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
 			$orderDetail->ord_film = $data['ord_film'];
@@ -362,7 +362,7 @@ class OrderController extends Controller
 
 		$orderDetail = OrderDetail::findOrFail($order_detail_id);
 		$orderDetail->ord_start_day = $data['ord_start_day'];
-		$orderDetail->ord_end_day = $data['ord_end_day'];
+		$orderDetail->ord_end_day = $data['ord_start_day'];
 		$orderDetail->ord_select = $data['ord_select'];
 		$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
 		$orderDetail->ord_film = $data['ord_film'];
@@ -423,7 +423,7 @@ class OrderController extends Controller
 
 			$orderDetail = new OrderDetail();
 			$orderDetail->ord_start_day = $data['ord_start_day'];
-			$orderDetail->ord_end_day = $data['ord_end_day'];
+			$orderDetail->ord_end_day = $data['ord_start_day'];
 			$orderDetail->ord_select = $data['ord_select'];
 			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
 			$orderDetail->ord_film = $data['ord_film'];
@@ -504,12 +504,12 @@ class OrderController extends Controller
 			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
 		}
 	}
-	public function update_order_schedule(Request $request, $order_id)
+	public function update_order_schedule(Request $request, $id)
 	{
 		//$this->checkOrderAdmin($request);
 		$data = $request->all();
 
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$order->order_warning = $data['order_warning'];
 		$order->save();
 
@@ -539,7 +539,7 @@ class OrderController extends Controller
 
 		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $order->id;
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Sửa đơn hàng';
 		$history->created_at = $now;
@@ -586,18 +586,18 @@ class OrderController extends Controller
 
 	public function list_history_order()
 	{
-		$all_history = HistoryEdit::orderBy('history_id', 'DESC')->get();
-		return view('admin.History.list_history')->with(compact('all_history'));
+		$all_history = HistoryEdit::orderBy('id', 'DESC')->paginate(10);
+		return view('pages.admin.history.index', compact('all_history'));
 	}
 
-	public function print_order($order_id)
+	public function print_order($id)
 	{
 		// $pdf = \App::make('dompdf.wrapper');
-		// $pdf->loadHTML($this->print_order_convert($order_id));
+		// $pdf->loadHTML($this->print_order_convert($id));
 
 		// return $pdf->stream();
 
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$customer = Customer::find($order->customer_id);
 		$order_detail = OrderDetail::find($order->order_detail_id);
 		$now = Carbon::now('Asia/Ho_Chi_Minh')->format('d/m/Y H:i');
@@ -605,9 +605,9 @@ class OrderController extends Controller
 		return $pdf->stream();
 	}
 
-	public function print_order_convert($order_id)
+	public function print_order_convert($id)
 	{
-		$order = Order::find($order_id);
+		$order = Order::find($id);
 		$customer = Customer::find($order->customer_id);
 		$order_detail = OrderDetail::find($order->order_detail_id);
 		// foreach($order as $key => $ord){
@@ -725,7 +725,7 @@ class OrderController extends Controller
 			</div>
 			<div class="content_right">
 			<h5>Ngày lập hóa đơn: ' . $now . '</h5>
-			<h5>Mã hóa đơn: ' . $order_id . '</h5>
+			<h5>Mã hóa đơn: ' . $id . '</h5>
 			<h5>Loại tiền: VNĐ</h5>
 			</div>
 		</div>
@@ -850,7 +850,6 @@ class OrderController extends Controller
 				'customer_address' => 'required',
 				'ord_cty_name' => 'required',
 				'ord_start_day' => 'required',
-				'ord_end_day' => 'required',
 				'ord_deadline' => 'required',
 				'ord_deliver_results' => 'required',
 				'ord_time' => 'required',
@@ -865,7 +864,6 @@ class OrderController extends Controller
 				'customer_address.required' => 'Vui lòng điền địa chỉ',
 				'ord_cty_name.required' => 'Vui lòng điền tên công ty',
 				'ord_start_day.required' => 'Vui lòng điền ngày bắt đầu',
-				'ord_end_day.required' => 'Vui lòng điền ngày kết thúc',
 				'ord_deadline.required' => 'Vui lòng điền ngày trả kết quả',
 				'ord_deliver_results.required' => 'Vui lòng điền thông tin nhận kết quả',
 				'ord_time.required' => 'Vui lòng điền giờ khám',

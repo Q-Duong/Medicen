@@ -18,50 +18,45 @@
                 </header>
                 <div class="panel-body">
                     <div class="position-center">
-                        <form role="form" action="{{ route('order.update', $order->order_id) }}" method="post"
+                        <form role="form"  action="{{ route('order.update', $order->order_id) }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
                             @method('patch')
                             <input type="hidden" name="order_detail_id"
                                 value="{{ $order->order->orderDetail->order_detail_id }}">
-                            <div class="form-group {{ $errors->has('customer_name') ? 'has-error' : '' }}">
+                            <div class="form-group @error('customer_name') has-error @enderror">
                                 <label for="exampleInputEmail1">Họ tên khách hàng</label>
                                 <input type="text" name="customer_name" class="input-control"
                                     placeholder="Điền họ tên khách hàng"
                                     value="{{ $order->order->customer->customer_name }}">
-                                {!! $errors->first(
-                                    'customer_name',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('customer_name')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div class="form-group {{ $errors->has('customer_phone') ? 'has-error' : '' }}">
+                            <div class="form-group @error('customer_phone') has-error @enderror">
                                 <label for="exampleInputEmail1">Số điện thoại</label>
                                 <input type="text" name="customer_phone" class="input-control"
                                     placeholder="Điền số điện thoại" value="{{ $order->order->customer->customer_phone }}">
-                                {!! $errors->first(
-                                    'customer_phone',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('customer_phone')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
             
-                            <div class="form-group {{ $errors->has('customer_address') ? 'has-error' : '' }}">
+                            <div class="form-group @error('customer_address') has-error @enderror">
                                 <label for="exampleInputPassword1">Địa chỉ chụp</label>
                                 <input type="text" name="customer_address" class="input-control"
                                     placeholder="Điền địa chỉ chụp"
                                     value="{{ $order->order->customer->customer_address }}">
-                                {!! $errors->first(
-                                    'customer_address',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('customer_address')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div class="form-group {{ $errors->has('customer_note') ? 'has-error' : '' }}">
+                            <div class="form-group">
                                 <label for="exampleInputPassword1">Thêm địa chỉ khác ( Nếu có )</label>
                                 <textarea type="text" name="customer_note" class="textarea-control" placeholder="Điền địa chỉ khác" rows="4"
-                                    cols="50">
-                                {{ $order->order->customer->customer_note }}
-                            </textarea>
+                                    cols="50">{{ $order->order->customer->customer_note }}</textarea>
                             </div>
 
                             <div class="form-group">
@@ -74,51 +69,37 @@
                                 </select>
                             </div>
 
-                            <div class="form-group {{ $errors->has('ord_cty_name') ? 'has-error' : '' }}">
+                            <div class="form-group @error('ord_cty_name') has-error @enderror">
                                 <label for="exampleInputPassword1">Tên Cty</label>
                                 <input type="text" name="ord_cty_name" class="input-control" placeholder="Điền tên cty"
                                     value="{{ $order->order->orderDetail->ord_cty_name }}">
-                                {!! $errors->first(
-                                    'ord_cty_name',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('ord_cty_name')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Ngày chụp</label>
                                 <div class="row">
                                     <div class="col-lg-6 col-md-6 centered">
-                                        <div
-                                            class="checkout__input  {{ $errors->has('ord_start_day') ? 'has-error' : '' }}">
+                                        <div class="checkout__input @error('ord_start_day') has-error @enderror">
                                             <input type="date" class="input-control" name="ord_start_day"
-                                                value="{{ $order->order->orderDetail->ord_start_day }}">
-                                            {!! $errors->first(
-                                                'ord_start_day',
-                                                '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                            ) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 centered">
-                                        <div class="checkout__input  {{ $errors->has('ord_end_day') ? 'has-error' : '' }}">
-                                            <input type="date" class="input-control" name="ord_end_day"
-                                                value="{{ $order->order->orderDetail->ord_end_day }}">
-                                            {!! $errors->first(
-                                                'ord_end_day',
-                                                '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>',
-                                            ) !!}
+                                                value="{{ $order->order->orderDetail->ord_start_day }}" @if (Auth::user()->role == 0) @else min="<?= date('Y-m-d') ?>" onkeydown="return false" @endif>
+                                            @error('ord_start_day')
+                                                <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group {{ $errors->has('ord_time') ? 'has-error' : '' }}">
+                            <div class="form-group @error('ord_time') has-error @enderror">
                                 <label for="exampleInputPassword1">Giờ khám</label>
                                 <input type="text" name="ord_time" class="input-control" placeholder="Điền giờ khám"
                                     value="{{ $order->order->orderDetail->ord_time }}">
-                                {!! $errors->first(
-                                    'ord_time',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('ord_time')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="form-group">
@@ -469,37 +450,31 @@
                                 </div>
                             </div>
 
-                            <div class="form-group {{ $errors->has('ord_deadline') ? 'has-error' : '' }}">
+                            <div class="form-group @error('ord_deadline') has-error @enderror">
                                 <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
                                 <input type="text" name="ord_deadline" class="input-control"
                                     placeholder="Điền thời hạn giao kết quả"
                                     value="{{ $order->order->orderDetail->ord_deadline }}">
-                                {!! $errors->first(
-                                    'ord_deadline',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('ord_deadline')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div class="form-group {{ $errors->has('ord_deliver_results') ? 'has-error' : '' }}">
+                            <div class="form-group @error('ord_deliver_results') has-error @enderror">
                                 <label for="exampleInputPassword1">Địa chỉ & sđt giao kết quả</label>
                                 <input type="text" name="ord_deliver_results" class="input-control"
                                     placeholder="Điền Địa chỉ & sđt giao kết quả"
                                     value="{{ $order->order->orderDetail->ord_deliver_results }}">
-                                {!! $errors->first(
-                                    'ord_deliver_results',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('ord_deliver_results')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div class="form-group {{ $errors->has('ord_email') ? 'has-error' : '' }}">
+                            <div class="form-group">
                                 <label for="exampleInputPassword1">Địa chỉ email khách hàng</label>
                                 <input type="text" name="ord_email" class="input-control"
                                     placeholder="Điền Địa chỉ email khách hàng"
                                     value="{{ $order->order->orderDetail->ord_email }}">
-                                {!! $errors->first(
-                                    'ord_email',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
                             </div>
 
                             <div class="form-group">
@@ -511,11 +486,11 @@
                                             <div class="main-file">
                                                 <div class="file-content">
                                                     <div class="file-name">
-                                                        <p>{{ $key }}</p>
+                                                        {{ $key }}
                                                     </div>
                                                     <div class="file-action">
                                                         <a href="https://drive.google.com/file/d/{{ $file }}/view"
-                                                            target="_blank" class="dowload-file">
+                                                            target="_blank" class="download-file">
                                                             <i class="far fa-eye"></i>
                                                         </a>
                                                         <button class="delete-file " type="button"
@@ -540,14 +515,10 @@
                                 </select>
                             </div>
 
-                            <div class="form-group {{ $errors->has('order_vat') ? 'has-error' : '' }}">
+                            <div class="form-group">
                                 <label for="exampleInputPassword1">VAT</label>
                                 <input type="text" name="order_vat" class="input-control" placeholder="Điền VAT"
                                     value="{{ $order->order->order_vat }}">
-                                {!! $errors->first(
-                                    'order_vat',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
                             </div>
 
                             <div class="radio-group">
@@ -619,26 +590,20 @@
                                 </div>
                             </div>
 
-                            <div class="form-group {{ $errors->has('order_quantity') ? 'has-error' : '' }}">
+                            <div class="form-group @error('order_quantity') has-error @enderror">
                                 <label for="exampleInputPassword1">Số lượng</label>
                                 <input type="text" name="order_quantity" class="input-control order_quantity"
                                     placeholder="Đièn số lượng" value="{{ $order->order->order_quantity }}">
-                                {!! $errors->first(
-                                    'order_quantity',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('order_quantity')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
 
-                            <div
-                                class="form-group block-order-cost {{ $errors->has('order_cost') ? 'has-error' : '' }} {{ $order->order->order_all_in_one == 0 ? '' : 'hidden' }}">
+                            <div class="form-group block-order-cost {{ $order->order->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($order->order->order_cost, 0, ',', '.') }}"
                                     placeholder="Điền đơn giá" >
-                                {!! $errors->first(
-                                    'order_cost',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
                             </div>
 
                             <div class="form-group">
@@ -648,15 +613,14 @@
                                     placeholder="Điền phần trăm chiết khấu">
                             </div>
 
-                            <div class="form-group {{ $errors->has('order_price') ? 'has-error' : '' }}">
+                            <div class="form-group @error('order_price') has-error @enderror">
                                 <label for="exampleInputPassword1">Tổng tiền</label>
                                 <input type="text" name="order_price" class="input-control order_price"
                                     placeholder="Điền tổng tiền"
                                     value="{{ number_format($order->order->order_price, 0, ',', '.') }}">
-                                {!! $errors->first(
-                                    'order_price',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
+                                @error('order_price')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
                             @if (Auth::user()->role == 0)
                                 <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin đơn
@@ -664,14 +628,12 @@
                                 </button>
                             @else
                                 @if (
-                                    ($order->order->status_id == 0 || $order->order->status_id == 1 || $order->order->status_id == 2) &&
-                                        Carbon\Carbon::now() < $order->order->orderDetail->ord_start_day)
+                                    ($order->order->status_id == 0 || $order->order->status_id == 1 || $order->order->status_id == 2) && Carbon\Carbon::now() < $order->order->orderDetail->ord_start_day)
                                     <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin đơn
                                         hàng
                                     </button>
                                 @endif
                             @endif
-
                         </form>
                     </div>
                 </div>
@@ -682,7 +644,7 @@
 @push('js')
     <script src="{{ versionResource('assets/js/support/file/filepond.js') }}" defer></script>
     <script src="{{ versionResource('assets/js/support/file/filepond-preview.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/tool/order.min.js') }}" defer></script>
+    <script src="{{ versionResource('assets/js/tool/order/order.js') }}" defer></script>
     <script src="{{ versionResource('assets/js/support/essential.js') }}" defer></script>
     <script src="{{ versionResource('assets/js/support/file/org-handle-file.js') }}" defer></script>
     <script defer>

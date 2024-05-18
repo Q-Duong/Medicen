@@ -82,16 +82,31 @@
                             </div>
                             <div class="row">
                                 <div class="block-btn-schedule">
-                                    <div class="col-lg-4">
-                                        <button type="submit" value="true" name="zalo" class="primary-btn-submit button-submit">
-                                            Thêm Lịch (Gửi Zalo)
-                                        </button>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <button type="submit" value="true" name="notZalo" class="primary-btn-submit button-submit">
-                                            Thêm Lịch (Không gửi Zalo)
-                                        </button>
-                                    </div>
+                                    @if (Auth::user()->role == 0)
+                                        <div class="col-lg-4">
+                                            <button type="submit" value="true" name="zalo" class="primary-btn-submit button-submit">
+                                                Thêm Lịch (Gửi Zalo)
+                                            </button>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <button type="submit" value="true" name="notZalo" class="primary-btn-submit button-submit">
+                                                Thêm Lịch (Không gửi Zalo)
+                                            </button>
+                                        </div>
+                                    @else
+                                        @if (Carbon\Carbon::now() < $order->ord_start_day)
+                                            <div class="col-lg-4">
+                                                <button type="submit" value="true" name="zalo" class="primary-btn-submit button-submit">
+                                                    Thêm Lịch (Gửi Zalo)
+                                                </button>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <button type="submit" value="true" name="notZalo" class="primary-btn-submit button-submit">
+                                                    Thêm Lịch (Không gửi Zalo)
+                                                </button>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                         </form>

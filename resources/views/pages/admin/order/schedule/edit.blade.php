@@ -22,10 +22,16 @@
                                 @foreach($cars as $key =>$carktv)
                                     <div class="col-lg-6 col-md-6">
                                         <section>
-                                            @if($carktv -> car_active == 1)
+                                            @if (Auth::user()->role == 0 && $carktv -> car_active == 1)
                                                 <button type="button" id="{{$carktv->car_name}}" name="{{$key + 1}}" class="primary-btn-schedule" onclick="scheduleCancel(event)">
                                                     Huỷ Lịch
                                                 </button>
+                                            @else
+                                                @if($carktv -> car_active == 1 && Carbon\Carbon::now() < $order->ord_start_day)
+                                                    <button type="button" id="{{$carktv->car_name}}" name="{{$key + 1}}" class="primary-btn-schedule" onclick="scheduleCancel(event)">
+                                                        Huỷ Lịch
+                                                    </button>
+                                                @endif
                                             @endif
                                             <input type="checkbox" id="checkCar{{$key + 1}}" onclick="handleSchedule({{$key + 1}})" {{$carktv->car_active == 1 ? 'checked' : ''}} >
                                             <input type="hidden" name="car_name[]" value="{{$carktv->car_name}}">
@@ -88,21 +94,38 @@
                                 @endforeach
                             </div>
                         </div>
-                        @if (!$is_active)
-                        <div class="row">
-                            <div class="block-btn-schedule">
-                                <div class="col-lg-4">
-                                    <button value="true" name="zalo"  class="primary-btn-submit button-submit">
-                                        Cập Nhật Lịch (Gửi Zalo)
-                                    </button>
-                                </div>
-                                <div class="col-lg-4">
-                                    <button value="true" name="notZalo" class="primary-btn-submit button-submit">
-                                        Cập Nhật Lịch (Không gửi Zalo)
-                                    </button>
+                        @if (Auth::user()->role == 0)
+                            <div class="row">
+                                <div class="block-btn-schedule">
+                                    <div class="col-lg-4">
+                                        <button value="true" name="zalo"  class="primary-btn-submit button-submit">
+                                            Cập Nhật Lịch (Gửi Zalo)
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button value="true" name="notZalo" class="primary-btn-submit button-submit">
+                                            Cập Nhật Lịch (Không gửi Zalo)
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @else
+                            @if (!$is_active)
+                                <div class="row">
+                                    <div class="block-btn-schedule">
+                                        <div class="col-lg-4">
+                                            <button value="true" name="zalo"  class="primary-btn-submit button-submit">
+                                                Cập Nhật Lịch (Gửi Zalo)
+                                            </button>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <button value="true" name="notZalo" class="primary-btn-submit button-submit">
+                                                Cập Nhật Lịch (Không gửi Zalo)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @endif
                     </form>
                 </div>

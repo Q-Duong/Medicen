@@ -56,25 +56,27 @@ Route::get('dang-ky/chi-tiet', [OrderController::class, 'createOrderDetailsClien
 Route::post('save-order-details-client', [OrderController::class, 'storeOrderDetailsClient'])->name('order.clients.store_details');
 Route::get('successful-medical-registration', [OrderController::class, 'successfulRegistration'])->name('order.clients.alert');
 //Schedule
-Route::get('lichxe', [ScheduleController::class, 'showSchedule'])->name('schedule.show_ktv');
-Route::post('schedule-select-month', [ScheduleController::class, 'selectMonth'])->name('schedule.select_month');
-Route::post('/update-quantity-ktv/{id}', [ScheduleController::class, 'updateQuantityKTV'])->name('schedule.update_quantity_ktv');
+//Technologist
+Route::get('lichxe', [ScheduleController::class, 'showSchedule'])->name('schedule.show.technologist');
+Route::post('schedule-select-month', [ScheduleController::class, 'selectMonth'])->name('schedule.select.technologist');
+Route::post('/update-quantity-ktv', [ScheduleController::class, 'updateQuantityKTV'])->name('schedule.update.technologist');
+
 Route::get('/lichchitiet', [ScheduleController::class, 'loginScheduleDetails'])->name('schedule.login_details');
 Route::post('/login-schedule', [ScheduleController::class, 'login_schedule']);
 Route::group(['middleware' => 'checkSchedule'], function () {
-    Route::get('/show-schedule-details', [ScheduleController::class, 'showScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.show_details');
-    Route::post('/call-schedule-details', [ScheduleController::class, 'getScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.get');
-    Route::post('/schedule-search-suggest', [ScheduleController::class, 'scheduleSearchSuggest'])->middleware('checkRoleSchedule')->name('schedule.search_suggest');
-    Route::post('/schedule-search', [ScheduleController::class, 'scheduleSearch'])->middleware('checkRoleSchedule')->name('schedule.search');
-    Route::get('/lichxechitiet', [ScheduleController::class, 'showScheduleSale'])->name('schedule.show_sale');
+    //Details
+    Route::get('/show-schedule-details', [ScheduleController::class, 'showScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.show.details');
+    Route::post('/get-schedule-details', [ScheduleController::class, 'getScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.get.details');
+    Route::post('/schedule-search-suggest', [ScheduleController::class, 'scheduleSearchSuggest'])->middleware('checkRoleSchedule')->name('schedule.suggest.details');
+    Route::post('/schedule-search', [ScheduleController::class, 'scheduleSearch'])->middleware('checkRoleSchedule')->name('schedule.search.details');
+    Route::post('/schedule-select-month-details', [ScheduleController::class, 'selectMonthDetails'])->name('schedule.select.details');
+    Route::post('/update-quantity-details', [ScheduleController::class, 'updateQuantityDetails'])->name('schedule.update.details');
+
+    //Sales
+    Route::get('/lichxechitiet', [ScheduleController::class, 'showScheduleSale'])->name('schedule.show.sales');
+    Route::post('/schedule-select-month-sales', [ScheduleController::class, 'selectMonthSales'])->name('schedule.select.sales');
+    Route::post('/update-order-sales', [OrderController::class, 'updateOrderSales'])->name('schedule.update.sales');
 });
-
-
-Route::post('/select-month-details', [ScheduleController::class, 'select_month_details'])->name('select_month_details');
-Route::post('/select-month-details-clone', [ScheduleController::class, 'select_month_details_clone'])->name('select_month_details_clone');
-Route::post('/update-order-quantity-details/{id}', [ScheduleController::class, 'update_order_quantity_details'])->name('update_order_quantity_details');
-// Route::post('/update-order-warning/{id}', [ScheduleController::class, 'update_order_warning']);
-Route::post('/update-order-schedule/{id}', [OrderController::class, 'update_order_schedule'])->name('update_order_schedule');
 
 Route::get('/storage-drive', [OrderController::class, 'Storage']);
 
@@ -94,7 +96,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Information Account
     Route::get('/information', [AdminController::class, 'information'])->name('information');
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::post('/store-infomation', [AdminController::class, 'store_information'])->name('store-information');
+    Route::post('/save-infomation', [AdminController::class, 'store_information'])->name('store-information');
 
     //Customer
     Route::prefix('customer')->group(function () {
@@ -102,8 +104,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
     Route::prefix('contact')->group(function () {
         Route::get('edit', [ContactController::class, 'edit'])->name('contact.edit');
-        Route::post('store-info', [ContactController::class, 'store_info']);
-        Route::post('update', [ContactController::class, 'update'])->name('contact.update');
+        Route::patch('update', [ContactController::class, 'update'])->name('contact.update');
     });
     //403
     Route::get('/403', function () {
@@ -133,6 +134,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Export Excel
     Route::post('/export-excel', [OrderController::class, 'export_excel'])->name('export_excel');
 
+    
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
         //Service
@@ -140,9 +142,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('/', [ServiceController::class, 'index'])->name('service.index');
             Route::get('create', [ServiceController::class, 'create'])->name('service.create');
             Route::post('save', [ServiceController::class, 'store'])->name('service.store');
-            Route::get('edit/{service}', [ServiceController::class, 'edit'])->name('service.edit');
-            Route::patch('update/{service}', [ServiceController::class, 'update'])->name('service.update');
-            Route::delete('delete/{service}', [ServiceController::class, 'destroy'])->name('service.destroy');
+            Route::get('edit/{id}', [ServiceController::class, 'edit'])->name('service.edit');
+            Route::patch('update/{id}', [ServiceController::class, 'update'])->name('service.update');
+            Route::delete('delete/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
+        });
+        //About
+        Route::prefix('about')->group(function () {
+            Route::get('/', [AboutController::class, 'index'])->name('about.index');
+            Route::get('create', [AboutController::class, 'create'])->name('about.create');
+            Route::post('save', [AboutController::class, 'store'])->name('about.store');
+            Route::get('edit/{id}', [AboutController::class, 'edit'])->name('about.edit');
+            Route::patch('update/{id}', [AboutController::class, 'update'])->name('about.update');
+            Route::delete('delete/{id}', [AboutController::class, 'destroy'])->name('about.destroy');
         });
         //Post
         Route::prefix('post')->group(function () {
@@ -171,6 +182,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::post('process', [FileController::class, 'process'])->name('file.process');
             Route::delete('revert', [FileController::class, 'revert'])->name('file.revert');
             Route::delete('delete-file-order', [FileController::class, 'destroyFileOrder'])->name('file.delete_file_order');
+            Route::delete('delete-file-total', [FileController::class, 'destroyFileTotal'])->name('file.delete_file_total');
         });
         //Schuedule
         Route::prefix('schedule')->group(function () {
@@ -184,7 +196,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::prefix('slider')->group(function () {
             Route::get('/', [SliderController::class, 'index'])->name('slider.index');
             Route::get('create', [SliderController::class, 'create'])->name('slider.create');
-            Route::post('save', [SliderController::class, 'store'])->name('slider.store');
+            Route::post('save', [SliderController::class, 'insert'])->name('slider.insert');
             Route::get('edit/{id}', [SliderController::class, 'edit'])->name('slider.edit');
             Route::patch('update/{id}', [SliderController::class, 'update'])->name('slider.update');
             Route::delete('delete/{id}', [SliderController::class, 'destroy'])->name('slider.destroy');
@@ -204,7 +216,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         });
         //History
         Route::prefix('history')->group(function () {
-            Route::get('/', [OrderController::class, 'index'])->name('history.index');
+            Route::get('/', [OrderController::class, 'list_history_order'])->name('history.list_history');
         });
     });
 

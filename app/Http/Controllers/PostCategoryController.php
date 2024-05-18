@@ -8,51 +8,54 @@ use Illuminate\Support\Facades\Redirect;
 
 class PostCategoryController extends Controller
 {
-    public function add()
-    {
-        return view('admin.PostCategory.add_post_category');
-    }
-
-    public function list()
+    public function index()
     {
         $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->get();
-        return view('admin.PostCategory.list_post_category')->with(compact('getAllPostCategory'));
+        return view('pages.admin.postCategory.index', compact('getAllPostCategory'));
     }
-    public function save(Request $request)
+
+    public function create()
+    {
+        return view('pages.admin.postCategory.create');
+    }
+
+    public function store(Request $request)
     {
         $data = $request->all();
-        $post_category = new PostCategory();
-        $post_category->post_category_name = $data['post_category_name'];
-        $post_category->post_category_slug = $data['post_category_slug'];
-        $name = $post_category->post_category_name;
+        $postCategory = new PostCategory();
+        $postCategory->post_category_name = $data['post_category_name'];
+        $postCategory->post_category_slug = $data['post_category_slug'];
+        $name = $postCategory->post_category_name;
         $check = PostCategory::where('post_category_name', $name)->exists();
         if ($check) {
             return Redirect()->back()->with('error', 'Danh mục đã tồn tại, Vui lòng kiểm tra lại.');
         }
-        $post_category->save();
+        $postCategory->save();
 
         return Redirect()->back()->with('success', 'Thêm danh mục bài viết thành công');
     }
 
     public function edit($id)
     {
-        $post_category = PostCategory::find($id);
-        return view('admin.PostCategory.edit_post_category')->with(compact('post_category'));
+        $postCategory = PostCategory::findOrFail($id);
+        return view('pages.admin.postCategory.edit', compact('postCategory'));
     }
+
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        $post_category = PostCategory::find($id);
-        $post_category->post_category_name = $data['post_category_name'];
-        $post_category->post_category_slug = $data['post_category_slug'];
-        $post_category->save();
+        $postCategory = PostCategory::find($id);
+        $postCategory->post_category_name = $data['post_category_name'];
+        $postCategory->post_category_slug = $data['post_category_slug'];
+        $postCategory->save();
 
-        return Redirect::to('/list-category-post')->with('success', 'Cập nhật danh mục bài viết thành công');
+        return Redirect::route('post_category.index')->with('success', 'Cập nhật danh mục bài viết thành công');
     }
-    public function delete($id)
+    
+    public function destroy($id)
     {
-        $post_category = PostCategory::find($id);
-        $post_category->delete();
+        $postCategory = PostCategory::findOrFail($id);
+        $postCategory->delete();
         return Redirect()->back()->with('success', 'Xóa danh mục bài viết thành công');
     }
 }

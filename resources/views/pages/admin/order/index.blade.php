@@ -61,7 +61,8 @@
                                         @method('delete')
                                         @csrf
                                         <button type="submit" class="management-btn button-submit"
-                                            title="@lang('vart_define.button.delete')"><i class="fa fa-times text-danger text"></i></button>
+                                            onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
+                                                class="fa fa-times text-danger text"></i></button>
                                     </form>
                                     <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
                                         <i class="far fa-copy"></i></i>
@@ -91,7 +92,7 @@
                                             @method('delete')
                                             @csrf
                                             <button type="submit" class="management-btn button-submit"
-                                                title="@lang('vart_define.button.delete')"><i
+                                            onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
                                                     class="fa fa-times text-danger text"></i></button>
                                         </form>
                                         <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
@@ -101,24 +102,21 @@
                                             class="management-btn"><i class="fas fa-file-import text-warning "></i>
                                         </a>
                                     </td>
-                                    <td class="management">
+                                    <td class="management-lite">
                                         @if ($order->schedule_status == 0)
                                             <a href="{{ route('schedule.create', $order->id) }}" class="management-btn">
-                                                Thêm lịch <i class="fa fa-calendar-plus"></i>
+                                                <i class="fa fa-calendar-plus"></i>
                                             </a>
                                         @else
                                             <a href="{{ route('schedule.edit', $order->id) }}" class="management-btn">
-                                                Sửa lịch <i class="fas fa-calendar-week"></i>
+                                                <i class="fas fa-calendar-week"></i>
                                             </a>
                                         @endif
                                     </td>
                                 @else
                                     <td class="management">
-                                        <a href="{{ route('order.edit', $order->order_id) }}" class="management-btn"><i
+                                        <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
-                                        </a>
-                                        <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
-                                                class="far fa-copy"></i></i>
                                         </a>
                                         <a href="{{ route('accountant.update_order', $order->id) }}"
                                             class="management-btn"><i class="fas fa-file-import text-warning "></i>
@@ -176,11 +174,5 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{ versionResource('backend/js/datatables/jquery.dataTables.min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/datatables/responsive.min.js') }}" defer></script>
-    <script type="text/javascript" defer>
-        $(document).ready(function() {
-            $('#myTable').DataTable();
-        });
-    </script>
+    <script src="{{ versionResource('assets/js/support/essential.js') }}" defer></script>
 @endpush

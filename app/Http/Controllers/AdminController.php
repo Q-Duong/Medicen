@@ -26,6 +26,7 @@ class AdminController extends Controller
 		$dateFormat= $year."-".$month."-".$day;
     	return $dateFormat;
     }
+
     public function index(Request $request){
         $service = Service::all()->count();
         $post = Post::all()->count();
@@ -34,6 +35,7 @@ class AdminController extends Controller
         $getAllUnit = Unit::orderBy('unit_code','ASC')->get();
         return view('pages.admin.index')->with(compact('service','post','order','customer','getAllUnit'));
     }
+
     public function login(){
         if(Auth::check()){
             return Redirect::route('dashboard.index');
@@ -41,10 +43,12 @@ class AdminController extends Controller
             return view('pages.admin.login.index');
         }
     }
+
     public function logout(){
         Auth::logout();
         return Redirect::to('login');
     }
+
     public function information(){
     	return view('admin.AdminInfomation.view_infomation');
     }
@@ -52,6 +56,7 @@ class AdminController extends Controller
     public function settings(){
     	return view('admin.AdminInfomation.edit_infomation');
     }
+
     public function save_information(Request $request){
         $data=$request->all();
         $profile= Profile::find(Auth::user()->profile_id);
@@ -70,6 +75,7 @@ class AdminController extends Controller
         return Redirect::to('/admin/information')->with('success','Cập nhật thông tin thành công');
        
     }
+    
     public function revenue_statistics_by_date(Request $request){
         $data = $request->all();
         $from_date = $data['from_date'];
