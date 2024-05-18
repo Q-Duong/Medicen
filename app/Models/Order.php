@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'orders';
 
     public $timestamps = true;
@@ -20,7 +20,7 @@ class Order extends Model
         'unit_id',
         'status_id',
         'order_vat',
-        'order_quantity', 
+        'order_quantity',
         'order_quantity_draft',
         'order_note_ktv',
         'order_cost',
@@ -66,10 +66,11 @@ class Order extends Model
     {
         $this->hasMany(Accountant::class);
     }
-    
+
     public function newEloquentBuilder($query): OrderBuilder
     {
         return new OrderBuilder($query);
     }
+
     
 }

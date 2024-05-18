@@ -103,7 +103,7 @@ class AboutController extends Controller
             $get_image->move(public_path('uploads/about/'), $new_image);
             $about->about_image = $new_image;
             $about->save();
-            return Redirect()->back()->with('success', 'Thêm dịch vụ thành công');
+            return Redirect::route('about.index')->with('success', 'Thêm dịch vụ thành công');
         } else {
             return Redirect()->back()->with('error', 'Vui lòng thêm hình ảnh');
         }

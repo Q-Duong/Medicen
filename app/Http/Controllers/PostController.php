@@ -59,12 +59,12 @@ class PostController extends Controller
             $get_image->move(public_path('uploads/post/'), $new_image);
             $post->post_image = $new_image;
             $post->save();
-            return Redirect()->back()->with('success', 'Thêm bài viết thành công');
+            return Redirect::route('post.index')->with('success', 'Thêm bài viết thành công');
         } else {
             return Redirect()->back()->with('error', 'Vui lòng thêm hình ảnh');
         }
     }
-    
+
     public function edit($id)
     {
         $post_category = PostCategory::orderBy('id', 'ASC')->get();

@@ -206,12 +206,8 @@ class OrderController extends Controller
 
 	public function index()
 	{
-		$getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->join('units', 'units.id', '=', 'orders.unit_id')
-			->orderBy('orders.id', 'DESC')
-			->select('orders.id', 'orders.created_at', 'order_quantity', 'order_price', 'status_id', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')
-			->paginate(10);
-		return view('pages.admin.order.index')->with(compact('getAllOrder'));
+		$getAll = Order::getAll();
+		return view('pages.admin.order.index', compact('getAll'));
 	}
 
 	public function create()
@@ -321,6 +317,8 @@ class OrderController extends Controller
 	public function edit($order_id)
 	{
 		$order = Accountant::where('order_id', $order_id)->first();
+
+		
 		$files = array_combine(explode(',', $order->order->orderDetail->ord_list_file), explode(',', $order->order->orderDetail->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files'));
@@ -340,7 +338,7 @@ class OrderController extends Controller
 		$order->order_percent_discount = $data['order_percent_discount'];
 		$order->order_vat = $data['order_vat'];
 		$order->order_warning = $data['order_warning'];
-		
+
 		$order->order_child = $data['order_child'];
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->save();
@@ -554,9 +552,9 @@ class OrderController extends Controller
 		$customer = Customer::findOrFail($order->customer_id);
 		$customer->delete();
 		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
-		if($orderDetail->ord_list_file != ''){
+		if ($orderDetail->ord_list_file != '') {
 			$files = explode(',', $orderDetail->ord_list_file);
-			foreach($files as $file){
+			foreach ($files as $file) {
 				deleteImageFileDrive($file);
 			}
 		}

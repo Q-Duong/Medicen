@@ -26,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($getAllOrder as $key => $order)
+                    @foreach ($getAll as $key => $order)
                         <tr>
                             <td>{{ $order->id }}</td>
                             <td>{{ date('d/m/Y', strtotime($order->created_at)) }}</td>
@@ -135,7 +135,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $getAllOrder->links('pagination::bootstrap-4') }}
+        {{ $getAll->links('pagination::bootstrap-4') }}
         <div class="export-excel">
             <form action="{{ route('export_excel') }}" method="POST" id="myForm">
                 @csrf

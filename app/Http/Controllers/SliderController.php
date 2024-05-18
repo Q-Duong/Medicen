@@ -50,7 +50,7 @@ class SliderController extends Controller
             $slider->slider_image = $new_image;
         }
         $slider->save();
-        return Redirect::route('slider.create')->with('message', 'Thêm slider thành công');
+        return Redirect::route('slider.index')->with('message', 'Thêm slider thành công');
     }
 
     public function edit($id)

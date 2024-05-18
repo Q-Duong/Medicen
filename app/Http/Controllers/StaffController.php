@@ -26,7 +26,7 @@ class StaffController extends Controller
         $staff->staff_birthday = $data['staff_birthday'];
         $staff->staff_role = $data['staff_role'];
         $staff->save();
-        return Redirect()->back()->with('success', 'Thêm nhân viên thành công');
+        return Redirect::route('staff.index')->with('success', 'Thêm nhân viên thành công');
     }
 
     public function edit($id)

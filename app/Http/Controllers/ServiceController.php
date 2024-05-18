@@ -12,7 +12,7 @@ class ServiceController extends Controller
     public function index()
     {
         $getAllService = Service::orderBy('id', 'DESC')->paginate(10);
-        return view('pages.admin.service.index',compact('getAllService'));
+        return view('pages.admin.service.index', compact('getAllService'));
     }
 
     public function store(ServiceRequestForm $request)
@@ -36,7 +36,7 @@ class ServiceController extends Controller
             $get_image->move(public_path('uploads/service/'), $new_image);
             $service->service_image = $new_image;
             $service->save();
-            return Redirect()->back()->with('success', 'Thêm dịch vụ thành công');
+            return Redirect::route('service.index')->with('success', 'Thêm dịch vụ thành công');
         } else {
             return Redirect()->back()->with('error', 'Vui lòng thêm hình ảnh');
         }

@@ -3,48 +3,185 @@
 namespace App\Builders;
 
 use App\Models\Order;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
 final class OrderBuilder extends Builder
 {
-    public function  listOrder()
+    public function  getAll()
     {
-        $getListOrder = Order::join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-            ->join('units', 'units.unit_id', '=', 'orders.unit_id')
-            ->orderBy('order_id', 'DESC')->select('order_id', 'orders.created_at', 'order_quantity', 'order_price', 'order_status', 'unit_code', 'unit_name', 'ord_start_day', 'ord_end_day', 'ord_select', 'schedule_status')->get();
-        return $getListOrder;
+        $getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->orderBy('orders.id', 'DESC')
+            ->select([
+                'orders.id',
+                'orders.created_at',
+                'order_quantity',
+                'order_price',
+                'status_id',
+                'unit_code',
+                'unit_name',
+                'ord_start_day',
+                'ord_end_day',
+                'ord_select',
+                'schedule_status'
+            ])
+            ->paginate(10);
+        return $getAllOrder;
     }
 
-    public function getOrder(Request $request)
+    public function getOneOrder($order_id)
     {
-        $firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-        $lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-        $getOrder = Order::join('accountants', 'accountants.order_id', '=', 'orders.order_id')
-            ->join('units', 'orders.unit_id', '=', 'units.unit_id')
-            ->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-            ->join('customers', 'customers.customer_id', '=', 'orders.customer_id')
-            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.order_id')
+        $getOneOder = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+            ->join('units', 'units.id',  '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('customers', 'customers.id', '=', 'orders.customer_id')
+            ->where('orders.id', $order_id)
+            ->select([
+                'accountants.order_id',
+                'orders.order_details_id',
+                'customer_name',
+                'customer_phone',
+                'customer_address',
+                'customer_note',
+                'orders.unit_id',
+                'ord_cty_name',
+                'ord_start_day',
+                'ord_time',
+                'ord_select',
+                'ord_doctor_read',
+                'ord_film',
+                'ord_form',
+                'ord_print',
+                'ord_form_print',
+                'ord_print_result',
+                'ord_film_sheet',
+                'ord_note',
+                'order_warning',
+                'ord_deadline',
+                'ord_deliver_results',
+                'ord_email',
+                'ord_list_file',
+                'ord_list_file_path',
+                'accountant_distance',
+                'order_vat',
+                'order_child',
+                'order_surcharge',
+                'order_all_in_one',
+                'order_quantity',
+                'order_cost',
+                'order_percent_discount',
+                'order_price',
+                'status_id'
+            ])
+            ->first();
+        return $getOneOder;
+    }
+    public function getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth)
+    {
+        $getScheduleTechnologist = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('customers', 'customers.id', '=', 'orders.customer_id')
+            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-            ->select(['order_status', 'ord_start_day', 'ord_end_day', 'order_warning', 'orders.order_id', 'car_ktv_id', 'car_ktv_name_1', 'car_ktv_name_2', 'unit_code', 'unit_name', 'ord_select', 'ord_cty_name', 'customer_address', 'customer_note', 'ord_list_file', 'ord_list_file_path', 'customer_name', 'customer_phone', 'ord_time', 'order_quantity', 'order_quantity_draft', 'order_note_ktv', 'ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet', 'ord_note', 'ord_deadline', 'ord_deliver_results', 'ord_email', 'accountant_doctor_read', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag', 'accountant_note', 'car_active', 'car_name', 'order_surcharge', 'order_child', 'ord_delivery_date', 'order_updated'])
+            ->where('car_ktvs.car_active', 1)
+            ->select([
+                'car_name',
+                'car_active',
+                'status_id',
+                'order_surcharge',
+                'car_ktv_name_1',
+                'car_ktv_name_2',
+                'ord_start_day',
+                'ord_end_day',
+                'order_child',
+                'order_updated',
+                'car_ktvs.order_id',
+                'unit_name',
+                'car_ktvs.id',
+                'ord_select',
+                'ord_cty_name',
+                'customer_address',
+                'ord_note',
+                'ord_list_file',
+                'ord_list_file_path',
+                'customer_name',
+                'customer_phone',
+                'ord_time',
+                'order_quantity',
+                'order_quantity_draft',
+                'order_note_ktv'
+            ])
             ->orderBy('order_details.ord_start_day', 'ASC')
-            // ->orderBy('orders.created_at', 'DESC')
             ->orderBy('orders.order_child', 'DESC')
             ->get();
-        return $getOrder;
+        return $getScheduleTechnologist;
     }
-    public function getAccountant(Request $request)
+
+    public function getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth)
     {
-        $firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-        $lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-        $getAccountant = Order::join('accountants', 'accountant.order_id', '=', 'orders.order_id')
-            ->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
+        $getScheduleDetails = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('customers', 'customers.id', '=', 'orders.customer_id')
+            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+            ->where('car_ktvs.car_active', 1)
+            ->select([
+                'status_id',
+                'car_ktvs.order_id',
+                'car_ktvs.id',
+                'car_ktv_name_1',
+                'car_ktv_name_2',
+                'car_active',
+                'car_name',
+                'unit_code',
+                'unit_name',
+                'customer_address',
+                'customer_note',
+                'customer_name',
+                'customer_phone',
+                'orders.order_detail_id',
+                'ord_select',
+                'ord_cty_name',
+                'ord_time',
+                'ord_list_file',
+                'ord_list_file_path',
+                'ord_total_file_name',
+                'ord_total_file_path',
+                'ord_delivery_date',
+                'ord_start_day',
+                'ord_end_day',
+                'ord_doctor_read',
+                'ord_film',
+                'ord_form',
+                'ord_print',
+                'ord_form_print',
+                'ord_print_result',
+                'ord_film_sheet',
+                'ord_note',
+                'ord_deadline',
+                'ord_deliver_results',
+                'ord_email',
+                'accountant_doctor_read',
+                'accountant_35X43',
+                'accountant_polime',
+                'accountant_8X10',
+                'accountant_10X12',
+                'accountant_film_bag',
+                'accountant_note',
+                'order_surcharge',
+                'order_child',
+                'order_quantity',
+                'order_quantity_draft',
+                'order_note_ktv',
+                'order_warning',
+                'order_updated'
+            ])
             ->orderBy('order_details.ord_start_day', 'ASC')
+            ->orderBy('orders.order_child', 'DESC')
             ->get();
-        return $getAccountant;
+        return $getScheduleDetails;
     }
 }

@@ -21,7 +21,7 @@ class UnitController extends Controller
         $unit->unit_name = $data['unit_name'];
         $unit->save();
 
-        return Redirect()->back()->with('success', 'Thêm danh đơn vị thành công');
+        return Redirect::route('unit.index')->with('success', 'Thêm danh đơn vị thành công');
     }
 
     public function edit($id)

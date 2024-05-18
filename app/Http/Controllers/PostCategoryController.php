@@ -32,7 +32,7 @@ class PostCategoryController extends Controller
         }
         $postCategory->save();
 
-        return Redirect()->back()->with('success', 'Thêm danh mục bài viết thành công');
+        return Redirect::route('post_category.index')->with('success', 'Thêm danh mục bài viết thành công');
     }
 
     public function edit($id)
@@ -50,7 +50,7 @@ class PostCategoryController extends Controller
 
         return Redirect::route('post_category.index')->with('success', 'Cập nhật danh mục bài viết thành công');
     }
-    
+
     public function destroy($id)
     {
         $postCategory = PostCategory::findOrFail($id);
