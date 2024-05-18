@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ServieRequestForm;
+use App\Http\Requests\ServiceRequestForm;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Redirect;
@@ -15,7 +15,7 @@ class ServiceController extends Controller
         return view('pages.admin.service.index',compact('getAllService'));
     }
 
-    public function store(ServieRequestForm $request)
+    public function store(ServiceRequestForm $request)
     {
         $data = $request->all();
         $service = new Service();
@@ -48,7 +48,7 @@ class ServiceController extends Controller
         return view('pages.admin.service.edit', compact('service'));
     }
 
-    public function update(ServieRequestForm $request, $id)
+    public function update(ServiceRequestForm $request, $id)
     {
         $data = $request->all();
         $service = Service::find($id);
