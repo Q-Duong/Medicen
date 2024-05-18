@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostCategoryRequestForm;
 use Illuminate\Http\Request;
 use App\Models\PostCategory;
 use Illuminate\Support\Facades\Redirect;
@@ -19,7 +20,7 @@ class PostCategoryController extends Controller
         $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->paginate(10);
         return view('pages.admin.postCategory.index', compact('getAllPostCategory'));
     }
-    public function store(Request $request)
+    public function store(PostCategoryRequestForm $request)
     {
         $data = $request->all();
         $post_category = new PostCategory();
@@ -40,7 +41,7 @@ class PostCategoryController extends Controller
         $post_category = PostCategory::find($id);
         return view('pages.admin.postCategory.edit', compact('post_category'));
     }
-    public function update(Request $request, $id)
+    public function update(PostCategoryRequestForm $request, $id)
     {
         $data = $request->all();
         $post_category = PostCategory::find($id);

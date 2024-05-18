@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ServieRequestForm;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Redirect;
@@ -16,12 +17,11 @@ class ServiceController extends Controller
     public function index()
     {
         $getAllService = Service::orderBy('id', 'DESC')->paginate(10);
-        return view('pages.admin.service.index')->with(compact('getAllService'));
+        return view('pages.admin.service.index',compact('getAllService'));
     }
 
-    public function store(Request $request)
+    public function store(ServieRequestForm $request)
     {
-        $this->checkValidateService($request);
         $data = $request->all();
         $service = new Service();
         $service->service_title = $data['service_title'];
@@ -53,9 +53,8 @@ class ServiceController extends Controller
         return view('pages.admin.service.edit', compact('service'));
     }
 
-    public function update(Request $request, $id)
+    public function update(ServieRequestForm $request, $id)
     {
-        $this->checkValidateService($request);
         $data = $request->all();
         $service = Service::find($id);
         $service->service_title = $data['service_title'];
@@ -94,27 +93,6 @@ class ServiceController extends Controller
     public function show($service_slug)
     {
         $service = Service::where('service_slug', $service_slug)->first();
-        return view('pages.client.service.index')->with(compact('service'));
-    }
-
-    //Validation
-
-    public function checkValidateService(Request $request)
-    {
-        $this->validate(
-            $request,
-            [
-                'service_title' => 'required',
-                'service_slug' => 'required',
-                // 'service_image' => 'required',
-                'service_content' => 'required',
-            ],
-            [
-                'service_title.required' => 'Vui lòng điền thông tin',
-                'service_slug.required' => 'Vui lòng điền thông tin',
-                // 'service_image.required' => 'Vui lòng thêm hình ảnh',
-                'service_content.required' => 'Vui lòng điền thông tin',
-            ]
-        );
+        return view('pages.client.service.index', compact('service'));
     }
 }

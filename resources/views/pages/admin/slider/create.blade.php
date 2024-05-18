@@ -21,9 +21,12 @@
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="form-group">
+                            <div class="form-group @error('slider_image') has-error @enderror">
                                 <label for="exampleInputEmail1">Hình ảnh</label>
                                 <input type="file" name="slider_image" class="input-control" placeholder="Slide">
+                                @error('slider_image')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group @error('slider_desc') has-error @enderror">
                                 <label for="exampleInputPassword1">Mô tả slider</label>

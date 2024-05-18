@@ -24,7 +24,7 @@
                             </div>
                             <div class="form-group @error('staff_phone') has-error @enderror">
                                 <label for="exampleInputEmail1">Số điện thoại</label>
-                                <input type="text" name="staff_phone" class="input-control"
+                                <input type="number" name="staff_phone" class="input-control"
                                     placeholder="Điền số điện thoại" value="{{ old('staff_phone') }}">
                                 @error('staff_phone')
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>

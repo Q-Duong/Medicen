@@ -41,7 +41,7 @@
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="form-group {{ $errors->has('service_content') ? 'has-error' : '' }}">
+                            <div class="form-group @error('service_content') has-error @enderror">
                                 <label for="exampleInputPassword1">Nội dung dịch vụ</label>
                                 <textarea name="service_content" class="textarea-control" id="editor" placeholder="Điền nội dung dịch vụ">
                                 {{ old('service_content') }}

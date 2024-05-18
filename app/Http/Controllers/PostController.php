@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostRequestForm;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\PostCategory;
@@ -18,7 +19,7 @@ class PostController extends Controller
     public function index()
     {
         $getAllPost = Post::with('post_category')->orderBy('id', 'DESC')->paginate(10);
-        return view('pages.admin.post.index')->with(compact('getAllPost'));
+        return view('pages.admin.post.index', compact('getAllPost'));
     }
 
     public function upload_image_ck(Request $request)
@@ -34,9 +35,8 @@ class PostController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(PostRequestForm $request)
     {
-        $this->checkValidatePost($request);
         $data = $request->all();
         $post = new Post();
         $post->post_title = $data['post_title'];
@@ -69,12 +69,11 @@ class PostController extends Controller
     {
         $post_category = PostCategory::orderBy('id', 'ASC')->get();
         $post = Post::find($id);
-        return view('pages.admin.post.edit')->with(compact('post'))->with(compact('post_category'));
+        return view('pages.admin.post.edit', compact('post', 'post_category'));
     }
 
-    public function update(Request $request, $id)
+    public function update(PostRequestForm $request, $id)
     {
-        $this->checkValidatePost($request);
         $data = $request->all();
         $post = Post::find($id);
         $post->post_title = $data['post_title'];
@@ -128,25 +127,5 @@ class PostController extends Controller
         $post = Post::where('post_slug', $post_slug)->first();
         $getAllRelatedPost = Post::where('id', $postCategory->id)->whereNotIn('post_slug', [$post_slug])->take(3)->get();
         return view('pages.client.post.post_details', compact('post', 'postCategory', 'getAllRelatedPost'));
-    }
-
-    //Validation
-    public function checkValidatePost(Request $request)
-    {
-        $this->validate(
-            $request,
-            [
-                'post_title' => 'required',
-                'post_slug' => 'required',
-                // 'post_image' => 'required',
-                'post_content' => 'required',
-            ],
-            [
-                'post_title.required' => 'Vui lòng điền thông tin',
-                'post_slug.required' => 'Vui lòng điền thông tin',
-                // 'post_image.required' => 'Vui lòng thêm hình ảnh',
-                'post_content.required' => 'Vui lòng điền thông tin',
-            ]
-        );
     }
 }
