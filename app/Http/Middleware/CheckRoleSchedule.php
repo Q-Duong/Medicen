@@ -21,7 +21,7 @@ class CheckRoleSchedule
             return $next($request);
         }else{
             Auth::logout();
-            return Redirect()->route('lichchitiet');
+            return Redirect()->route('schedule.login_details');
         }
     }
 }

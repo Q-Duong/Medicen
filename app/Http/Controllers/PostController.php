@@ -12,7 +12,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $getAllPost = Post::with('post_category')->orderBy('id', 'DESC')->paginate(10);
+        $getAllPost = Post::join('post_categories', 'post_categories.id' , '=', 'posts.post_category_id')->orderBy('posts.id', 'DESC')->paginate(10);
         return view('pages.admin.post.index', compact('getAllPost'));
     }
 
@@ -67,15 +67,16 @@ class PostController extends Controller
 
     public function edit($id)
     {
-        $post_category = PostCategory::orderBy('id', 'ASC')->get();
-        $post = Post::find($id);
-        return view('pages.admin.post.edit', compact('post', 'post_category'));
+        $postCategory = PostCategory::orderBy('id', 'ASC')->get();
+        $post = Post::findOrFail($id);
+        dd($post);
+        return view('pages.admin.post.edit', compact('post', 'postCategory'));
     }
 
     public function update(PostRequestForm $request, $id)
     {
         $data = $request->all();
-        $post = Post::find($id);
+        $post = Post::findOrFail($id);
         $post->post_title = $data['post_title'];
         $post->post_slug = $data['post_slug'];
         $post->post_desc = $data['post_desc'];
@@ -99,7 +100,7 @@ class PostController extends Controller
 
     public function destroy($id)
     {
-        $post = Post::find($id);
+        $post = Post::findOrFail($id);
         $post_image = $post->post_image;
         if ($post_image) {
             unlink(public_path('uploads/post/') . $post_image);

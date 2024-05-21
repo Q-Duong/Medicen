@@ -4627,7 +4627,6 @@ table.table.table-bordered.table-dark tr th {
 .management {
     display: flex;
     justify-content: space-around;
-    width: 200px;
 }
 .management-lite {
     text-align: -webkit-center;

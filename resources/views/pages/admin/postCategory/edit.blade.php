@@ -12,14 +12,14 @@
                 </header>
                 <div class="panel-body">
                     <div class="position-center">
-                        <form action="{{ route('post_category.update', $post_category->id) }}" method="post">
+                        <form action="{{ route('post_category.update', $postCategory->id) }}" method="post">
                             @method('patch')
                             @csrf
                             <div class="form-group @error('post_category_name') has-error @enderror">
                                 <label for="exampleInputEmail1">Tên danh mục bài viết</label>
                                 <input type="text" name="post_category_name" class="input-control" id="slug"
                                     placeholder="Điền tên danh mục bài viết" onkeyup="ChangeToSlug();"
-                                    value="{{ $post_category->post_category_name }}">
+                                    value="{{ $postCategory->post_category_name }}">
                                 @error('post_category_name')
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                                 @enderror
@@ -28,7 +28,7 @@
                                 <label for="exampleInputEmail1">Slug danh mục bài viết</label>
                                 <input type="text" name="post_category_slug" class="input-control" id="convert_slug"
                                     placeholder="Điền Slug danh mục bài viết"
-                                    value="{{ $post_category->post_category_slug }}" readonly>
+                                    value="{{ $postCategory->post_category_slug }}" readonly>
                             </div>
                             <button type="submit" class="primary-btn-submit">Cập nhật danh mục bài
                                 viết</button>

@@ -12,7 +12,7 @@ final class OrderBuilder extends Builder
         $getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->orderBy('orders.id', 'DESC')
-            ->select([
+            ->select(
                 'orders.id',
                 'orders.created_at',
                 'order_quantity',
@@ -24,7 +24,7 @@ final class OrderBuilder extends Builder
                 'ord_end_day',
                 'ord_select',
                 'schedule_status'
-            ])
+            )
             ->paginate(10);
         return $getAllOrder;
     }
@@ -36,9 +36,9 @@ final class OrderBuilder extends Builder
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
             ->where('orders.id', $order_id)
-            ->select([
+            ->select(
                 'accountants.order_id',
-                'orders.order_details_id',
+                'orders.order_detail_id',
                 'customer_name',
                 'customer_phone',
                 'customer_address',
@@ -72,7 +72,7 @@ final class OrderBuilder extends Builder
                 'order_percent_discount',
                 'order_price',
                 'status_id'
-            ])
+            )
             ->first();
         return $getOneOder;
     }
@@ -85,7 +85,7 @@ final class OrderBuilder extends Builder
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->where('car_ktvs.car_active', 1)
-            ->select([
+            ->select(
                 'car_name',
                 'car_active',
                 'status_id',
@@ -111,7 +111,7 @@ final class OrderBuilder extends Builder
                 'order_quantity',
                 'order_quantity_draft',
                 'order_note_ktv'
-            ])
+            )
             ->orderBy('order_details.ord_start_day', 'ASC')
             ->orderBy('orders.order_child', 'DESC')
             ->get();
@@ -128,7 +128,7 @@ final class OrderBuilder extends Builder
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->where('car_ktvs.car_active', 1)
-            ->select([
+            ->select(
                 'status_id',
                 'car_ktvs.order_id',
                 'car_ktvs.id',
@@ -178,7 +178,7 @@ final class OrderBuilder extends Builder
                 'order_note_ktv',
                 'order_warning',
                 'order_updated'
-            ])
+            )
             ->orderBy('order_details.ord_start_day', 'ASC')
             ->orderBy('orders.order_child', 'DESC')
             ->get();

@@ -137,7 +137,7 @@
         </div>
         {{ $getAll->links('pagination::bootstrap-4') }}
         <div class="export-excel">
-            <form action="{{ route('export_excel') }}" method="POST" id="myForm">
+            <form action="{{ route('export.excel') }}" method="POST" id="myForm">
                 @csrf
                 <div class="col-md-4">
                     <p class="export-excel-title">Xuất file Excel Công Nợ</p>
@@ -174,5 +174,5 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{ versionResource('assets/js/support/essential.js') }}" defer></script>
+    <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
 @endpush

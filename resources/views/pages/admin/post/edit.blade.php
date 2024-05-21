@@ -61,7 +61,7 @@
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Danh mục bài viết</label>
                                 <select name="post_category_id" class="input-control">
-                                    @foreach ($post_category as $key => $category)
+                                    @foreach ($postCategory as $key => $category)
                                         <option {{ $post->id == $category->id ? 'selected' : '' }}
                                             value="{{ $category->id }}">{{ $category->post_category_name }}</option>
                                     @endforeach

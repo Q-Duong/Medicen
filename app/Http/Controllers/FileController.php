@@ -66,7 +66,7 @@ class FileController extends Controller
 
 	public function destroyFileTotal(Request $request)
 	{
-		$orderDetail = OrderDetail::where('id',$request->id)->select(['ord_total_file_name','ord_total_file_path'])->first();
+		$orderDetail = OrderDetail::where('id',$request->id)->first();
 		$orderDetail->ord_total_file_name = '';
 		$orderDetail->ord_total_file_path = '';
 		$orderDetail->save();

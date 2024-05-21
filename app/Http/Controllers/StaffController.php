@@ -13,7 +13,12 @@ class StaffController extends Controller
     public function index()
     {
         $getAllStaff = Staff::orderBy('id', 'DESC')->paginate(10);
-        return view('pages.admin.staff.index')->with(compact('getAllStaff'));
+        return view('pages.admin.staff.index', compact('getAllStaff'));
+    }
+
+    public function create()
+    {
+        return view('pages.admin.staff.create');
     }
 
     public function store(StaffRequestForm $request)
@@ -31,13 +36,13 @@ class StaffController extends Controller
 
     public function edit($id)
     {
-        $staff = Staff::find($id);
+        $staff = Staff::findOrFail($id);
         return view('pages.admin.staff.edit', compact('staff'));
     }
     public function update(StaffRequestForm $request, $id)
     {
         $data = $request->all();
-        $staff = Staff::find($id);
+        $staff = Staff::findOrFail($id);
         $staff->staff_name = $data['staff_name'];
         $staff->staff_phone =  $data['staff_phone'];
         $staff->staff_gender = $data['staff_gender'];
@@ -49,7 +54,7 @@ class StaffController extends Controller
 
     public function destroy($id)
     {
-        $staff = Staff::find($id);
+        $staff = Staff::findOrFail($id);
         $staff->delete();
         return Redirect()->back()->with('success', 'Xóa nhân viên thành công');
     }

@@ -20,7 +20,7 @@ class CheckLoginSchedule
         if(Auth::check()){
             return $next($request);
         }else{
-            return Redirect()->route('schedule-details');
+            return Redirect()->route('schedule.show.details');
         }
     }
 }

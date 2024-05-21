@@ -789,7 +789,7 @@
                                 </p>
                             </div>
                             <div class="col-lg-6 col-md-6">
-                                <button type="button" class="submit-quantity-details primary-btn-submit">Cập
+                                <button type="button" class="submit-quantity-details primary-btn-submit button-submit">Cập
                                     nhật</button>
                             </div>
                         </div>
@@ -812,31 +812,31 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Tổng số hình chụp: </span>
-                        <span class="account-content-child">{{ $accountant_total_complete }}</span>
+                        <span class="account-content-child">{{ $statistic_complete }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">35 X 43: </span>
-                        <span class="account-content-child">{{ $accountant_total_35 }}</span>
+                        <span class="account-content-child">{{ $statistic_35 }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">8 X 10: </span>
-                        <span class="account-content-child">{{ $accountant_total_8 }}</span>
+                        <span class="account-content-child">{{ $statistic_8 }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">10 X 12: </span>
-                        <span class="account-content-child">{{ $accountant_total_10 }}</span>
+                        <span class="account-content-child">{{ $statistic_10 }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Tổng số Cas chụp: </span>
-                        <span class="account-content-child">{{ $accountant_total_cas }}</span>
+                        <span class="account-content-child">{{ $statistic_cas }}</span>
                     </div>
                 </div>
             </div>
@@ -851,32 +851,30 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Hồ Chí Trung: </span>
-                        <span class="account-content-child">{{ $accountant_total_T }}</span>
+                        <span class="account-content-child">{{ $statistic_T }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Võ Nguyễn Thành Nhân: </span>
-                        <span class="account-content-child">{{ $accountant_total_N }}</span>
+                        <span class="account-content-child">{{ $statistic_N }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Không: </span>
-                        <span class="account-content-child">{{ $accountant_total_K }}</span>
+                        <span class="account-content-child">{{ $statistic_K }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Nguyễn Thanh Giang: </span>
-                        <span class="account-content-child">{{ $accountant_total_G }}</span>
+                        <span class="account-content-child">{{ $statistic_G }}</span>
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
+    <script src="{{ versionResource('assets/js/support/file/handle-file.js') }}"></script>
 </div>
-<script src="{{ versionResource('assets/js/support/file/filepond.js') }}"></script>
-<script src="{{ versionResource('assets/js/support/file/filepond-preview.js') }}"></script>
-<script src="{{ versionResource('assets/js/support/file/org-handle-file.js') }}"></script>

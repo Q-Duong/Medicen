@@ -41,12 +41,12 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($all_order_accountant as $key => $accountant)
+        @foreach ($getAllAccountant as $key => $accountant)
             <tr>
                 <form class="updateAccountant_{{ $accountant->order_id }}">
                     @csrf
                     <input type="hidden" name="accountant_id_{{ $accountant->order_id }}"
-                        value="{{ $accountant->accountant_id }}">
+                        value="{{ $accountant->id }}">
                     <td class="sticky-col first-col order_id">{{ $accountant->order_id }}</td>
 
                     <td class="sticky-col second-col">{{ $accountant->accountant_month }}</td>
@@ -229,23 +229,23 @@
                         <input type="text" class="input-control-accountant width-accountant-note"
                             name="accountant_note" value="{{ $accountant->ord_note }}">
                     </td>
-                    <td class="order_status_{{ $accountant->order_id }}">
-                        @if ($accountant->order_status == 0)
+                    <td class="status_id_{{ $accountant->order_id }}">
+                        @if ($accountant->status_id == 0)
                             <span style="color: #27c24c;">Đơn hàng mới</span>
-                        @elseif($accountant->order_status == 1)
+                        @elseif($accountant->status_id == 1)
                             <span style="color: #FCB322;">Đang xử lý</span>
-                        @elseif($accountant->order_status == 2)
+                        @elseif($accountant->status_id == 2)
                             <span style="color: #c037df;">Đã cập nhật số Cas thực tế</span>
-                        @elseif($accountant->order_status == 3)
+                        @elseif($accountant->status_id == 3)
                             <span style="color: #0071e3;">Đã xử lý</span>
-                        @elseif($accountant->order_status == 4)
+                        @elseif($accountant->status_id == 4)
                             <span style="color: #00d0e3;">Đã cập nhật doanh thu</span>
                         @else
                             <span style="color: #e53637;">Hủy đơn hàng</span>
                         @endif
                     </td>
                     <td class="update-account-{{ $accountant->order_id }}">
-                        @if ($accountant->order_status != 3)
+                        @if ($accountant->status_id != 3)
                             <a data-id="{{ $accountant->order_id }}" class="active styling-edit updateAccount">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -260,4 +260,4 @@
             </tr>
         @endforeach
 </table>
-<script src="{{ versionResource('backend/js/datatables/dataTables-exec.min.js') }}" defer></script>
+<script src="{{ versionResource('assets/js/support/datatables/dataTables-exec.js') }}"></script>
