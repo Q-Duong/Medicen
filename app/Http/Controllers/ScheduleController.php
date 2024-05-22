@@ -65,9 +65,9 @@ class ScheduleController extends Controller
 	}
 	//End Technologist
 
-	public function login_schedule_details()
+	public function loginScheduleDetails()
 	{
-		return view('pages.schedule.login_schedule_details');
+		return view('pages.client.schedule.login_schedule_details');
 	}
 
 	public function login_schedule(Request $request)

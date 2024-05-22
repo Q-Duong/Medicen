@@ -1,4 +1,4 @@
-@extends('layout_not_slider')
+@extends('layouts.default')
 @section('content')
 @section('title', 'Log In Schedule - ')
     <section class="breadcrumb-option">

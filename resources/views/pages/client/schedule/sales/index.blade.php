@@ -104,8 +104,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -180,8 +180,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -257,8 +257,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -334,8 +334,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -411,8 +411,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -488,8 +488,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -565,8 +565,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
