@@ -533,7 +533,7 @@ class OrderController extends Controller
 		return Excel::download(new ExcelExport($firstDayofThisMonth, $lastDayofThisMonth), 'Acountant.xlsx');
 	}
 
-	public function view_order($order_id)
+	public function view($order_id)
 	{
 		$order = Order::find($order_id);
 		$customer = Customer::find($order->customer_id);

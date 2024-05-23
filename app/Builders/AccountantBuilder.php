@@ -57,6 +57,38 @@ final class AccountantBuilder extends Builder
         return $accountants;
     }
 
+    public function getAccountantForUpdateOrder($order_id)
+    {
+        $accountant = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->where('accountants.order_id', $order_id)
+            ->select(
+                'accountants.order_id',
+                'order_quantity',
+                'order_vat',
+                'order_cost',
+                'order_percent_discount',
+                'order_price',
+                'unit_code',
+                'unit_name',
+                'ord_cty_name',
+                'ord_start_day',
+                'ord_form',
+                'status_id',
+                'accountant_distance',
+                'accountant_doctor_read',
+                'accountant_35X43',
+                'accountant_polime',
+                'accountant_8X10',
+                'accountant_10X12',
+                'accountant_film_bag',
+                'accountant_note',
+            )->first();
+            
+        return $accountant;
+    }
+
     public function getAccountantByYear($year)
     {
         $accountants = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
@@ -182,8 +214,9 @@ final class AccountantBuilder extends Builder
         return $accountants;
     }
 
-    public function getQueryBuilderBySearchData($searchData)
+    public function getQueryBuilderBySearchData($searchData, $year)
     {
+
         $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
         ->join('units', 'units.id', '=', 'orders.unit_id')
         ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
@@ -197,6 +230,10 @@ final class AccountantBuilder extends Builder
             'order_quantity',
             'order_discount'
         );
+
+        if($year != 'all'){
+            $query->where( DB::raw('YEAR(ord_start_day)'), '=', $year );
+        }
 
         //Month
         if (isset($searchData['month']) && ! empty($searchData['month'])) {

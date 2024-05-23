@@ -1,1 +1,570 @@
-var typingTimer,doneTypingInterval=600;function quantityFunction(a){var t=a.target.name;$("input[name="+t+"]").on({keyup:function(){formatQuantity($(this))},input:function(){var a=t.split("_")[2],n=$("input[name="+t+"]").val(),e=$(".order_cost_"+a).val();if(""!=n&&""!=e){var r=e.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),o=parseInt(n)*parseInt(r),c=new Intl.NumberFormat("vi-VN").format(o);$(".order_price_"+a).val(c)}else $(".order_price_"+a).val(0)}})}function costFunction(a){var t=a.target.name;$("input[name="+t+"]").on({keyup:function(){formatCurrency($(this))},blur:function(){formatCurrency($(this),"blur")},input:function(){var a=t.split("_")[2],n=$(".order_quantity_"+a).val(),e=$("input[name="+t+"]").val();if(""!=n&&""!=e){var r=e.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),o=parseInt(n)*parseInt(r),c=new Intl.NumberFormat("vi-VN").format(o);$(".order_price_"+a).val(c)}else $(".order_price_"+a).val(0);var u=e.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"");r=new Intl.NumberFormat("vi-VN").format(u);$(".order_cost_"+a).val(r)}})}function priceFunction(a){var t=a.target.name;$("input[name="+t+"]").on({keyup:function(){formatCurrency($(this))},blur:function(){formatCurrency($(this),"blur")},input:function(){var a=t.split("_")[2],n=$(this).val().replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),e=new Intl.NumberFormat("vi-VN").format(n);$(".order_price_"+a).val(e)}})}function amountPaidFunction(a){var t=a.target.name;$("input[name="+t+"]").on({keyup:function(){formatCurrency($(this))},blur:function(){formatCurrency($(this),"blur")},input:function(){var a=t.split("_")[3],n=$(".order_price_"+a).val(),e=$(this).val();if(""!=e&&""!=n){var r=n.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),o=e.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),c=parseInt(r)-parseInt(o),u=new Intl.NumberFormat("vi-VN").format(c);$(".accountant_owe_"+a).val(u)}else $(".accountant_owe_"+a).val(n);var i=e.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"");o=new Intl.NumberFormat("vi-VN").format(i);$(".accountant_amount_paid_"+a).val(o)}})}function discountFunction(a){var t=a.target.name,n=t.split("_")[2];$("input[name="+t+"]").on({keyup:function(){formatCurrency($(this))},blur:function(){formatCurrency($(this),"blur")},input:function(){var a=$(".order_price_"+n).val(),t=$(this).val(),e=a.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"");if(""!=t&&""!=a){var r=t.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),o=parseInt(e)-parseInt(r),c=new Intl.NumberFormat("vi-VN").format(o);$(".order_profit_"+n).val(c)}else $(".order_profit_"+n).val(a);var u=t.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"");r=new Intl.NumberFormat("vi-VN").format(u);$(".order_discount_"+n).val(r)},click:function(){var a=$(".order_price_"+n).val(),t=$(this).val(),e=a.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"");if(""!=t&&""!=a){var r=t.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,""),o=parseInt(e)-parseInt(r),c=new Intl.NumberFormat("vi-VN").format(o);$(".order_profit_"+n).val(c)}else $(".order_profit_"+n).val(a);var u=t.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"");r=new Intl.NumberFormat("vi-VN").format(u);$(".order_discount_"+n).val(r)}})}function ordFormFunction(a){var t=a.target.name,n=t.split("_")[2];$("input[name="+t+"]").on("keyup change",(function(){var a=$(this).val(),t=$(".accountant_35X43_"+n).val(),e=$(".order_quantity_"+n).val();if("ko in"==a){if(""==t)var r=0;else r=t;var o=4*parseInt(r);$(".accountant_film_bag_"+n).val(o)}else $(".accountant_film_bag_"+n).val(e)}))}function accountant35X43Function(a){var t=a.target.name,n=t.split("_")[2];$("input[name="+t+"]").on("keyup change",(function(){var a=$(this).val(),t=$(".ord_form_"+n).val(),e=$(".order_quantity_"+n).val();if("ko in"==t)if(""!=a){var r=4*parseInt(a);$(".accountant_film_bag_"+n).val(r)}else $(".accountant_film_bag_"+n).val(0);else $(".accountant_film_bag_"+n).val(e)}))}function deadlineFunction(a){var t=a.target.name,n=t.split("_")[2];$("input[name="+t+"]").on("keyup change click",(function(){var a=parseInt($(this).val()),t=$(".accountant_date_"+n).val();if(""!=t){var e=t.split("/"),r=e[2]+"-"+e[1]+"-"+e[0];const c=new Date(r),u=c.getDate()+a;c.setDate(u);var o=c.toLocaleDateString("en-GB",{day:"numeric",month:"numeric",year:"numeric"}).split(" ").join("-");$(".accountant_payment_"+n).val(o)}else $(".accountant_payment_"+n).val("")}))}function dateFunction(a){var t=a.target.name,n=t.split("_")[2];$("input[name="+t+"]").on("keyup change",(function(){var a=$(this).val(),t=$(".accountant_deadline_"+n).val();if(""!=t&&a.length>=10){var e=a.split("/"),r=e[2]+"-"+e[1]+"-"+e[0];const c=new Date(r),u=c.getDate()+parseInt(t);c.setDate(u);var o=c.toLocaleDateString("en-GB",{day:"numeric",month:"numeric",year:"numeric"}).split(" ").join("-");$(".accountant_payment_"+n).val(o)}else $(".accountant_payment_"+n).val("")}))}function getValues(a){return[{name:"accountant_id",value:$('input[name="accountant_id_'+a+'"]').val()},{name:"accountant_deadline",value:$('input[name="accountant_deadline_'+a+'"]').val()},{name:"accountant_number",value:$('input[name="accountant_number_'+a+'"]').val()},{name:"accountant_date",value:$('input[name="accountant_date_'+a+'"]').val()},{name:"order_vat",value:$('input[name="order_vat_'+a+'"]').val()},{name:"order_quantity",value:$('input[name="order_quantity_'+a+'"]').val()},{name:"order_cost",value:$('input[name="order_cost_'+a+'"]').val()},{name:"order_price",value:$('input[name="order_price_'+a+'"]').val()},{name:"accountant_payment",value:$('input[name="accountant_payment_'+a+'"]').val()},{name:"accountant_day_payment",value:$('input[name="accountant_day_payment_'+a+'"]').val()},{name:"accountant_method",value:$('input[name="accountant_method_'+a+'"]').val()},{name:"accountant_amount_paid",value:$('input[name="accountant_amount_paid_'+a+'"]').val()},{name:"accountant_owe",value:$('input[name="accountant_owe_'+a+'"]').val()},{name:"order_percent_discount",value:$('input[name="order_percent_discount_'+a+'"]').val()},{name:"order_discount",value:$('input[name="order_discount_'+a+'"]').val()},{name:"accountant_discount_day",value:$('input[name="accountant_discount_day_'+a+'"]').val()},{name:"order_profit",value:$('input[name="order_profit_'+a+'"]').val()},{name:"accountant_doctor_read",value:$('input[name="accountant_doctor_read_'+a+'"]').val()},{name:"accountant_doctor_date_payment",value:$('input[name="accountant_doctor_date_payment_'+a+'"]').val()},{name:"accountant_35X43",value:$('input[name="accountant_35X43_'+a+'"]').val()},{name:"accountant_polime",value:$('input[name="accountant_polime_'+a+'"]').val()},{name:"accountant_8X10",value:$('input[name="accountant_8X10_'+a+'"]').val()},{name:"accountant_10X12",value:$('input[name="accountant_10X12_'+a+'"]').val()},{name:"accountant_film_bag",value:$('input[name="accountant_film_bag_'+a+'"]').val()},{name:"accountant_note",value:$('input[name="accountant_note_'+a+'"]').val()}]}function getListAccountant(a){$.ajax({url:url_get_accountant,method:"POST",async:!0,headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},data:{year:a},beforeSend:function(){}}).then((function(a){$(".table-content").html(a.html)})).always((function(){$(".loader-over").fadeOut()}))}function doneTyping(){var a=$(".search_target1").val(),t=$(".search_target5").val(),n=$(".search_target6").val(),e=$(".search_target7").val();$.ajax({url:url_filter_accountant,method:"POST",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},data:{month:a,unitCode:t,unitName:n,ctyName:e},success:function(a){var t=new Intl.NumberFormat("vi-VN").format(a.total_price),n=new Intl.NumberFormat("vi-VN").format(a.total_owe),e=new Intl.NumberFormat("vi-VN").format(a.total_amount_paid),r=new Intl.NumberFormat("vi-VN").format(a.total_quantity),o=new Intl.NumberFormat("vi-VN").format(a.total_discount);$("#total-price").text(t),$("#total-owe").text(n),$("#total-amount-paid").text(e),$("#total-quantity").text(r),$("#total-discount").text(o),$(".loader-over").fadeOut()}})}$(document).ready((function(){setTimeout((function(){getListAccountant()}),1e3)})),$(".order_profit").on({keyup:function(){formatCurrency($(this))},blur:function(){formatCurrency($(this),"blur")},input:function(){var a=$(this).val();if(""==a){var t=0;$(".order_profit").val(t)}else t=a.replace(/\D/g,"").replace(/\B(?=(\d{3})+(?!\d))/g,"")}}),$(".year-filter").on("change",(function(){$(".loader-over").fadeIn(),getListAccountant($(this).val())})),$(document).on("click",".updateAccount",(function(){var a=$(this).data("id"),t=getValues(a);t.push({name:"order_id",value:a}),$(".loader-over").fadeIn(),$.ajax({url:url_update_accountant,method:"Patch",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},data:t,success:function(t){$(".status_id_"+a).html('<span style="color: #00d0e3;">Đã cập nhật doanh thu</span>'),$(".loader-over").fadeOut(),successMsg(t.success)}})})),$(document).on("click",".completeAccount",(function(){var a=$(this).data("id"),t=getValues(a);t.push({name:"order_id",value:a}),$(".loader-over").fadeIn(),$.ajax({url:url_complete_accountant,method:"POST",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},data:t,success:function(t){$(".status_id_"+a).html('<span style="color: #0071e3;">Đã xử lý</span>'),$(".update-account-"+a).html(""),$(".loader-over").fadeOut(),successMsg(t.success)}})})),$(document).on("keyup",".search_target1, .search_target5, .search_target6, .search_target7",(function(){clearTimeout(typingTimer),typingTimer=setTimeout(doneTyping,doneTypingInterval)})),$(document).on("keydown",".search_target1, .search_target5, .search_target6, .search_target7",(function(){clearTimeout(typingTimer)}));
+var typingTimer;
+var doneTypingInterval = 600;
+
+function quantityFunction(event) {
+    var name = event.target["name"];
+    $("input[name=" + name + "]").on({
+        keyup: function () {
+            formatQuantity($(this));
+        },
+        input: function () {
+            var split = name.split("_");
+            var id = split[2];
+            var order_quantity = $("input[name=" + name + "]").val();
+            var order_cost = $(".order_cost_" + id).val();
+            if (order_quantity != "" && order_cost != "") {
+                var order_cost_format = order_cost
+                    .replace(/\D/g, "")
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+                var total =
+                    parseInt(order_quantity) * parseInt(order_cost_format);
+                var order_price = new Intl.NumberFormat("vi-VN").format(total);
+                $(".order_price_" + id).val(order_price);
+            } else {
+                // $('.order_cost_' + id).val(0);
+                $(".order_price_" + id).val(0);
+            }
+        },
+    });
+}
+function costFunction(event) {
+    var name = event.target["name"];
+
+    $("input[name=" + name + "]").on({
+        keyup: function () {
+            formatCurrency($(this));
+        },
+        blur: function () {
+            formatCurrency($(this), "blur");
+        },
+        input: function () {
+            var split = name.split("_");
+            var id = split[2];
+            var order_quantity = $(".order_quantity_" + id).val();
+            var order_cost = $("input[name=" + name + "]").val();
+            if (order_quantity != "" && order_cost != "") {
+                var order_cost_format = order_cost
+                    .replace(/\D/g, "")
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+                var total =
+                    parseInt(order_quantity) * parseInt(order_cost_format);
+                var order_price = new Intl.NumberFormat("vi-VN").format(total);
+                $(".order_price_" + id).val(order_price);
+            } else {
+                $(".order_price_" + id).val(0);
+            }
+            var order_cost_replace = order_cost
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+            var order_cost_format = new Intl.NumberFormat("vi-VN").format(
+                order_cost_replace
+            );
+            $(".order_cost_" + id).val(order_cost_format);
+        },
+    });
+}
+function priceFunction(event) {
+    var name = event.target["name"];
+
+    $("input[name=" + name + "]").on({
+        keyup: function () {
+            formatCurrency($(this));
+        },
+        blur: function () {
+            formatCurrency($(this), "blur");
+        },
+        input: function () {
+            var split = name.split("_");
+            var id = split[2];
+            var order_price = $(this).val();
+            var order_price_replace = order_price
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+            var order_price_format = new Intl.NumberFormat("vi-VN").format(
+                order_price_replace
+            );
+            $(".order_price_" + id).val(order_price_format);
+        },
+    });
+}
+function amountPaidFunction(event) {
+    var name = event.target["name"];
+
+    $("input[name=" + name + "]").on({
+        keyup: function () {
+            formatCurrency($(this));
+        },
+        blur: function () {
+            formatCurrency($(this), "blur");
+        },
+        input: function () {
+            var split = name.split("_");
+            var id = split[3];
+            var order_price = $(".order_price_" + id).val();
+            var amount_paid = $(this).val();
+            if (amount_paid != "" && order_price != "") {
+                var order_price_format = order_price
+                    .replace(/\D/g, "")
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+                var amount_paid_format = amount_paid
+                    .replace(/\D/g, "")
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+                var owe =
+                    parseInt(order_price_format) - parseInt(amount_paid_format);
+                var owe_format = new Intl.NumberFormat("vi-VN").format(owe);
+                $(".accountant_owe_" + id).val(owe_format);
+            } else {
+                $(".accountant_owe_" + id).val(order_price);
+            }
+            var amount_paid_replace = amount_paid
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+            var amount_paid_format = new Intl.NumberFormat("vi-VN").format(
+                amount_paid_replace
+            );
+            $(".accountant_amount_paid_" + id).val(amount_paid_format);
+        },
+    });
+}
+function discountFunction(event) {
+    var name = event.target["name"];
+    var split = name.split("_");
+    var id = split[2];
+    $("input[name=" + name + "]").on({
+        keyup: function () {
+            formatCurrency($(this));
+        },
+        blur: function () {
+            formatCurrency($(this), "blur");
+        },
+        input: function () {
+            var order_price = $(".order_price_" + id).val();
+            var discount = $(this).val();
+            var order_price_format = order_price
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+
+            if (discount != "" && order_price != "") {
+                var discount_format = discount
+                    .replace(/\D/g, "")
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+                var order_profit =
+                    parseInt(order_price_format) - parseInt(discount_format);
+                var order_profit_format = new Intl.NumberFormat("vi-VN").format(
+                    order_profit
+                );
+                $(".order_profit_" + id).val(order_profit_format);
+            } else {
+                $(".order_profit_" + id).val(order_price);
+            }
+            var discount_replace = discount
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+            var discount_format = new Intl.NumberFormat("vi-VN").format(
+                discount_replace
+            );
+            $(".order_discount_" + id).val(discount_format);
+        },
+        click: function () {
+            var order_price = $(".order_price_" + id).val();
+            var discount = $(this).val();
+            var order_price_format = order_price
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+
+            if (discount != "" && order_price != "") {
+                var discount_format = discount
+                    .replace(/\D/g, "")
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+                var order_profit =
+                    parseInt(order_price_format) - parseInt(discount_format);
+                var order_profit_format = new Intl.NumberFormat("vi-VN").format(
+                    order_profit
+                );
+                $(".order_profit_" + id).val(order_profit_format);
+            } else {
+                $(".order_profit_" + id).val(order_price);
+            }
+            var discount_replace = discount
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+            var discount_format = new Intl.NumberFormat("vi-VN").format(
+                discount_replace
+            );
+            $(".order_discount_" + id).val(discount_format);
+        },
+    });
+}
+function ordFormFunction(event) {
+    var name = event.target["name"];
+    var split = name.split("_");
+    var id = split[2];
+    $("input[name=" + name + "]").on("keyup change", function () {
+        var ordForm = $(this).val();
+        var accountant_35X43 = $(".accountant_35X43_" + id).val();
+        var order_quantity = $(".order_quantity_" + id).val();
+
+        if (ordForm == "ko in") {
+            if (accountant_35X43 == "") {
+                var accountant_35X43_format = 0;
+            } else {
+                var accountant_35X43_format = accountant_35X43;
+            }
+            var accountant_film_bag = parseInt(accountant_35X43_format) * 4;
+            $(".accountant_film_bag_" + id).val(accountant_film_bag);
+        } else {
+            $(".accountant_film_bag_" + id).val(order_quantity);
+        }
+    });
+}
+function accountant35X43Function(event) {
+    var name = event.target["name"];
+    var split = name.split("_");
+    var id = split[2];
+
+    $("input[name=" + name + "]").on("keyup change", function () {
+        var accountant_35X43 = $(this).val();
+        var ordForm = $(".ord_form_" + id).val();
+        var order_quantity = $(".order_quantity_" + id).val();
+        if (ordForm == "ko in") {
+            if (accountant_35X43 != "") {
+                var accountant_film_bag = parseInt(accountant_35X43) * 4;
+                $(".accountant_film_bag_" + id).val(accountant_film_bag);
+            } else {
+                $(".accountant_film_bag_" + id).val(0);
+            }
+        } else {
+            $(".accountant_film_bag_" + id).val(order_quantity);
+        }
+    });
+}
+function deadlineFunction(event) {
+    var name = event.target["name"];
+    var split = name.split("_");
+    var id = split[2];
+
+    $("input[name=" + name + "]").on("keyup change click", function () {
+        var deadline = parseInt($(this).val());
+        var date = $(".accountant_date_" + id).val();
+        if (date != "") {
+            var date1 = date.split("/");
+            var date_format = date1[2] + "-" + date1[1] + "-" + date1[0];
+            const day = new Date(date_format);
+            const day_format = day.getDate() + deadline;
+            day.setDate(day_format);
+            var today = day
+                .toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "numeric",
+                    year: "numeric",
+                })
+                .split(" ")
+                .join("-");
+            $(".accountant_payment_" + id).val(today);
+        } else {
+            $(".accountant_payment_" + id).val("");
+        }
+    });
+}
+function dateFunction(event) {
+    var name = event.target["name"];
+    var split = name.split("_");
+    var id = split[2];
+
+    $("input[name=" + name + "]").on("keyup change", function () {
+        var date = $(this).val();
+        var deadline = $(".accountant_deadline_" + id).val();
+        if (deadline != "" && date.length >= 10) {
+            var date1 = date.split("/");
+            var date_format = date1[2] + "-" + date1[1] + "-" + date1[0];
+            const day = new Date(date_format);
+            const day_format = day.getDate() + parseInt(deadline);
+            day.setDate(day_format);
+            var today = day
+                .toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "numeric",
+                    year: "numeric",
+                })
+                .split(" ")
+                .join("-");
+            $(".accountant_payment_" + id).val(today);
+        } else {
+            $(".accountant_payment_" + id).val("");
+        }
+    });
+}
+function getValues(order_id) {
+    return [
+        {
+            name: "accountant_id",
+            value: $('input[name="accountant_id_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_deadline",
+            value: $(
+                'input[name="accountant_deadline_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "accountant_number",
+            value: $('input[name="accountant_number_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_date",
+            value: $('input[name="accountant_date_' + order_id + '"]').val(),
+        },
+        {
+            name: "order_vat",
+            value: $('input[name="order_vat_' + order_id + '"]').val(),
+        },
+        {
+            name: "order_quantity",
+            value: $('input[name="order_quantity_' + order_id + '"]').val(),
+        },
+        {
+            name: "order_cost",
+            value: $('input[name="order_cost_' + order_id + '"]').val(),
+        },
+        {
+            name: "order_price",
+            value: $('input[name="order_price_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_payment",
+            value: $('input[name="accountant_payment_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_day_payment",
+            value: $(
+                'input[name="accountant_day_payment_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "accountant_method",
+            value: $('input[name="accountant_method_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_amount_paid",
+            value: $(
+                'input[name="accountant_amount_paid_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "accountant_owe",
+            value: $('input[name="accountant_owe_' + order_id + '"]').val(),
+        },
+        {
+            name: "order_percent_discount",
+            value: $(
+                'input[name="order_percent_discount_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "order_discount",
+            value: $('input[name="order_discount_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_discount_day",
+            value: $(
+                'input[name="accountant_discount_day_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "order_profit",
+            value: $('input[name="order_profit_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_doctor_read",
+            value: $(
+                'input[name="accountant_doctor_read_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "accountant_doctor_date_payment",
+            value: $(
+                'input[name="accountant_doctor_date_payment_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "accountant_35X43",
+            value: $('input[name="accountant_35X43_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_polime",
+            value: $('input[name="accountant_polime_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_8X10",
+            value: $('input[name="accountant_8X10_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_10X12",
+            value: $('input[name="accountant_10X12_' + order_id + '"]').val(),
+        },
+        {
+            name: "accountant_film_bag",
+            value: $(
+                'input[name="accountant_film_bag_' + order_id + '"]'
+            ).val(),
+        },
+        {
+            name: "accountant_note",
+            value: $('input[name="accountant_note_' + order_id + '"]').val(),
+        },
+    ];
+}
+function getListAccountant(y) {
+    $.ajax({
+        url: url_get_accountant,
+        method: "POST",
+        async: true,
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+        data:{
+            year: y,
+        },
+        beforeSend: function () {},
+    })
+        .then(function (data) {
+            $(".table-content").html(data.html);
+        })
+        .always(function () {
+            $(".loader-over").fadeOut();
+        });
+}
+$(document).ready(function () {
+    setTimeout(function () {
+        getListAccountant();
+    }, 1000);
+});
+$(".order_profit").on({
+    keyup: function () {
+        formatCurrency($(this));
+    },
+    blur: function () {
+        formatCurrency($(this), "blur");
+    },
+    input: function () {
+        var order_profit = $(this).val();
+        if (order_profit == "") {
+            var order_profit_format = 0;
+            $(".order_profit").val(order_profit_format);
+        } else {
+            var order_profit_format = order_profit
+                .replace(/\D/g, "")
+                .replace(/\B(?=(\d{3})+(?!\d))/g, "");
+        }
+    },
+});
+$(".year-filter").on("change", function () {
+    $(".loader-over").fadeIn();
+    getListAccountant($(this).val());
+});
+
+$(document).on("click", ".updateAccount", function () {
+    var order_id = $(this).data("id");
+    var data = getValues(order_id);
+    data.push({ name: "order_id", value: order_id });
+    $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_update_accountant,
+        method: "Patch",
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+        data: data,
+        success: function (data) {
+            $(".status_id_" + order_id).html(
+                '<span style="color: #00d0e3;">Đã cập nhật doanh thu</span>'
+            );
+            $(".loader-over").fadeOut();
+            successMsg(data.success);
+        },
+    });
+});
+
+$(document).on("click", ".completeAccount", function () {
+    var order_id = $(this).data("id");
+    var data = getValues(order_id);
+    data.push({ name: "order_id", value: order_id });
+    $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_complete_accountant,
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+        data: data,
+        success: function (data) {
+            $(".status_id_" + order_id).html(
+                '<span style="color: #0071e3;">Đã xử lý</span>'
+            );
+            $(".update-account-" + order_id).html("");
+            $(".loader-over").fadeOut();
+            successMsg(data.success);
+        },
+    });
+});
+
+$(document).on(
+    "keyup",
+    ".search_target1, .search_target5, .search_target6, .search_target7",
+    function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+    }
+);
+
+$(document).on(
+    "keydown",
+    ".search_target1, .search_target5, .search_target6, .search_target7",
+    function () {
+        clearTimeout(typingTimer);
+    }
+);
+
+function doneTyping() {
+    var month = $(".search_target1").val();
+    var unitCode = $(".search_target5").val();
+    var unitName = $(".search_target6").val();
+    var ctyName = $(".search_target7").val();
+    // $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_filter_accountant,
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+        data: {
+            month: month,
+            unitCode: unitCode,
+            unitName: unitName,
+            ctyName: ctyName,
+        },
+        success: function (data) {
+            var total_price = new Intl.NumberFormat("vi-VN").format(
+                data.total_price
+            );
+            var total_owe = new Intl.NumberFormat("vi-VN").format(
+                data.total_owe
+            );
+            var total_amount_paid = new Intl.NumberFormat("vi-VN").format(
+                data.total_amount_paid
+            );
+            var total_quantity = new Intl.NumberFormat("vi-VN").format(
+                data.total_quantity
+            );
+            var total_discount = new Intl.NumberFormat("vi-VN").format(
+                data.total_discount
+            );
+            $("#total-price").text(total_price);
+            $("#total-owe").text(total_owe);
+            $("#total-amount-paid").text(total_amount_paid);
+            $("#total-quantity").text(total_quantity);
+            $("#total-discount").text(total_discount);
+            $(".loader-over").fadeOut();
+        },
+    });
+}

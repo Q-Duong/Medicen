@@ -15,18 +15,19 @@ use Illuminate\Support\Facades\Session;
 
 class AccountantController extends Controller
 {
-	public function update_order_accountant($order_id)
+	public function updateOrder($order_id)
 	{
-		$order_accountant = Accountant::where('order_id', $order_id)->first();
-		return view('admin.Accountant.update_order_accountant')->with(compact('order_accountant'));
+		$accountant = Accountant::getAccountantForUpdateOrder($order_id);
+		return view('pages.admin.accountant.edit', compact('accountant'));
 	}
 
-	public function save_order_accountant(Request $request, $order_id)
+	public function storeOrder(Request $request, $order_id)
 	{
 		$data = $request->all();
-		$order = Order::find($order_id);
+		$order = Order::findOrFail($order_id);
+		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		if ($order->order_status == 4) {
-			$orderDetail = OrderDetail::find($order->order_detail_id);
+			
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->save();
 		} else {
@@ -35,14 +36,13 @@ class AccountantController extends Controller
 			$order->order_vat =  $data['order_vat'];
 			$order->order_price = formatPrice($data['order_price']);
 			$order->save();
-			$orderDetail = OrderDetail::find($order->order_detail_id);
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->save();
 			$accountant = Accountant::where('order_id', $order_id)->first();
 			$accountant->accountant_owe = $order->order_price;
 			$accountant->save();
 		}
-		return Redirect::to('admin/order/list')->with('success', 'Cập nhật thông tin báo cáo thành công');
+		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin báo cáo thành công');
 	}
 
 	public function index()
@@ -191,7 +191,8 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
-		$qb = Accountant::getQueryBuilderBySearchData($searchData);
+		$year = Session::get('year');
+		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year);
 		$result = $qb->get();
 		foreach ($result as $key => $val) {
 			$totalPrice += $val->order_price;

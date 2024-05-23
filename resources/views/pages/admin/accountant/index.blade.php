@@ -1,4 +1,7 @@
 @extends('layouts.default_auth')
+@push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
+@endpush
 @section('admin_content')
     <div class="table-agile-info">
         <div class="panel-heading">
@@ -147,8 +150,8 @@
     var url_complete_accountant = "{{ route('accountant.complete') }}";
     var url_filter_accountant = "{{ route('accountant.filter') }}";
 </script>
-    <script src="{{ versionResource('assets/js/support/datatables/nightly.dataTables.js') }}"></script>
+    {{-- <script src="{{ versionResource('assets/js/support/datatables/nightly.dataTables.js') }}"></script>
     <script src="{{ versionResource('assets/js/support/datatables/api.sum.js') }}"></script>
-    <script src="{{ versionResource('assets/js/support/datatables/dataTables-custom.js') }}"></script>
+    <script src="{{ versionResource('assets/js/support/datatables/dataTables-custom.js') }}"></script> --}}
     <script src="{{ versionResource('assets/js/tool/accountant.js') }}"></script>
 @endpush

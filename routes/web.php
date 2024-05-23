@@ -223,8 +223,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     //Accountant
     Route::prefix('accountant')->group(function () {
-        Route::get('update-order/{id}', [AccountantController::class, 'updateOrder'])->name('accountant.update_order');
-        Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.store_order');
+        Route::get('update-order/{id}', [AccountantController::class, 'updateOrder'])->name('accountant.order.update');
+        Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.order.store');
     });
     Route::group(['middleware' => 'isAccountant'], function () {
         //Accountant

@@ -22,7 +22,6 @@
                         <th>Bộ phận chụp:</th>
                         <th>Quản lý</th>
                         <th>Quản lý lịch</th>
-                        <th>Xem đơn hàng</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,7 +66,7 @@
                                     <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
                                         <i class="far fa-copy"></i></i>
                                     </a>
-                                    <a href="{{ route('accountant.update_order', $order->id) }}" class="management-btn">
+                                    <a href="{{ route('accountant.order.update', $order->id) }}" class="management-btn">
                                         <i class="fas fa-file-import text-warning "></i>
                                     </a>
                                 </td>
@@ -98,7 +97,7 @@
                                         <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
                                                 class="far fa-copy"></i></i>
                                         </a>
-                                        <a href="{{ route('accountant.update_order', $order->id) }}"
+                                        <a href="{{ route('accountant.order.update', $order->id) }}"
                                             class="management-btn"><i class="fas fa-file-import text-warning "></i>
                                         </a>
                                     </td>
@@ -118,18 +117,14 @@
                                         <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
-                                        <a href="{{ route('accountant.update_order', $order->id) }}"
-                                            class="management-btn"><i class="fas fa-file-import text-warning "></i>
-                                        </a>
+                                        @if ($order->status_id != 3)
+                                            <a href="{{ route('accountant.order.update', $order->id) }}"
+                                                class="management-btn"><i class="fas fa-file-import text-warning "></i>
+                                            </a>
+                                        @endif
                                     </td>
-                                    <td></td>
                                 @endif
                             @endif
-                            <td class="management-lite">
-                                <a href="{{ route('order.view', $order->id) }}" class="management-btn">
-                                    <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
