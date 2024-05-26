@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Exports\ExcelExport;
+use App\Http\Requests\OrderRequestForm;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Unit;
 use App\Models\Order;
@@ -216,9 +217,8 @@ class OrderController extends Controller
 		return view('pages.admin.order.create')->with(compact('getAllUnit'));
 	}
 
-	public function store(Request $request)
+	public function store(OrderRequestForm $request)
 	{
-		$this->checkOrderAdmin($request);
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
@@ -307,7 +307,7 @@ class OrderController extends Controller
 			$history->history_action = 'Thêm đơn hàng';
 			$history->save();
 			DB::commit();
-			return Redirect()->back()->with('success', 'Thêm đơn hàng thành công');
+			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công');
 		} catch (\Exception $e) {
 			DB::rollback();
 			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
@@ -318,15 +318,14 @@ class OrderController extends Controller
 	{
 		$order = Accountant::where('order_id', $order_id)->first();
 
-		
+
 		$files = array_combine(explode(',', $order->order->orderDetail->ord_list_file), explode(',', $order->order->orderDetail->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files'));
 	}
 
-	public function update(Request $request, $order_id)
+	public function update(OrderRequestForm $request, $order_id)
 	{
-		$this->checkOrderAdmin($request);
 		$data = $request->all();
 		$order = Order::findOrFail($order_id);
 		$order->unit_id = $data['unit_id'];
@@ -375,6 +374,8 @@ class OrderController extends Controller
 		$orderDetail->ord_cty_name = $data['ord_cty_name'];
 		$orderDetail->ord_time = $data['ord_time'];
 		$orderDetail->ord_email = $data['ord_email'];
+		// dd($data);
+
 		$get_file = $request->ord_list_file;
 		if ($get_file) {
 			$name = '';
@@ -406,9 +407,8 @@ class OrderController extends Controller
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		return view('pages.admin.order.copy', compact('order', 'getAllUnit', 'files'));
 	}
-	public function storeCopy(Request $request)
+	public function storeCopy(OrderRequestForm $request)
 	{
-		$this->checkOrderAdmin($request);
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
@@ -452,6 +452,8 @@ class OrderController extends Controller
 				$orderDetail->ord_list_file = '';
 				$orderDetail->ord_list_file_path = '';
 			}
+
+
 			$orderDetail->save();
 
 			$order = new Order();
@@ -471,6 +473,7 @@ class OrderController extends Controller
 			$order->order_warning = $data['order_warning'];
 			$order->order_child = $data['order_child'];
 			$order->order_surcharge = $data['order_surcharge'];
+
 			$order->save();
 
 			$format = explode("-", $data['ord_start_day']);
@@ -777,97 +780,5 @@ class OrderController extends Controller
 
 
 		return $output;
-	}
-
-	//Validation
-	public function checkOrder(Request $request)
-	{
-		$this->validate(
-			$request,
-			[
-				'customer_name' => 'required',
-				'customer_phone' => 'required|numeric|digits_between:10,10',
-				'customer_address' => 'required',
-				'ord_start_day' => 'required',
-				'ord_end_day' => 'required',
-				'order_quantity' => 'required',
-			],
-			[
-				'customer_name.required' => 'Vui lòng điền họ và tên',
-				'customer_phone.required' => 'Vui lòng điền số điện thoại',
-				'customer_phone.digits_between' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_phone.numeric' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_address.required' => 'Vui lòng điền địa chỉ',
-				'ord_start_day.required' => 'Vui lòng điền ngày bắt đầu',
-				'ord_end_day.required' => 'Vui lòng điền ngày kết thúc',
-				'order_quantity.required' => 'Vui lòng điền số lượng chụp',
-			]
-		);
-	}
-
-	public function checkOrderCustomer(Request $request)
-	{
-		$this->validate(
-			$request,
-			[
-				'customer_name' => 'required',
-				'customer_phone' => 'required|numeric|digits_between:10,10',
-				'customer_address' => 'required',
-				'ord_cty_name' => 'required',
-				'ord_start_day' => 'required',
-				'ord_end_day' => 'required',
-				'ord_deadline' => 'required',
-				'ord_deliver_results' => 'required',
-				'ord_time' => 'required',
-				'order_quantity' => 'required',
-			],
-			[
-				'customer_name.required' => 'Vui lòng điền họ và tên',
-				'customer_phone.required' => 'Vui lòng điền số điện thoại',
-				'customer_phone.digits_between' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_phone.numeric' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_address.required' => 'Vui lòng điền địa chỉ',
-				'ord_cty_name.required' => 'Vui lòng điền tên công ty',
-				'ord_start_day.required' => 'Vui lòng điền ngày bắt đầu',
-				'ord_end_day.required' => 'Vui lòng điền ngày kết thúc',
-				'ord_deadline.required' => 'Vui lòng điền ngày trả kết quả',
-				'ord_deliver_results.required' => 'Vui lòng điền thông tin nhận kết quả',
-				'ord_time.required' => 'Vui lòng điền giờ khám',
-				'order_quantity.required' => 'Vui lòng điền số lượng chụp',
-			]
-		);
-	}
-
-	public function checkOrderAdmin(Request $request)
-	{
-		$this->validate(
-			$request,
-			[
-				'customer_name' => 'required',
-				'customer_phone' => 'required|numeric|digits_between:10,10',
-				'customer_address' => 'required',
-				'ord_cty_name' => 'required',
-				'ord_start_day' => 'required',
-				'ord_deadline' => 'required',
-				'ord_deliver_results' => 'required',
-				'ord_time' => 'required',
-				'order_quantity' => 'required',
-				'order_price' => 'required',
-			],
-			[
-				'customer_name.required' => 'Vui lòng điền họ và tên',
-				'customer_phone.required' => 'Vui lòng điền số điện thoại',
-				'customer_phone.digits_between' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_phone.numeric' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_address.required' => 'Vui lòng điền địa chỉ',
-				'ord_cty_name.required' => 'Vui lòng điền tên công ty',
-				'ord_start_day.required' => 'Vui lòng điền ngày bắt đầu',
-				'ord_deadline.required' => 'Vui lòng điền ngày trả kết quả',
-				'ord_deliver_results.required' => 'Vui lòng điền thông tin nhận kết quả',
-				'ord_time.required' => 'Vui lòng điền giờ khám',
-				'order_quantity.required' => 'Vui lòng điền số lượng chụp',
-				'order_price.required' => 'Vui lòng điền tổng tiền',
-			]
-		);
 	}
 }

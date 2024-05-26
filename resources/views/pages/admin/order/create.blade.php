@@ -78,7 +78,8 @@
                                 <input type="text" name="ord_cty_name" class="input-control" placeholder="Điền tên cty"
                                     value="{{ old('ord_cty_name') }}">
                                 @error('ord_cty_name')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -88,9 +89,11 @@
                                     <div class="col-lg-6 col-md-6 centered">
                                         <div class="checkout__input @error('ord_start_day') has-error @enderror">
                                             <input type="date" class="input-control" name="ord_start_day"
-                                                value="{{ old('ord_start_day') }}" @if (Auth::user()->role == 0) @else min="<?= date('Y-m-d') ?>" onkeydown="return false" @endif>
+                                                value="{{ old('ord_start_day') }}"
+                                                @if (Auth::user()->role == 0) @else min="<?= date('Y-m-d') ?>" onkeydown="return false" @endif>
                                             @error('ord_start_day')
-                                                <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                                <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                                    {{ $message }}</div>
                                             @enderror
                                         </div>
                                     </div>
@@ -102,7 +105,8 @@
                                 <input type="text" name="ord_time" class="input-control" placeholder="Điền giờ khám"
                                     value="{{ old('ord_time') }}">
                                 @error('ord_time')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -413,7 +417,8 @@
                                 <input type="text" name="ord_deadline" class="input-control"
                                     placeholder="Điền thời hạn giao kết quả" value="{{ old('ord_deadline') }}">
                                 @error('ord_deadline')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -423,7 +428,8 @@
                                     placeholder="Điền địa chỉ & sđt giao kết quả"
                                     value="{{ old('ord_deliver_results') }}">
                                 @error('ord_deliver_results')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -529,7 +535,8 @@
                                 <input type="text" name="order_quantity" class="input-control order_quantity"
                                     placeholder="Điền số lượng" value="{{ old('order_quantity') }}">
                                 @error('order_quantity')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -539,10 +546,14 @@
                                     value="{{ old('order_cost') }}" placeholder="Điền đơn giá">
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group @error('order_percent_discount') has-error @enderror">
                                 <label for="exampleInputPassword1">Phần trăm chiết khấu</label>
                                 <input type="text" name="order_percent_discount" class="input-control"
                                     value="{{ old('order_percent_discount') }}" placeholder="Điền phần trăm chiết khấu">
+                                @error('order_percent_discount')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
 
                             <div class="form-group @error('order_price') has-error @enderror">
@@ -550,11 +561,12 @@
                                 <input type="text" name="order_price" class="input-control order_price"
                                     placeholder="Điền tổng tiền" value="{{ old('order_price') }}">
                                 @error('order_price')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
-                            <button type="submit" class="primary-btn-submit button-submit">Thêm đơn hàng 
+                            <button type="submit" class="primary-btn-submit button-submit">Thêm đơn hàng
                             </button>
                         </form>
                     </div>

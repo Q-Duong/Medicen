@@ -461,7 +461,8 @@
                                     placeholder="Điền thời hạn giao kết quả"
                                     value="{{ $order->order->orderDetail->ord_deadline }}">
                                 @error('ord_deadline')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -471,7 +472,8 @@
                                     placeholder="Điền Địa chỉ & sđt giao kết quả"
                                     value="{{ $order->order->orderDetail->ord_deliver_results }}">
                                 @error('ord_deliver_results')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -577,22 +579,27 @@
                                 <input type="text" name="order_quantity" class="input-control order_quantity"
                                     placeholder="Đièn số lượng" value="{{ $order->order->order_quantity }}">
                                 @error('order_quantity')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
-                            <div class="form-group block-order-cost {{ $order->order->order_all_in_one == 0 ? '' : 'hidden' }}">
+                            <div
+                                class="form-group block-order-cost {{ $order->order->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($order->order->order_cost, 0, ',', '.') }}"
                                     placeholder="Điền đơn giá" >
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group @error('order_percent_discount') has-error @enderror">
                                 <label for="exampleInputPassword1">Phần trăm chiết khấu</label>
                                 <input type="text" name="order_percent_discount" class="input-control"
-                                    value="{{ $order->order->order_percent_discount }}"
-                                    placeholder="Điền phần trăm chiết khấu">
+                                    value="{{ old('order_percent_discount') }}" placeholder="Điền phần trăm chiết khấu">
+                                @error('order_percent_discount')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
 
                             <div class="form-group @error('order_price') has-error @enderror">
@@ -601,7 +608,8 @@
                                     placeholder="Điền tổng tiền"
                                     value="{{ number_format($order->order->order_price, 0, ',', '.') }}">
                                 @error('order_price')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                             @if (Auth::user()->role == 0)
@@ -610,7 +618,8 @@
                                 </button>
                             @else
                                 @if (
-                                    ($order->order->status_id == 0 || $order->order->status_id == 1 || $order->order->status_id == 2) && Carbon\Carbon::now() < $order->order->orderDetail->ord_start_day)
+                                    ($order->order->status_id == 0 || $order->order->status_id == 1 || $order->order->status_id == 2) &&
+                                        Carbon\Carbon::now() < $order->order->orderDetail->ord_start_day)
                                     <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin đơn
                                         hàng
                                     </button>
