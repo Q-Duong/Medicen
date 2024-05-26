@@ -104,8 +104,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -180,8 +180,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -257,8 +257,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -334,8 +334,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -411,8 +411,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -488,8 +488,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -565,8 +565,8 @@
                                         <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                        <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                            ({{ $order->customer_phone }})</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
@@ -709,31 +709,31 @@
                     </p>
                     <p class="event-item">
                         <span class="item-title">Bác sĩ đọc: </span>
-                        <span class="event-accountant-doctor-read-clone"></span>
+                        <span class="event-accountant-doctor-read"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">35 X 43: </span>
-                        <span class="event-35X43-clone"></span>
+                        <span class="event-35X43"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">Polime: </span>
-                        <span class="event-polime-clone"></span>
+                        <span class="event-polime"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">8 X 10: </span>
-                        <span class="event-8X10-clone"></span>
+                        <span class="event-8X10"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">10 X 12: </span>
-                        <span class="event-10X12-clone"></span>
+                        <span class="event-10X12"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">Ghi chú báo cáo(Anh Sơn): </span>
-                        <span class="event-accountant-note-clone"></span>
+                        <span class="event-accountant-note"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">Ngày trả kết quả: </span>
-                        <span class="event-delivery-date-clone"></span>
+                        <span class="event-delivery-date"></span>
                     </p>
                     <p class="edit-order">
                     </p>
@@ -755,31 +755,31 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Tổng số hình chụp: </span>
-                        <span class="account-content-child">{{ $accountant_total_complete }}</span>
+                        <span class="account-content-child">{{ $statistic_complete }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">35 X 43: </span>
-                        <span class="account-content-child">{{ $accountant_total_35 }}</span>
+                        <span class="account-content-child">{{ $statistic_35 }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">8 X 10: </span>
-                        <span class="account-content-child">{{ $accountant_total_8 }}</span>
+                        <span class="account-content-child">{{ $statistic_8 }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">10 X 12: </span>
-                        <span class="account-content-child">{{ $accountant_total_10 }}</span>
+                        <span class="account-content-child">{{ $statistic_10 }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Tổng số Cas chụp: </span>
-                        <span class="account-content-child">{{ $accountant_total_cas }}</span>
+                        <span class="account-content-child">{{ $statistic_cas }}</span>
                     </div>
                 </div>
             </div>
@@ -794,27 +794,28 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Hồ Chí Trung: </span>
-                        <span class="account-content-child">{{ $accountant_total_T }}</span>
+                        <span class="account-content-child">{{ $statistic_T }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Võ Nguyễn Thành Nhân: </span>
-                        <span class="account-content-child">{{ $accountant_total_N }}</span>
+                        <span class="account-content-child">{{ $statistic_N }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Không: </span>
-                        <span class="account-content-child">{{ $accountant_total_K }}</span>
+                        <span class="account-content-child">{{ $statistic_K }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="account-content">
                         <span class="account-title">Nguyễn Thanh Giang: </span>
-                        <span class="account-content-child">{{ $accountant_total_G }}</span>
+                        <span class="account-content-child">{{ $statistic_G }}</span>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

@@ -291,25 +291,25 @@ function schedule(day) {
                 .find(".event-noteKtv")
                 .html(event.find(".event-note-ktv").html());
             this.modalBody
-                .find(".event-accountant-doctor-read-clone")
+                .find(".event-accountant-doctor-read")
                 .html(event.find(".event-accountant-doctor-read").text());
             this.modalBody
-                .find(".event-35X43-clone")
+                .find(".event-35X43")
                 .html(event.find(".event-35X43").text());
             this.modalBody
-                .find(".event-polime-clone")
+                .find(".event-polime")
                 .html(event.find(".event-polime").text());
             this.modalBody
-                .find(".event-8X10-clone")
+                .find(".event-8X10")
                 .html(event.find(".event-8X10").text());
             this.modalBody
-                .find(".event-10X12-clone")
+                .find(".event-10X12")
                 .html(event.find(".event-10X12").text());
             this.modalBody
-                .find(".event-accountant-note-clone")
+                .find(".event-accountant-note")
                 .html(event.find(".event-accountant-note").text());
             this.modalBody
-                .find(".event-delivery-date-clone")
+                .find(".event-delivery-date")
                 .html(event.find(".event-delivery-date").text());
             if (start_date.getTime() > now.getTime()){
                 this.modalBody.find(".edit-order")

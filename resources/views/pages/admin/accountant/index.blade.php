@@ -56,10 +56,55 @@
                 </div>
             </div>
         </div>
+        <div class="filter-accountant">
+            <div class="filter-accountant-title">
+                <p class="filter-accountant-title-text">
+                    Filter
+                </p>
+            </div>
+            <div class="filter-accountant-content">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="filter-accountant-content-block">
+                            <div class="cd-intro-month">
+                                <label for="schedule-label">Year</label>
+                                <select id="schedule-label" class="input-control year-filter">
+                                    <option value="all" {{ Session::get('year') == 'all' ? 'selected' : '' }}>All </option>
+                                    @for ($i = 0; $i <= 10; $i++)
+                                        <option value="{{ $i + 2023 }}" {{ Session::get('year') == $i + 2023 ? 'selected' : '' }}>
+                                            {{ $i + 2023 }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="filter-accountant-content-block">
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="filter-accountant-content-block">
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="filter-accountant-content-block">
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="filter-accountant-content-block">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="table-responsive table-content">
         </div>
         <div class="export-excel">
-            <form action="{{ route('export-excel') }}" method="POST" id="myForm">
+            <form action="{{ route('export.excel') }}" method="POST" id="myForm">
                 @csrf
                 <div class="col-md-4">
                     <p class="export-excel-title">Xuất file Excel Công Nợ</p>
@@ -96,15 +141,14 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{ versionResource('backend/js/datatables/nightly.dataTables.min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/datatables/api.sum.min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/datatables/dataTables-custom.min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/tool/accountant.min.js') }}" defer></script>
     <script type="">
-         // Accountant Url
-         var urlGetAccountant = "{{route('url-get-list-accountant')}}";
-        var urlUpdateAccountant = "{{route('url-update-accountant',':id')}}";
-        var urlCompleteAccountant = "{{route('url-complete-accountant',':id')}}";
-        var urlFilterAccountant = "{{route('url-filter-accountant')}}";
-    </script>
+    var url_get_accountant = "{{ route('accountant.get') }}";
+    var url_update_accountant = "{{ route('accountant.update') }}";
+    var url_complete_accountant = "{{ route('accountant.complete') }}";
+    var url_filter_accountant = "{{ route('accountant.filter') }}";
+</script>
+    <script src="{{ versionResource('assets/js/support/datatables/nightly.dataTables.js') }}"></script>
+    <script src="{{ versionResource('assets/js/support/datatables/api.sum.js') }}"></script>
+    <script src="{{ versionResource('assets/js/support/datatables/dataTables-custom.js') }}"></script>
+    <script src="{{ versionResource('assets/js/tool/accountant.js') }}"></script>
 @endpush

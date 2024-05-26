@@ -11,8 +11,12 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $getAllService = Service::orderBy('id', 'DESC')->paginate(10);
-        return view('pages.admin.service.index', compact('getAllService'));
+        return view('pages.admin.service.index');
+    }
+
+    public function create()
+    {
+        return view('pages.admin.service.create');
     }
 
     public function store(ServiceRequestForm $request)
@@ -44,14 +48,14 @@ class ServiceController extends Controller
 
     public function edit($id)
     {
-        $service = Service::find($id);
+        $service = Service::findOrFail($id);
         return view('pages.admin.service.edit', compact('service'));
     }
 
     public function update(ServiceRequestForm $request, $id)
     {
         $data = $request->all();
-        $service = Service::find($id);
+        $service = Service::findOrFail($id);
         $service->service_title = $data['service_title'];
         $service->service_slug = $data['service_slug'];
         $service->service_content = $data['service_content'];
@@ -75,7 +79,7 @@ class ServiceController extends Controller
 
     public function destroy($id)
     {
-        $service = Service::find($id);
+        $service = Service::findOrFail($id);
         $service_image = $service->service_image;
         if ($service_image) {
             unlink(public_path('uploads/service/') . $service_image);

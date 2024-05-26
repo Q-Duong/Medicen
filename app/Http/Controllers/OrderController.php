@@ -316,10 +316,8 @@ class OrderController extends Controller
 
 	public function edit($order_id)
 	{
-		$order = Accountant::where('order_id', $order_id)->first();
-
-
-		$files = array_combine(explode(',', $order->order->orderDetail->ord_list_file), explode(',', $order->order->orderDetail->ord_list_file_path));
+		$order = Order::getOneOrder($order_id);
+		$files = array_combine(explode(',', $order->ord_list_file), explode(',', $order->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files'));
 	}
@@ -505,49 +503,7 @@ class OrderController extends Controller
 			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
 		}
 	}
-	public function update_order_schedule(Request $request, $id)
-	{
-		//$this->checkOrderAdmin($request);
-		$data = $request->all();
 
-		$order = Order::find($id);
-		$order->order_warning = $data['order_warning'];
-		$order->save();
-
-		$customer_id = $order->customer_id;
-		$order_detail_id = $order->order_detail_id;
-
-		$customer = Customer::find($customer_id);
-		$customer->customer_name = $data['customer_name'];
-		$customer->customer_phone = $data['customer_phone'];
-		$customer->customer_address = $data['customer_address'];
-		$customer->customer_note = $data['customer_note'];
-		$customer->save();
-
-		$orderDetail = OrderDetail::find($order_detail_id);
-		$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
-		$orderDetail->ord_film = $data['ord_film'];
-		$orderDetail->ord_form = $data['ord_form'];
-		$orderDetail->ord_print = $data['ord_print'];
-		$orderDetail->ord_form_print = $data['ord_form_print'];
-		$orderDetail->ord_print_result = $data['ord_print_result'];
-		$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
-		$orderDetail->ord_note = $data['ord_note'];
-		$orderDetail->ord_deadline = $data['ord_deadline'];
-		$orderDetail->ord_cty_name = $data['ord_cty_name'];
-		$orderDetail->ord_time = $data['ord_time'];
-		$orderDetail->save();
-
-		$now = Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
-		$history = new HistoryEdit();
-		$history->order_id = $order->id;
-		$history->user_name = Auth::user()->email;
-		$history->history_action = 'Sửa đơn hàng';
-		$history->created_at = $now;
-		$history->save();
-
-		return response()->json(['success' => 'Cập nhật thông tin đơn hàng thành công']);
-	}
 	public function destroy($order_id)
 	{
 		$order = Order::findOrFail($order_id);
@@ -565,7 +521,8 @@ class OrderController extends Controller
 
 		return Redirect()->back()->with('success', 'Xóa đơn hàng thành công');
 	}
-	public function export_excel(Request $request)
+	
+	public function exportExcel(Request $request)
 	{
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
@@ -577,18 +534,13 @@ class OrderController extends Controller
 		// return Excel::download(new ExcelExport($date), $date.'.xlsx');
 		return Excel::download(new ExcelExport($firstDayofThisMonth, $lastDayofThisMonth), 'Acountant.xlsx');
 	}
+
 	public function view_order($order_id)
 	{
 		$order = Order::find($order_id);
 		$customer = Customer::find($order->customer_id);
 		$order_detail = OrderDetail::find($order->order_detail_id);
 		return view('admin.Order.view_order')->with(compact('order', 'customer', 'order_detail'));
-	}
-
-	public function list_history_order()
-	{
-		$all_history = HistoryEdit::orderBy('id', 'DESC')->paginate(10);
-		return view('pages.admin.history.index', compact('all_history'));
 	}
 
 	public function print_order($id)

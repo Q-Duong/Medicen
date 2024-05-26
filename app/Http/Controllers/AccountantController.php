@@ -11,6 +11,7 @@ use App\Models\Accountant;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AccountantController extends Controller
 {
@@ -44,22 +45,32 @@ class AccountantController extends Controller
 		return Redirect::to('admin/order/list')->with('success', 'Cập nhật thông tin báo cáo thành công');
 	}
 
-	public function call_list_order_accountant()
+	public function index()
 	{
-		$listOrderAccountant = Accountant::getListOrderAccountant();
-		$html = view('admin.Accountant.list_order_render')->with(compact('listOrderAccountant'))->render();
+		if(!Session::has('year')){
+			Session::put('year', Carbon::now()->year);
+		}
+		return view('pages.admin.accountant.index');
+	}
+
+	public function getAccountant(Request $request)
+	{
+		if(isset($request->year) && ! empty($request->year)){
+			$year = $request->year;
+			Session::put('year', Carbon::now()->year);
+		}else{
+			$year = Session::get('year');
+		}
+		Session::put('year', $year);
+		$getAllAccountant = Accountant::getAccountantByYear($year);
+		$html = view('pages.admin.accountant.render')->with(compact('getAllAccountant'))->render();
 		return response()->json(array('success' => true, 'html' => $html));
 	}
 
-	public function list_order_accountant()
-	{
-		return view('admin.Accountant.list_order');
-	}
-
-	public function update_accountant(Request $request, $order_id)
+	public function update(Request $request)
 	{
 		$data = $request->all();
-		$order = Order::find($order_id);
+		$order = Order::findOrFail($data['order_id']);
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
 		$order->order_cost = $data['order_cost'] != '' ? formatPrice($data['order_cost']) : '';
@@ -67,15 +78,14 @@ class AccountantController extends Controller
 		$order->order_percent_discount = $data['order_percent_discount'];
 		$order->order_discount = formatPrice($data['order_discount']);
 		$order->order_profit = formatPrice($data['order_profit']);
-		$order->order_status = 4;
+		$order->status_id = 4;
 		$order->save();
 
-		$accountant = Accountant::find($data['accountant_id']);
+		$accountant = Accountant::findOrFail($data['accountant_id']);
 		$accountant->accountant_deadline = $data['accountant_deadline'];
 		$accountant->accountant_number = $data['accountant_number'];
 		$accountant->accountant_date = $data['accountant_date'] != '' ? formatDate($data['accountant_date']) : '';
 		$accountant->accountant_payment = $data['accountant_payment'] != '' ? formatDate($data['accountant_payment']) : '';
-		// $accountant->accountant_day = $data['accountant_day'];
 		$accountant->accountant_day_payment = $data['accountant_day_payment'] != '' ? formatDate($data['accountant_day_payment']) : '';
 		$accountant->accountant_method = $data['accountant_method'];
 		$accountant->accountant_amount_paid = formatPrice($data['accountant_amount_paid']);
@@ -92,7 +102,7 @@ class AccountantController extends Controller
 		$accountant->save();
 
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $data['order_id'];
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Cập nhật doanh thu';
 		$history->save();
@@ -100,11 +110,10 @@ class AccountantController extends Controller
 		return response()->json(['success' => 'Đã cập nhật doanh thu thành công.']);
 	}
 
-	public function complete_accountant(Request $request, $order_id)
+	public function complete(Request $request)
 	{
 		$data = $request->all();
-
-		$order = Order::find($order_id);
+		$order = Order::find($data['order_id']);
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
 		$order->order_cost = $data['order_cost'] != '' ? formatPrice($data['order_cost']) : '';
@@ -112,7 +121,7 @@ class AccountantController extends Controller
 		$order->order_percent_discount = $data['order_percent_discount'];
 		$order->order_discount = formatPrice($data['order_discount']);
 		$order->order_profit = formatPrice($data['order_profit']);
-		$order->order_status = 3;
+		$order->status_id = 3;
 		$order->save();
 
 		$order_date = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
@@ -123,7 +132,7 @@ class AccountantController extends Controller
 		} else {
 			$statistic_count = 0;
 		}
-		if ($order->order_status == 3 && $order->accountant_updated != 1) {
+		if ($order->status_id == 3 && $order->accountant_updated != 1) {
 			$total_order = 1;
 			if ($statistic_count > 0) {
 				$statistic_update = Statistic::where('order_date', $order_date)->first();
@@ -142,7 +151,6 @@ class AccountantController extends Controller
 				$statistic_new->save();
 			}
 		}
-
 		$order->accountant_updated = 1;
 		$order->save();
 
@@ -151,7 +159,6 @@ class AccountantController extends Controller
 		$accountant->accountant_number = $data['accountant_number'];
 		$accountant->accountant_date = $data['accountant_date'] != '' ? formatDate($data['accountant_date']) : '';
 		$accountant->accountant_payment = $data['accountant_payment'] != '' ? formatDate($data['accountant_payment']) : '';
-		// $accountant->accountant_day = $data['accountant_day'];
 		$accountant->accountant_day_payment = $data['accountant_day_payment'] != '' ? formatDate($data['accountant_day_payment']) : '';
 		$accountant->accountant_method = $data['accountant_method'];
 		$accountant->accountant_amount_paid = formatPrice($data['accountant_amount_paid']);
@@ -165,11 +172,10 @@ class AccountantController extends Controller
 		$accountant->accountant_10X12 = $data['accountant_10X12'];
 		$accountant->accountant_film_bag = $data['accountant_film_bag'];
 		$accountant->accountant_note = $data['accountant_note'];
-
 		$accountant->save();
 
 		$history = new HistoryEdit();
-		$history->order_id = $order->order_id;
+		$history->order_id = $data['order_id'];
 		$history->user_name = Auth::user()->email;
 		$history->history_action = 'Cập nhật doanh thu';
 		$history->save();
@@ -177,64 +183,25 @@ class AccountantController extends Controller
 		return response()->json(['success' => 'Đơn hàng đã được hoàn tất.']);
 	}
 
-	public function filter_accountant(Request $request)
+	public function filter(Request $request)
 	{
-		$data = $request->all();
-		$total_price = 0;
-		$total_owe = 0;
-		$total_amount_paid = 0;
-		$total_quantity = 0;
-		$total_discount = 0;
-
-		$query = Accountant::join('orders', 'orders.order_id', '=', 'accountant.order_id')
-			->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
-			->join('unit', 'unit.unit_id', '=', 'orders.unit_id')
-			->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-			->where('car_ktv.car_active', 1);
-
-		if (empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && !empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (empty($data['month']) && !empty($data['unitCode']) && !empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && empty($data['unitCode']) && !empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && !empty($data['unitCode']) && empty($data['unitName']) && !empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} elseif (!empty($data['month']) && !empty($data['unitCode']) && !empty($data['unitName']) && empty($data['ctyName'])) {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		} else {
-			$query->where('accountant.accountant_month', 'LIKE', '%' . $data['month'] . '%')->where('unit.unit_code', 'LIKE', '%' . $data['unitCode'] . '%')->where('unit.unit_name', 'LIKE', '%' . $data['unitName'] . '%')->where('order_details.ord_cty_name', 'LIKE', '%' . $data['ctyName'] . '%')->select('order_price', 'accountant_owe', 'accountant_amount_paid', 'order_quantity', 'order_discount');
-		}
-		$result = $query->get();
+		$searchData = $request->all();
+		$totalPrice = 0;
+		$totalOwe = 0;
+		$totalAmountPaid = 0;
+		$totalQuantity = 0;
+		$totalDiscount = 0;
+		$qb = Accountant::getQueryBuilderBySearchData($searchData);
+		$result = $qb->get();
 		foreach ($result as $key => $val) {
-			$total_price += $val->order_price;
-			$total_owe += $val->accountant_owe;
-			$total_amount_paid += $val->accountant_amount_paid;
-			$total_quantity += $val->order_quantity;
-			$total_discount += $val->order_discount;
+			$totalPrice += $val->order_price;
+			$totalOwe += $val->accountant_owe;
+			$totalAmountPaid += $val->accountant_amount_paid;
+			$totalQuantity += $val->order_quantity;
+			$totalDiscount += $val->order_discount;
 		}
 
-		return response()->json(array('total_price' => $total_price, 'total_owe' => $total_owe, 'total_amount_paid' => $total_amount_paid, 'total_quantity' => $total_quantity, 'total_discount' => $total_discount));
+		return response()->json(array('total_price' => $totalPrice, 'total_owe' => $totalOwe, 'total_amount_paid' => $totalAmountPaid, 'total_quantity' => $totalQuantity, 'total_discount' => $totalDiscount));
 	}
 	//Validation
 

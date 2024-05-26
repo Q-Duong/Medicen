@@ -68,15 +68,7 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping
         $firstDayofThisMonth = $this->firstDayofThisMonth;
         $lastDayofThisMonth = $this->lastDayofThisMonth;
 
-        return $order = Accountant::join('orders', 'orders.order_id', '=', 'accountant.order_id')
-            ->join('unit', 'orders.unit_id', '=', 'unit.unit_id')
-            ->join('order_details', 'order_details.order_detail_id', '=', 'orders.order_detail_id')
-            ->join('car_ktv', 'car_ktv.order_id', '=', 'orders.order_id')
-            ->join('status', 'status.status_id', '=', 'orders.order_status')
-            ->where('car_ktv.car_active', 1)
-            ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-            ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-            ->orderBy('order_details.ord_start_day', 'ASC');
+        return $order = Accountant::exportAccountant($firstDayofThisMonth, $lastDayofThisMonth);
     }
 
     public function map($accountant): array

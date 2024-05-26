@@ -11,14 +11,14 @@ class PostCategoryController extends Controller
 {
     public function index()
     {
-        $getAllPostCategory = PostCategory::orderBy('id', 'ASC')->get();
-        return view('pages.admin.postCategory.index', compact('getAllPostCategory'));
+        return view('pages.admin.postCategory.index');
     }
 
     public function create()
     {
         return view('pages.admin.postCategory.create');
     }
+
     public function store(PostCategoryRequestForm $request)
     {
         $data = $request->all();
@@ -40,10 +40,11 @@ class PostCategoryController extends Controller
         $postCategory = PostCategory::findOrFail($id);
         return view('pages.admin.postCategory.edit', compact('postCategory'));
     }
+    
     public function update(PostCategoryRequestForm $request, $id)
     {
         $data = $request->all();
-        $postCategory = PostCategory::find($id);
+        $postCategory = PostCategory::findOrFail($id);
         $postCategory->post_category_name = $data['post_category_name'];
         $postCategory->post_category_slug = $data['post_category_slug'];
         $postCategory->save();

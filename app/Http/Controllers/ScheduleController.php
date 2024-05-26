@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Accountant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\CarKTV;
-use App\Models\Accountant;
 use App\Models\OrderDetail;
 use App\Models\Staff;
 use App\Models\TempFile;
@@ -65,9 +65,9 @@ class ScheduleController extends Controller
 	}
 	//End Technologist
 
-	public function login_schedule_details()
+	public function loginScheduleDetails()
 	{
-		return view('pages.schedule.login_schedule_details');
+		return view('pages.client.schedule.login_schedule_details');
 	}
 
 	public function login_schedule(Request $request)
@@ -96,16 +96,16 @@ class ScheduleController extends Controller
 	public function getScheduleDetails(Request $request)
 	{
 		$month = [];
-		$accountant_total_complete = 0;
-		$accountant_total_cas = 0;
-		$accountant_total_35 = 0;
-		$accountant_total_8 = 0;
-		$accountant_total_10 = 0;
-		$accountant_total_4 = 0;
-		$accountant_total_N = 0;
-		$accountant_total_T = 0;
-		$accountant_total_G = 0;
-		$accountant_total_K = 0;
+		$statistic_complete = 0;
+		$statistic_cas = 0;
+		$statistic_35 = 0;
+		$statistic_8 = 0;
+		$statistic_10 = 0;
+		$statistic_4 = 0;
+		$statistic_N = 0;
+		$statistic_T = 0;
+		$statistic_G = 0;
+		$statistic_K = 0;
 
 		if (empty($request->currentTime)) {
 			$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
@@ -122,40 +122,35 @@ class ScheduleController extends Controller
 		}
 
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
-		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
-			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('order_details.ord_start_day', 'ASC')
-			->get();
+		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
-		foreach ($accountant as $key => $accountant_t) {
-			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
-				$accountant_total_cas += $accountant_t->order_quantity;
-				$accountant_total_35 += $accountant_t->accountant_35X43;
-				$accountant_total_8 += $accountant_t->accountant_8X10;
-				$accountant_total_10 += $accountant_t->accountant_10X12;
-				if ($accountant_t->ord_select == 'Phổi (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống cổ (1 Tư thế)' || $accountant_t->ord_select == 'Vai (1 Tư thế)' || $accountant_t->ord_select == 'Gối (1 Tư thế)' || $accountant_t->ord_select == 'Khác') {
-					$accountant_total_complete += $accountant_t->order_quantity;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += $accountant_t->order_quantity;
+		foreach ($statistics as $key => $statistic) {
+			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
+				$statistic_cas += $statistic->order_quantity;
+				$statistic_35 += $statistic->accountant_35X43;
+				$statistic_8 += $statistic->accountant_8X10;
+				$statistic_10 += $statistic->accountant_10X12;
+				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
+					$statistic_complete += $statistic->order_quantity;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += $statistic->order_quantity;
 					} else {
-						$accountant_total_K += $accountant_t->order_quantity;
+						$statistic_K += $statistic->order_quantity;
 					}
 				} else {
-					$accountant_total_complete += ($accountant_t->order_quantity) * 2;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += ($accountant_t->order_quantity) * 2;
+					$statistic_complete += ($statistic->order_quantity) * 2;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += ($statistic->order_quantity) * 2;
 					} else {
-						$accountant_total_K += ($accountant_t->order_quantity) * 2;
+						$statistic_K += ($statistic->order_quantity) * 2;
 					}
 				}
 			}
@@ -165,7 +160,7 @@ class ScheduleController extends Controller
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
+		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
@@ -207,61 +202,56 @@ class ScheduleController extends Controller
 	public function selectMonthDetails(Request $request)
 	{
 		$data = $request->all();
-		$accountant_total_complete = 0;
-		$accountant_total_cas = 0;
-		$accountant_total_35 = 0;
-		$accountant_total_8 = 0;
-		$accountant_total_10 = 0;
-		$accountant_total_4 = 0;
-		$accountant_total_N = 0;
-		$accountant_total_T = 0;
-		$accountant_total_G = 0;
-		$accountant_total_K = 0;
+		$statistic_complete = 0;
+		$statistic_cas = 0;
+		$statistic_35 = 0;
+		$statistic_8 = 0;
+		$statistic_10 = 0;
+		$statistic_4 = 0;
+		$statistic_N = 0;
+		$statistic_T = 0;
+		$statistic_G = 0;
+		$statistic_K = 0;
 
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
-		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
-			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('order_details.ord_start_day', 'ASC')
-			->get();
+		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
-		foreach ($accountant as $key => $accountant_t) {
-			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
-				$accountant_total_cas += $accountant_t->order_quantity;
-				$accountant_total_35 += $accountant_t->accountant_35X43;
-				$accountant_total_8 += $accountant_t->accountant_8X10;
-				$accountant_total_10 += $accountant_t->accountant_10X12;
-				if ($accountant_t->ord_select == 'Phổi (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống cổ (1 Tư thế)' || $accountant_t->ord_select == 'Vai (1 Tư thế)' || $accountant_t->ord_select == 'Gối (1 Tư thế)' || $accountant_t->ord_select == 'Khác') {
-					$accountant_total_complete += $accountant_t->order_quantity;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += $accountant_t->order_quantity;
+		foreach ($statistics as $key => $statistic) {
+			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
+				$statistic_cas += $statistic->order_quantity;
+				$statistic_35 += $statistic->accountant_35X43;
+				$statistic_8 += $statistic->accountant_8X10;
+				$statistic_10 += $statistic->accountant_10X12;
+				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
+					$statistic_complete += $statistic->order_quantity;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += $statistic->order_quantity;
 					} else {
-						$accountant_total_K += $accountant_t->order_quantity;
+						$statistic_K += $statistic->order_quantity;
 					}
 				} else {
-					$accountant_total_complete += ($accountant_t->order_quantity) * 2;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += ($accountant_t->order_quantity) * 2;
+					$statistic_complete += ($statistic->order_quantity) * 2;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += ($statistic->order_quantity) * 2;
 					} else {
-						$accountant_total_K += ($accountant_t->order_quantity) * 2;
+						$statistic_K += ($statistic->order_quantity) * 2;
 					}
 				}
 			}
 		}
 
-		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
+		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
@@ -288,14 +278,14 @@ class ScheduleController extends Controller
 		}
 		$orderDetail->save();
 
-		// $accountant = Accountant::where('order_id', $request->id)->first();
-		// $accountant->accountant_doctor_read = $data['accountant_doctor_read'];
-		// $accountant->accountant_35X43 = $data['accountant_35X43'];
-		// $accountant->accountant_polime = $data['accountant_polime'];
-		// $accountant->accountant_8X10 = $data['accountant_8X10'];
-		// $accountant->accountant_10X12 = $data['accountant_10X12'];
-		// $accountant->accountant_note = $data['accountant_note'];
-		// $accountant->save();
+		$accountant = Accountant::where('order_id', $request->id)->first();
+		$accountant->accountant_doctor_read = $data['accountant_doctor_read'];
+		$accountant->accountant_35X43 = $data['accountant_35X43'];
+		$accountant->accountant_polime = $data['accountant_polime'];
+		$accountant->accountant_8X10 = $data['accountant_8X10'];
+		$accountant->accountant_10X12 = $data['accountant_10X12'];
+		$accountant->accountant_note = $data['accountant_note'];
+		$accountant->save();
 	}
 	//End Details
 
@@ -303,125 +293,114 @@ class ScheduleController extends Controller
 	public function showScheduleSale()
 	{
 		$month = [];
-		$accountant_total_complete = 0;
-		$accountant_total_cas = 0;
-		$accountant_total_35 = 0;
-		$accountant_total_8 = 0;
-		$accountant_total_10 = 0;
-		$accountant_total_4 = 0;
-		$accountant_total_N = 0;
-		$accountant_total_T = 0;
-		$accountant_total_G = 0;
-		$accountant_total_K = 0;
+		$statistic_complete = 0;
+		$statistic_cas = 0;
+		$statistic_35 = 0;
+		$statistic_8 = 0;
+		$statistic_10 = 0;
+		$statistic_4 = 0;
+		$statistic_N = 0;
+		$statistic_T = 0;
+		$statistic_G = 0;
+		$statistic_K = 0;
 		$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::now()->endOfMonth()->toDateString();
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
+		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
-		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
-			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('order_details.ord_start_day', 'ASC')
-			->get();
-
-		foreach ($accountant as $key => $accountant_t) {
-			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
-				$accountant_total_cas += $accountant_t->order_quantity;
-				$accountant_total_35 += $accountant_t->accountant_35X43;
-				$accountant_total_8 += $accountant_t->accountant_8X10;
-				$accountant_total_10 += $accountant_t->accountant_10X12;
-				if ($accountant_t->ord_select == 'Phổi (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống cổ (1 Tư thế)' || $accountant_t->ord_select == 'Vai (1 Tư thế)' || $accountant_t->ord_select == 'Gối (1 Tư thế)' || $accountant_t->ord_select == 'Khác') {
-					$accountant_total_complete += $accountant_t->order_quantity;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += $accountant_t->order_quantity;
+		foreach ($statistics as $key => $statistic) {
+			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
+				$statistic_cas += $statistic->order_quantity;
+				$statistic_35 += $statistic->accountant_35X43;
+				$statistic_8 += $statistic->accountant_8X10;
+				$statistic_10 += $statistic->accountant_10X12;
+				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
+					$statistic_complete += $statistic->order_quantity;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += $statistic->order_quantity;
 					} else {
-						$accountant_total_K += $accountant_t->order_quantity;
+						$statistic_K += $statistic->order_quantity;
 					}
 				} else {
-					$accountant_total_complete += ($accountant_t->order_quantity) * 2;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += ($accountant_t->order_quantity) * 2;
+					$statistic_complete += ($statistic->order_quantity) * 2;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += ($statistic->order_quantity) * 2;
 					} else {
-						$accountant_total_K += ($accountant_t->order_quantity) * 2;
+						$statistic_K += ($statistic->order_quantity) * 2;
 					}
 				}
 			}
 		}
+
 		for ($m = 1; $m <= 12; $m++) {
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'));
+		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
 	}
 
 	public function selectMonthSales(Request $request)
 	{
 		$data = $request->all();
-		$accountant_total_complete = 0;
-		$accountant_total_cas = 0;
-		$accountant_total_35 = 0;
-		$accountant_total_8 = 0;
-		$accountant_total_10 = 0;
-		$accountant_total_4 = 0;
-		$accountant_total_N = 0;
-		$accountant_total_T = 0;
-		$accountant_total_G = 0;
-		$accountant_total_K = 0;
+		$statistic_complete = 0;
+		$statistic_cas = 0;
+		$statistic_35 = 0;
+		$statistic_8 = 0;
+		$statistic_10 = 0;
+		$statistic_4 = 0;
+		$statistic_N = 0;
+		$statistic_T = 0;
+		$statistic_G = 0;
+		$statistic_K = 0;
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
+		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
-		$accountant = Order::join('accountants', 'accountants.order_id', '=', 'orders.id')
-			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->orderBy('order_details.ord_start_day', 'ASC')
-			->get();
-
-		foreach ($accountant as $key => $accountant_t) {
-			if ($accountant_t->order_status == 2 || $accountant_t->order_status == 3 || $accountant_t->order_status == 4) {
-				$accountant_total_cas += $accountant_t->order_quantity;
-				$accountant_total_35 += $accountant_t->accountant_35X43;
-				$accountant_total_8 += $accountant_t->accountant_8X10;
-				$accountant_total_10 += $accountant_t->accountant_10X12;
-				if ($accountant_t->ord_select == 'Phổi (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $accountant_t->ord_select == 'Cột sống cổ (1 Tư thế)' || $accountant_t->ord_select == 'Vai (1 Tư thế)' || $accountant_t->ord_select == 'Gối (1 Tư thế)' || $accountant_t->ord_select == 'Khác') {
-					$accountant_total_complete += $accountant_t->order_quantity;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += $accountant_t->order_quantity;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += $accountant_t->order_quantity;
+		foreach ($statistics as $key => $statistic) {
+			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
+				$statistic_cas += $statistic->order_quantity;
+				$statistic_35 += $statistic->accountant_35X43;
+				$statistic_8 += $statistic->accountant_8X10;
+				$statistic_10 += $statistic->accountant_10X12;
+				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
+					$statistic_complete += $statistic->order_quantity;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += $statistic->order_quantity;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += $statistic->order_quantity;
 					} else {
-						$accountant_total_K += $accountant_t->order_quantity;
+						$statistic_K += $statistic->order_quantity;
 					}
 				} else {
-					$accountant_total_complete += ($accountant_t->order_quantity) * 2;
-					if ($accountant_t->accountant_doctor_read == 'Nhân') {
-						$accountant_total_N += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Trung') {
-						$accountant_total_T += ($accountant_t->order_quantity) * 2;
-					} elseif ($accountant_t->accountant_doctor_read == 'Giang') {
-						$accountant_total_G += ($accountant_t->order_quantity) * 2;
+					$statistic_complete += ($statistic->order_quantity) * 2;
+					if ($statistic->accountant_doctor_read == 'Nhân') {
+						$statistic_N += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Trung') {
+						$statistic_T += ($statistic->order_quantity) * 2;
+					} elseif ($statistic->accountant_doctor_read == 'Giang') {
+						$statistic_G += ($statistic->order_quantity) * 2;
 					} else {
-						$accountant_total_K += ($accountant_t->order_quantity) * 2;
+						$statistic_K += ($statistic->order_quantity) * 2;
 					}
 				}
 			}
 		}
-		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'accountant_total_complete', 'accountant_total_cas', 'accountant_total_35', 'accountant_total_8', 'accountant_total_10', 'accountant_total_N', 'accountant_total_T', 'accountant_total_G', 'accountant_total_K'))->render();
+		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}

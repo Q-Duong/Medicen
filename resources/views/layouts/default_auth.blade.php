@@ -412,7 +412,7 @@
                         </li>
                         <li class="sub-menu">
                             <a class="{{ request()->routeIs('history.index') ? 'active' : '' }}"
-                                href="{{ route('history.list_history') }}">
+                                href="{{ route('history.index') }}">
                                 <i class="fa fa-picture-o"></i>
                                 <span>Quản lý chỉnh sửa đơn hàng</span>
                             </a>

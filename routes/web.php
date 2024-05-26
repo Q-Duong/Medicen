@@ -16,6 +16,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\HistoryController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
@@ -132,7 +133,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 
     //Export Excel
-    Route::post('/export-excel', [OrderController::class, 'export_excel'])->name('export_excel');
+    Route::post('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
 
     
     //Sales
@@ -216,7 +217,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         });
         //History
         Route::prefix('history')->group(function () {
-            Route::get('/', [OrderController::class, 'list_history_order'])->name('history.list_history');
+            Route::get('/', [HistoryController::class, 'index'])->name('history.index');
         });
     });
 
@@ -229,9 +230,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         //Accountant
         Route::prefix('accountant')->group(function () {
             Route::get('/', [AccountantController::class, 'index'])->name('accountant.index');
-            Route::post('get-list', [AccountantController::class, 'get_list'])->name('accountant.get_list');
-            Route::patch('update/{id}', [AccountantController::class, 'update'])->name('url-update-accountant');
-            Route::post('complete/{id}', [AccountantController::class, 'complete'])->name('accountant.complete');
+            Route::post('get-accountant', [AccountantController::class, 'getAccountant'])->name('accountant.get');
+            Route::patch('update', [AccountantController::class, 'update'])->name('accountant.update');
+            Route::post('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
             Route::post('filter', [AccountantController::class, 'filter'])->name('accountant.filter');
         });
     });

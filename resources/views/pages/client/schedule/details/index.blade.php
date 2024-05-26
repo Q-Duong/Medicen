@@ -36,6 +36,8 @@
     var url_file_revert = "{{ route('file.revert') }}";
     var url_file_delete_total = "{{ route('file.delete_file_total') }}";
 </script>
+<script src="{{ versionResource('assets/js/support/file/filepond.js') }}"></script>
+<script src="{{ versionResource('assets/js/support/file/filepond-preview.js') }}"></script>
 <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
 <script src="{{ versionResource('assets/js/tool/schedule/details/schedule.js') }}"></script>
 @endpush

@@ -6,6 +6,7 @@
             @endfor
         </ul>
     </div>
+
     <div class="events">
         <ul class="wrap">
             <li class="events-group">
@@ -50,13 +51,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -127,13 +131,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -204,13 +211,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -281,13 +291,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -358,13 +371,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -435,13 +451,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -512,13 +531,16 @@
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
                                     <em class="event-address hidden">{{ $order->customer_address }}</em>
                                     <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                    <em class="event-customer-name hidden">{{ $order->customer_name }}</em>
-                                    <em class="event-customer-phone hidden">{{ $order->customer_phone }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -548,6 +570,7 @@
             </li>
         </ul>
     </div>
+
     <div class="event-modal">
         <header class="header">
             <div class="content">
@@ -558,6 +581,7 @@
 
             <div class="header-bg"></div>
         </header>
+
         <div class="body">
             <div class="event-info">
                 <p class="event-item"><span class="item-title">Mã đơn hàng: </span><span class="event-id"></span>
@@ -582,6 +606,10 @@
                 <p class="event-item">
                     <span class="item-title">Bộ phận chụp: </span>
                     <span class="event-select"></span>
+                </p>
+                <p class="event-item">
+                    <span class="item-title">Danh sách: </span>
+                    <span class="event-list-file"></span>
                 </p>
                 <p class="event-item">
                     <span class="item-title">Thông tin người liên hệ: </span>
@@ -645,10 +673,6 @@
                     <span class="event-status"></span>
                 </p>
                 <p class="event-item">
-                    <span class="item-title">Số Cas: </span>
-                    <span class="event-quantity"></span>
-                </p>
-                <p class="event-item">
                     <span class="item-title">Số Cas KTV chụp: </span>
                     <span class="event-draft"></span>
                 </p>
@@ -672,29 +696,26 @@
                     <div>
                         <p class="event-item"><span class="item-title">35 X 43: </span>
                             <span class="event-35X43"></span>
-                            <input type="text" name="accountant_35X43" class="accountant-35X43 input-control"
-                                placeholder="">
+                            <input type="text" name="accountant_35X43" class="accountant-35X43 input-control">
                         </p>
                     </div>
                     <div>
                         <p class="event-item"><span class="item-title">Polime: </span>
                             <span class="event-polime"></span>
                             <input type="text" name="accountant_polime"
-                                class="accountant-polime input-control" placeholder="">
+                                class="accountant-polime input-control">
                         </p>
                     </div>
                     <div>
                         <p class="event-item"><span class="item-title">8 X 10: </span>
                             <span class="event-8X10"></span>
-                            <input type="text" name="accountant_8X10" class="accountant-8X10 input-control"
-                                placeholder="">
+                            <input type="text" name="accountant_8X10" class="accountant-8X10 input-control">
                         </p>
                     </div>
                     <div>
                         <p class="event-item"><span class="item-title">10 X 12: </span>
                             <span class="event-10X12"></span>
-                            <input type="text" name="accountant_10X12" class="accountant-10X12 input-control"
-                                placeholder="">
+                            <input type="text" name="accountant_10X12" class="accountant-10X12 input-control">
                         </p>
                     </div>
                     <div>
@@ -708,7 +729,15 @@
                         <p class="event-item"><span class="item-title">Ngày trả kết quả: </span>
                             <span class="event-delivery-date"></span>
                             <input type="text" name="ord_delivery_date"
-                                class="ord_delivery_date input-control" placeholder="Điền ngày trả kết quả">
+                                class="ord-delivery-date input-control" placeholder="Điền ngày trả kết quả">
+                        </p>
+                    </div>
+                    <div>
+                        <p class="event-item"><span class="item-title">File kết quả tổng: </span>
+                            <p class="total-file">
+                                <input type="file" name="ord_total_file_name" class="filepond">
+                            </p>
+                            <span class="event-total-file"></span>
                         </p>
                     </div>
                     <p class="item_ktv"></p>
@@ -717,12 +746,12 @@
                             <p class="event-item event-quantity-item"><span class="item-title">Số Cas: </span>
                                 <span class="event-quantity-details"></span>
                                 <input type="text" name="order_quantity"
-                                    class="order_quantity_details input-control" placeholder="Điền số cas"
+                                    class="order-quantity input-control" placeholder="Điền số cas"
                                     value="{{ old('order_quantity') }}">
                             </p>
                         </div>
                         <div class="col-lg-6 col-md-6">
-                            <button type="button" class="send_quantity_details primary-btn-submit">Cập
+                            <button type="button" class="submit-quantity-details primary-btn-submit button-submit">Cập
                                 nhật</button>
                         </div>
                     </div>
@@ -745,31 +774,31 @@
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">Tổng số hình chụp: </span>
-                    <span class="account-content-child">{{ $accountant_total_complete }}</span>
+                    <span class="account-content-child">{{ $statistic_complete }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">35 X 43: </span>
-                    <span class="account-content-child">{{ $accountant_total_35 }}</span>
+                    <span class="account-content-child">{{ $statistic_35 }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">8 X 10: </span>
-                    <span class="account-content-child">{{ $accountant_total_8 }}</span>
+                    <span class="account-content-child">{{ $statistic_8 }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">10 X 12: </span>
-                    <span class="account-content-child">{{ $accountant_total_10 }}</span>
+                    <span class="account-content-child">{{ $statistic_10 }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">Tổng số Cas chụp: </span>
-                    <span class="account-content-child">{{ $accountant_total_cas }}</span>
+                    <span class="account-content-child">{{ $statistic_cas }}</span>
                 </div>
             </div>
         </div>
@@ -784,28 +813,29 @@
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">Hồ Chí Trung: </span>
-                    <span class="account-content-child">{{ $accountant_total_T }}</span>
+                    <span class="account-content-child">{{ $statistic_T }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">Võ Nguyễn Thành Nhân: </span>
-                    <span class="account-content-child">{{ $accountant_total_N }}</span>
+                    <span class="account-content-child">{{ $statistic_N }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">Không: </span>
-                    <span class="account-content-child">{{ $accountant_total_K }}</span>
+                    <span class="account-content-child">{{ $statistic_K }}</span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
                     <span class="account-title">Nguyễn Thanh Giang: </span>
-                    <span class="account-content-child">{{ $accountant_total_G }}</span>
+                    <span class="account-content-child">{{ $statistic_G }}</span>
                 </div>
             </div>
 
         </div>
     </div>
 </div>
+<script src="{{ versionResource('assets/js/support/file/handle-file.js') }}"></script>
