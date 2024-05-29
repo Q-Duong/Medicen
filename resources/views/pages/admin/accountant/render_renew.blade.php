@@ -1,7 +1,7 @@
 <div id="table-scroll" class="table-scroll">
-    <table class="table ">
+    <table class="table">
         <thead>
-            <tr>
+            <tr class="section-title">
                 <th class="sticky-col first-col">Mã ĐH</th>
                 <th class="sticky-col second-col">Tháng</th>
                 <th class="sticky-col third-col">Ngày chụp</th>
@@ -11,13 +11,13 @@
                 <th class="sticky-col seven-col">Đơn vị hợp tác</th>
                 <th class="sticky-col eight-col">Tên Cty</th>
                 <th>THCN</th>
-                <th>Số HH</th>
+                <th>Số HĐ</th>
                 <th>Ngày HĐ</th>
                 <th>VAT</th>
                 <th>Số lượng</th>
                 <th>Đơn giá</th>
                 <th>Thành tiền</th>
-                <th>Thời hạn thanh toán</th>
+                <th>Trạng thái thanh toán</th>
                 <th>Ngày TT</th>
                 <th>Hình thức</th>
                 <th>Số tiền đã thanh toán</th>
@@ -37,75 +37,399 @@
                 <th>Ghi chú</th>
                 <th>Ghi chú Sales</th>
                 <th>Trạng thái</th>
-                <th>Cập nhật</th>
                 <th>Hoàn thành</th>
             </tr>
             <tr class="section-filter">
                 <th class="sticky-col first-col">
-                    <input type="text" class="textbox-accountant  width-accountant-min">
+                    <select class="order-id select-2">
+                        <option value="all">All </option>
+                        @foreach ($orderId as $id)
+                            <option value="{{ $id }}">
+                                {{ $id }}
+                            </option>
+                        @endforeach
+                    </select>
                 </th>
                 <th class="sticky-col second-col">
-                    <select id="schedule-label" class="selectbox-accountant">
+                    <select class="accountant-month select-2">
                         <option value="all">All </option>
-                        @for ($i = 0; $i <= 11; $i++)
-                            <option value="{{ $i + 1 }}">
-                                {{ $i + 1 }}</option>
-                        @endfor
+                        @foreach ($months as $month)
+                            <option value="{{ $month }}">
+                                {{ $month }}
+                            </option>
+                        @endforeach
                     </select>
                 </th>
-                <th class="sticky-col third-col">Ngày chụp</th>
+                <th class="sticky-col third-col">
+                    <select class="ord-start-day select-2">
+                        <option value="all">All </option>
+                        @foreach ($days as $day)
+                            <option value="{{ $day }}">
+                                {{ date('d/m/Y', strtotime($day)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </th>
                 <th class="sticky-col fourth-col">
-                    <select id="schedule-label" class="selectbox-accountant">
+                    <select class="car-name select-2">
                         <option value="all">All </option>
-                        @for ($i = 0; $i <= 4; $i++)
-                            <option value="{{ $i + 1 }}">
-                                {{ $i + 1 }}
+                        @foreach ($cars as $car)
+                            <option value="{{ $car }}">
+                                @if ($car == 6)
+                                    Xe thuê
+                                @elseif($car == 7)
+                                    Xe tăng cường
+                                @else
+                                    {{ $car }}
+                                @endif
                             </option>
-                        @endfor
-                        <option value="6">
-                            Xe thuê
-                        </option>
-                            <option value="7">
-                                Xe tăng cường
-                            </option>
+                        @endforeach
                     </select>
                 </th>
-                <th class="sticky-col fifth-col">Km</th>
-                <th class="sticky-col six-col">Mã đơn vị</th>
-                <th class="sticky-col seven-col">Đơn vị hợp tác</th>
-                <th class="sticky-col eight-col">Tên Cty</th>
-                <th>THCN</th>
-                <th>Số HH</th>
-                <th>Ngày HĐ</th>
-                <th>VAT</th>
-                <th>Số lượng</th>
-                <th>Đơn giá</th>
-                <th>Thành tiền</th>
-                <th>Thời hạn thanh toán</th>
-                <th>Ngày TT</th>
-                <th>Hình thức</th>
-                <th>Số tiền đã thanh toán</th>
-                <th>Còn nợ</th>
-                <th>%CK</th>
-                <th>Thành tiền CK</th>
-                <th>Ngày trích CK</th>
-                <th>Lợi nhuận</th>
-                <th>BS đọc kq</th>
-                <th>NTT</th>
-                <th>HT in Phim</th>
-                <th>35 X 43</th>
-                <th>Polime</th>
-                <th>8 X 10</th>
-                <th>10 X 12</th>
-                <th>Bao phim</th>
-                <th>Ghi chú</th>
-                <th>Ghi chú Sales</th>
-                <th>Trạng thái</th>
-                <th>Cập nhật</th>
-                <th>Hoàn thành</th>
+                <th class="sticky-col fifth-col">
+                    <select class="accountant-distance select-2">
+                        <option value="all">All </option>
+                        <option value="G">G</option>
+                        <option value="X">X</option>
+                    </select>
+                </th>
+                <th class="sticky-col six-col">
+                    <select class="unit-code select-2">
+                        <option value="all">All</option>
+                        @foreach ($unitCodes as $unit)
+                            <option value="{{ $unit }}">
+                                {{ $unit }}
+                            </option>
+                        @endforeach
+                    </select>
+                </th>
+                <th class="sticky-col seven-col">
+                    <select class="unit-name select-2">
+                        <option value="all">All</option>
+                        @foreach ($unitNames as $name)
+                            <option value="{{ $name }}">
+                                {{ $name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </th>
+                <th class="sticky-col eight-col">
+                    <select class="ord-cty-name select-2">
+                        <option value="all">All</option>
+                        @foreach ($ctyNames as $cty)
+                            <option value="{{ $cty }}">
+                                {{ $cty }}
+                            </option>
+                        @endforeach
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-deadline select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accDeadlines) && !empty($accDeadlines))
+                            @foreach ($accDeadlines as $deadline)
+                                <option value="{{ $deadline }}">
+                                    {{ $deadline }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-number select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accNumbers) && !empty($accNumbers))
+                            @foreach ($accNumbers as $number)
+                                <option value="{{ $number }}">
+                                    {{ $number }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-date select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accDates) && !empty($accDates))
+                            @foreach ($accDates as $date)
+                                <option value="{{ $date }}">
+                                    {{ date('d/m/Y', strtotime($date)) }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-vat select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($vats) && !empty($vats))
+                            @foreach ($vats as $vat)
+                                <option value="{{ $vat }}">
+                                    {{ $vat }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-quantity select-2">
+                        <option value="all">All</option>
+                        @if (isset($quantities) && !empty($quantities))
+                            @foreach ($quantities as $quantity)
+                                <option value="{{ $quantity }}">
+                                    {{ $quantity }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-cost select-2">
+                        <option value="all">All</option>
+                        @if (isset($costs) && !empty($costs))
+                            @foreach ($costs as $cost)
+                                <option value="{{ $cost }}">
+                                    {{ number_format($cost, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-price select-2">
+                        <option value="all">All</option>
+                        @if (isset($prices) && !empty($prices))
+                            @foreach ($prices as $price)
+                                <option value="{{ $price }}">
+                                    {{ number_format($price, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-status select-2">
+                        <option value="all">All</option>
+                        <option value="0">Chưa thanh toán</option>
+                        <option value="1">Đã thanh toán</option>
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-day-payment select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accDayPayments) && !empty($accDayPayments))
+                            @foreach ($accDayPayments as $dayPayment)
+                                <option value="{{ $dayPayment }}">
+                                    {{ date('d/m/Y', strtotime($dayPayment)) }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-method select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        <option value="HDB">HDB</option>
+                        <option value="AGRI">AGRI</option>
+                        <option value="VCB">VCB</option>
+                        <option value="TM">TM</option>
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-amount-paid select-2">
+                        <option value="all">All</option>
+                        @if (isset($accAmountPaid) && !empty($accAmountPaid))
+                            @foreach ($accAmountPaid as $paid)
+                                <option value="{{ $paid }}">
+                                    {{ number_format($paid, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-owe select-2">
+                        <option value="all">All</option>
+                        @if (isset($accOwes) && !empty($accOwes))
+                            @foreach ($accOwes as $owe)
+                                <option value="{{ $owe }}">
+                                    {{ number_format($owe, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-percent-discount select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($percentDiscounts) && !empty($percentDiscounts))
+                            @foreach ($percentDiscounts as $perDiscount)
+                                <option value="{{ $perDiscount }}">
+                                    {{ $perDiscount }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-discount select-2">
+                        <option value="all">All</option>
+                        @if (isset($discounts) && !empty($discounts))
+                            @foreach ($discounts as $discount)
+                                <option value="{{ $discount }}">
+                                    {{ number_format($discount, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-discount-day select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accDiscountDays) && !empty($accDiscountDays))
+                            @foreach ($accDiscountDays as $discountDay)
+                                <option value="{{ $discountDay }}">
+                                    {{ date('d/m/Y', strtotime($discountDay)) }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="order-profit select-2">
+                        <option value="all">All</option>
+                        @if (isset($profits) && !empty($profits))
+                            @foreach ($profits as $profit)
+                                <option value="{{ $profit }}">
+                                    {{ number_format($profit, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-doctor-read select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        <option value="Không">Không</option>
+                        <option value="Nhân">Nhân</option>
+                        <option value="Trung">Trung</option>
+                        <option value="Giang">Giang</option>
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-doctor-date-payment select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accDoctorDatePayments) && !empty($accDoctorDatePayments))
+                            @foreach ($accDoctorDatePayments as $doctorPayment)
+                                <option value="{{ $doctorPayment }}">
+                                    {{ date('d/m/Y', strtotime($doctorPayment)) }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="ord-form select-2">
+                        <option value="all">All</option>
+                        @if (isset($ordForms) && !empty($ordForms))
+                            @foreach ($ordForms as $ordForm)
+                                <option value="{{ $ordForm }}">
+                                    {{ $ordForm }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-35X43 select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($acc35X43) && !empty($acc35X43))
+                            @foreach ($acc35X43 as $acc3543)
+                                <option value="{{ $acc3543 }}">
+                                    {{ $acc3543 }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-polime select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accPolimes) && !empty($accPolimes))
+                            @foreach ($accPolimes as $polime)
+                                <option value="{{ $polime }}">
+                                    {{ $polime }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-8X10 select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($acc8X10) && !empty($acc8X10))
+                            @foreach ($acc8X10 as $acc810)
+                                <option value="{{ $acc810 }}">
+                                    {{ $acc810 }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-10X12 select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($acc10X12) && !empty($acc10X12))
+                            @foreach ($acc10X12 as $acc1012)
+                                <option value="{{ $acc1012 }}">
+                                    {{ $acc1012 }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="accountant-film-bag select-2">
+                        <option value="all">All</option>
+                        <option value="empty">Empty</option>
+                        @if (isset($accFilmBags) && !empty($accFilmBags))
+                            @foreach ($accFilmBags as $filmBag)
+                                <option value="{{ $filmBag }}">
+                                    {{ $filmBag }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th></th>
+                <th></th>
+                <th>
+                    <select class="status-id select-2">
+                        <option value="all">All</option>
+                        <option value="1">Đang xử lý</option>
+                        <option value="2">Đã cập nhật số Cas thực tế</option>
+                        <option value="4">Đã cập nhật doanh thu</option>
+                        <option value="3">Đã xử lý</option>
+                    </select>
+                </th>
+                <th></th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="tbody-content">
             @foreach ($getAllAccountant as $key => $accountant)
                 <tr>
                     <form class="updateAccountant_{{ $accountant->order_id }}">
@@ -117,7 +441,7 @@
                         <td class="sticky-col second-col">{{ $accountant->accountant_month }}</td>
 
                         <td class="sticky-col third-col">
-                            {{ date('Y/m/d', strtotime($accountant->ord_start_day)) }}</td>
+                            {{ date('d/m/Y', strtotime($accountant->ord_start_day)) }}</td>
                         <td class="sticky-col fourth-col">
                             @if ($accountant->car_name == 6)
                                 Xe thuê
@@ -182,9 +506,10 @@
                         </td>
 
                         <td>
-                            <input type="text" name="accountant_payment_{{ $accountant->order_id }}"
-                                class="textbox-accountant  width-accountant-day accountant_payment_{{ $accountant->order_id }}"
-                                value="{{ $accountant->accountant_payment != null ? date('d/m/Y', strtotime($accountant->accountant_payment)) : '' }}">
+                            <select class="selectbox-accountant select-update accountant_status accountant_status_{{ $accountant->order_id }} {{ $accountant->accountant_status == 0 ? 'acc-status-unpaid' : 'acc-status-paid' }}" name="accountant_status_{{ $accountant->order_id }}">
+                                <option value="0" {{ $accountant->accountant_status == 0 ? 'selected' : '' }}>Chưa thanh toán</option>
+                                <option value="1" {{ $accountant->accountant_status == 1 ? 'selected' : '' }}>Đã thanh toán</option>
+                            </select>
                         </td>
 
                         <td>
@@ -194,9 +519,13 @@
                         </td>
 
                         <td>
-                            <input type="text" name="accountant_method_{{ $accountant->order_id }}"
-                                class="textbox-accountant  width-accountant-price"
-                                value="{{ $accountant->accountant_method }}">
+                            <select class="selectbox-accountant select-update accountant_method_{{ $accountant->order_id }}" name="accountant_method_{{ $accountant->order_id }}">
+                                <option value="" {{ $accountant->accountant_method == null ? 'selected' : '' }}></option>
+                                <option value="HDB" {{ $accountant->accountant_method == 'HDB' ? 'selected' : '' }}>HDB</option>
+                                <option value="AGRI" {{ $accountant->accountant_method == 'AGRI' ? 'selected' : '' }}>AGRI</option>
+                                <option value="VCB" {{ $accountant->accountant_method == 'VCB' ? 'selected' : '' }}>VCB</option>
+                                <option value="TM" {{ $accountant->accountant_method == 'TM' ? 'selected' : '' }}>TM</option>
+                            </select>
                         </td>
 
                         <td>
@@ -258,7 +587,8 @@
                         <td>
                             <input type="text" name="accountant_35X43_{{ $accountant->order_id }}"
                                 class="textbox-accountant  width-accountant-quantity accountant_35X43_{{ $accountant->order_id }}"
-                                value="{{ $accountant->accountant_35X43 }}" onclick="accountant35X43Function(event)">
+                                value="{{ $accountant->accountant_35X43 }}"
+                                onclick="accountant35X43Function(event)">
                         </td>
 
                         <td>
@@ -309,21 +639,19 @@
                                 <span style="color: #e53637;">Hủy đơn hàng</span>
                             @endif
                         </td>
-                        <td class="update-account-{{ $accountant->order_id }}">
-                            @if ($accountant->status_id != 3)
-                                <a data-id="{{ $accountant->order_id }}" class="active styling-edit updateAccount">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            @endif
-                        </td>
                         <td>
-                            <a data-id="{{ $accountant->order_id }}" class="active styling-edit completeAccount">
+                            <a data-id="{{ $accountant->order_id }}" class="management-btn completeAccount">
                                 <i class="fa fa-clipboard-check"></i>
                             </a>
                         </td>
                     </form>
                 </tr>
             @endforeach
+        </tbody>
     </table>
 </div>
-{{-- <script src="{{ versionResource('assets/js/support/datatables/dataTables-exec.js') }}"></script> --}}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.select-2').select2();
+    });
+</script>

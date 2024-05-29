@@ -47,7 +47,7 @@ body a:hover {
     text-decoration: none;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
     background-color:transparent;
     width: 10px;
     height: 10px;
@@ -70,7 +70,7 @@ body a:hover {
 }
 ::-webkit-scrollbar-button {
     display: none;
-}
+} */
 /*sidebar navigation*/
 #sidebar {
     width: 240px;
@@ -1767,7 +1767,7 @@ section#tables p {
 }
 
 .table td, .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
-    padding: 15px 8px !important;
+    padding: 1px 8px;
 
 }
 

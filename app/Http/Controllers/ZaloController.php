@@ -28,23 +28,23 @@ class ZaloController extends Controller
 
     public function getAccessTokenFromRefreshToken()
     {
-        $response = Http
-            ::withHeaders([
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'secret_key' => config("app.zaloSecretKey"),
-            ])->withBody(http_build_query([
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'secret_key' => config('app.zaloSecretKey'),
+        ])
+            ->asForm()
+            ->post('https://oauth.zaloapp.com/v4/oa/access_token', [
                 'refresh_token' => $this->getRefreshTokenDB(),
-                'app_id' => config("app.zaloAppId"),
+                'app_id' => config('app.zaloAppId'),
                 'grant_type' => 'refresh_token',
-            ]), 'application/json')->post('https://oauth.zaloapp.com/v4/oa/access_token');
+            ])
+            ->collect()->toArray();
 
-        $jsonData = $response->json();
-
-        $value = collect($jsonData);
-        $zalo = Zalo::find(1);
-        $zalo->access_token = $value['access_token'];
-        $zalo->refresh_token = $value['refresh_token'];
+        $zalo = Zalo::first();
+        $zalo->access_token = $response['access_token'];
+        $zalo->refresh_token = $response['refresh_token'];
         $zalo->save();
+        echo ('get success');
     }
 
     public function getAccessTokenDB()
@@ -63,15 +63,15 @@ class ZaloController extends Controller
     {
         switch ($obj) {
             case ('drv'):
-                $phone = $carActive->car_driver_phone;
+                $phone = preg_replace('/^0/', '84', $carActive->car_driver_phone);
                 $name = $carActive->car_driver_name;
                 break;
             case ('kt1'):
-                $phone = $carActive->car_ktv_phone_1;
+                $phone = preg_replace('/^0/', '84', $carActive->car_ktv_phone_1);
                 $name = $carActive->car_ktv_name_1;
                 break;
             case ('kt2'):
-                $phone = $carActive->car_ktv_phone_2;
+                $phone = preg_replace('/^0/', '84', $carActive->car_ktv_phone_2);
                 $name = $carActive->car_ktv_name_2;
                 break;
         }
@@ -102,15 +102,15 @@ class ZaloController extends Controller
     {
         switch ($obj) {
             case ('drv'):
-                $phone = $carActive->car_driver_phone;
+                $phone = preg_replace('/^0/', '84', $carActive->car_driver_phone);
                 $name = $carActive->car_driver_name;
                 break;
             case ('kt1'):
-                $phone = $carActive->car_ktv_phone_1;
+                $phone = preg_replace('/^0/', '84', $carActive->car_ktv_phone_1);
                 $name = $carActive->car_ktv_name_1;
                 break;
             case ('kt2'):
-                $phone = $carActive->car_ktv_phone_2;
+                $phone = preg_replace('/^0/', '84', $carActive->car_ktv_phone_2);
                 $name = $carActive->car_ktv_name_2;
                 break;
         }

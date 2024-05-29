@@ -1,6 +1,7 @@
 @extends('layouts.default_auth')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
+    <link rel="stylesheet" href="{{ versionResource('backend/css/select2.css') }}" type="text/css" as="style" />
 @endpush
 @section('admin_content')
     <div class="table-agile-info">
@@ -67,7 +68,7 @@
             </div>
             <div class="filter-accountant-content">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="filter-accountant-content-block">
                             <div class="cd-intro-month">
                                 <label for="schedule-label">Year</label>
@@ -81,24 +82,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="filter-accountant-content-block">
-                            
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="filter-accountant-content-block">
-                            
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="filter-accountant-content-block">
-                            
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="filter-accountant-content-block">
-                            
+                            <div class="clear-filter hidden">
+                                <label for="schedule-label">Filter</label>
+                                <button type="submit" class="primary-btn-filter btn-clear-filter">Clear filter</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -153,5 +142,6 @@
     {{-- <script src="{{ versionResource('assets/js/support/datatables/nightly.dataTables.js') }}"></script>
     <script src="{{ versionResource('assets/js/support/datatables/api.sum.js') }}"></script>
     <script src="{{ versionResource('assets/js/support/datatables/dataTables-custom.js') }}"></script> --}}
+    <script src="{{ versionResource('backend/js/tool/select2.min.js') }}"></script>
     <script src="{{ versionResource('assets/js/tool/accountant.js') }}"></script>
 @endpush
