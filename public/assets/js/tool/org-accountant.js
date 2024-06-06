@@ -331,8 +331,8 @@ function getValues(order_id) {
             value: $('input[name="order_price_' + order_id + '"]').val(),
         },
         {
-            name: "accountant_payment",
-            value: $('input[name="accountant_payment_' + order_id + '"]').val(),
+            name: "accountant_status",
+            value: $(".accountant_status_" + order_id).val(),
         },
         {
             name: "accountant_day_payment",
@@ -342,7 +342,7 @@ function getValues(order_id) {
         },
         {
             name: "accountant_method",
-            value: $('input[name="accountant_method_' + order_id + '"]').val(),
+            value: $(".accountant_method_" + order_id).val(),
         },
         {
             name: "accountant_amount_paid",
@@ -414,6 +414,142 @@ function getValues(order_id) {
         },
     ];
 }
+function getValuesFilter() {
+    return [
+        {
+            name: "order_id",
+            value: $(".order-id").val(),
+        },
+        {
+            name: "status_id",
+            value: $(".status-id").val(),
+        },
+        {
+            name: "car_name",
+            value: $(".car-name").val(),
+        },
+        {
+            name: "unit_code",
+            value: $(".unit-code").val(),
+        },
+        {
+            name: "unit_name",
+            value: $(".unit-name").val(),
+        },
+        {
+            name: "ord_start_day",
+            value: $(".ord-start-day").val(),
+        },
+        {
+            name: "ord_cty_name",
+            value: $(".ord-cty-name").val(),
+        },
+        {
+            name: "ord_form",
+            value: $(".ord-form").val(),
+        },
+        {
+            name: "accountant_month",
+            value: $(".accountant-month").val(),
+        },
+        {
+            name: "accountant_distance",
+            value: $(".accountant-distance").val(),
+        },
+        {
+            name: "accountant_deadline",
+            value: $(".accountant-deadline").val(),
+        },
+        {
+            name: "accountant_number",
+            value: $(".accountant-number").val(),
+        },
+        {
+            name: "accountant_date",
+            value: $(".accountant-date").val(),
+        },
+        {
+            name: "accountant_status",
+            value: $(".accountant-status").val(),
+        },
+        {
+            name: "accountant_day_payment",
+            value: $(".accountant-day-payment").val(),
+        },
+        {
+            name: "accountant_method",
+            value: $(".accountant-method").val(),
+        },
+        {
+            name: "accountant_amount_paid",
+            value: $(".accountant-amount-paid").val(),
+        },
+        {
+            name: "accountant_owe",
+            value: $(".accountant-owe").val(),
+        },
+        {
+            name: "accountant_discount_day",
+            value: $(".accountant-discount-day").val(),
+        },
+        {
+            name: "accountant_doctor_read",
+            value: $(".accountant-doctor-read").val(),
+        },
+        {
+            name: "accountant_doctor_date_payment",
+            value: $(".accountant-doctor-date-payment").val(),
+        },
+        {
+            name: "accountant_35X43",
+            value: $(".accountant-35X43").val(),
+        },
+        {
+            name: "accountant_polime",
+            value: $(".accountant-polime").val(),
+        },
+        {
+            name: "accountant_8X10",
+            value: $(".accountant-8X10").val(),
+        },
+        {
+            name: "accountant_10X12",
+            value: $(".accountant-10X12").val(),
+        },
+        {
+            name: "accountant_film_bag",
+            value: $(".accountant-film-bag").val(),
+        },
+        {
+            name: "order_vat",
+            value: $(".order-vat").val(),
+        },
+        {
+            name: "order_quantity",
+            value: $(".order-quantity").val(),
+        },
+        {
+            name: "order_cost",
+            value: $(".order-cost").val(),
+        },
+        {
+            name: "order_price",
+            value: $(".order-price").val(),
+        },
+        {
+            name: "order_percent_discount",
+            value: $(".order-percent-discount").val(),
+        },
+        {
+            name: "order_discount",
+            value: $(".order-discount").val(),
+        },
+        {
+            name: "order_profit",
+            value: $(".order-profit").val(),
+        },
+    ];
+}
 function getListAccountant(y) {
     $.ajax({
         url: url_get_accountant,
@@ -422,13 +558,31 @@ function getListAccountant(y) {
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
-        data:{
+        data: {
             year: y,
         },
         beforeSend: function () {},
     })
         .then(function (data) {
             $(".table-content").html(data.html);
+            var totalPrice = new Intl.NumberFormat("vi-VN").format(
+                data.totalPrice
+            );
+            var totalOwe = new Intl.NumberFormat("vi-VN").format(data.totalOwe);
+            var totalAmountPaid = new Intl.NumberFormat("vi-VN").format(
+                data.totalAmountPaid
+            );
+            var totalQuantity = new Intl.NumberFormat("vi-VN").format(
+                data.totalQuantity
+            );
+            var totalDiscount = new Intl.NumberFormat("vi-VN").format(
+                data.totalDiscount
+            );
+            $("#total-price").text(totalPrice);
+            $("#total-owe").text(totalOwe);
+            $("#total-amount-paid").text(totalAmountPaid);
+            $("#total-quantity").text(totalQuantity);
+            $("#total-discount").text(totalDiscount);
         })
         .always(function () {
             $(".loader-over").fadeOut();
@@ -463,26 +617,59 @@ $(".year-filter").on("change", function () {
     getListAccountant($(this).val());
 });
 
-$(document).on("click", ".updateAccount", function () {
-    var order_id = $(this).data("id");
-    var data = getValues(order_id);
-    data.push({ name: "order_id", value: order_id });
+$(document).on("change", ".accountant_status", function () {
+    var value = $(this).val();
+    value == 0
+        ? $(this).removeClass("acc-status-paid").addClass("acc-status-unpaid")
+        : $(this).removeClass("acc-status-unpaid").addClass("acc-status-paid");
+});
+
+$(document).on(
+    "change",
+    ".order-id, .accountant-month, .ord-start-day, .car-name, .accountant-distance, .unit-code, .unit-name, .ord-cty-name, .accountant-deadline, .accountant-number, .accountant-date, .order-vat, .order-quantity, .order-cost, .order-price, .accountant-status, .accountant-day-payment, .accountant-method, .accountant-amount-paid, .accountant-owe, .order-percent-discount, .order-discount, .accountant-discount-day, .order-profit, .accountant-doctor-read, .accountant-doctor-date-payment, .ord-form, .accountant-35X43, .accountant-polime, .accountant-8X10, .accountant-10X12, .accountant-film-bag, .status-id",
+    function () {
+        var data = getValuesFilter();
+        $(".loader-over").fadeIn();
+        $.ajax({
+            url: url_filter_accountant,
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+            data: data,
+            success: function (data) {
+                var totalPrice = new Intl.NumberFormat("vi-VN").format(
+                    data.totalPrice
+                );
+                var totalOwe = new Intl.NumberFormat("vi-VN").format(
+                    data.totalOwe
+                );
+                var totalAmountPaid = new Intl.NumberFormat("vi-VN").format(
+                    data.totalAmountPaid
+                );
+                var totalQuantity = new Intl.NumberFormat("vi-VN").format(
+                    data.totalQuantity
+                );
+                var totalDiscount = new Intl.NumberFormat("vi-VN").format(
+                    data.totalDiscount
+                );
+                $(".clear-filter").removeClass("hidden");
+                $(".tbody-content").html(data.html);
+                $("#total-price").text(totalPrice);
+                $("#total-owe").text(totalOwe);
+                $("#total-amount-paid").text(totalAmountPaid);
+                $("#total-quantity").text(totalQuantity);
+                $("#total-discount").text(totalDiscount);
+                $(".loader-over").fadeOut();
+            },
+        });
+    }
+);
+
+$(document).on("click", ".btn-clear-filter", function () {
     $(".loader-over").fadeIn();
-    $.ajax({
-        url: url_update_accountant,
-        method: "Patch",
-        headers: {
-            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-        },
-        data: data,
-        success: function (data) {
-            $(".status_id_" + order_id).html(
-                '<span style="color: #00d0e3;">Đã cập nhật doanh thu</span>'
-            );
-            $(".loader-over").fadeOut();
-            successMsg(data.success);
-        },
-    });
+    getListAccountant();
+    $(".clear-filter").addClass("hidden");
 });
 
 $(document).on("click", ".completeAccount", function () {
@@ -492,7 +679,7 @@ $(document).on("click", ".completeAccount", function () {
     $(".loader-over").fadeIn();
     $.ajax({
         url: url_complete_accountant,
-        method: "POST",
+        method: "Patch",
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
@@ -508,63 +695,31 @@ $(document).on("click", ".completeAccount", function () {
     });
 });
 
-$(document).on(
-    "keyup",
-    ".search_target1, .search_target5, .search_target6, .search_target7",
-    function () {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(doneTyping, doneTypingInterval);
-    }
-);
-
-$(document).on(
-    "keydown",
-    ".search_target1, .search_target5, .search_target6, .search_target7",
-    function () {
-        clearTimeout(typingTimer);
-    }
-);
-
-function doneTyping() {
-    var month = $(".search_target1").val();
-    var unitCode = $(".search_target5").val();
-    var unitName = $(".search_target6").val();
-    var ctyName = $(".search_target7").val();
-    // $(".loader-over").fadeIn();
+$(document).on("change", "input[type=text], .select-update", function () {
+    var target = $(this).attr("name").split("_");
+    var order_id = target.pop();
+    var data = getValues(order_id);
+    data.push({ name: "order_id", value: order_id },{ name: "currentChange", value: target.join("_") });
     $.ajax({
-        url: url_filter_accountant,
-        method: "POST",
+        url: url_update_accountant,
+        method: "Patch",
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
-        data: {
-            month: month,
-            unitCode: unitCode,
-            unitName: unitName,
-            ctyName: ctyName,
-        },
+        data: data,
         success: function (data) {
-            var total_price = new Intl.NumberFormat("vi-VN").format(
-                data.total_price
+            if(typeof(data.html) != "undefined" && data.html !== null){
+                console.log(data.multi);
+                if(data.multi){
+                    $("." + data.className).html(data.html);
+                    $("." + data.subClassName).html(data.subHtml);
+                }else{
+                    $("." + data.className).html(data.html);
+                }
+            }
+            $(".status_id_" + order_id).html(
+                '<span style="color: #00d0e3;">Đã cập nhật doanh thu</span>'
             );
-            var total_owe = new Intl.NumberFormat("vi-VN").format(
-                data.total_owe
-            );
-            var total_amount_paid = new Intl.NumberFormat("vi-VN").format(
-                data.total_amount_paid
-            );
-            var total_quantity = new Intl.NumberFormat("vi-VN").format(
-                data.total_quantity
-            );
-            var total_discount = new Intl.NumberFormat("vi-VN").format(
-                data.total_discount
-            );
-            $("#total-price").text(total_price);
-            $("#total-owe").text(total_owe);
-            $("#total-amount-paid").text(total_amount_paid);
-            $("#total-quantity").text(total_quantity);
-            $("#total-discount").text(total_discount);
-            $(".loader-over").fadeOut();
         },
     });
-}
+});

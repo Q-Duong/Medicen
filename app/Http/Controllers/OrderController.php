@@ -84,6 +84,7 @@ class OrderController extends Controller
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = 0;
+			$accountant->accountant_amount_paid = 0;
 
 			if ($format[1] == 10) {
 				$accountant->accountant_month = $format[1];
@@ -178,6 +179,7 @@ class OrderController extends Controller
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = 0;
+			$accountant->accountant_amount_paid = 0;
 
 			if ($format[1] == 10) {
 				$accountant->accountant_month = $format[1];
@@ -288,6 +290,7 @@ class OrderController extends Controller
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = formatPrice($data['order_price']);
+			$accountant->accountant_amount_paid = 0;
 			$accountant->accountant_distance = $data['accountant_distance'];
 			if ($format[1] == 10) {
 				$accountant->accountant_month = $format[1];
@@ -465,6 +468,7 @@ class OrderController extends Controller
 			$order->order_all_in_one = $data['order_all_in_one'];
 			$order->order_percent_discount = $data['order_percent_discount'];
 			$order->order_vat = $data['order_vat'];
+			$order->order_discount = 0;
 			$order->order_profit = 0;
 			$order->schedule_status = 0;
 			$order->accountant_updated = 0;
@@ -479,6 +483,7 @@ class OrderController extends Controller
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = formatPrice($data['order_price']);
 			$accountant->accountant_distance = $data['accountant_distance'];
+			$accountant->accountant_amount_paid = 0;
 			if ($format[1] == 10) {
 				$accountant->accountant_month = $format[1];
 			} else {
@@ -535,7 +540,7 @@ class OrderController extends Controller
 		return Excel::download(new ExcelExport($firstDayofThisMonth, $lastDayofThisMonth), 'Acountant.xlsx');
 	}
 
-	public function view_order($order_id)
+	public function view($order_id)
 	{
 		$order = Order::find($order_id);
 		$customer = Customer::find($order->customer_id);

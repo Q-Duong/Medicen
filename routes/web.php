@@ -17,6 +17,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\ZaloController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
@@ -223,8 +224,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     //Accountant
     Route::prefix('accountant')->group(function () {
-        Route::get('update-order/{id}', [AccountantController::class, 'updateOrder'])->name('accountant.update_order');
-        Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.store_order');
+        Route::get('update-order/{id}', [AccountantController::class, 'updateOrder'])->name('accountant.order.update');
+        Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.order.store');
     });
     Route::group(['middleware' => 'isAccountant'], function () {
         //Accountant
@@ -232,7 +233,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('/', [AccountantController::class, 'index'])->name('accountant.index');
             Route::post('get-accountant', [AccountantController::class, 'getAccountant'])->name('accountant.get');
             Route::patch('update', [AccountantController::class, 'update'])->name('accountant.update');
-            Route::post('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
+            Route::patch('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
             Route::post('filter', [AccountantController::class, 'filter'])->name('accountant.filter');
         });
     });
@@ -240,9 +241,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 //Zalo
 //Route::get('get-access-token','App\Http\Controllers\OrderController@getAccessToken');
-Route::get('test-zalo', [OrderController::class, 'test_zalo']);
-Route::get('test-zalo-cancle', [OrderController::class, 'test_zalo_cancle']);
-Route::get('get-access-token', [OrderController::class, 'getAccessTokenFromRefreshToken']);
+Route::get('test-zalo', [ZaloController::class, 'test_zalo']);
+Route::get('test-zalo-cancle', [ZaloController::class, 'test_zalo_cancle']);
+Route::get('get-access-token', [ZaloController::class, 'getAccessTokenFromRefreshToken']);
 
 
 

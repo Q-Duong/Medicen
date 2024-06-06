@@ -20,7 +20,6 @@ class Accountant extends Model
         'accountant_number',
         'accountant_date',
         'accountant_payment',
-        'accountant_day',
         'accountant_day_payment',
         'accountant_method',
         'accountant_amount_paid',
@@ -33,7 +32,8 @@ class Accountant extends Model
         'accountant_8X10',
         'accountant_10X12',
         'accountant_film_bag',
-        'accountant_note'
+        'accountant_note',
+        'accountant_status'
     ];
 
     public function order()

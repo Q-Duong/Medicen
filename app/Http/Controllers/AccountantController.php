@@ -6,27 +6,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\Statistic;
-use App\Models\HistoryEdit;
 use App\Models\Accountant;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class AccountantController extends Controller
 {
-	public function update_order_accountant($order_id)
+	public function updateOrder($order_id)
 	{
-		$order_accountant = Accountant::where('order_id', $order_id)->first();
-		return view('admin.Accountant.update_order_accountant')->with(compact('order_accountant'));
+		$accountant = Accountant::getAccountantForUpdateOrder($order_id);
+		return view('pages.admin.accountant.edit', compact('accountant'));
 	}
 
-	public function save_order_accountant(Request $request, $order_id)
+	public function storeOrder(Request $request, $order_id)
 	{
 		$data = $request->all();
-		$order = Order::find($order_id);
+		$order = Order::findOrFail($order_id);
+		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		if ($order->order_status == 4) {
-			$orderDetail = OrderDetail::find($order->order_detail_id);
+
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->save();
 		} else {
@@ -35,19 +34,18 @@ class AccountantController extends Controller
 			$order->order_vat =  $data['order_vat'];
 			$order->order_price = formatPrice($data['order_price']);
 			$order->save();
-			$orderDetail = OrderDetail::find($order->order_detail_id);
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->save();
 			$accountant = Accountant::where('order_id', $order_id)->first();
 			$accountant->accountant_owe = $order->order_price;
 			$accountant->save();
 		}
-		return Redirect::to('admin/order/list')->with('success', 'Cập nhật thông tin báo cáo thành công');
+		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin báo cáo thành công');
 	}
 
 	public function index()
 	{
-		if(!Session::has('year')){
+		if (!Session::has('year')) {
 			Session::put('year', Carbon::now()->year);
 		}
 		return view('pages.admin.accountant.index');
@@ -55,59 +53,139 @@ class AccountantController extends Controller
 
 	public function getAccountant(Request $request)
 	{
-		if(isset($request->year) && ! empty($request->year)){
+		$totalPrice = 0;
+		$totalOwe = 0;
+		$totalAmountPaid = 0;
+		$totalQuantity = 0;
+		$totalDiscount = 0;
+
+		if (isset($request->year) && !empty($request->year)) {
 			$year = $request->year;
 			Session::put('year', Carbon::now()->year);
-		}else{
+		} else {
 			$year = Session::get('year');
 		}
 		Session::put('year', $year);
 		$getAllAccountant = Accountant::getAccountantByYear($year);
-		$html = view('pages.admin.accountant.render')->with(compact('getAllAccountant'))->render();
-		return response()->json(array('success' => true, 'html' => $html));
+
+		$orderId = $getAllAccountant->pluck('order_id')->unique()->sort();
+		$months = $getAllAccountant->pluck('accountant_month')->unique()->sort();
+		$days = $getAllAccountant->pluck('ord_start_day')->unique()->sort();
+		$cars = $getAllAccountant->pluck('car_name')->unique()->sort();
+		$unitCodes = $getAllAccountant->pluck('unit_code')->unique()->sort();
+		$unitNames = $getAllAccountant->pluck('unit_name')->unique()->sort();
+		$ctyNames = $getAllAccountant->pluck('ord_cty_name')->unique()->sort();
+		$accDeadlines = $getAllAccountant->where('accountant_deadline', '!=', null)->pluck('accountant_deadline')->unique()->sort();
+		$accNumbers = $getAllAccountant->where('accountant_number', '!=', null)->pluck('accountant_number')->unique()->sort();
+		$accDates = $getAllAccountant->where('accountant_date', '!=', null)->pluck('accountant_date')->unique()->sort();
+		$vats = $getAllAccountant->where('order_vat', '!=', null)->pluck('order_vat')->map(function ($item) {
+			return mb_strtoupper($item, 'UTF-8');
+		})->unique()->sort();
+		$quantities = $getAllAccountant->pluck('order_quantity')->unique()->sort();
+		$costs = $getAllAccountant->pluck('order_cost')->unique()->sort();
+		$prices = $getAllAccountant->pluck('order_price')->unique()->sort();
+		$accDayPayments = $getAllAccountant->where('accountant_day_payment', '!=', null)->pluck('accountant_day_payment')->unique()->sort();
+		$accAmountPaid = $getAllAccountant->pluck('accountant_amount_paid')->unique()->sort();
+		$accOwes = $getAllAccountant->pluck('accountant_owe')->unique()->sort();
+		$percentDiscounts = $getAllAccountant->where('order_percent_discount', '!=', null)->pluck('order_percent_discount')->unique()->sort();
+		$discounts = $getAllAccountant->pluck('order_discount')->unique()->sort();
+		$accDiscountDays = $getAllAccountant->where('accountant_discount_day', '!=', null)->pluck('accountant_discount_day')->unique()->sort();
+		$profits = $getAllAccountant->pluck('order_profit')->unique()->sort();
+		$accDoctorDatePayments = $getAllAccountant->where('accountant_doctor_date_payment', '!=', null)->pluck('accountant_doctor_date_payment')->unique()->sort();
+		$ordForms = $getAllAccountant->where('ord_form', '!=', null)->pluck('ord_form')->unique()->sort();
+		$acc35X43 = $getAllAccountant->where('accountant_35X43', '!=', null)->pluck('accountant_35X43')->unique()->sort();
+		$accPolimes = $getAllAccountant->where('accountant_polime', '!=', null)->pluck('accountant_polime')->unique()->sort();
+		$acc8X10 = $getAllAccountant->where('accountant_8X10', '!=', null)->pluck('accountant_8X10')->unique()->sort();
+		$acc10X12 = $getAllAccountant->where('accountant_10X12', '!=', null)->pluck('accountant_10X12')->unique()->sort();
+		$accFilmBags = $getAllAccountant->where('accountant_film_bag', '!=', null)->pluck('accountant_film_bag')->unique()->sort();
+
+		foreach ($getAllAccountant as $key => $val) {
+			$totalPrice += $val->order_price;
+			$totalOwe += $val->accountant_owe;
+			$totalAmountPaid += $val->accountant_amount_paid;
+			$totalQuantity += $val->order_quantity;
+			$totalDiscount += $val->order_discount;
+		}
+
+		$html = view('pages.admin.accountant.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitCodes', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
+		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
 	}
 
 	public function update(Request $request)
 	{
 		$data = $request->all();
+		$paramsDeny = ['accountant_status', 'accountant_method', 'accountant_doctor_read'];
+		$subParams = ['order_quantity', 'order_cost', 'accountant_amount_paid', 'order_discount'];
+		$currentChange = $data['currentChange'];
+
 		$order = Order::findOrFail($data['order_id']);
-		$order->order_quantity = $data['order_quantity'];
-		$order->order_price = formatPrice($data['order_price']);
-		$order->order_cost = $data['order_cost'] != '' ? formatPrice($data['order_cost']) : '';
-		$order->order_vat = $data['order_vat'];
-		$order->order_percent_discount = $data['order_percent_discount'];
-		$order->order_discount = formatPrice($data['order_discount']);
-		$order->order_profit = formatPrice($data['order_profit']);
-		$order->status_id = 4;
-		$order->save();
+		if ($order->status_id != 3) {
+			$order->order_quantity = $data['order_quantity'];
+			$order->order_price = formatPrice($data['order_price']);
+			$order->order_cost = empty($data['order_cost']) ? 0 : formatPrice($data['order_cost']);
+			$order->order_vat = empty($data['order_vat']) ? null : $data['order_vat'];
+			$order->order_percent_discount = empty($data['order_percent_discount']) ? null : $data['order_percent_discount'];
+			$order->order_discount = formatPrice($data['order_discount']);
+			$order->order_profit = formatPrice($data['order_profit']);
+			$order->status_id = 4;
+			$order->save();
 
-		$accountant = Accountant::findOrFail($data['accountant_id']);
-		$accountant->accountant_deadline = $data['accountant_deadline'];
-		$accountant->accountant_number = $data['accountant_number'];
-		$accountant->accountant_date = $data['accountant_date'] != '' ? formatDate($data['accountant_date']) : '';
-		$accountant->accountant_payment = $data['accountant_payment'] != '' ? formatDate($data['accountant_payment']) : '';
-		$accountant->accountant_day_payment = $data['accountant_day_payment'] != '' ? formatDate($data['accountant_day_payment']) : '';
-		$accountant->accountant_method = $data['accountant_method'];
-		$accountant->accountant_amount_paid = formatPrice($data['accountant_amount_paid']);
-		$accountant->accountant_owe = formatPrice($data['accountant_owe']);
-		$accountant->accountant_discount_day = $data['accountant_discount_day'] != '' ? formatDate($data['accountant_discount_day']) : '';
-		$accountant->accountant_doctor_read = $data['accountant_doctor_read'];
-		$accountant->accountant_doctor_date_payment = $data['accountant_doctor_date_payment'] != '' ? formatDate($data['accountant_doctor_date_payment']) : '';
-		$accountant->accountant_35X43 = $data['accountant_35X43'];
-		$accountant->accountant_polime = $data['accountant_polime'];
-		$accountant->accountant_8X10 = $data['accountant_8X10'];
-		$accountant->accountant_10X12 = $data['accountant_10X12'];
-		$accountant->accountant_film_bag = $data['accountant_film_bag'];
-		$accountant->accountant_note = $data['accountant_note'];
-		$accountant->save();
+			$accountant = Accountant::findOrFail($data['accountant_id']);
+			$accountant->accountant_deadline = empty($data['accountant_deadline']) ? null : $data['accountant_deadline'];
+			$accountant->accountant_number = empty($data['accountant_number']) ? null : $data['accountant_number'];
+			$accountant->accountant_date = empty($data['accountant_date']) ? null : formatDate($data['accountant_date']);
+			$accountant->accountant_day_payment = empty($data['accountant_day_payment']) ? null : formatDate($data['accountant_day_payment']);
+			$accountant->accountant_method = empty($data['accountant_method']) ? null : $data['accountant_method'];
+			$accountant->accountant_amount_paid = formatPrice($data['accountant_amount_paid']);
+			$accountant->accountant_owe = formatPrice($data['accountant_owe']);
+			$accountant->accountant_discount_day = empty($data['accountant_discount_day']) ? null : formatDate($data['accountant_discount_day']);
+			$accountant->accountant_doctor_read = empty($data['accountant_doctor_read']) ? null : $data['accountant_doctor_read'];
+			$accountant->accountant_doctor_date_payment = empty($data['accountant_doctor_date_payment']) ? null : formatDate($data['accountant_doctor_date_payment']);
+			$accountant->accountant_35X43 = empty($data['accountant_35X43']) ? null : $data['accountant_35X43'];
+			$accountant->accountant_polime = empty($data['accountant_polime']) ? null : $data['accountant_polime'];
+			$accountant->accountant_8X10 = empty($data['accountant_8X10']) ? null : $data['accountant_8X10'];
+			$accountant->accountant_10X12 = empty($data['accountant_10X12']) ? null : $data['accountant_10X12'];
+			$accountant->accountant_film_bag = empty($data['accountant_film_bag']) ? null : $data['accountant_film_bag'];
+			$accountant->accountant_note = empty($data['accountant_note']) ? null : $data['accountant_note'];
+			$accountant->accountant_status = $data['accountant_status'];
+			$accountant->save();
 
-		$history = new HistoryEdit();
-		$history->order_id = $data['order_id'];
-		$history->user_name = Auth::user()->email;
-		$history->history_action = 'Cập nhật doanh thu';
-		$history->save();
+			if (!in_array($currentChange, $paramsDeny)) {
+				$year = Session::get('year');
+				if (in_array($currentChange, $subParams)) {
+					switch ($currentChange) {
+						case 'order_quantity':
+							$subFilters = Accountant::renewFilterWhenUpdated('order_price', $year);
+							$subCurrentChange = 'order_price';
+							break;
+						case 'order_cost':
+							$subFilters = Accountant::renewFilterWhenUpdated('order_price', $year);
+							$subCurrentChange = 'order_price';
+							break;
+						case 'accountant_amount_paid':
+							$subFilters = Accountant::renewFilterWhenUpdated('accountant_owe', $year);
+							$subCurrentChange = 'accountant_owe';
+							break;
+						case 'order_discount':
+							$subFilters = Accountant::renewFilterWhenUpdated('order_profit', $year);
+							$subCurrentChange = 'order_profit';
+							break;
+					}
+					$filters = Accountant::renewFilterWhenUpdated($currentChange, $year);
 
-		return response()->json(['success' => 'Đã cập nhật doanh thu thành công.']);
+					$html = view('pages.admin.accountant.filter_render')->with(compact('filters', 'currentChange'))->render();
+					$subHtml = view('pages.admin.accountant.sub_filter_render')->with(compact('subFilters', 'subCurrentChange'))->render();
+					$className = str_replace('_', '-', $currentChange);
+					$subClassName = str_replace('_', '-', $subCurrentChange);
+					return response()->json(array('success' => true, 'multi' => true, 'html' => $html, 'className' => $className, 'subHtml' => $subHtml, 'subClassName' => $subClassName));
+				}
+				$filters = Accountant::renewFilterWhenUpdated($currentChange, $year);
+				$className = str_replace('_', '-', $currentChange);
+				$html = view('pages.admin.accountant.filter_render')->with(compact('filters', 'currentChange'))->render();
+				return response()->json(array('success' => true, 'multi' => false, 'html' => $html, 'className' => $className));
+			}
+			return response()->json(array('success' => true));
+		}
 	}
 
 	public function complete(Request $request)
@@ -116,9 +194,9 @@ class AccountantController extends Controller
 		$order = Order::find($data['order_id']);
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
-		$order->order_cost = $data['order_cost'] != '' ? formatPrice($data['order_cost']) : '';
-		$order->order_vat = $data['order_vat'];
-		$order->order_percent_discount = $data['order_percent_discount'];
+		$order->order_cost = empty($data['order_cost']) ? 0 : formatPrice($data['order_cost']);
+		$order->order_vat = empty($data['order_vat']) ? null : $data['order_vat'];
+		$order->order_percent_discount = empty($data['order_percent_discount']) ? null : $data['order_percent_discount'];
 		$order->order_discount = formatPrice($data['order_discount']);
 		$order->order_profit = formatPrice($data['order_profit']);
 		$order->status_id = 3;
@@ -154,31 +232,25 @@ class AccountantController extends Controller
 		$order->accountant_updated = 1;
 		$order->save();
 
-		$accountant = Accountant::find($data['accountant_id']);
-		$accountant->accountant_deadline = $data['accountant_deadline'];
-		$accountant->accountant_number = $data['accountant_number'];
-		$accountant->accountant_date = $data['accountant_date'] != '' ? formatDate($data['accountant_date']) : '';
-		$accountant->accountant_payment = $data['accountant_payment'] != '' ? formatDate($data['accountant_payment']) : '';
-		$accountant->accountant_day_payment = $data['accountant_day_payment'] != '' ? formatDate($data['accountant_day_payment']) : '';
-		$accountant->accountant_method = $data['accountant_method'];
+		$accountant = Accountant::findOrFail($data['accountant_id']);
+		$accountant->accountant_deadline = empty($data['accountant_deadline']) ? null : $data['accountant_deadline'];
+		$accountant->accountant_number = empty($data['accountant_number']) ? null : $data['accountant_number'];
+		$accountant->accountant_date = empty($data['accountant_date']) ? null : formatDate($data['accountant_date']);
+		$accountant->accountant_day_payment = empty($data['accountant_day_payment']) ? null : formatDate($data['accountant_day_payment']);
+		$accountant->accountant_method = empty($data['accountant_method']) ? null : $data['accountant_method'];
 		$accountant->accountant_amount_paid = formatPrice($data['accountant_amount_paid']);
 		$accountant->accountant_owe = formatPrice($data['accountant_owe']);
-		$accountant->accountant_discount_day = $data['accountant_discount_day'] != '' ? formatDate($data['accountant_discount_day']) : '';
-		$accountant->accountant_doctor_read = $data['accountant_doctor_read'];
-		$accountant->accountant_doctor_date_payment = $data['accountant_doctor_date_payment'] != '' ? formatDate($data['accountant_doctor_date_payment']) : '';
-		$accountant->accountant_35X43 = $data['accountant_35X43'];
-		$accountant->accountant_polime = $data['accountant_polime'];
-		$accountant->accountant_8X10 = $data['accountant_8X10'];
-		$accountant->accountant_10X12 = $data['accountant_10X12'];
-		$accountant->accountant_film_bag = $data['accountant_film_bag'];
-		$accountant->accountant_note = $data['accountant_note'];
+		$accountant->accountant_discount_day = empty($data['accountant_discount_day']) ? null : formatDate($data['accountant_discount_day']);
+		$accountant->accountant_doctor_read = empty($data['accountant_doctor_read']) ? null : $data['accountant_doctor_read'];
+		$accountant->accountant_doctor_date_payment = empty($data['accountant_doctor_date_payment']) ? null : formatDate($data['accountant_doctor_date_payment']);
+		$accountant->accountant_35X43 = empty($data['accountant_35X43']) ? null : $data['accountant_35X43'];
+		$accountant->accountant_polime = empty($data['accountant_polime']) ? null : $data['accountant_polime'];
+		$accountant->accountant_8X10 = empty($data['accountant_8X10']) ? null : $data['accountant_8X10'];
+		$accountant->accountant_10X12 = empty($data['accountant_10X12']) ? null : $data['accountant_10X12'];
+		$accountant->accountant_film_bag = empty($data['accountant_film_bag']) ? null : $data['accountant_film_bag'];
+		$accountant->accountant_note = empty($data['accountant_note']) ? null : $data['accountant_note'];
+		$accountant->accountant_status = $data['accountant_status'];
 		$accountant->save();
-
-		$history = new HistoryEdit();
-		$history->order_id = $data['order_id'];
-		$history->user_name = Auth::user()->email;
-		$history->history_action = 'Cập nhật doanh thu';
-		$history->save();
 
 		return response()->json(['success' => 'Đơn hàng đã được hoàn tất.']);
 	}
@@ -191,56 +263,19 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
-		$qb = Accountant::getQueryBuilderBySearchData($searchData);
-		$result = $qb->get();
-		foreach ($result as $key => $val) {
+		$year = Session::get('year');
+		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year);
+		$getAllAccountant = $qb->get();
+
+
+		foreach ($getAllAccountant as $key => $val) {
 			$totalPrice += $val->order_price;
 			$totalOwe += $val->accountant_owe;
 			$totalAmountPaid += $val->accountant_amount_paid;
 			$totalQuantity += $val->order_quantity;
 			$totalDiscount += $val->order_discount;
 		}
-
-		return response()->json(array('total_price' => $totalPrice, 'total_owe' => $totalOwe, 'total_amount_paid' => $totalAmountPaid, 'total_quantity' => $totalQuantity, 'total_discount' => $totalDiscount));
-	}
-	//Validation
-
-	public function checkOrderAdmin(Request $request)
-	{
-		$this->validate(
-			$request,
-			[
-				'customer_name' => 'required',
-				'customer_phone' => 'required|numeric|digits_between:10,10',
-				'customer_address' => 'required',
-				'ord_cty_name' => 'required',
-				'ord_start_day' => 'required',
-				'ord_end_day' => 'required',
-				'ord_deadline' => 'required',
-				'ord_deliver_results' => 'required',
-				'ord_time' => 'required',
-				'order_quantity' => 'required',
-				'order_cost' => 'required',
-				'order_price' => 'required',
-				'code_unit' => 'required',
-			],
-			[
-				'customer_name.required' => 'Vui lòng điền họ và tên',
-				'customer_phone.required' => 'Vui lòng điền số điện thoại',
-				'customer_phone.digits_between' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_phone.numeric' => 'Vui lòng kiểm tra lại số điện thoại',
-				'customer_address.required' => 'Vui lòng điền địa chỉ',
-				'ord_cty_name.required' => 'Vui lòng điền tên công ty',
-				'ord_start_day.required' => 'Vui lòng điền ngày bắt đầu',
-				'ord_end_day.required' => 'Vui lòng điền ngày kết thúc',
-				'ord_deadline.required' => 'Vui lòng điền ngày trả kết quả',
-				'ord_deliver_results.required' => 'Vui lòng điền thông tin nhận kết quả',
-				'ord_time.required' => 'Vui lòng điền giờ khám',
-				'order_quantity.required' => 'Vui lòng điền số lượng chụp',
-				'order_cost.required' => 'Vui lòng điền đơn giá',
-				'order_price.required' => 'Vui lòng điền tổng tiền',
-				'code_unit.required' => 'Vui lòng điền mã đơn vị',
-			]
-		);
+		$html = view('pages.admin.accountant.filter_index')->with(compact('getAllAccountant'))->render();
+		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
 	}
 }

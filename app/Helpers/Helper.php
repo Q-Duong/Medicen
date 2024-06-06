@@ -2,27 +2,27 @@
 if (!function_exists('formatDate')) {
     function formatDate($date)
     {
-        $format=explode("/",$date);
-		$day = array_shift($format);
+        $format = explode("/", $date);
+        $day = array_shift($format);
         $year = array_pop($format);
         $month = implode(" ", $format);
-		$dateFormat= $year."-".$month."-".$day;
-    	return $dateFormat;
+        $dateFormat = $year . "-" . $month . "-" . $day;
+        return $dateFormat;
     }
 }
 
 if (!function_exists('formatPrice')) {
     function formatPrice($price)
     {
-        $str_price_format = Str::replace([' ','₫','.'], '', $price);
-    	return $str_price_format;
+        $str_price_format = Str::replace([' ', '₫', '.'], '', $price);
+        return $str_price_format;
     }
 }
 
 if (!function_exists('versionResource')) {
     function versionResource($path)
     {
-    	return  asset($path."?v=".config("app.resourceVersion"));
+        return  asset($path . "?v=" . config("app.resourceVersion"));
     }
 }
 
@@ -33,10 +33,11 @@ if (!function_exists('saveImageFileDrive')) {
         $get_name_file = $file->getClientOriginalName();
         $name_file = current(explode('.', $get_name_file));
         $new_file =  $name_file . rand(0, 99) . '.' . $file->getClientOriginalExtension();
-        $fileUploaded = Storage::cloud()->put($new_file, $fileData);
-        $getAllFileInDrive = collect(Storage::cloud()->listContents('', true));
-        $collectFile = $getAllFileInDrive->where('path', '=', $new_file)->first();
-        $response=['fileName' => $new_file, 'virtual_path' => $collectFile['extraMetadata']['virtual_path'] ];
+        $specialCharacters = array('@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '/', '\\', '|', '[', ']', '{', '}', '<', '>', ',', '?', '!', ':', ';', '~', '`', "'", '"', ' ');
+        $name_revert = str_replace($specialCharacters, '_', $new_file);
+        Storage::cloud()->put($name_revert, $fileData);
+        $fileUploaded = collect(Storage::cloud()->listContents('', true))->where('path', $name_revert)->first();
+        $response = ['fileName' => $name_revert, 'virtual_path' => $fileUploaded['extraMetadata']['virtual_path']];
         return $response;
     }
 }
