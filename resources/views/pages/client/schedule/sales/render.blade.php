@@ -55,6 +55,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -131,6 +133,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -208,6 +212,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -285,6 +291,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -362,6 +370,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -439,6 +449,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -516,6 +528,8 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>

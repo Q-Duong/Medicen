@@ -271,11 +271,15 @@ function schedule(day) {
             } else if (event.find(".event-status").html() == 2) {
                 this.modalBody
                     .find(".event-status")
-                    .html('<span class="updated">Đã cập nhật số Cas thực tế</span>');
+                    .html(
+                        '<span class="updated">Đã cập nhật số Cas thực tế</span>'
+                    );
             } else if (event.find(".event-status").html() == 4) {
                 this.modalBody
                     .find(".event-status")
-                    .html('<span class="update-acc">Đã cập nhật doanh thu</span>');
+                    .html(
+                        '<span class="update-acc">Đã cập nhật doanh thu</span>'
+                    );
             } else {
                 this.modalBody
                     .find(".event-status")
@@ -286,7 +290,7 @@ function schedule(day) {
                 .html(event.find(".event-quantity").html());
             this.modalBody
                 .find(".event-draft")
-                .html(event.find(".event-quantity-draft").html() + ' Cas');
+                .html(event.find(".event-quantity-draft").html() + " Cas");
             this.modalBody
                 .find(".event-noteKtv")
                 .html(event.find(".event-note-ktv").html());
@@ -311,12 +315,35 @@ function schedule(day) {
             this.modalBody
                 .find(".event-delivery-date")
                 .html(event.find(".event-delivery-date").text());
-            if (start_date.getTime() > now.getTime()){
-                this.modalBody.find(".edit-order")
-                .html('<a href=' + event.find(".event-route-edit").text() + ' target="_blank" class="primary-btn-submit">Chỉnh sửa</a>');
-            }else{
-                this.modalBody.find(".edit-order")
-                .html('');
+            var href = event.find(".event-total-file-path").text();
+            var fileName = event.find(".event-total-file").text();
+            if (href != "" || fileName != "") {
+                this.modalBody.find(".event-total-file").html(function () {
+                    var result =
+                        '<input type="hidden" name="path" value="' +
+                        href +
+                        '"><input type="hidden" name="file" value="' +
+                        fileName +
+                        '"><div class="main-file"><div class="file-content"><div class="file-name">' +
+                        fileName +
+                        '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                        href +
+                        '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                    return '<div class="section-file">' + result + "</div>";
+                });
+            } else {
+                this.modalBody.find(".event-total-file").html("");
+            }
+            if (start_date.getTime() > now.getTime()) {
+                this.modalBody
+                    .find(".edit-order")
+                    .html(
+                        "<a href=" +
+                            event.find(".event-route-edit").text() +
+                            ' target="_blank" class="primary-btn-submit">Chỉnh sửa</a>'
+                    );
+            } else {
+                this.modalBody.find(".edit-order").html("");
             }
 
             this.element.addClass("modal-is-open");
