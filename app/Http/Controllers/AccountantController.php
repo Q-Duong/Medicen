@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\Statistic;
 use App\Models\Accountant;
+use App\Models\HistoryEdit;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class AccountantController extends Controller
@@ -25,7 +27,6 @@ class AccountantController extends Controller
 		$order = Order::findOrFail($order_id);
 		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		if ($order->order_status == 4) {
-
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->save();
 		} else {
@@ -40,6 +41,12 @@ class AccountantController extends Controller
 			$accountant->accountant_owe = $order->order_price;
 			$accountant->save();
 		}
+
+		$history = new HistoryEdit();
+		$history->order_id = $order_id;
+		$history->user_name = Auth::user()->email;
+		$history->history_action = 'Sửa đơn hàng';
+		$history->save();
 		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin báo cáo thành công');
 	}
 
