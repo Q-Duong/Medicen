@@ -220,6 +220,7 @@ final class AccountantBuilder extends Builder
 
     public function getQueryBuilderBySearchData($searchData, $year)
     {
+
         $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
@@ -270,79 +271,94 @@ final class AccountantBuilder extends Builder
             $query->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
         }
         //Order Id
-        if (isset($searchData['order_id']) && !empty($searchData['order_id']) && $searchData['order_id'] != 'all') {
-            $query->where('accountants.order_id', $searchData['order_id']);
+        if (isset($searchData['order_id']) && !empty($searchData['order_id']) && $searchData['order_id'][0] != 'all') {
+            $orderIds = explode(',', $searchData['order_id']);
+            $query->whereIn('accountants.order_id', $orderIds);
         }
         //Status Id
         if (isset($searchData['status_id']) && !empty($searchData['status_id']) && $searchData['status_id'] != 'all') {
-            $query->where('status_id', (int)$searchData['status_id']);
+            $statusId = explode(',', $searchData['status_id']);
+            $query->whereIn('status_id', (int)$statusId);
         }
         //Car Name
         if (isset($searchData['car_name']) && !empty($searchData['car_name']) && $searchData['car_name'] != 'all') {
-            $query->where('car_name', $searchData['car_name']);
+            $carName = explode(',', $searchData['car_name']);
+            $query->whereIn('car_name', $carName);
         }
         //Unit Code
         if (isset($searchData['unit_code']) && !empty($searchData['unit_code']) && $searchData['unit_code'] != 'all') {
-            $query->where('unit_code', $searchData['unit_code']);
+            $unitCode = explode(',', $searchData['unit_code']);
+            $query->whereIn('unit_code', $unitCode);
         }
         //Unit Name
         if (isset($searchData['unit_name']) && !empty($searchData['unit_name']) && $searchData['unit_name'] != 'all') {
-            $query->where('unit_name', 'LIKE', '%' . $searchData['unit_name'] . '%');
+            $unitName = explode(',', $searchData['unit_name']);
+            $query->whereIn('unit_name', 'LIKE', '%' . $unitName . '%');
         }
         //Order Start Day
         if (isset($searchData['ord_start_day']) && !empty($searchData['ord_start_day']) && $searchData['ord_start_day'] != 'all') {
-            $query->where('ord_start_day', $searchData['ord_start_day']);
+            $ordStartDay = explode(',', $searchData['ord_start_day']);
+            $query->whereIn('ord_start_day', $ordStartDay);
         }
         //Cty Name
         if (isset($searchData['ord_cty_name']) && !empty($searchData['ord_cty_name']) && $searchData['ord_cty_name'] != 'all') {
-            $query->where('ord_cty_name', 'LIKE', '%' . $searchData['ord_cty_name'] . '%');
+            $ordCtyName = explode(',', $searchData['ord_cty_name']);
+            $query->whereIn('ord_cty_name', 'LIKE', '%' . $ordCtyName . '%');
         }
         //Order Form
         if (isset($searchData['ord_form']) && !empty($searchData['ord_form']) && $searchData['ord_form'] != 'all') {
-            $query->where('ord_form', $searchData['ord_form']);
+            $ordForm = explode(',', $searchData['ord_form']);
+            $query->whereIn('ord_form', $ordForm);
         }
         //Accountant Month
         if (isset($searchData['accountant_month']) && !empty($searchData['accountant_month']) && $searchData['accountant_month'] != 'all') {
-            $query->where('accountant_month', (int)$searchData['accountant_month']);
+            $accountantMonth = explode(',', $searchData['accountant_month']);
+            $query->whereIn('accountant_month', (int)$accountantMonth);
         }
         //Accountant Distance
         if (isset($searchData['accountant_distance']) && !empty($searchData['accountant_distance']) && $searchData['accountant_distance'] != 'all') {
-            $query->where('accountant_distance', $searchData['accountant_distance']);
+            $accountantDistance = explode(',', $searchData['accountant_distance']);
+            $query->whereIn('accountant_distance', $accountantDistance);
         }
         //Accountant Deadline
         if (isset($searchData['accountant_deadline']) && !empty($searchData['accountant_deadline']) && $searchData['accountant_deadline'] != 'all') {
-            if ($searchData['accountant_deadline'] == 'empty') {
+            $accountantDeadline = explode(',', $searchData['accountant_deadline']);
+            if ($accountantDeadline == 'empty') {
                 $query->whereNull('accountant_deadline');
             } else {
-                $query->where('accountant_deadline', $searchData['accountant_deadline']);
+                $query->whereIn('accountant_deadline', $accountantDeadline);
             }
         }
         //Accountant Number
         if (isset($searchData['accountant_number']) && $searchData['accountant_number'] != 'all') {
-            if ($searchData['accountant_number'] == 'empty') {
+            $accountantNumber = explode(',', $searchData['accountant_number']);
+            if ($accountantNumber == 'empty') {
                 $query->whereNull('accountant_number');
             } else {
-                $query->where('accountant_number', $searchData['accountant_number']);
+                $query->whereIn('accountant_number', $accountantNumber);
             }
         }
         //Accountant Date
         if (isset($searchData['accountant_date']) && !empty($searchData['accountant_date']) && $searchData['accountant_date'] != 'all') {
-            if ($searchData['accountant_date'] == 'empty') {
+            $accountantDate = explode(',', $searchData['accountant_date']);
+            if ($accountantDate == 'empty') {
                 $query->whereNull('accountant_date');
             } else {
-                $query->where('accountant_date', $searchData['accountant_date']);
+                $query->whereIn('accountant_date', $accountantDate);
             }
         }
         //Accountant Status
         if (isset($searchData['accountant_status'])  && $searchData['accountant_status'] != 'all') {
-            $query->where('accountant_status', $searchData['accountant_status']);
+            $accountantStatus = explode(',', $searchData['accountant_status']);
+            $query->whereIn('accountant_status', $accountantStatus);
         }
         //Accountant Day Payment
         if (isset($searchData['accountant_day_payment']) && !empty($searchData['accountant_day_payment']) && $searchData['accountant_day_payment'] != 'all') {
-            if ($searchData['accountant_day_payment'] == 'empty') {
+            $accountantDayPayment = explode(',', $searchData['accountant_day_payment']);
+            if ($accountantDayPayment == 'empty') {
                 $query->whereNull('accountant_day_payment');
             } else {
-                $query->where('accountant_day_payment', $searchData['accountant_day_payment']);
+                $query->whereIn('accountant_day_payment', $accountantDayPayment);
             }
         }
         //Accountant Method
@@ -350,116 +366,134 @@ final class AccountantBuilder extends Builder
             if ($searchData['accountant_method'] == 'empty') {
                 $query->whereNull('accountant_method');
             } else {
-                $query->where('accountant_method', 'LIKE', '%' . $searchData['accountant_method'] . '%');
+                $accountantMethod = explode(',', $searchData['accountant_method']);
+                $query->whereIn('accountant_method', 'LIKE', '%' . $accountantMethod . '%');
             }
         }
         //Accountant Amount Paid
         if (isset($searchData['accountant_amount_paid']) && $searchData['accountant_amount_paid'] != 'all') {
-            $query->where('accountant_amount_paid', $searchData['accountant_amount_paid']);
+            $accountantAmountPaid = explode(',', $searchData['accountant_amount_paid']);
+            $query->whereIn('accountant_amount_paid', $accountantAmountPaid);
         }
         //Accountant Owe
         if (isset($searchData['accountant_owe']) && $searchData['accountant_owe'] != 'all') {
-            $query->where('accountant_owe', $searchData['accountant_owe']);
+            $accountantOwe = explode(',', $searchData['accountant_owe']);
+            $query->whereIn('accountant_owe', $accountantOwe);
         }
         //Accountant Discount Day
         if (isset($searchData['accountant_discount_day']) && !empty($searchData['accountant_discount_day']) && $searchData['accountant_discount_day'] != 'all') {
-            if ($searchData['accountant_discount_day'] == 'empty') {
+            $accountantDiscountDay = explode(',', $searchData['accountant_discount_day']);
+            if ($accountantDiscountDay == 'empty') {
                 $query->whereNull('accountant_discount_day');
             } else {
-                $query->where('accountant_discount_day', $searchData['accountant_discount_day']);
+                $query->whereIn('accountant_discount_day', $accountantDiscountDay);
             }
         }
         //Accountant Doctor Read
         if (isset($searchData['accountant_doctor_read']) && !empty($searchData['accountant_doctor_read']) && $searchData['accountant_doctor_read'] != 'all') {
-            if ($searchData['accountant_doctor_read'] == 'empty') {
+            $accountantDoctorRead = explode(',', $searchData['accountant_doctor_read']);
+            if ($accountantDoctorRead == 'empty') {
                 $query->whereNull('accountant_doctor_read');
             } else {
-                $query->where('accountant_doctor_read', 'LIKE', '%' . $searchData['accountant_doctor_read'] . '%');
+                $query->whereIn('accountant_doctor_read', 'LIKE', '%' . $accountantDoctorRead . '%');
             }
         }
         //Accountant Doctor Date Payment
         if (isset($searchData['accountant_doctor_date_payment']) && !empty($searchData['accountant_doctor_date_payment']) && $searchData['accountant_doctor_date_payment'] != 'all') {
-            if ($searchData['accountant_doctor_date_payment'] == 'empty') {
+            $accountantDoctorDatePayment = explode(',', $searchData['accountant_doctor_date_payment']);
+            if ($accountantDoctorDatePayment == 'empty') {
                 $query->whereNull('accountant_doctor_date_payment');
             } else {
-                $query->where('accountant_doctor_date_payment', $searchData['accountant_doctor_date_payment']);
+                $query->whereIn('accountant_doctor_date_payment', $accountantDoctorDatePayment);
             }
         }
         //Accountant 35X43
         if (isset($searchData['accountant_35X43']) && $searchData['accountant_35X43'] != 'all') {
-            if ($searchData['accountant_35X43'] == 'empty') {
+            $accountant35X43 = explode(',', $searchData['accountant_35X43']);
+            if ($accountant35X43 == 'empty') {
                 $query->whereNull('accountant_35X43');
             } else {
-                $query->where('accountant_35X43', $searchData['accountant_35X43']);
+                $query->whereIn('accountant_35X43', $accountant35X43);
             }
         }
         //Accountant Polime
         if (isset($searchData['accountant_polime']) && $searchData['accountant_polime'] != 'all') {
-            if ($searchData['accountant_polime'] == 'empty') {
+            $accountantPolime = explode(',', $searchData['accountant_polime']);
+            if ($accountantPolime == 'empty') {
                 $query->whereNull('accountant_polime');
             } else {
-                $query->where('accountant_polime', $searchData['accountant_polime']);
+                $query->whereIn('accountant_polime', $accountantPolime);
             }
         }
         //Accountant 8X10
         if (isset($searchData['accountant_8X10']) && $searchData['accountant_8X10'] != 'all') {
-            if ($searchData['accountant_8X10'] == 'empty') {
+            $accountant8X10 = explode(',', $searchData['accountant_8X10']);
+            if ($accountant8X10 == 'empty') {
                 $query->whereNull('accountant_8X10');
             } else {
-                $query->where('accountant_8X10', $searchData['accountant_8X10']);
+                $query->whereIn('accountant_8X10', $accountant8X10);
             }
         }
         //Accountant 10X12
         if (isset($searchData['accountant_10X12']) && $searchData['accountant_10X12'] != 'all') {
-            if ($searchData['accountant_10X12'] == 'empty') {
+            $accountant10X12 = explode(',', $searchData['accountant_10X12']);
+            if ($accountant10X12 == 'empty') {
                 $query->whereNull('accountant_10X12');
             } else {
-                $query->where('accountant_10X12', $searchData['accountant_10X12']);
+                $query->whereIn('accountant_10X12', $accountant10X12);
             }
         }
         //Accountant Film Bag
         if (isset($searchData['accountant_film_bag']) && $searchData['accountant_film_bag'] != 'all') {
-            if ($searchData['accountant_film_bag'] == 'empty') {
+            $accountantFilmBag = explode(',', $searchData['accountant_film_bag']);
+            if ($accountantFilmBag == 'empty') {
                 $query->whereNull('accountant_film_bag');
             } else {
-                $query->where('accountant_film_bag', $searchData['accountant_film_bag']);
+                $query->whereIn('accountant_film_bag', $accountantFilmBag);
             }
         }
         //Order VAT
         if (isset($searchData['order_vat']) && $searchData['order_vat'] != 'all') {
-            if ($searchData['order_vat'] == 'empty') {
+            $orderVat = explode(',', $searchData['order_vat']);
+            if ($orderVat == 'empty') {
                 $query->whereNull('order_vat');
             } else {
-                $query->where('order_vat', 'LIKE', '%' . $searchData['order_vat'] . '%');
+                $query->whereIn('order_vat', 'LIKE', '%' . $orderVat . '%');
             }
         }
         //Order Quantity
         if (isset($searchData['order_quantity']) && $searchData['order_quantity'] != 'all') {
-            $query->where('order_quantity', $searchData['order_quantity']);
+            $orderQuantity = explode(',', $searchData['order_quantity']);
+            $query->whereIn('order_quantity', $orderQuantity);
         }
         //Order Cost
         if (isset($searchData['order_cost']) && $searchData['order_cost'] != 'all') {
-            $query->where('order_cost', $searchData['order_cost']);
+            $orderCost = explode(',', $searchData['order_cost']);
+            $query->whereIn('order_cost', $orderCost);
         }
         //Order Price
         if (isset($searchData['order_price']) && $searchData['order_price'] != 'all') {
-            $query->where('order_price', $searchData['order_price']);
+            $orderPrice = explode(',', $searchData['order_price']);
+            $query->whereIn('order_price', $orderPrice);
         }
         //Order Percent Discount
         if (isset($searchData['order_percent_discount']) && $searchData['order_percent_discount'] != 'all') {
-            if ($searchData['order_percent_discount'] == 'empty') {
+            $orderPercentDiscount = explode(',', $searchData['order_percent_discount']);
+            if ($orderPercentDiscount == 'empty') {
                 $query->whereNull('order_percent_discount');
             } else {
-                $query->where('order_percent_discount', 'LIKE', '%' . $searchData['order_percent_discount'] . '%');
+                $query->whereIn('order_percent_discount', 'LIKE', '%' . $orderPercentDiscount . '%');
             }
         }
         //Order Discount
         if (isset($searchData['order_discount']) && $searchData['order_discount'] != 'all') {
-            $query->where('order_discount', $searchData['order_discount']);
+            $orderDiscount = explode(',', $searchData['order_discount']);
+            $query->whereIn('order_discount', $orderDiscount);
         }
         //Order Profit
         if (isset($searchData['order_profit']) && $searchData['order_profit'] != 'all') {
-            $query->where('order_profit', $searchData['order_profit']);
+            $orderProfit = explode(',', $searchData['order_profit']);
+            $query->whereIn('order_profit', $orderProfit);
         }
 
         return $query;
@@ -479,16 +513,16 @@ final class AccountantBuilder extends Builder
         }
         $filters->get();
         $paramsNull = ['accountant_deadline', 'accountant_number', 'accountant_date', 'accountant_day_payment', 'order_percent_discount', 'accountant_discount_day', 'accountant_doctor_date_payment', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag'];
-        if($currentChange == 'order_vat'){
+        if ($currentChange == 'order_vat') {
             $uniqueFilters = $filters->where($currentChange, '!=', null)->pluck($currentChange)->map(function ($item) {
                 return mb_strtoupper($item, 'UTF-8');
             })->unique()->sort();
-        }elseif(in_array($currentChange, $paramsNull)){
+        } elseif (in_array($currentChange, $paramsNull)) {
             $uniqueFilters = $filters->where($currentChange, '!=', null)->pluck($currentChange)->unique()->sort();
-        }else{
+        } else {
             $uniqueFilters = $filters->pluck($currentChange)->unique()->sort();
         }
-        
+
         return $uniqueFilters;
     }
 }
