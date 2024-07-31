@@ -284,24 +284,21 @@
                                         {{ $name2 }}</em>
                                 <em class="event-name-unit"><span class="item-title">Đơn vị:
                                         {{ $order->unit_name }}</em>
-                                <em class="event-id">{{ $order->order_id }}</em>
-                                <em class="event-car-id">{{ $order->id }}</em>
-                                <em class="event-unit">{{ $order->unit_name }}</em>
-                                <em class="event-select">{{ $order->ord_select }}</em>
-                                <em class="event-cty-name">{{ $order->ord_cty_name }}</em>
-                                <em style="display:none" class="event-address">{{ $order->customer_address }}</em>
-                                <em class="event-order-note">{{ $order->ord_note }}</em>
-                                <em style="display:none"
-                                    class="event-list-file-path">{{ $order->ord_list_file_path }}</em>
-                                <em style="display:none" class="event-list-file">{{ $order->ord_list_file }}</em>
-                                <em class="event-info-contact">{{ $order->customer_name }}
+                                <em class="event-id hidden">{{ $order->order_id }}</em>
+                                <em class="event-car-id hidden">{{ $order->id }}</em>
+                                <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                <em class="event-select hidden">{{ $order->ord_select }}</em>
+                                <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                <em class="event-order-note hidden">{{ $order->ord_note }}</em>
+                                <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
+                                <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
-                                <em class="event-time">{{ $order->ord_time }} giờ</em>
-                                <em class="event-quantity">{{ $order->order_quantity }}
-                                    Cas</em>
-                                <em style="display:none"
-                                    class="event-quantity-ktv">{{ $order->order_quantity_draft }}</em>
-                                <em style="display:none" class="event-note-ktv">{{ $order->order_note_ktv }}</em>
+                                <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
+                                <em class="event-quantity-ktv hidden">{{ $order->order_quantity_draft }}</em>
+                                <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                             </a>
                         </li>
                     @endif

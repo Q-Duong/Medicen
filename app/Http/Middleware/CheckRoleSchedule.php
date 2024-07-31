@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class CheckRoleSchedule
 {
@@ -21,7 +22,7 @@ class CheckRoleSchedule
             return $next($request);
         }else{
             Auth::logout();
-            return Redirect()->route('schedule.login_details');
+            return Redirect::route('schedule.login_details');
         }
     }
 }

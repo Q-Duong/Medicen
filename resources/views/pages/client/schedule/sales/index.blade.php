@@ -109,6 +109,8 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -129,7 +131,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -185,6 +188,9 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em
+                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -206,7 +212,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -262,6 +269,9 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em
+                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -283,7 +293,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -339,6 +350,9 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em
+                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -360,7 +374,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -416,6 +431,9 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em
+                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -437,7 +455,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -493,6 +512,9 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em
+                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -514,7 +536,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -570,6 +593,9 @@
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
                                         <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                        <em
+                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                         <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                         <em class="event-film hidden">{{ $order->ord_film }}</em>
                                         <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -591,7 +617,8 @@
                                         <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                         <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
                                         <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                        <em
+                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                     </a>
                                 </li>
                             @endif
@@ -734,6 +761,10 @@
                     <p class="event-item">
                         <span class="item-title">Ngày trả kết quả: </span>
                         <span class="event-delivery-date"></span>
+                    </p>
+                    <p class="event-item">
+                        <span class="item-title">File kết quả tổng: </span>
+                        <span class="event-total-file"></span>
                     </p>
                     <p class="edit-order">
                     </p>
