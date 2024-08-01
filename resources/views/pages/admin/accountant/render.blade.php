@@ -6,7 +6,6 @@
             <th class="sticky-col third-col">Ngày chụp</th>
             <th class="sticky-col fourth-col">Xe</th>
             <th class="sticky-col fifth-col">Km</th>
-            <th class="sticky-col six-col">Mã đơn vị</th>
             <th class="sticky-col seven-col">Đơn vị hợp tác</th>
             <th class="sticky-col eight-col">Tên Cty</th>
             <th>THCN</th>
@@ -65,7 +64,6 @@
                     <td class="sticky-col fifth-col">
                         {{ $accountant->accountant_distance }}
                     </td>
-                    <td class="sticky-col six-col">{{ $accountant->unit_code }}</td>
                     <td title="{{ $accountant->unit_name }}" class="sticky-col seven-col">
                         {{ $accountant->unit_name }}</td>
                     <td title="{{ $accountant->ord_cty_name }}" class="sticky-col eight-col">

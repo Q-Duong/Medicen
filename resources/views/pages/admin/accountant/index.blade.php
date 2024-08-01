@@ -1,7 +1,6 @@
 @extends('layouts.default_auth')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
-    <link rel="stylesheet" href="{{ versionResource('backend/css/select2.css') }}" type="text/css" as="style" />
 @endpush
 @section('admin_content')
     <div class="table-agile-info">

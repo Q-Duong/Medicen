@@ -48,4 +48,5 @@ $(".select-textbox").on("change", function () {
 });
 $(".button-submit").click(function () {
     $(".loader-over").fadeIn();
+    $(".loader-over").fadeOut();
 });

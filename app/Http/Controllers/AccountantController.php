@@ -79,7 +79,6 @@ class AccountantController extends Controller
 		$months = $getAllAccountant->pluck('accountant_month')->unique()->sort();
 		$days = $getAllAccountant->pluck('ord_start_day')->unique()->sort();
 		$cars = $getAllAccountant->pluck('car_name')->unique()->sort();
-		$unitCodes = $getAllAccountant->pluck('unit_code')->unique()->sort();
 		$unitNames = $getAllAccountant->pluck('unit_name')->unique()->sort();
 		$ctyNames = $getAllAccountant->pluck('ord_cty_name')->unique()->sort();
 		$accDeadlines = $getAllAccountant->where('accountant_deadline', '!=', null)->pluck('accountant_deadline')->unique()->sort();
@@ -114,7 +113,7 @@ class AccountantController extends Controller
 			$totalDiscount += $val->order_discount;
 		}
 
-		$html = view('pages.admin.accountant.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitCodes', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
+		$html = view('pages.admin.accountant.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
 		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
 	}
 

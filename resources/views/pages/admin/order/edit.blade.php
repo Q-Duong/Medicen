@@ -575,7 +575,7 @@
                             </div>
 
                             <div
-                                class="form-group block-order-cost {{ $order->order->order_all_in_one == 0 ? '' : 'hidden' }}">
+                                class="form-group block-order-cost {{ $order->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($order->order_cost, 0, ',', '.') }}"
@@ -586,9 +586,6 @@
                                 <label for="exampleInputPassword1">Phần trăm chiết khấu</label>
                                 <input type="text" name="order_percent_discount" class="input-control"
                                     value="{{ $order->order_percent_discount }}" placeholder="Điền phần trăm chiết khấu">
-                                <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
-                                </div>
-
                             </div>
 
                             <div class="form-group @error('order_price') has-error @enderror">

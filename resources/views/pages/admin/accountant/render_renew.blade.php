@@ -7,9 +7,8 @@
                 <th class="sticky-col third-col">Ngày chụp</th>
                 <th class="sticky-col fourth-col">Xe</th>
                 <th class="sticky-col fifth-col">Km</th>
-                <th class="sticky-col six-col">Mã đơn vị</th>
-                <th class="sticky-col seven-col">Đơn vị hợp tác</th>
-                <th class="sticky-col eight-col">Tên Cty</th>
+                <th class="sticky-col six-col">Đơn vị hợp tác</th>
+                <th class="sticky-col seven-col">Tên Cty</th>
                 <th>THCN</th>
                 <th>Số HĐ</th>
                 <th>Ngày HĐ</th>
@@ -41,8 +40,7 @@
             </tr>
             <tr class="section-filter">
                 <th class="sticky-col first-col">
-                    <select class="order-id select-2">
-                        <option value="all">All </option>
+                    <select class="order-id select-2" multiple="multiple">
                         @foreach ($orderId as $id)
                             <option value="{{ $id }}">
                                 {{ $id }}
@@ -51,8 +49,7 @@
                     </select>
                 </th>
                 <th class="sticky-col second-col">
-                    <select class="accountant-month select-2">
-                        <option value="all">All </option>
+                    <select class="accountant-month select-2" multiple="multiple">
                         @foreach ($months as $month)
                             <option value="{{ $month }}">
                                 {{ $month }}
@@ -61,8 +58,7 @@
                     </select>
                 </th>
                 <th class="sticky-col third-col">
-                    <select class="ord-start-day select-2">
-                        <option value="all">All </option>
+                    <select class="ord-start-day select-2" multiple="multiple">
                         @foreach ($days as $day)
                             <option value="{{ $day }}">
                                 {{ date('d/m/Y', strtotime($day)) }}
@@ -71,8 +67,7 @@
                     </select>
                 </th>
                 <th class="sticky-col fourth-col">
-                    <select class="car-name select-2">
-                        <option value="all">All </option>
+                    <select class="car-name select-2" multiple="multiple">
                         @foreach ($cars as $car)
                             <option value="{{ $car }}">
                                 @if ($car == 6)
@@ -87,25 +82,13 @@
                     </select>
                 </th>
                 <th class="sticky-col fifth-col">
-                    <select class="accountant-distance select-2">
-                        <option value="all">All </option>
+                    <select class="accountant-distance select-2" multiple="multiple">
                         <option value="G">G</option>
                         <option value="X">X</option>
                     </select>
                 </th>
                 <th class="sticky-col six-col">
-                    <select class="unit-code select-2">
-                        <option value="all">All</option>
-                        @foreach ($unitCodes as $unit)
-                            <option value="{{ $unit }}">
-                                {{ $unit }}
-                            </option>
-                        @endforeach
-                    </select>
-                </th>
-                <th class="sticky-col seven-col">
-                    <select class="unit-name select-2">
-                        <option value="all">All</option>
+                    <select class="unit-name select-2" multiple="multiple">
                         @foreach ($unitNames as $name)
                             <option value="{{ $name }}">
                                 {{ $name }}
@@ -113,9 +96,8 @@
                         @endforeach
                     </select>
                 </th>
-                <th class="sticky-col eight-col">
-                    <select class="ord-cty-name select-2">
-                        <option value="all">All</option>
+                <th class="sticky-col seven-col">
+                    <select class="ord-cty-name select-2" multiple="multiple">
                         @foreach ($ctyNames as $cty)
                             <option value="{{ $cty }}">
                                 {{ $cty }}
@@ -124,8 +106,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-deadline select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-deadline select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accDeadlines) && !empty($accDeadlines))
                             @foreach ($accDeadlines as $deadline)
@@ -137,8 +118,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-number select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-number select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accNumbers) && !empty($accNumbers))
                             @foreach ($accNumbers as $number)
@@ -150,8 +130,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-date select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-date select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accDates) && !empty($accDates))
                             @foreach ($accDates as $date)
@@ -163,8 +142,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-vat select-2">
-                        <option value="all">All</option>
+                    <select class="order-vat select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($vats) && !empty($vats))
                             @foreach ($vats as $vat)
@@ -176,8 +154,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-quantity select-2">
-                        <option value="all">All</option>
+                    <select class="order-quantity select-2" multiple="multiple">
                         @if (isset($quantities) && !empty($quantities))
                             @foreach ($quantities as $quantity)
                                 <option value="{{ $quantity }}">
@@ -188,8 +165,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-cost select-2">
-                        <option value="all">All</option>
+                    <select class="order-cost select-2" multiple="multiple">
                         @if (isset($costs) && !empty($costs))
                             @foreach ($costs as $cost)
                                 <option value="{{ $cost }}">
@@ -200,8 +176,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-price select-2">
-                        <option value="all">All</option>
+                    <select class="order-price select-2" multiple="multiple">
                         @if (isset($prices) && !empty($prices))
                             @foreach ($prices as $price)
                                 <option value="{{ $price }}">
@@ -212,15 +187,13 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-status select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-status select-2" multiple="multiple">
                         <option value="0">Chưa thanh toán</option>
                         <option value="1">Đã thanh toán</option>
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-day-payment select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-day-payment select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accDayPayments) && !empty($accDayPayments))
                             @foreach ($accDayPayments as $dayPayment)
@@ -232,8 +205,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-method select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-method select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         <option value="HDB">HDB</option>
                         <option value="AGRI">AGRI</option>
@@ -242,8 +214,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-amount-paid select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-amount-paid select-2" multiple="multiple">
                         @if (isset($accAmountPaid) && !empty($accAmountPaid))
                             @foreach ($accAmountPaid as $paid)
                                 <option value="{{ $paid }}">
@@ -254,8 +225,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-owe select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-owe select-2" multiple="multiple">
                         @if (isset($accOwes) && !empty($accOwes))
                             @foreach ($accOwes as $owe)
                                 <option value="{{ $owe }}">
@@ -266,8 +236,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-percent-discount select-2">
-                        <option value="all">All</option>
+                    <select class="order-percent-discount select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($percentDiscounts) && !empty($percentDiscounts))
                             @foreach ($percentDiscounts as $perDiscount)
@@ -279,8 +248,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-discount select-2">
-                        <option value="all">All</option>
+                    <select class="order-discount select-2" multiple="multiple">
                         @if (isset($discounts) && !empty($discounts))
                             @foreach ($discounts as $discount)
                                 <option value="{{ $discount }}">
@@ -291,8 +259,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-discount-day select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-discount-day select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accDiscountDays) && !empty($accDiscountDays))
                             @foreach ($accDiscountDays as $discountDay)
@@ -304,8 +271,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="order-profit select-2">
-                        <option value="all">All</option>
+                    <select class="order-profit select-2" multiple="multiple">
                         @if (isset($profits) && !empty($profits))
                             @foreach ($profits as $profit)
                                 <option value="{{ $profit }}">
@@ -316,8 +282,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-doctor-read select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-doctor-read select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         <option value="Không">Không</option>
                         <option value="Nhân">Nhân</option>
@@ -326,8 +291,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-doctor-date-payment select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-doctor-date-payment select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accDoctorDatePayments) && !empty($accDoctorDatePayments))
                             @foreach ($accDoctorDatePayments as $doctorPayment)
@@ -339,8 +303,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="ord-form select-2">
-                        <option value="all">All</option>
+                    <select class="ord-form select-2" multiple="multiple">
                         @if (isset($ordForms) && !empty($ordForms))
                             @foreach ($ordForms as $ordForm)
                                 <option value="{{ $ordForm }}">
@@ -351,8 +314,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-35X43 select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-35X43 select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($acc35X43) && !empty($acc35X43))
                             @foreach ($acc35X43 as $acc3543)
@@ -364,8 +326,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-polime select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-polime select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accPolimes) && !empty($accPolimes))
                             @foreach ($accPolimes as $polime)
@@ -377,8 +338,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-8X10 select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-8X10 select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($acc8X10) && !empty($acc8X10))
                             @foreach ($acc8X10 as $acc810)
@@ -390,8 +350,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-10X12 select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-10X12 select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($acc10X12) && !empty($acc10X12))
                             @foreach ($acc10X12 as $acc1012)
@@ -403,8 +362,7 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-film-bag select-2">
-                        <option value="all">All</option>
+                    <select class="accountant-film-bag select-2" multiple="multiple">
                         <option value="empty">Empty</option>
                         @if (isset($accFilmBags) && !empty($accFilmBags))
                             @foreach ($accFilmBags as $filmBag)
@@ -418,8 +376,7 @@
                 <th></th>
                 <th></th>
                 <th>
-                    <select class="status-id select-2">
-                        <option value="all">All</option>
+                    <select class="status-id select-2" multiple="multiple">
                         <option value="1">Đang xử lý</option>
                         <option value="2">Đã cập nhật số Cas thực tế</option>
                         <option value="4">Đã cập nhật doanh thu</option>
@@ -454,10 +411,9 @@
                         <td class="sticky-col fifth-col">
                             {{ $accountant->accountant_distance }}
                         </td>
-                        <td class="sticky-col six-col">{{ $accountant->unit_code }}</td>
-                        <td title="{{ $accountant->unit_name }}" class="sticky-col seven-col">
+                        <td title="{{ $accountant->unit_name }}" class="sticky-col six-col">
                             {{ $accountant->unit_name }}</td>
-                        <td title="{{ $accountant->ord_cty_name }}" class="sticky-col eight-col">
+                        <td title="{{ $accountant->ord_cty_name }}" class="sticky-col seven-col">
                             {{ $accountant->ord_cty_name }}</td>
 
                         <td>

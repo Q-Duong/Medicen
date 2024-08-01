@@ -1,6 +1,7 @@
 @extends('layouts.default_auth')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/pagination.css') }}" type="text/css" as="style" />
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
 @endpush
 @section('admin_content')
     <div class="table-agile-info">
@@ -8,81 +9,51 @@
             Danh sách đơn hàng
         </div>
         <div class="table-responsive table-content">
-            <table class="table table-striped b-t b-light table-bordered">
-                <thead>
-                    <tr>
-                        <th>Mã ĐH</th>
-                        <th>TG đăng ký</th>
-                        <th>Đơn vị thuê xe:</th>
-                        <th>Mã ĐV:</th>
-                        <th>Số lượng:</th>
-                        <th>Tổng tiền:</th>
-                        <th>Trạng thái:</th>
-                        <th>Ngày chụp:</th>
-                        <th>Bộ phận chụp:</th>
-                        <th>Quản lý</th>
-                        <th>Quản lý lịch</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($getAll as $key => $order)
-                        <tr>
-                            <td>{{ $order->id }}</td>
-                            <td>{{ date('d/m/Y', strtotime($order->created_at)) }}</td>
-                            <td>{{ $order->unit_name }}</td>
-                            <td>{{ $order->unit_code }}</td>
-                            <td>{{ $order->order_quantity }}</td>
-                            <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
-                            <td>
-                                @if ($order->status_id == 0)
-                                    <span style="color: #27c24c;">Đơn hàng mới</span>
-                                @elseif($order->status_id == 1)
-                                    <span style="color: #FCB322;">Đang xử lý</span>
-                                @elseif($order->status_id == 2)
-                                    <span style="color: #c037df;">Đã cập nhật số Cas thực tế</span>
-                                @elseif($order->status_id == 3)
-                                    <span style="color: #0071e3;">Đã xử lý</span>
-                                @elseif($order->status_id == 4)
-                                    <span style="color: #00d0e3;">Đã cập nhật doanh thu</span>
-                                @else
-                                    <span style="color: #e53637;">Hủy đơn hàng</span>
-                                @endif
-                            </td>
-                            <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }} -
-                                {{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}</td>
-                            <td>{{ $order->ord_select }}</td>
-                            @if (Auth::user()->role == 0)
-                                <td class="management">
-                                    <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
-                                            class="fa fa-pencil-square-o text-success text-active"></i>
-                                    </a>
-                                    <form action="{{ route('order.destroy', $order->id) }}" method="POST">
-                                        @method('delete')
-                                        @csrf
-                                        <button type="submit" class="management-btn button-submit"
-                                            onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
-                                                class="fa fa-times text-danger text"></i></button>
-                                    </form>
-                                    <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
-                                        <i class="far fa-copy"></i></i>
-                                    </a>
-                                    <a href="{{ route('accountant.order.update', $order->id) }}" class="management-btn">
-                                        <i class="fas fa-file-import text-warning "></i>
-                                    </a>
-                                </td>
-                                <td class="management-lite">
-                                    @if ($order->schedule_status == 0)
-                                        <a href="{{ route('schedule.create', $order->id) }}" class="management-btn">
-                                            <i class="fa fa-calendar-plus"></i>
-                                        </a>
+            <div id="table-scroll" class="table-scroll">
+                <table class="table">
+                    <thead>
+                        <tr class="section-title">
+                            <th>Mã ĐH</th>
+                            <th>TG đăng ký</th>
+                            <th>Đơn vị thuê xe:</th>
+                            <th>Mã ĐV:</th>
+                            <th>Số lượng:</th>
+                            <th>Tổng tiền:</th>
+                            <th>Trạng thái:</th>
+                            <th>Ngày chụp:</th>
+                            <th>Bộ phận chụp:</th>
+                            <th>Quản lý</th>
+                            <th>Quản lý lịch</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-content">
+                        @foreach ($getAll as $key => $order)
+                            <tr>
+                                <td>{{ $order->id }}</td>
+                                <td>{{ date('d/m/Y', strtotime($order->created_at)) }}</td>
+                                <td>{{ $order->unit_name }}</td>
+                                <td>{{ $order->unit_code }}</td>
+                                <td>{{ $order->order_quantity }}</td>
+                                <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
+                                <td>
+                                    @if ($order->status_id == 0)
+                                        <span style="color: #27c24c;">Đơn hàng mới</span>
+                                    @elseif($order->status_id == 1)
+                                        <span style="color: #FCB322;">Đang xử lý</span>
+                                    @elseif($order->status_id == 2)
+                                        <span style="color: #c037df;">Đã cập nhật số Cas thực tế</span>
+                                    @elseif($order->status_id == 3)
+                                        <span style="color: #0071e3;">Đã xử lý</span>
+                                    @elseif($order->status_id == 4)
+                                        <span style="color: #00d0e3;">Đã cập nhật doanh thu</span>
                                     @else
-                                        <a href="{{ route('schedule.edit', $order->id) }}" class="management-btn">
-                                            <i class="fas fa-calendar-week"></i>
-                                        </a>
+                                        <span style="color: #e53637;">Hủy đơn hàng</span>
                                     @endif
                                 </td>
-                            @else
-                                @if (Carbon\Carbon::now() < $order->ord_start_day)
+                                <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }} -
+                                    {{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}</td>
+                                <td>{{ $order->ord_select }}</td>
+                                @if (Auth::user()->role == 0)
                                     <td class="management">
                                         <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
@@ -91,14 +62,15 @@
                                             @method('delete')
                                             @csrf
                                             <button type="submit" class="management-btn button-submit"
-                                            onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
+                                                onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
                                                     class="fa fa-times text-danger text"></i></button>
                                         </form>
-                                        <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
-                                                class="far fa-copy"></i></i>
+                                        <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
+                                            <i class="far fa-copy"></i></i>
                                         </a>
                                         <a href="{{ route('accountant.order.update', $order->id) }}"
-                                            class="management-btn"><i class="fas fa-file-import text-warning "></i>
+                                            class="management-btn">
+                                            <i class="fas fa-file-import text-warning "></i>
                                         </a>
                                     </td>
                                     <td class="management-lite">
@@ -113,22 +85,55 @@
                                         @endif
                                     </td>
                                 @else
-                                    <td class="management">
-                                        <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
-                                                class="fa fa-pencil-square-o text-success text-active"></i>
-                                        </a>
-                                        @if ($order->status_id != 3)
+                                    @if (Carbon\Carbon::now() < $order->ord_start_day)
+                                        <td class="management">
+                                            <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
+                                                    class="fa fa-pencil-square-o text-success text-active"></i>
+                                            </a>
+                                            <form action="{{ route('order.destroy', $order->id) }}" method="POST">
+                                                @method('delete')
+                                                @csrf
+                                                <button type="submit" class="management-btn button-submit"
+                                                    onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
+                                                        class="fa fa-times text-danger text"></i></button>
+                                            </form>
+                                            <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
+                                                    class="far fa-copy"></i></i>
+                                            </a>
                                             <a href="{{ route('accountant.order.update', $order->id) }}"
                                                 class="management-btn"><i class="fas fa-file-import text-warning "></i>
                                             </a>
-                                        @endif
-                                    </td>
+                                        </td>
+                                        <td class="management-lite">
+                                            @if ($order->schedule_status == 0)
+                                                <a href="{{ route('schedule.create', $order->id) }}"
+                                                    class="management-btn">
+                                                    <i class="fa fa-calendar-plus"></i>
+                                                </a>
+                                            @else
+                                                <a href="{{ route('schedule.edit', $order->id) }}" class="management-btn">
+                                                    <i class="fas fa-calendar-week"></i>
+                                                </a>
+                                            @endif
+                                        </td>
+                                    @else
+                                        <td class="management">
+                                            <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
+                                                    class="fa fa-pencil-square-o text-success text-active"></i>
+                                            </a>
+                                            @if ($order->status_id != 3)
+                                                <a href="{{ route('accountant.order.update', $order->id) }}"
+                                                    class="management-btn"><i class="fas fa-file-import text-warning "></i>
+                                                </a>
+                                            @endif
+                                        </td>
+                                    @endif
                                 @endif
-                            @endif
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
         {{ $getAll->links('pagination::bootstrap-4') }}
         <div class="export-excel">

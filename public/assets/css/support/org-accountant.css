@@ -107,24 +107,17 @@
 }
 
 .six-col {
-    text-align: center;
-    min-width: 100px;
-    z-index: 2;
+    max-width: 210px;
+    min-width: 210px;
     left: 360px;
+    z-index: 2;
+    overflow: scroll;
 }
 
 .seven-col {
     max-width: 210px;
     min-width: 210px;
-    left: 440px;
-    z-index: 2;
-    overflow: scroll;
-}
-
-.eight-col {
-    max-width: 210px;
-    min-width: 210px;
-    left: 570px;
+    left: 490px;
     z-index: 2;
     overflow: scroll;
 }
