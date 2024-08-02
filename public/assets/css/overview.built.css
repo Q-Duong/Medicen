@@ -17,8 +17,11 @@
     height: 40px;
     border-radius: 4px;
     display: block;
-    margin: 20px auto;
-    position: relative;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: none !important;
     background: currentColor;
     color: #f8f8f8;
     box-sizing: border-box;
