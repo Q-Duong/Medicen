@@ -217,6 +217,7 @@ final class AccountantBuilder extends Builder
 
     public function getQueryBuilderBySearchData($searchData, $year)
     {
+
         $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
@@ -471,16 +472,16 @@ final class AccountantBuilder extends Builder
         }
         $filters->get();
         $paramsNull = ['accountant_deadline', 'accountant_number', 'accountant_date', 'accountant_day_payment', 'order_percent_discount', 'accountant_discount_day', 'accountant_doctor_date_payment', 'accountant_35X43', 'accountant_polime', 'accountant_8X10', 'accountant_10X12', 'accountant_film_bag'];
-        if($currentChange == 'order_vat'){
+        if ($currentChange == 'order_vat') {
             $uniqueFilters = $filters->where($currentChange, '!=', null)->pluck($currentChange)->map(function ($item) {
                 return mb_strtoupper($item, 'UTF-8');
             })->unique()->sort();
-        }elseif(in_array($currentChange, $paramsNull)){
+        } elseif (in_array($currentChange, $paramsNull)) {
             $uniqueFilters = $filters->where($currentChange, '!=', null)->pluck($currentChange)->unique()->sort();
-        }else{
+        } else {
             $uniqueFilters = $filters->pluck($currentChange)->unique()->sort();
         }
-        
+
         return $uniqueFilters;
     }
 }

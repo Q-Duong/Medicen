@@ -132,25 +132,25 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_doctor_read" value="" id="id1"
+                                            <input type="radio" name="ord_doctor_read" value="" id="doctor1"
                                                 class="accent" checked
                                                 {{ old('ord_doctor_read') == '' ? 'checked' : '' }}>
-                                            <label for="id1" class="radio-title">Trống</label>
+                                            <label for="doctor1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_doctor_read" value="Có" id="id2"
+                                            <input type="radio" name="ord_doctor_read" value="Có" id="doctor2"
                                                 class="accent" {{ old('ord_doctor_read') == 'Có' ? 'checked' : '' }}>
-                                            <label for="id2" class="radio-title">Có</label>
+                                            <label for="doctor2" class="radio-title">Có</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_doctor_read" value="Không" id="id3"
+                                            <input type="radio" name="ord_doctor_read" value="Không" id="doctor3"
                                                 class="accent"
                                                 {{ old('ord_ord_doctor_readfilm') == 'Không' ? 'checked' : '' }}>
-                                            <label for="id3" class="radio-title">Không</label>
+                                            <label for="doctor3" class="radio-title">Không</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
@@ -163,30 +163,30 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_film" value="" id="id4"
+                                            <input type="radio" name="ord_film" value="" id="film1"
                                                 class="accent" checked {{ old('ord_film') == '' ? 'checked' : '' }}>
-                                            <label for="id4" class="radio-title">Trống</label>
+                                            <label for="film1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_film" value="Bình thường" id="id5"
+                                            <input type="radio" name="ord_film" value="Bình thường" id="film2"
                                                 class="accent" {{ old('ord_film') == 'Bình thường' ? 'checked' : '' }}>
-                                            <label for="id5" class="radio-title">Bình thường</label>
+                                            <label for="film2" class="radio-title">Bình thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_film" value="Bất thường" id="id6"
+                                            <input type="radio" name="ord_film" value="Bất thường" id="film3"
                                                 class="accent" {{ old('ord_film') == 'Bất thường' ? 'checked' : '' }}>
-                                            <label for="id6" class="radio-title">Bất thường</label>
+                                            <label for="film3" class="radio-title">Bất thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_film" value="Cả 2" id="id7"
+                                            <input type="radio" name="ord_film" value="Cả 2" id="film4"
                                                 class="accent" {{ old('ord_film') == 'Cả 2' ? 'checked' : '' }}>
-                                            <label for="id7" class="radio-title">Cả 2</label>
+                                            <label for="film4" class="radio-title">Cả 2</label>
                                         </section>
                                     </div>
                                 </div>
@@ -197,58 +197,65 @@
                                 <div class="row">
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="ko in" id="id8"
+                                            <input type="radio" name="ord_form" value="ko in" id="form1"
                                                 class="accent" checked {{ old('ord_form') == 'ko in' ? 'checked' : '' }}>
-                                            <label for="id8" class="radio-title">Trống</label>
+                                            <label for="form1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="IN4" id="id9"
+                                            <input type="radio" name="ord_form" value="IN4" id="form2"
                                                 class="accent" {{ old('ord_form') == 'IN4' ? 'checked' : '' }}>
-                                            <label for="id9" class="radio-title">16,5 x 21,5(IN4)</label>
+                                            <label for="form2" class="radio-title">16,5 x 21,5(IN4)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="IN12" id="id10"
+                                            <input type="radio" name="ord_form" value="IN12" id="form3"
                                                 class="accent" {{ old('ord_form') == 'IN12' ? 'checked' : '' }}>
-                                            <label for="id10" class="radio-title">11 x 10,5(IN12)</label>
+                                            <label for="form3" class="radio-title">11 x 10,5(IN12)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="IN16" id="id11"
+                                            <input type="radio" name="ord_form" value="IN16" id="form4"
                                                 class="accent" {{ old('ord_form') == 'IN16' ? 'checked' : '' }}>
-                                            <label for="id11" class="radio-title">8,5 x 10,5(IN16)</label>
+                                            <label for="form4" class="radio-title">8,5 x 10,5(IN16)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="IN8X10" id="id12"
+                                            <input type="radio" name="ord_form" value="IN8X10" id="form5"
                                                 class="accent" {{ old('ord_form') == 'IN8X10' ? 'checked' : '' }}>
-                                            <label for="id12" class="radio-title">20,5 x 25,5(IN8X10)</label>
+                                            <label for="form5" class="radio-title">20,5 x 25,5(IN8X10)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="IN10X12" id="id13"
+                                            <input type="radio" name="ord_form" value="IN10X12" id="form6"
                                                 class="accent" {{ old('ord_form') == 'IN10X12' ? 'checked' : '' }}>
-                                            <label for="id13" class="radio-title">25,5 x 30,5(IN10X12)</label>
+                                            <label for="form6" class="radio-title">25,5 x 30,5(IN10X12)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="PhimLon" id="id14"
+                                            <input type="radio" name="ord_form" value="PhimLon" id="form7"
                                                 class="accent" {{ old('ord_form') == 'PhimLon' ? 'checked' : '' }}>
-                                            <label for="id14" class="radio-title">35 x 43(Phim Lớn)</label>
+                                            <label for="form7" class="radio-title">35 x 43(Phim Lớn)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
-                                            <input type="radio" name="ord_form" value="Bệnh lý" id="id32"
+                                            <input type="radio" name="ord_form" value="Bệnh lý" id="form8"
                                                 class="accent" {{ old('ord_form') == 'Bệnh lý' ? 'checked' : '' }}>
-                                            <label for="id32" class="radio-title">Bệnh lý</label>
+                                            <label for="form8" class="radio-title">Bệnh lý</label>
+                                        </section>
+                                    </div>
+                                    <div class="col-lg-4 col-md-12">
+                                        <section>
+                                            <input type="radio" name="ord_form" value="Giấy đặc biệt" id="form9"
+                                                class="accent" {{ old('ord_form') == 'Giấy đặc biệt' ? 'checked' : '' }}>
+                                            <label for="form9" class="radio-title">Giấy đặc biệt</label>
                                         </section>
                                     </div>
                                 </div>
@@ -259,30 +266,30 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print" value="" id="id15"
+                                            <input type="radio" name="ord_print" value="" id="print1"
                                                 class="accent" checked {{ old('ord_print') == '' ? 'checked' : '' }}>
-                                            <label for="id15" class="radio-title">Trống</label>
+                                            <label for="print1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print" value="Bình thường" id="id16"
+                                            <input type="radio" name="ord_print" value="Bình thường" id="print2"
                                                 class="accent" {{ old('ord_print') == 'Bình thường' ? 'checked' : '' }}>
-                                            <label for="id16" class="radio-title">Bình thường</label>
+                                            <label for="print2" class="radio-title">Bình thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print" value="Bất thường" id="id17"
+                                            <input type="radio" name="ord_print" value="Bất thường" id="print3"
                                                 class="accent" {{ old('ord_print') == 'Bất thường' ? 'checked' : '' }}>
-                                            <label for="id17" class="radio-title">Bất thường</label>
+                                            <label for="print3" class="radio-title">Bất thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print" value="Cả 2" id="id18"
+                                            <input type="radio" name="ord_print" value="Cả 2" id="print4"
                                                 class="accent" {{ old('ord_print') == 'Cả 2' ? 'checked' : '' }}>
-                                            <label for="id18" class="radio-title">Cả 2</label>
+                                            <label for="print4" class="radio-title">Cả 2</label>
                                         </section>
                                     </div>
                                 </div>
@@ -293,23 +300,23 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_form_print" value="" id="id19"
+                                            <input type="radio" name="ord_form_print" value="" id="form_print1"
                                                 class="accent" checked {{ old('ord_form_print') == '' ? 'checked' : '' }}>
-                                            <label for="id19" class="radio-title">Trống</label>
+                                            <label for="form_print1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_form_print" value="A4" id="id20"
+                                            <input type="radio" name="ord_form_print" value="A4" id="form_print2"
                                                 class="accent" {{ old('ord_form_print') == 'A4' ? 'checked' : '' }}>
-                                            <label for="id20" class="radio-title">A4</label>
+                                            <label for="form_print2" class="radio-title">A4</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_form_print" value="A5" id="id21"
+                                            <input type="radio" name="ord_form_print" value="A5" id="form_print3"
                                                 class="accent" {{ old('ord_form_print') == 'A5' ? 'checked' : '' }}>
-                                            <label for="id21" class="radio-title">A5</label>
+                                            <label for="form_print3" class="radio-title">A5</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
@@ -322,24 +329,24 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="" id="id22"
+                                            <input type="radio" name="ord_print_result" value="" id="print_result1"
                                                 class="accent" checked
                                                 {{ old('ord_print_result') == '' ? 'checked' : '' }}>
-                                            <label for="id22" class="radio-title">Trống</label>
+                                            <label for="print_result1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="Có" id="id23"
+                                            <input type="radio" name="ord_print_result" value="Có" id="print_result2"
                                                 class="accent" {{ old('ord_print_result') == 'Có' ? 'checked' : '' }}>
-                                            <label for="id23" class="radio-title">Có</label>
+                                            <label for="print_result2" class="radio-title">Có</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="Không" id="id24"
+                                            <input type="radio" name="ord_print_result" value="Không" id="print_result3"
                                                 class="accent" {{ old('ord_print_result') == 'Không' ? 'checked' : '' }}>
-                                            <label for="id24" class="radio-title">Không</label>
+                                            <label for="print_result3" class="radio-title">Không</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
@@ -352,33 +359,33 @@
                                 <div class="row">
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_film_sheet" value="" id="id25"
+                                            <input type="radio" name="ord_film_sheet" value="" id="film_sheet1"
                                                 class="accent" checked {{ old('ord_film_sheet') == '' ? 'checked' : '' }}>
-                                            <label for="id25" class="radio-title">Trống</label>
+                                            <label for="film_sheet1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film_sheet" value="Bấm flim vào phiếu"
-                                                id="id26" class="accent"
+                                                id="film_sheet2" class="accent"
                                                 {{ old('ord_film_sheet') == 'Bấm flim vào phiếu' ? 'checked' : '' }}>
-                                            <label for="id26" class="radio-title">Bấm flim vào phiếu</label>
+                                            <label for="film_sheet2" class="radio-title">Bấm flim vào phiếu</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film_sheet"
-                                                value="Bỏ flim và phiếu vào bao thư" id="id27" class="accent"
+                                                value="Bỏ flim và phiếu vào bao thư" id="film_sheet3" class="accent"
                                                 {{ old('ord_film_sheet') == 'Bỏ flim và phiếu vào bao thư' ? 'checked' : '' }}>
-                                            <label for="id27" class="radio-title">Bỏ flim và phiếu vào bao thư</label>
+                                            <label for="film_sheet3" class="radio-title">Bỏ flim và phiếu vào bao thư</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film_sheet"
-                                                value="Bỏ flim và phiếu vào bao vàng" id="id28" class="accent"
+                                                value="Bỏ flim và phiếu vào bao vàng" id="film_sheet4" class="accent"
                                                 {{ old('ord_film_sheet') == 'Bỏ flim và phiếu vào bao vàng' ? 'checked' : '' }}>
-                                            <label for="id28" class="radio-title">Bỏ flim và phiếu vào bao
+                                            <label for="film_sheet4" class="radio-title">Bỏ flim và phiếu vào bao
                                                 vàng</label>
                                         </section>
                                     </div>
@@ -396,17 +403,17 @@
                                 <div class="row">
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="order_warning" value="Không" id="id29"
+                                            <input type="radio" name="order_warning" value="Không" id="warning1"
                                                 class="accent" checked
                                                 {{ old('order_warning') == 'Không' ? 'checked' : '' }}>
-                                            <label for="id29" class="radio-title">Không</label>
+                                            <label for="warning1" class="radio-title">Không</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="order_warning" value="Có" id="id30"
+                                            <input type="radio" name="order_warning" value="Có" id="warning2"
                                                 class="accent" {{ old('order_warning') == 'Có' ? 'checked' : '' }}>
-                                            <label for="id30" class="radio-title">Có</label>
+                                            <label for="warning2" class="radio-title">Có</label>
                                         </section>
                                     </div>
                                 </div>

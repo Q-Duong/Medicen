@@ -20,12 +20,13 @@
     <link rel="stylesheet" href="{{ versionResource('backend/css/bootstrap.min.css') }} " as="style">
     <!-- //bootstrap-css -->
     <!-- Custom CSS -->
-    <link href="{{ versionResource('backend/css/style.css') }}" rel='stylesheet' type='text/css' as="style"/>
-    <link href="{{ versionResource('backend/css/style-responsive.css') }}" rel="stylesheet" as="style"/>
-    <link href="{{ versionResource('backend/css/jquery.dataTables.min.css') }}" rel="stylesheet" as="style"/>
-    <link href="{{ versionResource('backend/css/responsive-jqueryui.min.css') }}" rel="stylesheet" as="style"/>
-    <link href="{{ versionResource('backend/css/themes-base-jquery-ui.css') }}" rel="stylesheet" as="style"/>
-    <link href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet' type='text/css' as="style"/>
+    <link href="{{ versionResource('backend/css/style.css') }}" rel='stylesheet' type='text/css' as="style" />
+    <link href="{{ versionResource('backend/css/style-responsive.css') }}" rel="stylesheet" as="style" />
+    <link href="{{ versionResource('backend/css/jquery.dataTables.min.css') }}" rel="stylesheet" as="style" />
+    <link href="{{ versionResource('backend/css/responsive-jqueryui.min.css') }}" rel="stylesheet" as="style" />
+    <link href="{{ versionResource('backend/css/themes-base-jquery-ui.css') }}" rel="stylesheet" as="style" />
+    <link href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet' type='text/css'
+        as="style" />
     <!-- font CSS -->
     {{-- <link
         href='//fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic'
@@ -42,7 +43,7 @@
     <link rel="stylesheet" href="{{ versionResource('backend/fontawesome-free-5.15.4-web/css/all.css') }}"
         as="style" />
     <!-- //select2 -->
-    <link href="{{ versionResource('backend/css/select2.min.css') }}" rel="stylesheet" as="style"/>
+    <link href="{{ versionResource('backend/css/select2.min.css') }}" rel="stylesheet" as="style" />
     @stack('css')
 </head>
 
@@ -70,8 +71,8 @@
     <script src="{{ versionResource('backend/js/ux-ui/left-side.min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/ux-ui/jquery-ui.min.js') }}"></script>
     {{-- <script src="{{ versionResource('backend/js/responsive.jqueryui.min.js') }}"></script> --}}
-    <script src="{{ versionResource('backend/js/tool/select2.min.js') }}" ></script>
-    <script src="{{ versionResource('backend/js/tool/main.min.js') }}" ></script>
+    <script src="{{ versionResource('backend/js/tool/select2.min.js') }}"></script>
+    <script src="{{ versionResource('backend/js/tool/main.min.js') }}"></script>
     @stack('js')
     {{-- [if lte IE 8]><script language="javascript" type="text/javascript" src="js/flot-chart/excanvas.min.js"></script><![endif] --}}
     <script src="{{ asset('backend/js/jquery.scrollTo.js') }}"></script>

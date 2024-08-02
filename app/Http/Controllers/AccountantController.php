@@ -15,41 +15,6 @@ use Illuminate\Support\Facades\Session;
 
 class AccountantController extends Controller
 {
-	public function updateOrder($order_id)
-	{
-		$accountant = Accountant::getAccountantForUpdateOrder($order_id);
-		return view('pages.admin.accountant.edit', compact('accountant'));
-	}
-
-	public function storeOrder(Request $request, $order_id)
-	{
-		$data = $request->all();
-		$order = Order::findOrFail($order_id);
-		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
-		if ($order->order_status == 4) {
-			$orderDetail->ord_cty_name = $data['ord_cty_name'];
-			$orderDetail->save();
-		} else {
-			$order->order_cost = formatPrice($data['order_cost']);
-			$order->order_percent_discount =  $data['order_percent_discount'];
-			$order->order_vat =  $data['order_vat'];
-			$order->order_price = formatPrice($data['order_price']);
-			$order->save();
-			$orderDetail->ord_cty_name = $data['ord_cty_name'];
-			$orderDetail->save();
-			$accountant = Accountant::where('order_id', $order_id)->first();
-			$accountant->accountant_owe = $order->order_price;
-			$accountant->save();
-		}
-
-		$history = new HistoryEdit();
-		$history->order_id = $order_id;
-		$history->user_name = Auth::user()->email;
-		$history->history_action = 'Sửa đơn hàng';
-		$history->save();
-		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin báo cáo thành công');
-	}
-
 	public function index()
 	{
 		if (!Session::has('year')) {
@@ -282,6 +247,133 @@ class AccountantController extends Controller
 			$totalDiscount += $val->order_discount;
 		}
 		$html = view('pages.admin.accountant.filter_index')->with(compact('getAllAccountant'))->render();
+		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
+	}
+
+	//Sales
+	public function updateOrder($order_id)
+	{
+		$accountant = Accountant::getAccountantForUpdateOrder($order_id);
+		return view('pages.admin.accountant.sales.edit', compact('accountant'));
+	}
+
+	public function storeOrder(Request $request, $order_id)
+	{
+		$data = $request->all();
+		$order = Order::findOrFail($order_id);
+		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
+		if ($order->order_status == 4) {
+			$orderDetail->ord_cty_name = $data['ord_cty_name'];
+			$orderDetail->save();
+		} else {
+			$order->order_cost = formatPrice($data['order_cost']);
+			$order->order_percent_discount =  $data['order_percent_discount'];
+			$order->order_vat =  $data['order_vat'];
+			$order->order_price = formatPrice($data['order_price']);
+			$order->save();
+			$orderDetail->ord_cty_name = $data['ord_cty_name'];
+			$orderDetail->save();
+			$accountant = Accountant::where('order_id', $order_id)->first();
+			$accountant->accountant_owe = $order->order_price;
+			$accountant->save();
+		}
+
+		$history = new HistoryEdit();
+		$history->order_id = $order_id;
+		$history->user_name = Auth::user()->email;
+		$history->history_action = 'Sửa đơn hàng';
+		$history->save();
+		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin báo cáo thành công');
+	}
+
+	public function indexSales()
+	{
+		if (!Session::has('year')) {
+			Session::put('year', Carbon::now()->year);
+		}
+		return view('pages.admin.accountant.sales.index');
+	}
+
+	public function getAccountantSales(Request $request)
+	{
+		$totalPrice = 0;
+		$totalOwe = 0;
+		$totalAmountPaid = 0;
+		$totalQuantity = 0;
+		$totalDiscount = 0;
+
+		if (isset($request->year) && !empty($request->year)) {
+			$year = $request->year;
+			Session::put('year', Carbon::now()->year);
+		} else {
+			$year = Session::get('year');
+		}
+		Session::put('year', $year);
+		$getAllAccountant = Accountant::getAccountantByYear($year);
+
+		$orderId = $getAllAccountant->pluck('order_id')->unique()->sort();
+		$months = $getAllAccountant->pluck('accountant_month')->unique()->sort();
+		$days = $getAllAccountant->pluck('ord_start_day')->unique()->sort();
+		$cars = $getAllAccountant->pluck('car_name')->unique()->sort();
+		$unitNames = $getAllAccountant->pluck('unit_name')->unique()->sort();
+		$ctyNames = $getAllAccountant->pluck('ord_cty_name')->unique()->sort();
+		$accDeadlines = $getAllAccountant->where('accountant_deadline', '!=', null)->pluck('accountant_deadline')->unique()->sort();
+		$accNumbers = $getAllAccountant->where('accountant_number', '!=', null)->pluck('accountant_number')->unique()->sort();
+		$accDates = $getAllAccountant->where('accountant_date', '!=', null)->pluck('accountant_date')->unique()->sort();
+		$vats = $getAllAccountant->where('order_vat', '!=', null)->pluck('order_vat')->map(function ($item) {
+			return mb_strtoupper($item, 'UTF-8');
+		})->unique()->sort();
+		$quantities = $getAllAccountant->pluck('order_quantity')->unique()->sort();
+		$costs = $getAllAccountant->pluck('order_cost')->unique()->sort();
+		$prices = $getAllAccountant->pluck('order_price')->unique()->sort();
+		$accDayPayments = $getAllAccountant->where('accountant_day_payment', '!=', null)->pluck('accountant_day_payment')->unique()->sort();
+		$accAmountPaid = $getAllAccountant->pluck('accountant_amount_paid')->unique()->sort();
+		$accOwes = $getAllAccountant->pluck('accountant_owe')->unique()->sort();
+		$percentDiscounts = $getAllAccountant->where('order_percent_discount', '!=', null)->pluck('order_percent_discount')->unique()->sort();
+		$discounts = $getAllAccountant->pluck('order_discount')->unique()->sort();
+		$accDiscountDays = $getAllAccountant->where('accountant_discount_day', '!=', null)->pluck('accountant_discount_day')->unique()->sort();
+		$profits = $getAllAccountant->pluck('order_profit')->unique()->sort();
+		$accDoctorDatePayments = $getAllAccountant->where('accountant_doctor_date_payment', '!=', null)->pluck('accountant_doctor_date_payment')->unique()->sort();
+		$ordForms = $getAllAccountant->where('ord_form', '!=', null)->pluck('ord_form')->unique()->sort();
+		$acc35X43 = $getAllAccountant->where('accountant_35X43', '!=', null)->pluck('accountant_35X43')->unique()->sort();
+		$accPolimes = $getAllAccountant->where('accountant_polime', '!=', null)->pluck('accountant_polime')->unique()->sort();
+		$acc8X10 = $getAllAccountant->where('accountant_8X10', '!=', null)->pluck('accountant_8X10')->unique()->sort();
+		$acc10X12 = $getAllAccountant->where('accountant_10X12', '!=', null)->pluck('accountant_10X12')->unique()->sort();
+		$accFilmBags = $getAllAccountant->where('accountant_film_bag', '!=', null)->pluck('accountant_film_bag')->unique()->sort();
+
+		foreach ($getAllAccountant as $key => $val) {
+			$totalPrice += $val->order_price;
+			$totalOwe += $val->accountant_owe;
+			$totalAmountPaid += $val->accountant_amount_paid;
+			$totalQuantity += $val->order_quantity;
+			$totalDiscount += $val->order_discount;
+		}
+
+		$html = view('pages.admin.accountant.sales.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
+		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
+	}
+
+	public function filterSales(Request $request)
+	{
+		$searchData = $request->all();
+		$totalPrice = 0;
+		$totalOwe = 0;
+		$totalAmountPaid = 0;
+		$totalQuantity = 0;
+		$totalDiscount = 0;
+		$year = Session::get('year');
+		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year);
+		$getAllAccountant = $qb->get();
+
+
+		foreach ($getAllAccountant as $key => $val) {
+			$totalPrice += $val->order_price;
+			$totalOwe += $val->accountant_owe;
+			$totalAmountPaid += $val->accountant_amount_paid;
+			$totalQuantity += $val->order_quantity;
+			$totalDiscount += $val->order_discount;
+		}
+		$html = view('pages.admin.accountant.sales.filter_index')->with(compact('getAllAccountant'))->render();
 		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
 	}
 }

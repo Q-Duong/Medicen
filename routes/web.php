@@ -237,6 +237,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::post('filter', [AccountantController::class, 'filter'])->name('accountant.filter');
         });
     });
+
+    Route::group(['middleware' => 'isSale'], function () {
+        Route::prefix('accountant-sales')->group(function () {
+            Route::get('/', [AccountantController::class, 'indexSales'])->name('accountant_sales.index');
+            Route::post('get-accountant', [AccountantController::class, 'getAccountantSales'])->name('accountant_sales.get');
+            Route::post('filter', [AccountantController::class, 'filterSales'])->name('accountant_sales.filter');
+        });
+    });
 });
 
 //Zalo
