@@ -475,7 +475,7 @@
                                                             <i class="far fa-eye"></i>
                                                         </a>
                                                         <button class="delete-file " type="button"
-                                                            onclick="deleteFileOrder('{{ $key }}', '{{ $file }}', '{{ $order->order->order_detail_id }}')">
+                                                            onclick="deleteFileOrder('{{ $key }}', '{{ $file }}', '{{ $order->order_detail_id }}')">
                                                             <i class="fas fa-times"></i>
                                                         </button>
                                                     </div>
