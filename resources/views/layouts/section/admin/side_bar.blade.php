@@ -40,7 +40,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="https://medicen.vn/lichxe" target="_blank">
+                    <a href="{{ route('schedule.show.technologist') }}" target="_blank">
                         <i class="far fa-calendar-alt"></i>
                         <span>Lịch KTV và Xe</span>
                     </a>

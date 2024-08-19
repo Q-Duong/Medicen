@@ -59,7 +59,7 @@ Route::post('save-order-details-client', [OrderController::class, 'storeOrderDet
 Route::get('successful-medical-registration', [OrderController::class, 'successfulRegistration'])->name('order.clients.alert');
 //Schedule
 //Technologist
-Route::get('lichxe', [ScheduleController::class, 'showSchedule'])->name('schedule.show.technologist');
+Route::get('lichxe-ktv', [ScheduleController::class, 'showSchedule'])->name('schedule.show.technologist');
 Route::post('schedule-select-month', [ScheduleController::class, 'selectMonth'])->name('schedule.select.technologist');
 Route::post('/update-quantity-ktv', [ScheduleController::class, 'updateQuantityKTV'])->name('schedule.update.technologist');
 
