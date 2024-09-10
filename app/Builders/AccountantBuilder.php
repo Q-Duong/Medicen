@@ -223,7 +223,7 @@ final class AccountantBuilder extends Builder
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->where('car_active', 1)
-            ->orderBy('accountants.id', 'ASC')
+            ->orderBy('ord_start_day', 'ASC')
             ->select(
                 'accountants.id',
                 'accountants.order_id',
@@ -465,7 +465,7 @@ final class AccountantBuilder extends Builder
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->where('car_active', 1)
-            ->orderBy('accountants.id', 'ASC')
+            ->orderBy('ord_start_day', 'ASC')
             ->select($currentChange);
         if ($year != 'all') {
             $filters->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
