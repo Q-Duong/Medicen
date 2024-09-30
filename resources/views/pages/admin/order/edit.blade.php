@@ -137,6 +137,15 @@
                                     <option
                                         value="Gối (2 Tư thế)"{{ $order->ord_select == 'Gối (2 Tư thế)' ? 'selected' : '' }}>
                                         Gối (2 Tư thế)</option>
+                                    <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
+                                        {{ $order->ord_select == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>
+                                        Siêu âm Bụng, Giáp, Vú, Tử
+                                        Cung, Buồng trứng</option>
+                                    <option value="Siêu âm Tim"
+                                        {{ $order->ord_select == 'Siêu âm Tim' ? 'selected' : '' }}>Siêu âm Tim</option>
+                                    <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới"
+                                        {{ $order->ord_select == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu
+                                        âm ĐMC, Mạch Máu Chi Dưới</option>
                                     <option value="Khác" {{ $order->ord_select == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>
                                 </select>
@@ -343,22 +352,25 @@
                                 <div class="row">
                                     <div class="col-lg-6 col-md-6 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="" id="print_result1"
-                                                class="accent" {{ $order->ord_print_result == '' ? 'checked' : '' }}>
+                                            <input type="radio" name="ord_print_result" value=""
+                                                id="print_result1" class="accent"
+                                                {{ $order->ord_print_result == '' ? 'checked' : '' }}>
                                             <label for="print_result1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="Có" id="print_result2"
-                                                class="accent" {{ $order->ord_print_result == 'Có' ? 'checked' : '' }}>
+                                            <input type="radio" name="ord_print_result" value="Có"
+                                                id="print_result2" class="accent"
+                                                {{ $order->ord_print_result == 'Có' ? 'checked' : '' }}>
                                             <label for="print_result2" class="radio-title">Có</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="Không" id="print_result3"
-                                                class="accent" {{ $order->ord_print_result == 'Không' ? 'checked' : '' }}>
+                                            <input type="radio" name="ord_print_result" value="Không"
+                                                id="print_result3" class="accent"
+                                                {{ $order->ord_print_result == 'Không' ? 'checked' : '' }}>
                                             <label for="print_result3" class="radio-title">Không</label>
                                         </section>
                                     </div>
@@ -389,7 +401,8 @@
                                             <input type="radio" name="ord_film_sheet"
                                                 value="Bỏ flim và phiếu vào bao thư" id="film_sheet3" class="accent"
                                                 {{ $order->ord_film_sheet == 'Bỏ flim và phiếu vào bao thư' ? 'checked' : '' }}>
-                                            <label for="film_sheet3" class="radio-title">Bỏ flim và phiếu vào bao thư</label>
+                                            <label for="film_sheet3" class="radio-title">Bỏ flim và phiếu vào bao
+                                                thư</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
@@ -581,8 +594,7 @@
                                 @enderror
                             </div>
 
-                            <div
-                                class="form-group block-order-cost {{ $order->order_all_in_one == 0 ? '' : 'hidden' }}">
+                            <div class="form-group block-order-cost {{ $order->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($order->order_cost, 0, ',', '.') }}"

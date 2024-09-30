@@ -140,6 +140,15 @@
                                     <option
                                         value="Gối (2 Tư thế)"{{ $order->order->orderDetail->ord_select == 'Gối (2 Tư thế)' ? 'selected' : '' }}>
                                         Gối (2 Tư thế)</option>
+                                    <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
+                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>
+                                        Siêu âm Bụng, Giáp, Vú, Tử
+                                        Cung, Buồng trứng</option>
+                                    <option value="Siêu âm Tim"
+                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm Tim' ? 'selected' : '' }}>Siêu âm Tim</option>
+                                    <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới"
+                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu
+                                        âm ĐMC, Mạch Máu Chi Dưới</option>
                                     <option value="Khác"
                                         {{ $order->order->orderDetail->ord_select == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>

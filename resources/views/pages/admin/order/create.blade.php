@@ -123,6 +123,9 @@
                                     <option value="Vai (2 Tư thế)">Vai (2 Tư thế)</option>
                                     <option value="Gối (1 Tư thế)">Gối (1 Tư thế)</option>
                                     <option value="Gối (2 Tư thế)">Gối (2 Tư thế)</option>
+                                    <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng">Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng</option>
+                                    <option value="Siêu âm Tim">Siêu âm Tim</option>
+                                    <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới">Siêu âm ĐMC, Mạch Máu Chi Dưới</option>
                                     <option value="Khác">Khác</option>
                                 </select>
                             </div>
