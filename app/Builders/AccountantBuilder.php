@@ -75,6 +75,7 @@ final class AccountantBuilder extends Builder
                 'ord_cty_name',
                 'ord_start_day',
                 'ord_form',
+                'ord_select',
                 'status_id',
                 'accountant_distance',
                 'accountant_doctor_read',

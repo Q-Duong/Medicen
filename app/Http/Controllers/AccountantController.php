@@ -259,19 +259,19 @@ class AccountantController extends Controller
 
 	public function storeOrder(Request $request, $order_id)
 	{
-		$data = $request->all();
 		$order = Order::findOrFail($order_id);
 		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		if ($order->order_status == 4) {
-			$orderDetail->ord_cty_name = $data['ord_cty_name'];
+			$orderDetail->ord_cty_name = $request->ord_cty_name;
 			$orderDetail->save();
 		} else {
-			$order->order_cost = formatPrice($data['order_cost']);
-			$order->order_percent_discount =  $data['order_percent_discount'];
-			$order->order_vat =  $data['order_vat'];
-			$order->order_price = formatPrice($data['order_price']);
+			$order->order_cost = formatPrice($request->order_cost);
+			$order->order_percent_discount =  $request->order_percent_discount;
+			$order->order_vat =  $request->order_vat;
+			$order->order_price = formatPrice($request->order_price);
+			$order->order_quantity = $request->order_quantity;
 			$order->save();
-			$orderDetail->ord_cty_name = $data['ord_cty_name'];
+			$orderDetail->ord_cty_name = $request->ord_cty_name;
 			$orderDetail->save();
 			$accountant = Accountant::where('order_id', $order_id)->first();
 			$accountant->accountant_owe = $order->order_price;

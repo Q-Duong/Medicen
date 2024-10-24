@@ -98,6 +98,7 @@ class ScheduleController extends Controller
 		$month = [];
 		$statistic_complete = 0;
 		$statistic_cas = 0;
+		$statistic_ultrasound = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -106,6 +107,9 @@ class ScheduleController extends Controller
 		$statistic_T = 0;
 		$statistic_G = 0;
 		$statistic_K = 0;
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
+		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 
 		if (empty($request->currentTime)) {
 			$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
@@ -126,33 +130,38 @@ class ScheduleController extends Controller
 
 		foreach ($statistics as $key => $statistic) {
 			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
-				$statistic_cas += $statistic->order_quantity;
-				$statistic_35 += $statistic->accountant_35X43;
-				$statistic_8 += $statistic->accountant_8X10;
-				$statistic_10 += $statistic->accountant_10X12;
-				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
-					$statistic_complete += $statistic->order_quantity;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += $statistic->order_quantity;
-					} else {
-						$statistic_K += $statistic->order_quantity;
-					}
-				} else {
-					$statistic_complete += ($statistic->order_quantity) * 2;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += ($statistic->order_quantity) * 2;
-					} else {
-						$statistic_K += ($statistic->order_quantity) * 2;
+				if (!in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_cas += $statistic->order_quantity;
+					$statistic_35 += $statistic->accountant_35X43;
+					$statistic_8 += $statistic->accountant_8X10;
+					$statistic_10 += $statistic->accountant_10X12;
+					if (in_array($statistic->ord_select, $xray1Position)) {
+						$statistic_complete += $statistic->order_quantity;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += $statistic->order_quantity;
+						} else {
+							$statistic_K += $statistic->order_quantity;
+						}
+					} elseif (in_array($statistic->ord_select, $xray2Position)) {
+						$statistic_complete += ($statistic->order_quantity) * 2;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += ($statistic->order_quantity) * 2;
+						} else {
+							$statistic_K += ($statistic->order_quantity) * 2;
+						}
 					}
 				}
+			}
+			if (in_array($statistic->ord_select, $ultraSound)) {
+				$statistic_ultrasound += ($statistic->order_quantity);
 			}
 		}
 
@@ -160,7 +169,7 @@ class ScheduleController extends Controller
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
@@ -204,6 +213,7 @@ class ScheduleController extends Controller
 		$data = $request->all();
 		$statistic_complete = 0;
 		$statistic_cas = 0;
+		$statistic_ultrasound = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -212,6 +222,9 @@ class ScheduleController extends Controller
 		$statistic_T = 0;
 		$statistic_G = 0;
 		$statistic_K = 0;
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
+		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
@@ -221,37 +234,42 @@ class ScheduleController extends Controller
 
 		foreach ($statistics as $key => $statistic) {
 			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
-				$statistic_cas += $statistic->order_quantity;
-				$statistic_35 += $statistic->accountant_35X43;
-				$statistic_8 += $statistic->accountant_8X10;
-				$statistic_10 += $statistic->accountant_10X12;
-				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
-					$statistic_complete += $statistic->order_quantity;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += $statistic->order_quantity;
-					} else {
-						$statistic_K += $statistic->order_quantity;
-					}
-				} else {
-					$statistic_complete += ($statistic->order_quantity) * 2;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += ($statistic->order_quantity) * 2;
-					} else {
-						$statistic_K += ($statistic->order_quantity) * 2;
+				if (!in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_cas += $statistic->order_quantity;
+					$statistic_35 += $statistic->accountant_35X43;
+					$statistic_8 += $statistic->accountant_8X10;
+					$statistic_10 += $statistic->accountant_10X12;
+					if (in_array($statistic->ord_select, $xray1Position)) {
+						$statistic_complete += $statistic->order_quantity;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += $statistic->order_quantity;
+						} else {
+							$statistic_K += $statistic->order_quantity;
+						}
+					} elseif (in_array($statistic->ord_select, $xray2Position)) {
+						$statistic_complete += ($statistic->order_quantity) * 2;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += ($statistic->order_quantity) * 2;
+						} else {
+							$statistic_K += ($statistic->order_quantity) * 2;
+						}
 					}
 				}
 			}
+			if (in_array($statistic->ord_select, $ultraSound)) {
+				$statistic_ultrasound += ($statistic->order_quantity);
+			}
 		}
 
-		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
@@ -295,6 +313,7 @@ class ScheduleController extends Controller
 		$month = [];
 		$statistic_complete = 0;
 		$statistic_cas = 0;
+		$statistic_ultrasound = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -308,38 +327,47 @@ class ScheduleController extends Controller
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
+		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
+
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
 		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
 		foreach ($statistics as $key => $statistic) {
 			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
-				$statistic_cas += $statistic->order_quantity;
-				$statistic_35 += $statistic->accountant_35X43;
-				$statistic_8 += $statistic->accountant_8X10;
-				$statistic_10 += $statistic->accountant_10X12;
-				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
-					$statistic_complete += $statistic->order_quantity;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += $statistic->order_quantity;
-					} else {
-						$statistic_K += $statistic->order_quantity;
-					}
-				} else {
-					$statistic_complete += ($statistic->order_quantity) * 2;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += ($statistic->order_quantity) * 2;
-					} else {
-						$statistic_K += ($statistic->order_quantity) * 2;
+				if (!in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_cas += $statistic->order_quantity;
+					$statistic_35 += $statistic->accountant_35X43;
+					$statistic_8 += $statistic->accountant_8X10;
+					$statistic_10 += $statistic->accountant_10X12;
+					if (in_array($statistic->ord_select, $xray1Position)) {
+						$statistic_complete += $statistic->order_quantity;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += $statistic->order_quantity;
+						} else {
+							$statistic_K += $statistic->order_quantity;
+						}
+					} elseif (in_array($statistic->ord_select, $xray2Position)) {
+						$statistic_complete += ($statistic->order_quantity) * 2;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += ($statistic->order_quantity) * 2;
+						} else {
+							$statistic_K += ($statistic->order_quantity) * 2;
+						}
 					}
 				}
+			}
+			if (in_array($statistic->ord_select, $ultraSound)) {
+				$statistic_ultrasound += ($statistic->order_quantity);
 			}
 		}
 
@@ -347,7 +375,7 @@ class ScheduleController extends Controller
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
+		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
 	}
 
 	public function selectMonthSales(Request $request)
@@ -355,6 +383,7 @@ class ScheduleController extends Controller
 		$data = $request->all();
 		$statistic_complete = 0;
 		$statistic_cas = 0;
+		$statistic_ultrasound = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -366,41 +395,51 @@ class ScheduleController extends Controller
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
+		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
+
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
 		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
 		foreach ($statistics as $key => $statistic) {
 			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
-				$statistic_cas += $statistic->order_quantity;
-				$statistic_35 += $statistic->accountant_35X43;
-				$statistic_8 += $statistic->accountant_8X10;
-				$statistic_10 += $statistic->accountant_10X12;
-				if ($statistic->ord_select == 'Phổi (1 Tư thế)' || $statistic->ord_select == 'Cột sống thắt lưng (1 Tư thế)' || $statistic->ord_select == 'Cột sống cổ (1 Tư thế)' || $statistic->ord_select == 'Vai (1 Tư thế)' || $statistic->ord_select == 'Gối (1 Tư thế)' || $statistic->ord_select == 'Khác') {
-					$statistic_complete += $statistic->order_quantity;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += $statistic->order_quantity;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += $statistic->order_quantity;
-					} else {
-						$statistic_K += $statistic->order_quantity;
-					}
-				} else {
-					$statistic_complete += ($statistic->order_quantity) * 2;
-					if ($statistic->accountant_doctor_read == 'Nhân') {
-						$statistic_N += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Trung') {
-						$statistic_T += ($statistic->order_quantity) * 2;
-					} elseif ($statistic->accountant_doctor_read == 'Giang') {
-						$statistic_G += ($statistic->order_quantity) * 2;
-					} else {
-						$statistic_K += ($statistic->order_quantity) * 2;
+				if (!in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_cas += $statistic->order_quantity;
+					$statistic_35 += $statistic->accountant_35X43;
+					$statistic_8 += $statistic->accountant_8X10;
+					$statistic_10 += $statistic->accountant_10X12;
+					if (in_array($statistic->ord_select, $xray1Position)) {
+						$statistic_complete += $statistic->order_quantity;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += $statistic->order_quantity;
+						} else {
+							$statistic_K += $statistic->order_quantity;
+						}
+					} elseif (in_array($statistic->ord_select, $xray2Position)) {
+						$statistic_complete += ($statistic->order_quantity) * 2;
+						if ($statistic->accountant_doctor_read == 'Nhân') {
+							$statistic_N += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Trung') {
+							$statistic_T += ($statistic->order_quantity) * 2;
+						} elseif ($statistic->accountant_doctor_read == 'Giang') {
+							$statistic_G += ($statistic->order_quantity) * 2;
+						} else {
+							$statistic_K += ($statistic->order_quantity) * 2;
+						}
 					}
 				}
 			}
+			if (in_array($statistic->ord_select, $ultraSound)) {
+				$statistic_ultrasound += ($statistic->order_quantity);
+			}
 		}
-		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+
+		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
