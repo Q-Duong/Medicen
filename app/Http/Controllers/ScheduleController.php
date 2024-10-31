@@ -45,9 +45,16 @@ class ScheduleController extends Controller
 		// 	$lastDayofThisMonth = Carbon::now()->month($data['month'])->endOfMonth()->toDateString();
 		// 	$dayInMonth = Carbon::now()->month($data['month'])->subMonth()->daysInMonth;
 		// }
-		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		if ($request->month == 'November') {
+			$firstDayofThisMonth = $request->year . '-11-01';
+			$lastDayofThisMonth = $request->year . '-11-30';
+			$dayInMonth = 30;
+		} else {
+			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
+			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		}
+
 		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
 		$view = view('pages.client.schedule.technologist.render', compact('orders', 'dayInMonth'))->render();
 
@@ -120,9 +127,15 @@ class ScheduleController extends Controller
 		} else {
 			$currentYear = $request->currentTime['year'];
 			$currentMonth = $request->currentTime['month'];
-			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
-			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
-			$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
+			if ($currentMonth == 'November') {
+				$firstDayofThisMonth = $currentYear . '-11-01';
+				$lastDayofThisMonth = $currentYear . '-11-30';
+				$dayInMonth = 30;
+			} else {
+				$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
+				$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
+				$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
+			}
 		}
 
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
@@ -226,9 +239,16 @@ class ScheduleController extends Controller
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
 		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 
-		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		if ($request->month == 'November') {
+			$firstDayofThisMonth = $request->year . '-11-01';
+			$lastDayofThisMonth = $request->year . '-11-30';
+			$dayInMonth = 30;
+		} else {
+			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
+			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		}
+
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
 		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
@@ -322,14 +342,14 @@ class ScheduleController extends Controller
 		$statistic_T = 0;
 		$statistic_G = 0;
 		$statistic_K = 0;
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
+		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 		$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::now()->endOfMonth()->toDateString();
 		$currentYear = Carbon::now()->format('Y');
 		$currentMonth = Carbon::now()->format('F');
 		$dayInMonth = Carbon::now()->daysInMonth;
-		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
-		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
-		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
 		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
@@ -392,12 +412,19 @@ class ScheduleController extends Controller
 		$statistic_T = 0;
 		$statistic_G = 0;
 		$statistic_K = 0;
-		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-		$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
 		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
 		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
+
+		if ($request->month == 'November') {
+			$firstDayofThisMonth = $request->year . '-11-01';
+			$lastDayofThisMonth = $request->year . '-11-30';
+			$dayInMonth = 30;
+		} else {
+			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
+			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
+		}
 
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
 		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
