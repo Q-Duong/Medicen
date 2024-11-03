@@ -15,6 +15,7 @@ use App\Models\Accountant;
 use App\Models\HistoryEdit;
 use App\Models\TempFile;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -35,6 +36,7 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 			$customer = new Customer();
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
@@ -61,6 +63,11 @@ class OrderController extends Controller
 			$orderDetail->ord_list_file = '';
 			$orderDetail->ord_list_file_path = '';
 			$orderDetail->ord_email = '';
+			if (in_array($request->ord_select, $ultraSound)) {
+				$orderDetail->ord_type = 2;
+			}else{
+				$orderDetail->ord_type = 1;
+			}
 			$orderDetail->save();
 
 			$order = new Order();
@@ -118,6 +125,7 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 			$customer = new Customer();
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
@@ -144,6 +152,11 @@ class OrderController extends Controller
 			$orderDetail->ord_list_file = '';
 			$orderDetail->ord_list_file_path = '';
 			$orderDetail->ord_email = '';
+			if (in_array($request->ord_select, $ultraSound)) {
+				$orderDetail->ord_type = 2;
+			}else{
+				$orderDetail->ord_type = 1;
+			}
 			$orderDetail->save();
 
 			$order = new Order();
@@ -209,6 +222,8 @@ class OrderController extends Controller
 
 	public function index()
 	{
+		Artisan::call('config:cache');
+    echo ('Config cache is available for configuration ');
 		$getAll = Order::getAll();
 		return view('pages.admin.order.index', compact('getAll'));
 	}
@@ -224,6 +239,7 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 			$customer = new Customer();
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
@@ -263,6 +279,12 @@ class OrderController extends Controller
 			} else {
 				$orderDetail->ord_list_file = '';
 				$orderDetail->ord_list_file_path = '';
+			}
+
+			if (in_array($request->ord_select, $ultraSound)) {
+				$orderDetail->ord_type = 2;
+			}else{
+				$orderDetail->ord_type = 1;
 			}
 			$orderDetail->save();
 
@@ -328,6 +350,7 @@ class OrderController extends Controller
 	public function update(OrderRequestForm $request, $order_id)
 	{
 		$data = $request->all();
+		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 		$order = Order::findOrFail($order_id);
 		$order->unit_id = $data['unit_id'];
 		$order->status_id == 0 ? $order->status_id = 1 : '';
@@ -375,7 +398,6 @@ class OrderController extends Controller
 		$orderDetail->ord_cty_name = $data['ord_cty_name'];
 		$orderDetail->ord_time = $data['ord_time'];
 		$orderDetail->ord_email = $data['ord_email'];
-		// dd($data);
 
 		$get_file = $request->ord_list_file;
 		if ($get_file) {
@@ -389,6 +411,11 @@ class OrderController extends Controller
 			}
 			$orderDetail->ord_list_file = $orderDetail->ord_list_file != '' ? $orderDetail->ord_list_file  . ',' . substr($name, 0, -1) : substr($name, 0, -1);
 			$orderDetail->ord_list_file_path = $orderDetail->ord_list_file_path != '' ? $orderDetail->ord_list_file_path . ',' . substr($path, 0, -1) : substr($path, 0, -1);
+		}
+		if (in_array($request->ord_select, $ultraSound)) {
+			$orderDetail->ord_type = 2;
+		}else{
+			$orderDetail->ord_type = 1;
 		}
 		$orderDetail->save();
 
@@ -413,6 +440,7 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 			$customer = new Customer();
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
@@ -454,7 +482,11 @@ class OrderController extends Controller
 				$orderDetail->ord_list_file_path = '';
 			}
 
-
+			if (in_array($request->ord_select, $ultraSound)) {
+				$orderDetail->ord_type = 2;
+			}else{
+				$orderDetail->ord_type = 1;
+			}
 			$orderDetail->save();
 
 			$order = new Order();
@@ -526,7 +558,7 @@ class OrderController extends Controller
 
 		return Redirect()->back()->with('success', 'Xóa đơn hàng thành công');
 	}
-	
+
 	public function exportExcel(Request $request)
 	{
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();

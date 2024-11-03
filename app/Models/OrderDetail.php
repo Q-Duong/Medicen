@@ -30,6 +30,7 @@ class OrderDetail extends Model
         'ord_cty_name',
         'ord_time', 
         'ord_select',
+        'ord_type',
         'ord_list_file',
         'ord_list_file_path',
         'ord_email',

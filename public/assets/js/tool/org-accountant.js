@@ -550,7 +550,7 @@ function getValuesFilter() {
         },
     ];
 }
-function getListAccountant(y) {
+function getListAccountant(year, type) {
     $.ajax({
         url: url_get_accountant,
         method: "POST",
@@ -559,7 +559,8 @@ function getListAccountant(y) {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         data: {
-            year: y,
+            year: year,
+            type: type
         },
         beforeSend: function () {},
     })
@@ -612,9 +613,9 @@ $(".order_profit").on({
         }
     },
 });
-$(".year-filter").on("change", function () {
+$(".year-filter, .type-filter").on("change", function () {
     $(".loader-over").fadeIn();
-    getListAccountant($(this).val());
+    getListAccountant($(".year-filter").val(), $(".type-filter").val());
 });
 
 $(document).on("change", ".accountant_status", function () {

@@ -30,15 +30,22 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
-
 		if (isset($request->year) && !empty($request->year)) {
 			$year = $request->year;
-			Session::put('year', Carbon::now()->year);
 		} else {
-			$year = Session::get('year');
+			$year = Session::has('year') ? Session::get('year') : Carbon::now()->year;
+		}
+
+		if (isset($request->type) && !empty($request->type)) {
+			$type = $request->type;
+		} else {
+			$type = Session::has('type') ? Session::get('type') : 'all';
+			
 		}
 		Session::put('year', $year);
-		$getAllAccountant = Accountant::getAccountantByYear($year);
+		Session::put('type', $type);
+		
+		$getAllAccountant = Accountant::getAccountantByFilter($year, $type);
 
 		$orderId = $getAllAccountant->pluck('order_id')->unique()->sort();
 		$months = $getAllAccountant->pluck('accountant_month')->unique()->sort();
@@ -235,7 +242,8 @@ class AccountantController extends Controller
 		$totalQuantity = 0;
 		$totalDiscount = 0;
 		$year = Session::get('year');
-		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year);
+		$type = Session::get('type');
+		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year, $type);
 		$getAllAccountant = $qb->get();
 
 
@@ -301,15 +309,22 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
-
 		if (isset($request->year) && !empty($request->year)) {
 			$year = $request->year;
-			Session::put('year', Carbon::now()->year);
 		} else {
-			$year = Session::get('year');
+			$year = Session::has('year') ? Session::get('year') : Carbon::now()->year;
+		}
+
+		if (isset($request->type) && !empty($request->type)) {
+			$type = $request->type;
+		} else {
+			$type = Session::has('type') ? Session::get('type') : 'all';
+			
 		}
 		Session::put('year', $year);
-		$getAllAccountant = Accountant::getAccountantByYear($year);
+		Session::put('type', $type);
+		
+		$getAllAccountant = Accountant::getAccountantByFilter($year, $type);
 
 		$orderId = $getAllAccountant->pluck('order_id')->unique()->sort();
 		$months = $getAllAccountant->pluck('accountant_month')->unique()->sort();
@@ -362,7 +377,8 @@ class AccountantController extends Controller
 		$totalQuantity = 0;
 		$totalDiscount = 0;
 		$year = Session::get('year');
-		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year);
+		$type = Session::get('type');
+		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year, $type);
 		$getAllAccountant = $qb->get();
 
 

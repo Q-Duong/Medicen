@@ -91,7 +91,7 @@ final class AccountantBuilder extends Builder
         return $accountant;
     }
 
-    public function getAccountantByYear($year)
+    public function getAccountantByFilter($year, $type)
     {
         $accountants = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
@@ -122,6 +122,7 @@ final class AccountantBuilder extends Builder
                 'accountant_film_bag',
                 'accountant_note',
                 'accountant_status',
+                'ord_type',
                 'ord_start_day',
                 'ord_form',
                 'ord_note',
@@ -139,6 +140,9 @@ final class AccountantBuilder extends Builder
             );
         if ($year != 'all') {
             $accountants->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
+        }
+        if ($type != 'all') {
+            $accountants->where('ord_type', $type);
         }
         return $accountants->get();
     }
@@ -216,7 +220,7 @@ final class AccountantBuilder extends Builder
         return $accountants;
     }
 
-    public function getQueryBuilderBySearchData($searchData, $year)
+    public function getQueryBuilderBySearchData($searchData, $year, $type)
     {
 
         $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
@@ -248,6 +252,7 @@ final class AccountantBuilder extends Builder
                 'accountant_film_bag',
                 'accountant_note',
                 'accountant_status',
+                'ord_type',
                 'ord_start_day',
                 'ord_form',
                 'ord_note',
@@ -266,6 +271,9 @@ final class AccountantBuilder extends Builder
 
         if ($year != 'all') {
             $query->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
+        }
+        if ($type != 'all') {
+            $query->where('ord_type', $type);
         }
         //Order Id
         if (isset($searchData['order_id']) && !empty($searchData['order_id'])) {
