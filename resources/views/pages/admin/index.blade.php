@@ -1,68 +1,70 @@
 @extends('layouts.default_auth')
 @section('admin_content')
-    <div class="market-updates">
-        <div class="col-md-3 market-update-gd">
-            <a href="{{ route('customer.index') }}">
-                <div class="market-update-block clr-block-1">
-                    <div class="col-md-4 market-update-right">
-                        <i class="fa fa-users"></i>
+    @if (Auth::user()->role == 0)
+        <div class="market-updates">
+            <div class="col-md-3 market-update-gd">
+                <a href="{{ route('customer.index') }}">
+                    <div class="market-update-block clr-block-1">
+                        <div class="col-md-4 market-update-right">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <div class="col-md-8 market-update-left">
+                            <h4>Khách hàng</h4>
+                            <h3>{{ $customer }}</h3>
+                            <p>Tổng số khách hàng đã đăng ký.</p>
+                        </div>
+                        <div class="clearfix"> </div>
                     </div>
-                    <div class="col-md-8 market-update-left">
-                        <h4>Khách hàng</h4>
-                        <h3>{{ $customer }}</h3>
-                        <p>Tổng số khách hàng đã đăng ký.</p>
+                </a>
+            </div>
+            <div class="col-md-3 market-update-gd">
+                <a href="{{ URL::to('/all-product') }}">
+                    <div class="market-update-block clr-block-3">
+                        <div class="col-md-4 market-update-right">
+                            <i class="fa fa-usd"></i>
+                        </div>
+                        <div class="col-md-8 market-update-left">
+                            <h4>Dịch vụ</h4>
+                            <h3>{{ $service }}</h3>
+                            <p>Tổng số dịch vụ đã kinh doanh.</p>
+                        </div>
+                        <div class="clearfix"> </div>
                     </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </a>
+                </a>
+            </div>
+            <div class="col-md-3 market-update-gd">
+                <a href="{{ route('order.index') }}">
+                    <div class="market-update-block clr-block-4">
+                        <div class="col-md-4 market-update-right">
+                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                        </div>
+                        <div class="col-md-8 market-update-left">
+                            <h4>Đơn hàng</h4>
+                            <h3>{{ $order }}</h3>
+                            <p>Tổng số đơn hàng đã nhận.</p>
+                        </div>
+                        <div class="clearfix"> </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 market-update-gd">
+                <a href="{{ route('post.index') }}">
+                    <div class="market-update-block clr-block-2">
+                        <div class="col-md-4 market-update-right">
+                            <i class="fab fa-blogger-b"></i>
+                        </div>
+                        <div class="col-md-8 market-update-left">
+                            <h4>Bài viết</h4>
+                            <h3>{{ $post }}</h3>
+                            <p>Tổng bài viết có trên web.</p>
+                        </div>
+                        <div class="clearfix"> </div>
+                    </div>
+                </a>
+            </div>
+            <div class="clearfix"> </div>
         </div>
-        <div class="col-md-3 market-update-gd">
-            <a href="{{ URL::to('/all-product') }}">
-                <div class="market-update-block clr-block-3">
-                    <div class="col-md-4 market-update-right">
-                        <i class="fa fa-usd"></i>
-                    </div>
-                    <div class="col-md-8 market-update-left">
-                        <h4>Dịch vụ</h4>
-                        <h3>{{ $service }}</h3>
-                        <p>Tổng số dịch vụ đã kinh doanh.</p>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 market-update-gd">
-            <a href="{{ route('order.index') }}">
-                <div class="market-update-block clr-block-4">
-                    <div class="col-md-4 market-update-right">
-                        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                    </div>
-                    <div class="col-md-8 market-update-left">
-                        <h4>Đơn hàng</h4>
-                        <h3>{{ $order }}</h3>
-                        <p>Tổng số đơn hàng đã nhận.</p>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 market-update-gd">
-            <a href="{{ route('post.index') }}">
-                <div class="market-update-block clr-block-2">
-                    <div class="col-md-4 market-update-right">
-                        <i class="fab fa-blogger-b"></i>
-                    </div>
-                    <div class="col-md-8 market-update-left">
-                        <h4>Bài viết</h4>
-                        <h3>{{ $post }}</h3>
-                        <p>Tổng bài viết có trên web.</p>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </a>
-        </div>
-        <div class="clearfix"> </div>
-    </div>
+    @endif
     <div class="chart_statistic">
         <p class="chart-statistic-title">Thống kê doanh thu</p>
         <div class="chart-statistic-content">
@@ -92,8 +94,8 @@
                             <div class="col-md-2">
                                 <p class="filter-content-title">Tên đơn vị:</p>
                                 <select name="unit_id" class="select-2 unit_id">
-                                    @foreach ($getAllUnit as $key => $unit )
-                                        <option value="{{$unit->id}}">{{$unit->unit_name}}</option>
+                                    @foreach ($getAllUnit as $key => $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -165,12 +167,12 @@
 @push('js')
     <script src="{{ versionResource('backend/js/chart/raphael-min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/chart/morris.min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/chart/chart.min.js') }}" defer ></script>
+    <script src="{{ versionResource('backend/js/chart/chart.min.js') }}" defer></script>
     <script type="text/javascript">
         // Revenue Statistics Url
-        var url_revenue_statistics_for_the_month = "{{route('url-revenue-statistics-for-the-month')}}";
-        var url_optional_revenue_statistics = "{{route('url-optional-revenue-statistics')}}";
-        var url_revenue_statistics_by_unit = "{{route('url-revenue-statistics-by-unit')}}";
-        var url_revenue_statistics_by_date = "{{route('url-revenue-statistics-by-date')}}";
+        var url_revenue_statistics_for_the_month = "{{ route('url-revenue-statistics-for-the-month') }}";
+        var url_optional_revenue_statistics = "{{ route('url-optional-revenue-statistics') }}";
+        var url_revenue_statistics_by_unit = "{{ route('url-revenue-statistics-by-unit') }}";
+        var url_revenue_statistics_by_date = "{{ route('url-revenue-statistics-by-date') }}";
     </script>
 @endpush

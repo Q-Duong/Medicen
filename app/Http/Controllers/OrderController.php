@@ -222,8 +222,6 @@ class OrderController extends Controller
 
 	public function index()
 	{
-		Artisan::call('config:cache');
-    echo ('Config cache is available for configuration ');
 		$getAll = Order::getAll();
 		return view('pages.admin.order.index', compact('getAll'));
 	}

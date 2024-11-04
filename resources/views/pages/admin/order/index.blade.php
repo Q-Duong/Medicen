@@ -134,7 +134,10 @@
                 </table>
             </div>
         </div>
-        {{ $getAll->links('pagination::bootstrap-4') }}
+        @include('layouts.section.admin.pagination_showing_current', [
+            'items' => $getAll,
+        ])
+        {{ $getAll->links('pagination::custom') }}
         <div class="export-excel">
             <form action="{{ route('export.excel') }}" method="POST" id="myForm">
                 @csrf
