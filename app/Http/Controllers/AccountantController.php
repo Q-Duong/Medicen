@@ -277,7 +277,7 @@ class AccountantController extends Controller
 			$order->order_percent_discount =  $request->order_percent_discount;
 			$order->order_vat =  $request->order_vat;
 			$order->order_price = formatPrice($request->order_price);
-			$order->order_quantity = $request->order_quantity;
+			$order->order_quantity =  empty($request->order_quantity) ? $order->order_quantity : $request->order_quantity;
 			$order->save();
 			$orderDetail->ord_cty_name = $request->ord_cty_name;
 			$orderDetail->save();
