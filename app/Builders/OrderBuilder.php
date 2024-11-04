@@ -11,7 +11,7 @@ final class OrderBuilder extends Builder
     {
         $getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
-            ->orderBy('orders.id', 'DESC')
+            ->orderBy('ord_start_day', 'DESC')
             ->select(
                 'orders.id',
                 'orders.created_at',
