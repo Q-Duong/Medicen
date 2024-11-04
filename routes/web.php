@@ -15,6 +15,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ZaloController;
@@ -262,9 +263,12 @@ Route::get('/clear-cache', function () {
     echo ('route clear is available for configuration ');
 });
 
-Route::get('/config-cache', function () {
-    Artisan::call('config:cache');
-    echo ('Config cache is available for configuration ');
+
+Route::prefix('clear')->group(function () {
+    Route::get('route', [ConfigController::class ,'clearRoute']);
+    Route::get('cache', [ConfigController::class ,'clearCache']);
 });
+
+Route::get('/clear/route', [ConfigController::class ,'clearRoute']);
 
 Route::post('/upload-image-ck', [PostController::class, 'upload_image_ck'])->name('upload-image-ck');
