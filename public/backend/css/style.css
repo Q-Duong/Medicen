@@ -47,30 +47,32 @@ body a:hover {
     text-decoration: none;
 }
 
-/* ::-webkit-scrollbar {
-    background-color:transparent;
-    width: 10px;
-    height: 10px;
-    position: absolute;
-}
-::-webkit-scrollbar-track {
+/* Basic macOS-like scrollbar */
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
     background-color: transparent;
-}
-::-webkit-scrollbar-track:hover {
-    background-color:#e0e0e0;
 }
 
 ::-webkit-scrollbar-thumb {
-    position: absolute;
-    background-color:#b5b5b9;
-    border-radius:16px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    border: 1px solid transparent;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-    background-color:#97979c;
+    background-color: rgba(0, 0, 0, 0.5);
 }
-::-webkit-scrollbar-button {
+
+::-webkit-scrollbar-track{ /* Hide track */
     display: none;
+}
+
+/* ::-webkit-scrollbar-track:hover {
+    background-color:#e0e0e0;
 } */
+
+ 
 /*sidebar navigation*/
 #sidebar {
     width: 240px;

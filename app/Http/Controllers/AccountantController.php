@@ -81,6 +81,8 @@ class AccountantController extends Controller
 		$acc8X10 = $getAllAccountant->where('accountant_8X10', '!=', null)->pluck('accountant_8X10')->unique()->sort();
 		$acc10X12 = $getAllAccountant->where('accountant_10X12', '!=', null)->pluck('accountant_10X12')->unique()->sort();
 		$accFilmBags = $getAllAccountant->where('accountant_film_bag', '!=', null)->pluck('accountant_film_bag')->unique()->sort();
+		$accNote = $getAllAccountant->where('accountant_note', '!=', null)->pluck('accountant_note')->unique()->sort();
+		$ordNote = $getAllAccountant->where('ord_note', '!=', null)->pluck('ord_note')->unique()->sort();
 
 		foreach ($getAllAccountant as $key => $val) {
 			$totalPrice += $val->order_price;
@@ -95,7 +97,7 @@ class AccountantController extends Controller
 			$totalPack += $val->accountant_film_bag;
 		}
 
-		$html = view('pages.admin.accountant.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
+		$html = view('pages.admin.accountant.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags', 'accNote', 'ordNote'))->render();
 		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
 	}
 
@@ -256,12 +258,12 @@ class AccountantController extends Controller
 		$total8 = 0;
 		$total10 = 0;
 		$totalPack = 0;
+		$flagEmpty = false;
 		$year = Session::get('year');
 		$type = Session::get('type');
 		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year, $type);
 		$getAllAccountant = $qb->get();
-
-
+		
 		foreach ($getAllAccountant as $key => $val) {
 			$totalPrice += $val->order_price;
 			$totalOwe += $val->accountant_owe;
@@ -274,8 +276,12 @@ class AccountantController extends Controller
 			$total10 += $val->accountant_10X12;
 			$totalPack += $val->accountant_film_bag;
 		}
+
+		if (empty(array_filter($searchData))) {
+			$flagEmpty = true;
+		} 
 		$html = view('pages.admin.accountant.filter_index')->with(compact('getAllAccountant'))->render();
-		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
+		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack, 'flagEmpty' => $flagEmpty));
 	}
 
 	//Sales
@@ -380,6 +386,8 @@ class AccountantController extends Controller
 		$acc8X10 = $getAllAccountant->where('accountant_8X10', '!=', null)->pluck('accountant_8X10')->unique()->sort();
 		$acc10X12 = $getAllAccountant->where('accountant_10X12', '!=', null)->pluck('accountant_10X12')->unique()->sort();
 		$accFilmBags = $getAllAccountant->where('accountant_film_bag', '!=', null)->pluck('accountant_film_bag')->unique()->sort();
+		$accNote = $getAllAccountant->where('accountant_note', '!=', null)->pluck('accountant_note')->unique()->sort();
+		$ordNote = $getAllAccountant->where('ord_note', '!=', null)->pluck('ord_note')->unique()->sort();
 
 		foreach ($getAllAccountant as $key => $val) {
 			$totalPrice += $val->order_price;
@@ -394,7 +402,7 @@ class AccountantController extends Controller
 			$totalPack += $val->accountant_film_bag;
 		}
 
-		$html = view('pages.admin.accountant.sales.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
+		$html = view('pages.admin.accountant.sales.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags', 'accNote', 'ordNote'))->render();
 		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
 	}
 
@@ -411,11 +419,11 @@ class AccountantController extends Controller
 		$total8 = 0;
 		$total10 = 0;
 		$totalPack = 0;
+		$flagEmpty = false;
 		$year = Session::get('year');
 		$type = Session::get('type');
 		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year, $type);
 		$getAllAccountant = $qb->get();
-
 
 		foreach ($getAllAccountant as $key => $val) {
 			$totalPrice += $val->order_price;
@@ -429,7 +437,11 @@ class AccountantController extends Controller
 			$total10 += $val->accountant_10X12;
 			$totalPack += $val->accountant_film_bag;
 		}
+
+		if (empty(array_filter($searchData))) {
+			$flagEmpty = true;
+		} 
 		$html = view('pages.admin.accountant.sales.filter_index')->with(compact('getAllAccountant'))->render();
-		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
+		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack, 'flagEmpty' => $flagEmpty));
 	}
 }

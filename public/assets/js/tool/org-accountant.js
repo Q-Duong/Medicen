@@ -449,6 +449,10 @@ function getValuesFilter() {
             value: $(".ord-form").val(),
         },
         {
+            name: "ord_note",
+            value: $(".ord-note").val(),
+        },
+        {
             name: "accountant_month",
             value: $(".accountant-month").val(),
         },
@@ -519,6 +523,10 @@ function getValuesFilter() {
         {
             name: "accountant_film_bag",
             value: $(".accountant-film-bag").val(),
+        },
+        {
+            name: "accountant_note",
+            value: $(".accountant-note").val(),
         },
         {
             name: "order_vat",
@@ -629,7 +637,7 @@ $(document).on("change", ".accountant_status", function () {
 
 $(document).on(
     "change",
-    ".order-id, .accountant-month, .ord-start-day, .car-name, .accountant-distance, .unit-code, .unit-name, .ord-cty-name, .accountant-deadline, .accountant-number, .accountant-date, .order-vat, .order-quantity, .order-cost, .order-price, .accountant-status, .accountant-day-payment, .accountant-method, .accountant-amount-paid, .accountant-owe, .order-percent-discount, .order-discount, .accountant-discount-day, .order-profit, .accountant-doctor-read, .accountant-doctor-date-payment, .ord-form, .accountant-35X43, .accountant-polime, .accountant-8X10, .accountant-10X12, .accountant-film-bag, .status-id",
+    ".order-id, .accountant-month, .ord-start-day, .car-name, .accountant-distance, .unit-code, .unit-name, .ord-cty-name, .accountant-deadline, .accountant-number, .accountant-date, .order-vat, .order-quantity, .order-cost, .order-price, .accountant-status, .accountant-day-payment, .accountant-method, .accountant-amount-paid, .accountant-owe, .order-percent-discount, .order-discount, .accountant-discount-day, .order-profit, .accountant-doctor-read, .accountant-doctor-date-payment, .ord-form, .accountant-35X43, .accountant-polime, .accountant-8X10, .accountant-10X12, .accountant-film-bag, .accountant-note, .ord-note, .status-id",
     function () {
         var data = getValuesFilter();
         $(".loader-over").fadeIn();
@@ -641,7 +649,9 @@ $(document).on(
             },
             data: data,
             success: function (data) {
-                $(".clear-filter").removeClass("hidden");
+                data.flagEmpty
+                    ? $(".clear-filter").addClass("hidden")
+                    : $(".clear-filter").removeClass("hidden");
                 $(".tbody-content").html(data.html);
                 $("#total-price").text(
                     new Intl.NumberFormat("vi-VN").format(data.totalPrice)

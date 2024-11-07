@@ -186,7 +186,7 @@
                     class="textbox-accountant  width-accountant-note" value="{{ $accountant->accountant_note }}">
             </td>
             <td>
-                <input type="text" class="textbox-accountant  width-accountant-note" name="accountant_note"
+                <input type="text" class="textbox-accountant  width-accountant-note"
                     value="{{ $accountant->ord_note }}">
             </td>
             <td class="status_id_{{ $accountant->order_id }}">

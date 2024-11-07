@@ -373,8 +373,30 @@
                         @endif
                     </select>
                 </th>
-                <th></th>
-                <th></th>
+                <th>
+                    <select class="accountant-note select-2" multiple="multiple">
+                        <option value="empty">Empty</option>
+                        @if (isset($accNote) && !empty($accNote))
+                            @foreach ($accNote as $note)
+                                <option value="{{ $note }}">
+                                    {{ $note }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
+                <th>
+                    <select class="ord-note select-2" multiple="multiple">
+                        <option value="empty">Empty</option>
+                        @if (isset($ordNote) && !empty($ordNote))
+                            @foreach ($ordNote as $oNote)
+                                <option value="{{ $oNote }}">
+                                    {{ $oNote }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </th>
                 <th>
                     <select class="status-id select-2" multiple="multiple">
                         <option value="1">Đang xử lý</option>
@@ -589,7 +611,7 @@
                         </td>
                         <td>
                             <input type="text" class="textbox-accountant  width-accountant-note"
-                                name="accountant_note" value="{{ $accountant->ord_note }}">
+                                 value="{{ $accountant->ord_note }}">
                         </td>
                         <td class="status_id_{{ $accountant->order_id }}">
                             @if ($accountant->status_id == 0)

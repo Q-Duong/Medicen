@@ -303,6 +303,14 @@ final class AccountantBuilder extends Builder
         if (isset($searchData['ord_form']) && !empty($searchData['ord_form'])) {
             $query->whereIn('ord_form', explode(',', $searchData['ord_form']));
         }
+        //Order Note
+        if (isset($searchData['ord_note'])) {
+            if ($searchData['ord_note'] == 'empty') {
+                $query->whereNull('ord_note');
+            } else {
+                $query->whereIn('ord_note', explode(',', $searchData['ord_note']));
+            }
+        }
         //Accountant Month
         if (isset($searchData['accountant_month']) && !empty($searchData['accountant_month'])) {
             $query->whereIn('accountant_month', explode(',', $searchData['accountant_month']));
@@ -425,6 +433,14 @@ final class AccountantBuilder extends Builder
                 $query->whereNull('accountant_film_bag');
             } else {
                 $query->whereIn('accountant_film_bag', explode(',', $searchData['accountant_film_bag']));
+            }
+        }
+        //Accountant Note
+        if (isset($searchData['accountant_note'])) {
+            if ($searchData['accountant_note'] == 'empty') {
+                $query->whereNull('accountant_note');
+            } else {
+                $query->whereIn('accountant_note', explode(',', $searchData['accountant_note']));
             }
         }
         //Order VAT
