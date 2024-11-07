@@ -102,6 +102,7 @@ final class OrderBuilder extends Builder
                 'ord_select',
                 'ord_cty_name',
                 'customer_address',
+                'customer_note',
                 'ord_note',
                 'ord_list_file',
                 'ord_list_file_path',

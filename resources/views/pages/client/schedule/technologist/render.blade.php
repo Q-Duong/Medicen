@@ -45,6 +45,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
@@ -95,6 +96,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
@@ -145,6 +147,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
@@ -195,6 +198,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
@@ -245,6 +249,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
@@ -294,6 +299,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
@@ -343,6 +349,7 @@
                                 <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
                                 <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
                                 <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
                                 <em class="event-info-contact hidden">{{ $order->customer_name }}
                                     ({{ $order->customer_phone }})</em>
                                 <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>

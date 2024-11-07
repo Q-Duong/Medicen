@@ -11,7 +11,7 @@
         <div class="filter-accountant">
             <div class="filter-accountant-title">
                 <p class="filter-accountant-title-text">
-                    Báo cáo doanh thu
+                    Doanh thu
                 </p>
             </div>
             <div class="filter-accountant-content">
@@ -54,6 +54,57 @@
                                 Số Cas:
                             </div>
                             <div id="total-quantity"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="filter-accountant">
+            <div class="filter-accountant-title">
+                <p class="filter-accountant-title-text">
+                    Phim
+                </p>
+            </div>
+            <div class="filter-accountant-content">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="filter-accountant-content-block">
+                            <div class="filter-accountant-content-title">
+                                Tổng 35 X 43 :
+                            </div>
+                            <div id="total-35"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-accountant-content-block">
+                            <div class="filter-accountant-content-title">
+                                Tổng Polime :
+                            </div>
+                            <div id="total-polime"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-accountant-content-block">
+                            <div class="filter-accountant-content-title">
+                                Tổng 8 X 10:
+                            </div>
+                            <div id="total-8"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-accountant-content-block">
+                            <div class="filter-accountant-content-title">
+                                Tổng 10 X 12:
+                            </div>
+                            <div id="total-10"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filter-accountant-content-block">
+                            <div class="filter-accountant-content-title">
+                                Tổng Bao phim:
+                            </div>
+                            <div id="total-pack"></div>
                         </div>
                     </div>
                 </div>

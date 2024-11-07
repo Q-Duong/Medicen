@@ -560,30 +560,32 @@ function getListAccountant(year, type) {
         },
         data: {
             year: year,
-            type: type
+            type: type,
         },
         beforeSend: function () {},
     })
         .then(function (data) {
             $(".table-content").html(data.html);
-            var totalPrice = new Intl.NumberFormat("vi-VN").format(
-                data.totalPrice
+            $("#total-price").text(
+                new Intl.NumberFormat("vi-VN").format(data.totalPrice)
             );
-            var totalOwe = new Intl.NumberFormat("vi-VN").format(data.totalOwe);
-            var totalAmountPaid = new Intl.NumberFormat("vi-VN").format(
-                data.totalAmountPaid
+            $("#total-owe").text(
+                new Intl.NumberFormat("vi-VN").format(data.totalOwe)
             );
-            var totalQuantity = new Intl.NumberFormat("vi-VN").format(
-                data.totalQuantity
+            $("#total-amount-paid").text(
+                new Intl.NumberFormat("vi-VN").format(data.totalAmountPaid)
             );
-            var totalDiscount = new Intl.NumberFormat("vi-VN").format(
-                data.totalDiscount
+            $("#total-quantity").text(
+                new Intl.NumberFormat("vi-VN").format(data.totalQuantity)
             );
-            $("#total-price").text(totalPrice);
-            $("#total-owe").text(totalOwe);
-            $("#total-amount-paid").text(totalAmountPaid);
-            $("#total-quantity").text(totalQuantity);
-            $("#total-discount").text(totalDiscount);
+            $("#total-discount").text(
+                new Intl.NumberFormat("vi-VN").format(data.totalDiscount)
+            );
+            $("#total-35").text(data.total35);
+            $("#total-polime").text(data.totalPolime);
+            $("#total-8").text(data.total8);
+            $("#total-10").text(data.total10);
+            $("#total-pack").text(data.totalPack);
         })
         .always(function () {
             $(".loader-over").fadeOut();
@@ -639,28 +641,28 @@ $(document).on(
             },
             data: data,
             success: function (data) {
-                var totalPrice = new Intl.NumberFormat("vi-VN").format(
-                    data.totalPrice
-                );
-                var totalOwe = new Intl.NumberFormat("vi-VN").format(
-                    data.totalOwe
-                );
-                var totalAmountPaid = new Intl.NumberFormat("vi-VN").format(
-                    data.totalAmountPaid
-                );
-                var totalQuantity = new Intl.NumberFormat("vi-VN").format(
-                    data.totalQuantity
-                );
-                var totalDiscount = new Intl.NumberFormat("vi-VN").format(
-                    data.totalDiscount
-                );
                 $(".clear-filter").removeClass("hidden");
                 $(".tbody-content").html(data.html);
-                $("#total-price").text(totalPrice);
-                $("#total-owe").text(totalOwe);
-                $("#total-amount-paid").text(totalAmountPaid);
-                $("#total-quantity").text(totalQuantity);
-                $("#total-discount").text(totalDiscount);
+                $("#total-price").text(
+                    new Intl.NumberFormat("vi-VN").format(data.totalPrice)
+                );
+                $("#total-owe").text(
+                    new Intl.NumberFormat("vi-VN").format(data.totalOwe)
+                );
+                $("#total-amount-paid").text(
+                    new Intl.NumberFormat("vi-VN").format(data.totalAmountPaid)
+                );
+                $("#total-quantity").text(
+                    new Intl.NumberFormat("vi-VN").format(data.totalQuantity)
+                );
+                $("#total-discount").text(
+                    new Intl.NumberFormat("vi-VN").format(data.totalDiscount)
+                );
+                $("#total-35").text(data.total35);
+                $("#total-polime").text(data.totalPolime);
+                $("#total-8").text(data.total8);
+                $("#total-10").text(data.total10);
+                $("#total-pack").text(data.totalPack);
                 $(".loader-over").fadeOut();
             },
         });
@@ -700,7 +702,10 @@ $(document).on("change", "input[type=text], .select-update", function () {
     var target = $(this).attr("name").split("_");
     var order_id = target.pop();
     var data = getValues(order_id);
-    data.push({ name: "order_id", value: order_id },{ name: "currentChange", value: target.join("_") });
+    data.push(
+        { name: "order_id", value: order_id },
+        { name: "currentChange", value: target.join("_") }
+    );
     $.ajax({
         url: url_update_accountant,
         method: "Patch",
@@ -709,12 +714,12 @@ $(document).on("change", "input[type=text], .select-update", function () {
         },
         data: data,
         success: function (data) {
-            if(typeof(data.html) != "undefined" && data.html !== null){
+            if (typeof data.html != "undefined" && data.html !== null) {
                 console.log(data.multi);
-                if(data.multi){
+                if (data.multi) {
                     $("." + data.className).html(data.html);
                     $("." + data.subClassName).html(data.subHtml);
-                }else{
+                } else {
                     $("." + data.className).html(data.html);
                 }
             }

@@ -30,6 +30,11 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
+		$total35 = 0;
+		$totalPolime = 0;
+		$total8 = 0;
+		$total10 = 0;
+		$totalPack = 0;
 		if (isset($request->year) && !empty($request->year)) {
 			$year = $request->year;
 		} else {
@@ -83,10 +88,15 @@ class AccountantController extends Controller
 			$totalAmountPaid += $val->accountant_amount_paid;
 			$totalQuantity += $val->order_quantity;
 			$totalDiscount += $val->order_discount;
+			$total35 += $val->accountant_35X43;
+			$totalPolime += $val->accountant_polime;
+			$total8 += $val->accountant_8X10;
+			$total10 += $val->accountant_10X12;
+			$totalPack += $val->accountant_film_bag;
 		}
 
 		$html = view('pages.admin.accountant.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
-		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
+		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
 	}
 
 	public function update(Request $request)
@@ -241,6 +251,11 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
+		$total35 = 0;
+		$totalPolime = 0;
+		$total8 = 0;
+		$total10 = 0;
+		$totalPack = 0;
 		$year = Session::get('year');
 		$type = Session::get('type');
 		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year, $type);
@@ -253,9 +268,14 @@ class AccountantController extends Controller
 			$totalAmountPaid += $val->accountant_amount_paid;
 			$totalQuantity += $val->order_quantity;
 			$totalDiscount += $val->order_discount;
+			$total35 += $val->accountant_35X43;
+			$totalPolime += $val->accountant_polime;
+			$total8 += $val->accountant_8X10;
+			$total10 += $val->accountant_10X12;
+			$totalPack += $val->accountant_film_bag;
 		}
 		$html = view('pages.admin.accountant.filter_index')->with(compact('getAllAccountant'))->render();
-		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
+		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
 	}
 
 	//Sales
@@ -309,6 +329,11 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
+		$total35 = 0;
+		$totalPolime = 0;
+		$total8 = 0;
+		$total10 = 0;
+		$totalPack = 0;
 		if (isset($request->year) && !empty($request->year)) {
 			$year = $request->year;
 		} else {
@@ -362,10 +387,15 @@ class AccountantController extends Controller
 			$totalAmountPaid += $val->accountant_amount_paid;
 			$totalQuantity += $val->order_quantity;
 			$totalDiscount += $val->order_discount;
+			$total35 += $val->accountant_35X43;
+			$totalPolime += $val->accountant_polime;
+			$total8 += $val->accountant_8X10;
+			$total10 += $val->accountant_10X12;
+			$totalPack += $val->accountant_film_bag;
 		}
 
 		$html = view('pages.admin.accountant.sales.render_renew')->with(compact('getAllAccountant', 'orderId', 'months', 'days', 'cars', 'unitNames', 'ctyNames', 'accDeadlines', 'accNumbers', 'accDates', 'vats', 'quantities', 'costs', 'prices', 'accDayPayments', 'accAmountPaid', 'accOwes', 'percentDiscounts', 'discounts', 'accDiscountDays', 'profits', 'accDoctorDatePayments', 'ordForms', 'acc35X43', 'accPolimes', 'acc8X10', 'acc10X12', 'accFilmBags'))->render();
-		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
+		return response()->json(array('success' => true, 'html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
 	}
 
 	public function filterSales(Request $request)
@@ -376,6 +406,11 @@ class AccountantController extends Controller
 		$totalAmountPaid = 0;
 		$totalQuantity = 0;
 		$totalDiscount = 0;
+		$total35 = 0;
+		$totalPolime = 0;
+		$total8 = 0;
+		$total10 = 0;
+		$totalPack = 0;
 		$year = Session::get('year');
 		$type = Session::get('type');
 		$qb = Accountant::getQueryBuilderBySearchData($searchData, $year, $type);
@@ -388,8 +423,13 @@ class AccountantController extends Controller
 			$totalAmountPaid += $val->accountant_amount_paid;
 			$totalQuantity += $val->order_quantity;
 			$totalDiscount += $val->order_discount;
+			$total35 += $val->accountant_35X43;
+			$totalPolime += $val->accountant_polime;
+			$total8 += $val->accountant_8X10;
+			$total10 += $val->accountant_10X12;
+			$totalPack += $val->accountant_film_bag;
 		}
 		$html = view('pages.admin.accountant.sales.filter_index')->with(compact('getAllAccountant'))->render();
-		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount));
+		return response()->json(array('html' => $html, 'totalPrice' => $totalPrice, 'totalOwe' => $totalOwe, 'totalAmountPaid' => $totalAmountPaid, 'totalQuantity' => $totalQuantity, 'totalDiscount' => $totalDiscount, 'total35' => $total35, 'totalPolime' => $totalPolime, 'total8' => $total8, 'total10' => $total10, 'totalPack' => $totalPack));
 	}
 }
