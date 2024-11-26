@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Exports\ExcelExport;
+use App\Http\Requests\OrderClientRequestForm;
 use App\Http\Requests\OrderRequestForm;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Unit;
@@ -118,10 +119,9 @@ class OrderController extends Controller
 		return view('pages.client.order.index_details');
 	}
 
-	public function save_order_customer(Request $request)
+	public function storeOrderDetailsClient(OrderClientRequestForm $request)
 	{
-
-		$this->checkOrderCustomer($request);
+		// dd($request->all());
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
@@ -130,23 +130,15 @@ class OrderController extends Controller
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
 			$customer->customer_address = $data['customer_address'];
-			$customer->customer_note = $data['customer_note'];
 			$customer->save();
 
 			$orderDetail = new OrderDetail();
 			$orderDetail->ord_start_day = $data['ord_start_day'];
-			$orderDetail->ord_end_day = $data['ord_end_day'];
-			$orderDetail->ord_select = $data['ord_select'];
-			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
+			$orderDetail->ord_end_day = $data['ord_start_day'];
+			$orderDetail->ord_select = 'Phổi (1 Tư thế)';
 			$orderDetail->ord_film = $data['ord_film'];
-			$orderDetail->ord_form = $data['ord_form'];
-			$orderDetail->ord_print = $data['ord_print'];
-			$orderDetail->ord_form_print = $data['ord_form_print'];
-			$orderDetail->ord_print_result = $data['ord_print_result'];
-			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
-			$orderDetail->ord_note = $data['ord_note'];
-			$orderDetail->ord_deadline = $data['ord_deadline'];
-			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
+			$orderDetail->ord_form = $data['ord_film'] == '' ? 'ko in' : $data['ord_form'];
+			// $orderDetail->ord_note = $data['ord_note'];
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->ord_time = $data['ord_time'];
 			$orderDetail->ord_list_file = '';
@@ -160,8 +152,8 @@ class OrderController extends Controller
 			$orderDetail->save();
 
 			$order = new Order();
-			$order->customer_id = $customer->customer_id;
-			$order->order_detail_id = $orderDetail->order_detail_id;
+			$order->customer_id = $customer->id;
+			$order->order_detail_id = $orderDetail->id;
 			$order->unit_id = 1;
 			$order->order_quantity = $data['order_quantity'];
 			$order->order_price = 0;
@@ -169,7 +161,7 @@ class OrderController extends Controller
 			$order->order_cost = 0;
 			$order->order_discount = 0;
 			$order->order_profit = 0;
-			$order->order_status = 0;
+			$order->status_id = 0;
 			$order->schedule_status = 0;
 			$order->order_warning = 'Không';
 			$order->accountant_updated = 0;
@@ -209,7 +201,7 @@ class OrderController extends Controller
 			return Redirect::route('order.clients.alert');
 		} catch (\Exception $e) {
 			DB::rollback();
-			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
+			return Redirect::route('home.index');
 		}
 	}
 

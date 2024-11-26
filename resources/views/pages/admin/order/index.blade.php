@@ -16,7 +16,7 @@
                             <th>Mã ĐH</th>
                             <th>Ngày chụp</th>
                             <th>Đơn vị thuê xe</th>
-                            <th>Mã ĐV</th>
+                            <th>Tên Đơn vị</th>
                             <th>Số lượng</th>
                             <th>Tổng tiền</th>
                             <th>Trạng thái</th>
@@ -32,7 +32,7 @@
                                 <td>{{ $order->id }}</td>
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
                                 <td>{{ $order->unit_name }}</td>
-                                <td>{{ $order->unit_code }}</td>
+                                <td>{{ $order->ord_cty_name }}</td>
                                 <td>{{ $order->order_quantity }}</td>
                                 <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
                                 <td>
