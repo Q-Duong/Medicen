@@ -24,6 +24,7 @@ final class OrderBuilder extends Builder
                 'ord_end_day',
                 'ord_select',
                 'ord_cty_name',
+                'ord_type',
                 'schedule_status'
             )
             ->paginate(10);

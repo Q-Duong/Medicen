@@ -199,6 +199,7 @@ final class AccountantBuilder extends Builder
                 'accountant_note',
                 'accountant_status',
                 'ord_start_day',
+                'ord_type',
                 'ord_form',
                 'ord_note',
                 'ord_cty_name',

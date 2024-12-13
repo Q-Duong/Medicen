@@ -102,7 +102,7 @@
         </td>
 
         <td>
-            {{ $accountant->ord_form }}
+            {{ $accountant->ord_form == 'PhimLon' ? 'IN35X43' : $accountant->ord_form }}
         </td>
 
         <td>

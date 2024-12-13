@@ -307,7 +307,7 @@
                         @if (isset($ordForms) && !empty($ordForms))
                             @foreach ($ordForms as $ordForm)
                                 <option value="{{ $ordForm }}">
-                                    {{ $ordForm }}
+                                    {{ $ordForm == 'PhimLon' ? 'IN35X43' : $ordForm }}
                                 </option>
                             @endforeach
                         @endif
@@ -570,7 +570,8 @@
                         <td>
                             <input type="text" name="ord_form_{{ $accountant->order_id }}"
                                 class="textbox-accountant  width-accountant-quantity ord_form_{{ $accountant->order_id }}"
-                                value="{{ $accountant->ord_form }}" onclick="ordFormFunction(event)">
+                                value="{{ $accountant->ord_form == 'PhimLon' ? 'IN35X43' : $accountant->ord_form }}"
+                                onclick="ordFormFunction(event)">
                         </td>
 
                         <td>
@@ -611,7 +612,7 @@
                         </td>
                         <td>
                             <input type="text" class="textbox-accountant  width-accountant-note"
-                                 value="{{ $accountant->ord_note }}">
+                                value="{{ $accountant->ord_note }}">
                         </td>
                         <td class="status_id_{{ $accountant->order_id }}">
                             @if ($accountant->status_id == 0)

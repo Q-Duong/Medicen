@@ -149,7 +149,7 @@
             <td>
                 <input type="text" name="ord_form_{{ $accountant->order_id }}"
                     class="textbox-accountant  width-accountant-quantity ord_form_{{ $accountant->order_id }}"
-                    value="{{ $accountant->ord_form }}" onclick="ordFormFunction(event)">
+                    value="{{ $accountant->ord_form == 'PhimLon' ? 'IN35X43' : $accountant->ord_form }}" onclick="ordFormFunction(event)">
             </td>
 
             <td>

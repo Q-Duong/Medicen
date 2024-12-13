@@ -17,6 +17,7 @@
                             <th>Ngày chụp</th>
                             <th>Đơn vị thuê xe</th>
                             <th>Tên Đơn vị</th>
+                            <th>Loại</th>
                             <th>Số lượng</th>
                             <th>Tổng tiền</th>
                             <th>Trạng thái</th>
@@ -33,6 +34,7 @@
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
                                 <td>{{ $order->unit_name }}</td>
                                 <td>{{ $order->ord_cty_name }}</td>
+                                <td>{{ $order->ord_type == 1 ? "X-Quang" : "Siêu Âm" }}</td>
                                 <td>{{ $order->order_quantity }}</td>
                                 <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
                                 <td>
