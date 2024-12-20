@@ -204,6 +204,7 @@
     {{-- <script src="{{ versionResource('assets/js/support/datatables/nightly.dataTables.js') }}"></script>
     <script src="{{ versionResource('assets/js/support/datatables/api.sum.js') }}"></script>
     <script src="{{ versionResource('assets/js/support/datatables/dataTables-custom.js') }}"></script> --}}
+    <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
     <script src="{{ versionResource('backend/js/tool/select2.min.js') }}"></script>
     <script src="{{ versionResource('assets/js/tool/accountant.js') }}"></script>
 @endpush

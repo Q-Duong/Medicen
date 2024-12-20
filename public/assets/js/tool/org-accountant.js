@@ -675,6 +675,9 @@ $(document).on(
                 $("#total-pack").text(data.totalPack);
                 $(".loader-over").fadeOut();
             },
+            error: function (textStatus) {
+                popupNotificationSessionExpired();
+            },
         });
     }
 );
@@ -704,6 +707,9 @@ $(document).on("click", ".completeAccount", function () {
             $(".update-account-" + order_id).html("");
             $(".loader-over").fadeOut();
             successMsg(data.success);
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
         },
     });
 });
@@ -736,6 +742,9 @@ $(document).on("change", "input[type=text], .select-update", function () {
             $(".status_id_" + order_id).html(
                 '<span style="color: #00d0e3;">Đã cập nhật doanh thu</span>'
             );
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
         },
     });
 });

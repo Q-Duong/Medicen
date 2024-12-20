@@ -49,6 +49,27 @@
                                 <input type="text" class="input-control"
                                     value="{{ $accountant->accountant_distance == 'G' ? 'Gần' : 'Xa' }}" disabled>
                             </div>
+                            <div class="radio-group">
+                                <label for="exampleInputPassword1">Trọn gói</label>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-12 centered">
+                                        <section>
+                                            <input type="radio" name="order_all_in_one" value="0" id="all0"
+                                                class="accent order_all_in_one"
+                                                {{ $accountant->order_all_in_one == 0 ? 'checked' : '' }}>
+                                            <label for="all0" class="radio-title">Không</label>
+                                        </section>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12 centered">
+                                        <section>
+                                            <input type="radio" name="order_all_in_one" value="1" id="all1"
+                                                class="accent order_all_in_one"
+                                                {{ $accountant->order_all_in_one == 1 ? 'checked' : '' }}>
+                                            <label for="all1" class="radio-title">Có</label>
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Số lượng</label>
                                 @if (in_array($accountant->ord_select, $ultraSound))
@@ -64,11 +85,11 @@
                                 <input type="text" name="order_vat" class="input-control"
                                     value="{{ $accountant->order_vat }}" placeholder="Điền VAT">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group block-order-cost {{ $accountant->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($accountant->order_cost, 0, ',', '.') }}"
-                                    placeholder="Điền đơn giá">
+                                    placeholder="Điền đơn giá" >
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">% Chiết khấu</label>

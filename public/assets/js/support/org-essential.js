@@ -1,10 +1,14 @@
 function errorsMsgInput($class, $message) {
-    $("." + $class).parent().addClass("is-error");
+    $("." + $class)
+        .parent()
+        .addClass("is-error");
     $("." + $class).removeClass("hidden");
     $("." + $class + "_message").text($message[0]);
 }
 function errorMsgInput($class, $message) {
-    $("." + $class).parent().addClass("is-error");
+    $("." + $class)
+        .parent()
+        .addClass("is-error");
     $("." + $class).removeClass("hidden");
     $("." + $class + "_message").text($message);
 }
@@ -34,6 +38,10 @@ function errorMsg(msg) {
         $(".notifications-popup-error").removeClass("active");
     });
 }
+function popupNotificationSessionExpired() {
+    $("[data-core-overlay]").fadeIn(300);
+    $('body').css('overflow', 'hidden');
+}
 $(".form-textbox").on("keyup", function () {
     $(this).next().addClass("hidden");
     $(this).parent().removeClass("is-error");
@@ -50,3 +58,5 @@ $(".button-submit").click(function () {
     $(".loader-over").fadeIn();
     $(".loader-over").fadeOut();
 });
+
+

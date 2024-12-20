@@ -106,6 +106,7 @@ class ScheduleController extends Controller
 		$statistic_complete = 0;
 		$statistic_cas = 0;
 		$statistic_ultrasound = 0;
+		$statistic_bone = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -173,8 +174,13 @@ class ScheduleController extends Controller
 					}
 				}
 			}
-			if (in_array($statistic->ord_select, $ultraSound)) {
-				$statistic_ultrasound += ($statistic->order_quantity);
+			if ($statistic->schedule_status) {
+				if (in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_ultrasound += ($statistic->order_quantity);
+				}
+				if ($statistic->ord_select == "Đo loãng xương") {
+					$statistic_bone += ($statistic->order_quantity);
+				}
 			}
 		}
 
@@ -182,7 +188,7 @@ class ScheduleController extends Controller
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
@@ -227,6 +233,7 @@ class ScheduleController extends Controller
 		$statistic_complete = 0;
 		$statistic_cas = 0;
 		$statistic_ultrasound = 0;
+		$statistic_bone = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -284,12 +291,17 @@ class ScheduleController extends Controller
 					}
 				}
 			}
-			if (in_array($statistic->ord_select, $ultraSound)) {
-				$statistic_ultrasound += ($statistic->order_quantity);
+			if ($statistic->schedule_status) {
+				if (in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_ultrasound += ($statistic->order_quantity);
+				}
+				if ($statistic->ord_select == "Đo loãng xương") {
+					$statistic_bone += ($statistic->order_quantity);
+				}
 			}
 		}
 
-		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
@@ -334,6 +346,7 @@ class ScheduleController extends Controller
 		$statistic_complete = 0;
 		$statistic_cas = 0;
 		$statistic_ultrasound = 0;
+		$statistic_bone = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -386,8 +399,13 @@ class ScheduleController extends Controller
 					}
 				}
 			}
-			if (in_array($statistic->ord_select, $ultraSound)) {
-				$statistic_ultrasound += ($statistic->order_quantity);
+			if ($statistic->schedule_status) {
+				if (in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_ultrasound += ($statistic->order_quantity);
+				}
+				if ($statistic->ord_select == "Đo loãng xương") {
+					$statistic_bone += ($statistic->order_quantity);
+				}
 			}
 		}
 
@@ -395,7 +413,7 @@ class ScheduleController extends Controller
 			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
+		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
 	}
 
 	public function selectMonthSales(Request $request)
@@ -404,6 +422,7 @@ class ScheduleController extends Controller
 		$statistic_complete = 0;
 		$statistic_cas = 0;
 		$statistic_ultrasound = 0;
+		$statistic_bone = 0;
 		$statistic_35 = 0;
 		$statistic_8 = 0;
 		$statistic_10 = 0;
@@ -461,12 +480,17 @@ class ScheduleController extends Controller
 					}
 				}
 			}
-			if (in_array($statistic->ord_select, $ultraSound)) {
-				$statistic_ultrasound += ($statistic->order_quantity);
+			if ($statistic->schedule_status) {
+				if (in_array($statistic->ord_select, $ultraSound)) {
+					$statistic_ultrasound += ($statistic->order_quantity);
+				}
+				if ($statistic->ord_select == "Đo loãng xương") {
+					$statistic_bone += ($statistic->order_quantity);
+				}
 			}
 		}
 
-		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
@@ -514,6 +538,7 @@ class ScheduleController extends Controller
 		}
 		$order = Order::findOrFail($data['order_id']);
 		$order->schedule_status = 1;
+		$order->status_id = 1;
 		$order->save();
 
 		if (!empty($data['zalo'])) {

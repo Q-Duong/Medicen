@@ -145,10 +145,15 @@
                                         Siêu âm Bụng, Giáp, Vú, Tử
                                         Cung, Buồng trứng</option>
                                     <option value="Siêu âm Tim"
-                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm Tim' ? 'selected' : '' }}>Siêu âm Tim</option>
+                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm Tim' ? 'selected' : '' }}>
+                                        Siêu âm Tim</option>
                                     <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới"
-                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu
+                                        {{ $order->order->orderDetail->ord_select == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>
+                                        Siêu
                                         âm ĐMC, Mạch Máu Chi Dưới</option>
+                                    <option value="Đo loãng xương"
+                                        {{ $order->order->orderDetail->ord_select == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
+                                    </option>
                                     <option value="Khác"
                                         {{ $order->order->orderDetail->ord_select == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>

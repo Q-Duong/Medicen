@@ -299,7 +299,8 @@ class AccountantController extends Controller
 			$orderDetail->ord_cty_name = $request->ord_cty_name;
 			$orderDetail->save();
 		} else {
-			$order->order_cost = formatPrice($request->order_cost);
+			$order->order_cost = $request->order_all_in_one == 0 ? formatPrice($request->order_cost) : 0;
+			$order->order_all_in_one = $request->order_all_in_one;
 			$order->order_percent_discount =  $request->order_percent_discount;
 			$order->order_vat =  $request->order_vat;
 			$order->order_price = formatPrice($request->order_price);

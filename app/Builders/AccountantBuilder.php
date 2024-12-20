@@ -156,6 +156,7 @@ final class AccountantBuilder extends Builder
             ->select(
                 'status_id',
                 'order_quantity',
+                'schedule_status',
                 'accountant_35X43',
                 'accountant_8X10',
                 'accountant_10X12',

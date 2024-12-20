@@ -146,6 +146,9 @@
                                     <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới"
                                         {{ $order->ord_select == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu
                                         âm ĐMC, Mạch Máu Chi Dưới</option>
+                                    <option value="Đo loãng xương"
+                                        {{ $order->ord_select == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
+                                    </option>
                                     <option value="Khác" {{ $order->ord_select == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>
                                 </select>

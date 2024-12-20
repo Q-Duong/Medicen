@@ -819,6 +819,12 @@
                         <span class="account-content-child">{{ $statistic_ultrasound }}</span>
                     </div>
                 </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="account-content">
+                        <span class="account-title">Tổng số Cas loãng xương: </span>
+                        <span class="account-content-child">{{ $statistic_bone }}</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="container-fluid">

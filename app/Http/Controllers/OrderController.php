@@ -66,7 +66,7 @@ class OrderController extends Controller
 			$orderDetail->ord_email = '';
 			if (in_array($request->ord_select, $ultraSound)) {
 				$orderDetail->ord_type = 2;
-			}else{
+			} else {
 				$orderDetail->ord_type = 1;
 			}
 			$orderDetail->save();
@@ -146,7 +146,7 @@ class OrderController extends Controller
 			$orderDetail->ord_email = '';
 			if (in_array($request->ord_select, $ultraSound)) {
 				$orderDetail->ord_type = 2;
-			}else{
+			} else {
 				$orderDetail->ord_type = 1;
 			}
 			$orderDetail->save();
@@ -273,7 +273,7 @@ class OrderController extends Controller
 
 			if (in_array($request->ord_select, $ultraSound)) {
 				$orderDetail->ord_type = 2;
-			}else{
+			} else {
 				$orderDetail->ord_type = 1;
 			}
 			$orderDetail->save();
@@ -298,16 +298,16 @@ class OrderController extends Controller
 			$order->order_surcharge = $data['order_surcharge'];
 			$order->save();
 
-			$format = explode("-", $data['ord_start_day']);
+			$monthFormat = explode("-", $data['ord_start_day']);
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = formatPrice($data['order_price']);
 			$accountant->accountant_amount_paid = 0;
 			$accountant->accountant_distance = $data['accountant_distance'];
-			if ($format[1] == 10) {
-				$accountant->accountant_month = $format[1];
+			if ($monthFormat[1] == 10) {
+				$accountant->accountant_month = $monthFormat[1];
 			} else {
-				$month = explode("0", $format[1]);
+				$month = explode("0", $monthFormat[1]);
 				if (count($month) > 1) {
 					$accountant->accountant_month = $month[1];
 				} else {
@@ -356,9 +356,20 @@ class OrderController extends Controller
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->save();
 
+		$monthFormat = explode("-", $data['ord_start_day']);
 		$accountant = Accountant::where('order_id', $order_id)->first();
 		$accountant->accountant_owe = formatPrice($data['order_price']);
 		$accountant->accountant_distance = $data['accountant_distance'];
+		if ($monthFormat[1] == 10) {
+			$accountant->accountant_month = $monthFormat[1];
+		} else {
+			$month = explode("0", $monthFormat[1]);
+			if (count($month) > 1) {
+				$accountant->accountant_month = $month[1];
+			} else {
+				$accountant->accountant_month = $month[0];
+			}
+		}
 		$accountant->save();
 
 		$customer_id = $order->customer_id;
@@ -404,7 +415,7 @@ class OrderController extends Controller
 		}
 		if (in_array($request->ord_select, $ultraSound)) {
 			$orderDetail->ord_type = 2;
-		}else{
+		} else {
 			$orderDetail->ord_type = 1;
 		}
 		$orderDetail->save();
@@ -474,7 +485,7 @@ class OrderController extends Controller
 
 			if (in_array($request->ord_select, $ultraSound)) {
 				$orderDetail->ord_type = 2;
-			}else{
+			} else {
 				$orderDetail->ord_type = 1;
 			}
 			$orderDetail->save();
@@ -500,16 +511,16 @@ class OrderController extends Controller
 
 			$order->save();
 
-			$format = explode("-", $data['ord_start_day']);
+			$monthFormat = explode("-", $data['ord_start_day']);
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
 			$accountant->accountant_owe = formatPrice($data['order_price']);
 			$accountant->accountant_distance = $data['accountant_distance'];
 			$accountant->accountant_amount_paid = 0;
-			if ($format[1] == 10) {
-				$accountant->accountant_month = $format[1];
+			if ($monthFormat[1] == 10) {
+				$accountant->accountant_month = $monthFormat[1];
 			} else {
-				$month = explode("0", $format[1]);
+				$month = explode("0", $monthFormat[1]);
 				if (count($month) > 1) {
 					$accountant->accountant_month = $month[1];
 				} else {

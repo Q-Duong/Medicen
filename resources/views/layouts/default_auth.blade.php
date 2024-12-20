@@ -64,6 +64,9 @@
             @include('layouts.section.admin.footer')
         </section>
         @include('layouts.section.admin.notification')
+        <div id="portal-notification">
+            @include('layouts.section.essential.session_notification')
+        </div>
     </section>
 
     <script src="{{ versionResource('backend/js/jquery2.0.3.min.js') }}"></script>
