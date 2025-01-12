@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div class="notification-button">
-                <a href="{{ route('accountant.index') }}" class="notification-reload">
+                <a href="{{ url()->current() }}" class="notification-reload">
                     <span>Tải lại trang</span>
                 </a>
             </div>

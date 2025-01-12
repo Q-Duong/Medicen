@@ -63,8 +63,8 @@
         },
     });
     /*------------------
-               Function Schedule
-            --------------------*/
+                   Function Schedule
+                --------------------*/
     function schedule(day) {
         jQuery(document).ready(function ($) {
             var transitionEnd =
@@ -99,7 +99,7 @@
                 this.modalHeaderBg = this.modal.find(".header-bg");
                 this.modalBody = this.modal.find(".body");
                 this.modalBodyBg = this.modal.find(".body-bg");
-                this.modalMaxWidth = 900;
+                this.modalMaxWidth = 800;
                 this.modalMaxHeight = 640;
     
                 this.animating = false;
@@ -160,15 +160,10 @@
     
                 this.singleEvents.each(function () {
                     //create the .event-date element for each event
-                    var start = getDate($(this).data("start")),
-                        end = getDate($(this).data("end"));
+                    var start = getDate($(this).data("start"));
     
                     var durationLabel =
-                        '<span class="event-date">Ngày chụp: ' +
-                        start +
-                        " - " +
-                        end +
-                        "</span>";
+                        '<span class="event-date">Ngày chụp: ' + start + "</span>";
                     $(this).children("a").prepend($(durationLabel));
     
                     //detect click on the event and open the modal
@@ -196,7 +191,7 @@
                 this.singleEvents.each(function () {
                     //place each event in the grid -> need to set top position and height
                     var start = getScheduleTimestamp($(this).attr("data-start")),
-                        end = getScheduleTimestamp($(this).attr("data-end")),
+                        end = getScheduleTimestamp($(this).attr("data-start")),
                         child = $(this).attr("data-child");
                     if (child == 1) {
                         $(this).css({
@@ -234,9 +229,8 @@
             SchedulePlan.prototype.openModal = function (event) {
                 var self = this;
                 var mq = self.mq();
-                const now = new Date();
-                const start_date = new Date(event.find(".event-start-day").html());
                 this.animating = true;
+                $('body').css('overflow', 'hidden');
     
                 //update event name and time
                 this.modalHeader
@@ -253,7 +247,7 @@
                     .text(event.find(".event-date").text());
                 this.modal.attr("data-event", event.parent().attr("data-event"));
     
-                //update event content
+                //update event content when open modal
                 this.modalBody
                     .find(".event-info")
                     .load(
@@ -379,157 +373,196 @@
                 }
                 this.modalBody
                     .find(".event-draft")
-                    .html(event.find(".event-quantity-draft").html() + ' Cas');
+                    .html(event.find(".event-quantity-draft").html() + " Cas");
                 this.modalBody
                     .find(".event-noteKtv")
                     .html(event.find(".event-note-ktv").html());
-                var href = event.find(".event-total-file-path").text();
-                var fileName = event.find(".event-total-file").text();
-                if (href != "" || fileName != "") {
-                    this.modalBody.find(".total-file").addClass("hidden");
-                    this.modalBody.find(".event-total-file").html(function () {
-                        var id = event.find(".event-details-id").html();
-                        var result =
-                            '<input type="hidden" name="path" value="' +
-                            href +
-                            '"><input type="hidden" name="file" value="' +
-                            fileName +
-                            '"><input type="hidden" name="id" value="' +
-                            id +
-                            '"><div class="main-file"><div class="file-content"><div class="file-name">' +
-                            fileName +
-                            '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
-                            href +
-                            '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a><button class="delete-file del-total-file" type="button"><i class="fas fa-times"></i></button></div></div></div>';
-                        return '<div class="section-file">' + result + "</div>";
-                    });
+    
+                //set handle base on status
+    
+                this.modalBody
+                    .find(".order-quantity")
+                    .val(event.find(".event-quantity").text());
+                event.find(".event-quantity").text() != ""
+                    ? this.modalBody
+                          .find(".order-quantity")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".order-quantity")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody.find(".accountant-doctor-read");
+                if (event.find(".event-accountant-doctor-read").html() == "Nhân") {
+                    this.modalBody.find(".doctor-N").prop("selected", true);
+                } else if (
+                    event.find(".event-accountant-doctor-read").html() == "Trung"
+                ) {
+                    this.modalBody.find(".doctor-T").prop("selected", true);
+                } else if (
+                    event.find(".event-accountant-doctor-read").html() == "Giang"
+                ) {
+                    this.modalBody.find(".doctor-G").prop("selected", true);
                 } else {
-                    this.modalBody.find(".total-file").removeClass("hidden");
-                    this.modalBody.find(".event-total-file").html("");
+                    this.modalBody.find(".doctor-empty").prop("selected", true);
                 }
-                
+    
+                this.modalBody
+                    .find(".accountant-35X43")
+                    .val(event.find(".event-35X43").text());
+                event.find(".event-35X43").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-35X43")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-35X43")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody
+                    .find(".accountant-polime")
+                    .val(event.find(".event-polime").text());
+                event.find(".event-polime").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-polime")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-polime")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody
+                    .find(".accountant-8X10")
+                    .val(event.find(".event-8X10").text());
+                event.find(".event-8X10").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-8X10")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-8X10")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody
+                    .find(".accountant-10X12")
+                    .val(event.find(".event-10X12").text());
+                event.find(".event-10X12").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-10X12")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-10X12")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody
+                    .find(".accountant-note")
+                    .val(event.find(".event-accountant-note").text());
+                event.find(".event-accountant-note").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-note")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-note")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody
+                    .find(".ord-delivery-date")
+                    .val(event.find(".event-delivery-date").text());
+                event.find(".event-delivery-date").text() != ""
+                    ? this.modalBody
+                          .find(".ord-delivery-date")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".ord-delivery-date")
+                          .removeClass("form-textbox-entered");
+    
                 if (event.find(".event-status").text() == 3) {
-                    this.modalBody
-                        .find(".event-accountant-doctor-read")
-                        .html(event.find(".event-accountant-doctor-read").text());
+                    this.modalBody.find(".order-quantity").attr("disabled", true);
                     this.modalBody
                         .find(".accountant-doctor-read")
-                        .addClass("hidden");
-                    this.modalBody
-                        .find(".event-35X43")
-                        .html(event.find(".event-35X43").text());
-                    this.modalBody.find(".accountant-35X43").addClass("hidden");
-                    this.modalBody
-                        .find(".event-polime")
-                        .html(event.find(".event-polime").text());
-                    this.modalBody.find(".accountant-polime").addClass("hidden");
-                    this.modalBody
-                        .find(".event-8X10")
-                        .html(event.find(".event-8X10").text());
-                    this.modalBody.find(".accountant-8X10").addClass("hidden");
-                    this.modalBody
-                        .find(".event-10X12")
-                        .html(event.find(".event-10X12").text());
-                    this.modalBody.find(".accountant-10X12").addClass("hidden");
-                    this.modalBody
-                        .find(".event-accountant-note")
-                        .html(event.find(".event-accountant-note").text());
-                    this.modalBody.find(".accountant-note").addClass("hidden");
-                    this.modalBody
-                        .find(".event-delivery-date")
-                        .html(event.find(".event-delivery-date").text());
-                    this.modalBody.find(".ord-delivery-date").addClass("hidden");
-                    this.modalBody.find(".order-quantity").addClass("hidden");
-                    this.modalBody
-                        .find(".submit-quantity-details")
-                        .addClass("hidden");
-                    this.modalBody
-                        .find(".event-quantity-details")
-                        .removeClass("hidden");
-                    this.modalBody
-                        .find(".event-quantity-details")
-                        .html(event.find(".event-quantity").html());
-                    this.modalBody.find(".total-file").addClass("hidden");
-                } else {
-                    this.modalBody.find(".event-accountant-doctor-read").html("");
-                    this.modalBody
-                        .find(".accountant-doctor-read")
-                        .removeClass("hidden");
-                    if (
-                        event.find(".event-accountant-doctor-read").html() == "Nhân"
-                    ) {
-                        this.modalBody.find(".doctor-N").prop("selected", true);
-                        this.modalBody.find(".doctor-T").prop("selected", false);
-                        this.modalBody.find(".doctor-G").prop("selected", false);
-                        this.modalBody
-                            .find(".doctor-empty")
-                            .prop("selected", false);
-                    } else if (
-                        event.find(".event-accountant-doctor-read").html() ==
-                        "Trung"
-                    ) {
-                        this.modalBody.find(".doctor-T").prop("selected", true);
-                        this.modalBody.find(".doctor-N").prop("selected", false);
-                        this.modalBody.find(".doctor-G").prop("selected", false);
-                        this.modalBody
-                            .find(".doctor-empty")
-                            .prop("selected", false);
-                    } else if (
-                        event.find(".event-accountant-doctor-read").html() ==
-                        "Giang"
-                    ) {
-                        this.modalBody.find(".doctor-G").prop("selected", true);
-                        this.modalBody.find(".doctor-T").prop("selected", false);
-                        this.modalBody.find(".doctor-N").prop("selected", false);
-                        this.modalBody
-                            .find(".doctor-empty")
-                            .prop("selected", false);
-                    } else {
-                        this.modalBody.find(".doctor-empty").prop("selected", true);
-                        this.modalBody.find(".doctor-G").prop("selected", false);
-                        this.modalBody.find(".doctor-N").prop("selected", false);
-                        this.modalBody.find(".doctor-T").prop("selected", false);
-                    }
-                    this.modalBody
-                        .find(".accountant-35X43")
-                        .removeClass("hidden")
-                        .val(event.find(".event-35X43").text());
-                    this.modalBody.find(".event-35X43").html("");
+                        .attr("disabled", true);
+                    this.modalBody.find(".accountant-35X43").attr("disabled", true);
                     this.modalBody
                         .find(".accountant-polime")
-                        .removeClass("hidden")
-                        .val(event.find(".event-polime").text());
-                    this.modalBody.find(".event-polime").html("");
-                    this.modalBody
-                        .find(".accountant-8X10")
-                        .removeClass("hidden")
-                        .val(event.find(".event-8X10").text());
-                    this.modalBody.find(".event-8X10").html("");
-                    this.modalBody
-                        .find(".accountant-10X12")
-                        .removeClass("hidden")
-                        .val(event.find(".event-10X12").text());
-                    this.modalBody.find(".event-10X12").html("");
-                    this.modalBody
-                        .find(".accountant-note")
-                        .removeClass("hidden")
-                        .val(event.find(".event-accountant-note").text());
-                    this.modalBody.find(".event-accountant-note").html("");
+                        .attr("disabled", true);
+                    this.modalBody.find(".accountant-8X10").attr("disabled", true);
+                    this.modalBody.find(".accountant-10X12").attr("disabled", true);
+                    this.modalBody.find(".accountant-note").attr("disabled", true);
                     this.modalBody
                         .find(".ord-delivery-date")
-                        .removeClass("hidden")
-                        .val(event.find(".event-delivery-date").text());
-                    this.modalBody.find(".event-delivery-date").html("");
-                    this.modalBody
-                        .find(".order-quantity")
-                        .removeClass("hidden")
-                        .val(event.find(".event-quantity").text());
+                        .attr("disabled", true);
+                    var href = event.find(".event-total-file-path").text();
+                    var fileName = event.find(".event-total-file").text();
+                    this.modalBody.find(".total-file").addClass("hidden");
+                    if (href != "" || fileName != "") {
+                        
+                        this.modalBody.find(".event-total-file").html(function () {
+                            var id = event.find(".event-details-id").html();
+                            var result =
+                                '<input type="hidden" name="path" value="' +
+                                href +
+                                '"><input type="hidden" name="file" value="' +
+                                fileName +
+                                '"><input type="hidden" name="id" value="' +
+                                id +
+                                '"><div class="main-file"><div class="file-content"><div class="file-name">' +
+                                fileName +
+                                '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                                href +
+                                '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                            return '<div class="section-file">' + result + "</div>";
+                        });
+                    }else{
+                        this.modalBody.find(".event-total-file").html("");
+                    }
                     this.modalBody
                         .find(".submit-quantity-details")
-                        .removeClass("hidden");
-                    this.modalBody
-                        .find(".event-quantity-details")
+                        .attr("disabled", true)
                         .addClass("hidden");
+                } else {
+                    this.modalBody.find(".order-quantity").attr("disabled", false);
+                    this.modalBody
+                        .find(".accountant-doctor-read")
+                        .attr("disabled", false);
+    
+                    this.modalBody
+                        .find(".accountant-35X43")
+                        .attr("disabled", false);
+                    this.modalBody
+                        .find(".accountant-polime")
+                        .attr("disabled", false);
+                    this.modalBody.find(".accountant-8X10").attr("disabled", false);
+                    this.modalBody
+                        .find(".accountant-10X12")
+                        .attr("disabled", false);
+                    this.modalBody.find(".accountant-note").attr("disabled", false);
+                    this.modalBody
+                        .find(".ord-delivery-date")
+                        .attr("disabled", false);
+                    var href = event.find(".event-total-file-path").text();
+                    var fileName = event.find(".event-total-file").text();
+                    if (href != "" || fileName != "") {
+                        this.modalBody.find(".total-file").addClass("hidden");
+                        this.modalBody.find(".event-total-file").html(function () {
+                            var id = event.find(".event-details-id").html();
+                            var result =
+                                '<input type="hidden" name="path" value="' +
+                                href +
+                                '"><input type="hidden" name="file" value="' +
+                                fileName +
+                                '"><input type="hidden" name="id" value="' +
+                                id +
+                                '"><div class="main-file"><div class="file-content"><div class="file-name">' +
+                                fileName +
+                                '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                                href +
+                                '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a><button class="delete-file del-total-file" type="button"><i class="fas fa-times"></i></button></div></div></div>';
+                            return '<div class="section-file">' + result + "</div>";
+                        });
+                    } else {
+                        this.modalBody.find(".total-file").removeClass("hidden");
+                        this.modalBody.find(".event-total-file").html("");
+                    }
+                    this.modalBody
+                        .find(".submit-quantity-details")
+                        .attr("disabled", false)
+                        .removeClass("hidden");
                 }
                 this.element.addClass("modal-is-open");
     
@@ -545,9 +578,7 @@
                     });
                 } else {
                     var eventTop = event.offset().top - $(window).scrollTop(),
-                        eventLeft = event.offset().left,
-                        eventHeight = event.innerHeight(),
-                        eventWidth = event.innerWidth();
+                        eventLeft = event.offset().left;
     
                     var windowWidth = $(window).width(),
                         windowHeight = $(window).height();
@@ -568,9 +599,6 @@
                             (windowHeight - modalHeight) / 2 - eventTop
                         );
     
-                    var HeaderBgScaleY = modalHeight / eventHeight,
-                        BodyBgScaleX = modalWidth - eventWidth;
-    
                     //change modal height/width and translate it
                     self.modal.css({
                         top: eventTop + "px",
@@ -588,13 +616,13 @@
                     );
     
                     //set modalHeader width
-                    self.modalHeader.css({
-                        width: eventWidth + "px",
-                    });
+                    // self.modalHeader.css({
+                    //     width: eventWidth + "px",
+                    // });
                     //set modalBody left margin
-                    self.modalBody.css({
-                        marginLeft: eventWidth + "px",
-                    });
+                    // self.modalBody.css({
+                    //     marginLeft: eventWidth + "px",
+                    // });
     
                     //change modalBodyBg height/width ans scale it
                     // self.modalBodyBg.css({
@@ -605,10 +633,10 @@
                     //     BodyBgScaleX + ')');
     
                     //change modal modalHeaderBg height/width and scale it
-                    self.modalHeaderBg.css({
-                        // height: eventHeight + 'px',
-                        width: eventWidth + "px",
-                    });
+                    // self.modalHeaderBg.css({
+                    //     // height: eventHeight + 'px',
+                    //     width: eventWidth + "px",
+                    // });
                     // transformElement(self.modalHeaderBg, 'scaleY(' + HeaderBgScaleY + ')');
     
                     self.modalHeaderBg.one(transitionEnd, function () {
@@ -629,6 +657,7 @@
                 var mq = self.mq();
     
                 this.animating = true;
+                $('body').removeAttr("style");
     
                 if (mq == "mobile") {
                     this.element.removeClass("modal-is-open");
@@ -767,18 +796,18 @@
                         // });
                         // transformElement(self.modalBodyBg, 'scaleX(' + BodyBgScaleX + ')');
                         //set modalHeader width
-                        self.modalHeader.css({
-                            width: eventWidth + "px",
-                        });
+                        // self.modalHeader.css({
+                        //     width: eventWidth + "px",
+                        // });
                         //set modalBody left margin
-                        self.modalBody.css({
-                            marginLeft: eventWidth + "px",
-                        });
+                        // self.modalBody.css({
+                        //     marginLeft: eventWidth + "px",
+                        // });
                         //change modal modalHeaderBg height/width and scale it
-                        self.modalHeaderBg.css({
-                            // height: eventHeight + 'px',
-                            width: eventWidth + "px",
-                        });
+                        // self.modalHeaderBg.css({
+                        //     // height: eventHeight + 'px',
+                        //     width: eventWidth + "px",
+                        // });
                         // transformElement(self.modalHeaderBg, 'scaleY(' + HeaderBgScaleY + ')');
                     }, 10);
     
@@ -853,8 +882,8 @@
         });
     }
     /*------------------
-               Select Month Schedule
-            --------------------*/
+                   Select Month Schedule
+                --------------------*/
     $(document).on("change", ".select-month", function () {
         var month = $(this).val();
         var year = $(".select-year").val();
@@ -878,11 +907,17 @@
                 $(".schedule").html(data.html);
                 $(".loader-over").fadeOut();
             },
+            error: function (textStatus) {
+                popupNotificationSessionExpired();
+            },
+            complete: function () {
+                $(".loader-over").fadeOut();
+            },
         });
     });
     /*------------------
-            Schedule Search
-            --------------------*/
+                Schedule Search
+                --------------------*/
     $(document).on("click", ".btn-schedule-search", function () {
         $("input[name=search-keywords]").focus();
         $(".schedule-search").addClass("search-show");
@@ -914,6 +949,12 @@
                 $(".schedule").html(data.html);
                 $(".loader-over").fadeOut();
             },
+            error: function (textStatus) {
+                popupNotificationSessionExpired();
+            },
+            complete: function () {
+                $(".loader-over").fadeOut();
+            },
         });
     });
     
@@ -933,6 +974,12 @@
                     $(".search-results")
                         .addClass("search-results-show")
                         .html(data.html);
+                },
+                error: function (textStatus) {
+                    popupNotificationSessionExpired();
+                },
+                complete: function () {
+                    $(".loader-over").fadeOut();
                 },
             });
         } else {
@@ -959,17 +1006,23 @@
                 $(".schedule").html(data.html);
                 $(".loader-over").fadeOut();
             },
+            error: function (textStatus) {
+                popupNotificationSessionExpired();
+            },
+            complete: function () {
+                $(".loader-over").fadeOut();
+            },
         });
     });
     /*------------------
-                Set month when year change
-                --------------------*/
+                    Set month when year change
+                    --------------------*/
     $(document).on("change", ".select-year", function () {
         $(".define-month").prop("selected", true);
     });
     /*------------------
-               Handle Schedule
-            --------------------*/
+                   Handle Schedule
+                --------------------*/
     $(document).on("click", ".submit-quantity-details", function () {
         var data = getValues();
         data.push(
@@ -995,6 +1048,14 @@
                 setTimeout(function () {
                     location.reload();
                 }, 1000);
+            },
+            error: function (textStatus) {
+                popupNotificationSessionExpired();
+            },
+            complete: function () {
+                $(".event-modal").fadeOut();
+                $(".cover-layer").css({ opacity: "0" });
+                $(".loader-over").fadeOut();
             },
         });
     });

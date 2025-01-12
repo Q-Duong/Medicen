@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Service;
-use App\Models\PostCategory;
+use App\Models\BlogCategory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,9 +15,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         view()->composer('*',function($view) {
-            $getAllPostCategory = PostCategory::orderBy('id','ASC')->get();
+            $getAllBlogCategory = BlogCategory::orderBy('id', 'ASC')->get();
 		    $getAllService = Service::orderBy('id','ASC')->get();
-            $view->with(compact('getAllPostCategory','getAllService'));
+            $view->with(compact('getAllBlogCategory','getAllService'));
         });
     }
 

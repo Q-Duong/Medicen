@@ -130,5 +130,4 @@ function formatQuantity(input) {
         }, 3000);
     });
 
-
 })(jQuery);

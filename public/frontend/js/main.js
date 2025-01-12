@@ -1,12 +1,3 @@
-/*  ---------------------------------------------------
-    Template Name: Medicen
-    Description: Medicen - ecommerce teplate
-    Author: Colorib
-    Author URI: https://www.colorib.com/
-    Version: 1.0
-    Created: Colorib
----------------------------------------------------------  */
-
 "use strict";
 
 (function ($) {
@@ -15,19 +6,6 @@
     --------------------*/
     $(window).on("load", function () {
         $(".loader-over").fadeOut();
-
-        /*------------------
-            Gallery filter
-        --------------------*/
-        $(".filter__controls li").on("click", function () {
-            $(".filter__controls li").removeClass("active");
-            $(this).addClass("active");
-        });
-        if ($(".product__filter").length > 0) {
-            var containerEl = document.querySelector(".product__filter");
-            var mixer = mixitup(containerEl);
-        }
-
         /*------------------
             Background Set
         --------------------*/
@@ -40,66 +18,97 @@
     /*------------------
         Scroll Up
     --------------------*/
-    var btn = $('#button');
+    var btn = $("#button");
 
-    $(window).scroll(function() {
-    if ($(window).scrollTop() > 200) {
-        btn.addClass('show');
-    } else {
-        btn.removeClass('show');
-    }
-    });
-
-    btn.on('click', function(e) {
-    e.preventDefault();
-    $('html, body').animate({scrollTop:0}, '200');
-    });
-
-    //Search Switch
-    $(".search-switch").on("click", function () {
-        $(".search-model").fadeIn(400);
-    });
-
-    $(".search-close-switch").on("click", function () {
-        $(".search-model").fadeOut(400, function () {
-            $("#search-input").val("");
-        });
-    });
-
-    $(".overlay").on("click", function () {
-        $(".search-model").fadeOut(400, function () {
-            $("#search-input").val("");
-        });
-    });
-
-    //Acount
-    $(".header__top__hover").on("click", function () {
-        if (!$(".header__top__hover ul").is(":visible")) {
-            $(".header__top__hover ul").fadeIn(0);
+    $(window).scroll(function () {
+        if ($(window).scrollTop() > 200) {
+            btn.addClass("show");
         } else {
-            $(".header__top__hover ul").fadeOut(0);
+            btn.removeClass("show");
         }
     });
 
-    $(".bodyContainer").on("click", function () {
-        $(".header__top__hover ul").fadeOut(0);
+    btn.on("click", function (e) {
+        e.preventDefault();
+        $("html, body").animate({ scrollTop: 0 }, "200");
     });
 
-    $(".offcanvas__top__hover ").on("click", function () {
-        $(".offcanvas__top__hover ul").fadeIn(0);
-    });
 
-    $(".offcanvas__text").on("click", function () {
-        $(".offcanvas__top__hover ul").fadeOut(0);
-    });
     /*------------------
 		Navigation
 	--------------------*/
-    $(".mobile-menu").slicknav({
+    $(".mobile-menu-nav").slicknav({
         prependTo: "#mobile-menu-wrap",
         allowParentLinks: true,
     });
 
+    //Search Switch
+    $(".globalnav-search").on("click", function () {
+        $(this).addClass("globalnav-item-flyout-open");
+        // $(".search-model").fadeIn(400);
+    });
+
+    // $(".search-close-switch").on("click", function () {
+    //     $(".search-model").fadeOut(400, function () {
+    //         $("#search-input").val("");
+    //     });
+    // });
+
+    // $(".overlay").on("click", function () {
+    //     $(".search-model").fadeOut(400, function () {
+    //         $("#search-input").val("");
+    //     });
+    // });
+
+    //Globalnav Menu
+    $(".globalnav-menutrigger-button").on("click", function () {
+        var isExpanded = $(this).attr("aria-expanded") === "true";
+        $(this).attr("aria-expanded", !isExpanded);
+        if (!isExpanded) {
+            $("#globalnav-anim-menutrigger-bread-top-open")[0].beginElement();
+            $(
+                "#globalnav-anim-menutrigger-bread-bottom-open"
+            )[0].beginElement();
+            $(this).attr("aria-label", "Close");
+            $(".offcanvas-menu-wrapper").addClass("active");
+        } else {
+            $("#globalnav-anim-menutrigger-bread-top-close")[0].beginElement();
+            $(
+                "#globalnav-anim-menutrigger-bread-bottom-close"
+            )[0].beginElement();
+            $(this).attr("aria-label", "Menu");
+            $(".offcanvas-menu-wrapper").removeClass("active");
+        }
+    });
+
+    $(".ac-gf-directory-column-section-title-button").each(function () {
+        var $iconContainer = $(this).find(
+            ".ac-gf-directory-column-section-title-icon"
+        );
+        var expandAnimation = $iconContainer.find(
+            '[data-footer-animate="expand"]'
+        )[0];
+        var collapseAnimation = $iconContainer.find(
+            '[data-footer-animate="collapse"]'
+        )[0];
+        $(this).on("click", function () {
+            var isExpanded = $(this).attr("aria-expanded");
+            var controls = $(this).attr("aria-controls");
+            if (isExpanded === "false") {
+                expandAnimation.beginElement();
+                $(this).attr("aria-expanded", true);
+                $("#" + controls)
+                    .parent()
+                    .addClass("ac-gf-directory-column-expanded");
+            } else {
+                collapseAnimation.beginElement();
+                $(this).attr("aria-expanded", false);
+                $("#" + controls)
+                    .parent()
+                    .removeClass("ac-gf-directory-column-expanded");
+            }
+        });
+    });
     /*------------------
         Accordin Active
     --------------------*/
@@ -122,61 +131,8 @@
         $(".offcanvas-menu-overlay").removeClass("active");
     });
 
-    /*--------------------------
-        Select
-    ----------------------------*/
-    // $("select").niceSelect();
 
-    /*-------------------
-		Radio Btn
-	--------------------- */
-    $(
-        ".product__color__select label, .shop__sidebar__size label, .product__details__option__size label"
-    ).on("click", function () {
-        $(
-            ".product__color__select label, .shop__sidebar__size label, .product__details__option__size label"
-        ).removeClass("active");
-        $(this).addClass("active");
-    });
 
-    /*------------------
-        CountDown
-    --------------------*/
-    // For demo preview start
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, "0");
-    var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-    var yyyy = today.getFullYear();
-
-    if (mm == 12) {
-        mm = "01";
-        yyyy = yyyy + 1;
-    } else {
-        mm = parseInt(mm) + 1;
-        mm = String(mm).padStart(2, "0");
-    }
-    var timerdate = mm + "/" + dd + "/" + yyyy;
-    // For demo preview end
-
-    /*------------------
-        Achieve Counter
-    --------------------*/
-    $(".cn_num").each(function () {
-        $(this)
-            .prop("Counter", 0)
-            .animate(
-                {
-                    Counter: $(this).text(),
-                },
-                {
-                    duration: 4000,
-                    easing: "swing",
-                    step: function (now) {
-                        $(this).text(Math.ceil(now));
-                    },
-                }
-            );
-    });
 
     /*------------------
         Search Handle

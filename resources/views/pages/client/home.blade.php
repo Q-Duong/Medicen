@@ -2,6 +2,7 @@
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('frontend/css/owl.carousel.min.css') }}" type="text/css" as="style">
     <link rel="stylesheet" href="{{ versionResource('frontend/css/banner.min.css') }}" type="text/css" as="style">
+    <link rel="stylesheet" href="{{ versionResource('assets/css/main.built.css') }}" type="text/css" as="style" />
 @endpush
 @section('content')
     <div class="hero__slider owl-carousel">
@@ -142,32 +143,7 @@
                 <p class="title">Tin tức</p>
                 <div class="border_bottom"></div>
             </div>
-            <section class="rs-cardsshelf-section">
-                <div class="rs-cardsshelf-container">
-                    <div class="post owl-carousel">
-                        @foreach ($getAllPost as $key => $post)
-                            <div class="card-content transition-hover">
-                                <a href="{{ URL::to('/blog/' . $post->post_slug) }}">
-                                    <img src="{{ URL::to('uploads/post/' . $post->post_image) }}"
-                                        class="service-img-full"
-                                        alt="{{ URL::to('uploads/post/' . $post->post_image) }}">
-                                    <div class="card-content-info">
-                                        <div class="card-content-header">
-                                            {{ $post->post_title }}
-                                        </div>
-                                        <div class="card-content-desc">
-                                            {{-- Nhận thêm AirPods khi mua Mac và Apple Pencil khi mua iPad, giảm 20% AppleCare+,
-                                            và
-                                            còn
-                                            nhiều nữa. --}}
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
+            
         </div>
         {{-- <section class="wrap-content">
             <div class="row">

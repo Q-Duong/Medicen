@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Customer;
-use App\Models\Post;
 use App\Models\Order;
 use App\Models\Statistic;
 use Carbon\Carbon;
 use App\Http\Requests;
+use App\Models\Blog;
 use App\Models\Profile;
 use App\Models\Unit;
 use App\Models\User;
@@ -29,7 +29,7 @@ class AdminController extends Controller
 
     public function index(Request $request){
         $service = Service::all()->count();
-        $post = Post::all()->count();
+        $post = Blog::all()->count();
         $order = Order::all()->count();
         $customer = Customer::all()->count();
         $getAllUnit = Unit::orderBy('unit_code','ASC')->get();

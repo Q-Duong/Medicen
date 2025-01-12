@@ -1,22 +1,23 @@
 @extends('layouts.default')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/schedule.css') }}" type="text/css" as="style" />
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/org-form.built.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/file.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond-preview.css') }}" type="text/css"
         as="style" />
 @endpush
 @section('content')
-@section('title', 'Lịch Chi Tiết - ')
+@section('title', 'Lịch xe chi tiết - ')
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__text">
-                    <h4>LỊCH CHI TIẾT KTV VÀ TÀI XẾ X QUANG</h4>
+                    <h4>LỊCH XE CHI TIẾT</h4>
                     <div class="breadcrumb__links">
                         <a href="{{ URL::to('/') }}">Trang chủ</a>
-                        <span>Lịch chi tiết KTV và Tài Xế X Quang</span>
+                        <span>Lịch xe chi tiết</span>
                     </div>
                 </div>
             </div>

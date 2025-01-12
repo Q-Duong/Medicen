@@ -42,6 +42,11 @@ function popupNotificationSessionExpired() {
     $("[data-core-overlay]").fadeIn(300);
     $('body').css('overflow', 'hidden');
 }
+$(document).on("keyup click", "input", function () {
+    $(this).val() == ""
+        ? $(this).removeClass("form-textbox-entered")
+        : $(this).addClass("form-textbox-entered");
+});
 $(".form-textbox").on("keyup", function () {
     $(this).next().addClass("hidden");
     $(this).parent().removeClass("is-error");

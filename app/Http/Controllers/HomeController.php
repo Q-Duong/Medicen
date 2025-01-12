@@ -26,7 +26,6 @@ class HomeController extends Controller
     public function index(){
         $getAllSlider = Slider::orderBy('id','ASC')->select(['slider_image',])->get();
         $getAllService = Service::orderBy('id','ASC')->get();
-        $getAllPost = Post::inRandomOrder('id')->limit(4)->get();
-    	return view('pages.client.home')->with(compact('getAllSlider','getAllService','getAllPost'));
+    	return view('pages.client.home')->with(compact('getAllSlider','getAllService'));
     }
 }

@@ -44,6 +44,10 @@ class User extends Authenticatable
     ];
 
     public function profile(){
-        return $this->belongsTo('App\Models\Profile','profile_id');
+        return $this->belongsTo(Profile::class);
+    }
+
+    public function task(){
+        return $this->hasMany(Task::class);
     }
 }

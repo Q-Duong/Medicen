@@ -2,11 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\PostCategoryController;
+use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PostController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\SliderController;
@@ -18,6 +18,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ZaloController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -38,20 +39,26 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::post('/search', [HomeController::class, 'search']);
 Route::post('/autocomplete-ajax', [HomeController::class, 'autocomplete_ajax']);
 //News
-Route::prefix('tin-tuc')->group(function () {
-    Route::get('/', [PostController::class, 'showPostCategories'])->name('blog.category');
-    Route::get('/{post_category_slug}', [PostController::class, 'showPostCategoriesSlug'])->name('blog.category_slug');
-    Route::get('/{post_category_slug}/{post_slug}', [PostController::class, 'showPostInCategories'])->name('blog.post_in_category');
+// Route::prefix('tin-tuc')->group(function () {
+//     Route::get('/', [PostController::class, 'showPostCategories'])->name('blog.category');
+//     Route::get('/{post_category_slug}', [PostController::class, 'showPostCategoriesSlug'])->name('blog.category_slug');
+//     Route::get('/{post_category_slug}/{post_slug}', [PostController::class, 'showPostInCategories'])->name('blog.post_in_category');
+// });
+//Blog
+Route::prefix('blog')->group(function () {
+    Route::get('/', [BlogController::class, 'index'])->name('blog.index');
+    Route::get('{blog_category_slug}', [BlogCategoryController::class, 'index'])->name('blog_category.index');
+    Route::get('{blog_category_slug}/{blog_slug}', [BlogController::class, 'detail'])->name('blog.detail');
 });
 //Service
-Route::get('/dich-vu/{service_slug}', [ServiceController::class, 'show'])->name('service.show');
+Route::get('/dich-vu/{service_slug}', [ServiceController::class, 'show'])->name('service.details');
 //About
 Route::prefix('gioi-thieu')->group(function () {
-    Route::get('/', [AboutController::class, 'show'])->name('about.show');
+    Route::get('/', [AboutController::class, 'index'])->name('about.index');
     Route::get('/{about_slug}', [AboutController::class, 'showBySlug'])->name('about.show_by_slug');
 });
 //Contact
-Route::get('lien-he', [ContactController::class, 'show'])->name('contact.show');
+Route::get('lien-he', [ContactController::class, 'show'])->name('contact.index');
 //Order
 Route::get('dang-ky', [OrderController::class, 'createOrderClient'])->name('order.clients.create');
 Route::post('save-order-client', [OrderController::class, 'storeOrderClient'])->name('order.clients.store');
@@ -79,6 +86,17 @@ Route::group(['middleware' => 'checkSchedule'], function () {
     Route::get('/lichxechitiet', [ScheduleController::class, 'showScheduleSale'])->name('schedule.show.sales');
     Route::post('/schedule-select-month-sales', [ScheduleController::class, 'selectMonthSales'])->name('schedule.select.sales');
     Route::post('/update-order-sales', [OrderController::class, 'updateOrderSales'])->name('schedule.update.sales');
+});
+
+//Task
+Route::group(['middleware' => 'checkSchedule'], function () {
+    Route::prefix('task-manager')->group(function () {
+        Route::get('/', [TaskController::class, 'index'])->name('task.index');
+        Route::get('load', [TaskController::class, 'load'])->name('task.load');
+        Route::post('create-or-update', [TaskController::class, 'createOrUpdate'])->name('task.create_or_update');
+        Route::patch('update-status', [TaskController::class, 'updateStatus'])->name('task.update_status');
+        Route::delete('delete', [TaskController::class, 'destroy'])->name('task.destroy');
+    });
 });
 
 Route::get('/storage-drive', [OrderController::class, 'Storage']);
@@ -137,7 +155,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Export Excel
     Route::post('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
 
-    
+
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
         //Service
@@ -265,10 +283,10 @@ Route::get('/clear-cache', function () {
 
 
 Route::prefix('clear')->group(function () {
-    Route::get('route', [ConfigController::class ,'clearRoute']);
-    Route::get('cache', [ConfigController::class ,'clearCache']);
+    Route::get('route', [ConfigController::class, 'clearRoute']);
+    Route::get('cache', [ConfigController::class, 'clearCache']);
 });
 
-Route::get('/clear/route', [ConfigController::class ,'clearRoute']);
+Route::get('/clear/route', [ConfigController::class, 'clearRoute']);
 
 Route::post('/upload-image-ck', [PostController::class, 'upload_image_ck'])->name('upload-image-ck');

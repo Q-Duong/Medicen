@@ -36,7 +36,7 @@ function schedule(day) {
             this.modalHeaderBg = this.modal.find(".header-bg");
             this.modalBody = this.modal.find(".body");
             this.modalBodyBg = this.modal.find(".body-bg");
-            this.modalMaxWidth = 900;
+            this.modalMaxWidth = 800;
             this.modalMaxHeight = 640;
 
             this.animating = false;
@@ -97,15 +97,10 @@ function schedule(day) {
 
             this.singleEvents.each(function () {
                 //create the .event-date element for each event
-                var start = getDate($(this).data("start")),
-                    end = getDate($(this).data("end"));
+                var start = getDate($(this).data("start"));
 
                 var durationLabel =
-                    '<span class="event-date">Ngày chụp: ' +
-                    start +
-                    " - " +
-                    end +
-                    "</span>";
+                    '<span class="event-date">Ngày chụp: ' + start + "</span>";
                 $(this).children("a").prepend($(durationLabel));
 
                 //detect click on the event and open the modal
@@ -133,7 +128,7 @@ function schedule(day) {
             this.singleEvents.each(function () {
                 //place each event in the grid -> need to set top position and height
                 var start = getScheduleTimestamp($(this).attr("data-start")),
-                    end = getScheduleTimestamp($(this).attr("data-end")),
+                    end = getScheduleTimestamp($(this).attr("data-start")),
                     child = $(this).attr("data-child");
                 if (child == 1) {
                     $(this).css({
@@ -174,6 +169,7 @@ function schedule(day) {
             const now = new Date();
             const start_date = new Date(event.find(".event-start-day").html());
             this.animating = true;
+            $("body").css("overflow", "hidden");
 
             //update event name and time
             this.modalHeader
@@ -222,6 +218,32 @@ function schedule(day) {
             this.modalBody
                 .find(".event-select")
                 .html(event.find(".event-select").html());
+            this.modalBody.find(".event-list-file").html(function () {
+                var href = event.find(".event-list-file-path").text();
+                var fileName = event.find(".event-list-file").text();
+                if (href != "" || fileName != 0) {
+                    var hrefConvert = href.split(",");
+                    var fileNameConvert = fileName.split(",");
+                    var result = "";
+                    Array.prototype.associate = function (keys) {
+                        var result = {};
+                        this.forEach(function (el, i) {
+                            result[keys[i]] = el;
+                        });
+                        return result;
+                    };
+                    $.each(hrefConvert.associate(fileNameConvert), (k, v) => {
+                        result +=
+                            '<div class="main-file"><div class="file-content"><div class="file-name">' +
+                            k +
+                            '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                            v +
+                            '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                    });
+                    return '<div class="section-file">' + result + "</div>";
+                }
+                return "Không có danh sách";
+            });
             this.modalBody
                 .find(".event-info-contact")
                 .html(event.find(".event-info-contact").html());
@@ -336,14 +358,14 @@ function schedule(day) {
             }
             if (start_date.getTime() > now.getTime()) {
                 this.modalBody
-                    .find(".edit-order")
+                    .find(".rs-overlay-change")
                     .html(
                         "<a href=" +
                             event.find(".event-route-edit").text() +
-                            ' target="_blank" class="primary-btn-submit">Chỉnh sửa</a>'
+                            ' target="_blank" class="form-button button-submit rs-lookup-submit">Chỉnh sửa</a>'
                     );
             } else {
-                this.modalBody.find(".edit-order").html("");
+                this.modalBody.find(".rs-overlay-change").html("");
             }
 
             this.element.addClass("modal-is-open");
@@ -360,9 +382,7 @@ function schedule(day) {
                 });
             } else {
                 var eventTop = event.offset().top - $(window).scrollTop(),
-                    eventLeft = event.offset().left,
-                    eventHeight = event.innerHeight(),
-                    eventWidth = event.innerWidth();
+                    eventLeft = event.offset().left;
 
                 var windowWidth = $(window).width(),
                     windowHeight = $(window).height();
@@ -383,9 +403,6 @@ function schedule(day) {
                         (windowHeight - modalHeight) / 2 - eventTop
                     );
 
-                var HeaderBgScaleY = modalHeight / eventHeight,
-                    BodyBgScaleX = modalWidth - eventWidth;
-
                 //change modal height/width and translate it
                 self.modal.css({
                     top: eventTop + "px",
@@ -401,30 +418,6 @@ function schedule(day) {
                         modalTranslateX +
                         "px)"
                 );
-
-                //set modalHeader width
-                self.modalHeader.css({
-                    width: eventWidth + "px",
-                });
-                //set modalBody left margin
-                self.modalBody.css({
-                    marginLeft: eventWidth + "px",
-                });
-
-                //change modalBodyBg height/width ans scale it
-                // self.modalBodyBg.css({
-                //     height: eventHeight + 'px',
-                //     width: '1px',
-                // });
-                // transformElement(self.modalBodyBg, 'scaleY(' + HeaderBgScaleY + ') scaleX(' +
-                //     BodyBgScaleX + ')');
-
-                //change modal modalHeaderBg height/width and scale it
-                self.modalHeaderBg.css({
-                    // height: eventHeight + 'px',
-                    width: eventWidth + "px",
-                });
-                // transformElement(self.modalHeaderBg, 'scaleY(' + HeaderBgScaleY + ')');
 
                 self.modalHeaderBg.one(transitionEnd, function () {
                     //wait for the  end of the modalHeaderBg transformation and show the modal content
@@ -444,6 +437,7 @@ function schedule(day) {
             var mq = self.mq();
 
             this.animating = true;
+            $('body').removeAttr("style");
 
             if (mq == "mobile") {
                 this.element.removeClass("modal-is-open");
@@ -582,18 +576,18 @@ function schedule(day) {
                     // });
                     // transformElement(self.modalBodyBg, 'scaleX(' + BodyBgScaleX + ')');
                     //set modalHeader width
-                    self.modalHeader.css({
-                        width: eventWidth + "px",
-                    });
+                    // self.modalHeader.css({
+                    //     width: eventWidth + "px",
+                    // });
                     //set modalBody left margin
-                    self.modalBody.css({
-                        marginLeft: eventWidth + "px",
-                    });
+                    // self.modalBody.css({
+                    //     marginLeft: eventWidth + "px",
+                    // });
                     //change modal modalHeaderBg height/width and scale it
-                    self.modalHeaderBg.css({
-                        // height: eventHeight + 'px',
-                        width: eventWidth + "px",
-                    });
+                    // self.modalHeaderBg.css({
+                    //     // height: eventHeight + 'px',
+                    //     width: eventWidth + "px",
+                    // });
                     // transformElement(self.modalHeaderBg, 'scaleY(' + HeaderBgScaleY + ')');
                 }, 10);
 
@@ -685,6 +679,12 @@ $(".select-month").on("change", function () {
         success: function (data) {
             schedule(data.day);
             $(".schedule").html(data.html);
+            $(".loader-over").fadeOut();
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
+        },
+        complete: function () {
             $(".loader-over").fadeOut();
         },
     });

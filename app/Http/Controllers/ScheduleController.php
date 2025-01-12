@@ -102,7 +102,7 @@ class ScheduleController extends Controller
 
 	public function getScheduleDetails(Request $request)
 	{
-		$month = [];
+		$months = [];
 		$statistic_complete = 0;
 		$statistic_cas = 0;
 		$statistic_ultrasound = 0;
@@ -185,10 +185,10 @@ class ScheduleController extends Controller
 		}
 
 		for ($m = 1; $m <= 12; $m++) {
-			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
+			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'month', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'months', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
@@ -216,11 +216,10 @@ class ScheduleController extends Controller
 
 	public function scheduleSearch(Request $request)
 	{
-		$data = $request->all();
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
 		$dayInMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->daysInMonth;
-		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
+		$orders = Order::getScheduleDetailsForSearch($firstDayofThisMonth, $lastDayofThisMonth, $request->param);
 
 		$html = view('pages.client.schedule.details.search_render', compact('orders', 'dayInMonth'))->render();
 
@@ -342,7 +341,7 @@ class ScheduleController extends Controller
 	//Sales
 	public function showScheduleSale()
 	{
-		$month = [];
+		$months = [];
 		$statistic_complete = 0;
 		$statistic_cas = 0;
 		$statistic_ultrasound = 0;
@@ -410,10 +409,10 @@ class ScheduleController extends Controller
 		}
 
 		for ($m = 1; $m <= 12; $m++) {
-			$month[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
+			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'month', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
+		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'months', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
 	}
 
 	public function selectMonthSales(Request $request)

@@ -2,7 +2,9 @@
     <div class="timeline">
         <ul>
             @for ($i = 0; $i < $dayInMonth; $i++)
-                <li><span>{{ $i + 1 }}</span></li>
+                <li>
+                    <div class="timeline-day"><span>{{ $i + 1 }}</span></div>
+                </li>
             @endfor
         </ul>
     </div>
@@ -15,7 +17,6 @@
                         @if ($order->car_name == 1 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event border-child"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-1"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -44,7 +45,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -55,7 +57,11 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -66,7 +72,8 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
@@ -76,8 +83,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -92,7 +101,6 @@
                         @if ($order->car_name == 2 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-2"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -133,7 +141,11 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -147,7 +159,8 @@
                                     <em
                                         class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -155,8 +168,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -171,7 +186,6 @@
                         @if ($order->car_name == 3 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-3"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -191,7 +205,8 @@
                                     $name2 = array_pop($str2);
                                 @endphp
                                 <a href="javascript:;">
-                                    <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
+                                    <em class="event-name"><span class="item-title">KTV:
+                                            {{ $name1 }},
                                             {{ $name2 }}</em>
                                     <em class="event-name-unit"><span class="item-title">Đơn vị:
                                             {{ $order->unit_name }}</em>
@@ -212,8 +227,13 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -226,7 +246,8 @@
                                     <em
                                         class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -234,8 +255,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -250,7 +273,6 @@
                         @if ($order->car_name == 4 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-4"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -270,7 +292,8 @@
                                     $name2 = array_pop($str2);
                                 @endphp
                                 <a href="javascript:;">
-                                    <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
+                                    <em class="event-name"><span class="item-title">KTV:
+                                            {{ $name1 }},
                                             {{ $name2 }}</em>
                                     <em class="event-name-unit"><span class="item-title">Đơn vị:
                                             {{ $order->unit_name }}</em>
@@ -291,8 +314,13 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -305,7 +333,8 @@
                                     <em
                                         class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -313,8 +342,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -329,7 +360,6 @@
                         @if ($order->car_name == 5 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-5"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -349,7 +379,8 @@
                                     $name2 = array_pop($str2);
                                 @endphp
                                 <a href="javascript:;">
-                                    <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
+                                    <em class="event-name"><span class="item-title">KTV:
+                                            {{ $name1 }},
                                             {{ $name2 }}</em>
                                     <em class="event-name-unit"><span class="item-title">Đơn vị:
                                             {{ $order->unit_name }}</em>
@@ -370,8 +401,13 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -384,7 +420,8 @@
                                     <em
                                         class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -392,8 +429,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -408,7 +447,6 @@
                         @if ($order->car_name == 6 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-5"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -428,7 +466,8 @@
                                     $name2 = array_pop($str2);
                                 @endphp
                                 <a href="javascript:;">
-                                    <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
+                                    <em class="event-name"><span class="item-title">KTV:
+                                            {{ $name1 }},
                                             {{ $name2 }}</em>
                                     <em class="event-name-unit"><span class="item-title">Đơn vị:
                                             {{ $order->unit_name }}</em>
@@ -449,8 +488,13 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -463,7 +507,8 @@
                                     <em
                                         class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -471,8 +516,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -487,7 +534,6 @@
                         @if ($order->car_name == 7 && $order->car_active == 1 && $order->status_id != 0)
                             <li class="single-event"
                                 data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                data-end="{{ Carbon\Carbon::parse($order->ord_end_day)->format('d/m/Y') }}"
                                 data-content="event-rowing-workout" data-event="event-5"
                                 data-child="{{ $order->order_child }}">
                                 @if ($order->order_updated == 1)
@@ -507,7 +553,8 @@
                                     $name2 = array_pop($str2);
                                 @endphp
                                 <a href="javascript:;">
-                                    <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
+                                    <em class="event-name"><span class="item-title">KTV:
+                                            {{ $name1 }},
                                             {{ $name2 }}</em>
                                     <em class="event-name-unit"><span class="item-title">Đơn vị:
                                             {{ $order->unit_name }}</em>
@@ -528,8 +575,13 @@
                                     <em class="event-select hidden">{{ $order->ord_select }}</em>
                                     <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
+                                    <em
+                                        class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
                                     <em class="event-form hidden">{{ $order->ord_form }}</em>
@@ -542,7 +594,8 @@
                                     <em
                                         class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -550,8 +603,10 @@
                                     <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
                                     <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
                                     <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                    <em class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                    <em
+                                        class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
                                 </a>
                             </li>
                         @endif
@@ -571,7 +626,8 @@
         </header>
         <div class="body">
             <div class="event-info">
-                <p class="event-item"><span class="item-title">Mã đơn hàng: </span><span class="event-id"></span>
+                <p class="event-item"><span class="item-title">Mã đơn hàng: </span><span
+                        class="event-id"></span>
                 </p>
                 <p class="hidden event-car-id"></p>
                 <p class="event-item">
@@ -595,6 +651,10 @@
                     <span class="event-select"></span>
                 </p>
                 <p class="event-item">
+                    <span class="item-title">Danh sách: </span>
+                    <span class="event-list-file"></span>
+                </p>
+                <p class="event-item">
                     <span class="item-title">Thông tin người liên hệ: </span>
                     <span class="event-info-contact"></span>
                 </p>
@@ -602,6 +662,7 @@
                     <span class="item-title">Giờ chụp: </span>
                     <span class="event-time"></span>
                 </p>
+                <p class="schedule-line"></p>
                 <p class="event-item">
                     <span class="item-title">Bác sĩ đọc phim: </span>
                     <span class="event-doctor-read"></span>
@@ -630,6 +691,7 @@
                     <span class="item-title">Phim & Phiếu: </span>
                     <span class="event-film-sheet"></span>
                 </p>
+                <p class="schedule-line"></p>
                 <p class="event-item">
                     <span class="item-title">Ghi chú: </span>
                     <span class="event-order-note"></span>
@@ -650,7 +712,7 @@
                     <span class="item-title">Địa chỉ email khách hàng: </span>
                     <span class="event-email"></span>
                 </p>
-                <p class="item_ktv"></p>
+                <p class="schedule-line"></p>
                 <p class="event-item">
                     <span class="item-title">Trạng thái đơn: </span>
                     <span class="event-status"></span>
@@ -695,8 +757,13 @@
                     <span class="item-title">Ngày trả kết quả: </span>
                     <span class="event-delivery-date"></span>
                 </p>
-                <p class="edit-order">
+                <p class="event-item">
+                    <span class="item-title">File kết quả tổng: </span>
+                    <span class="event-total-file"></span>
                 </p>
+                <div class="rs-overlay-change">
+                    
+                </div>
             </div>
             <div class="body-bg"></div>
         </div>

@@ -8,7 +8,7 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use Illuminate\Support\Facades\Redirect;
 
-class PostController extends Controller
+class BlogControllers extends Controller
 {
     public function index()
     {
