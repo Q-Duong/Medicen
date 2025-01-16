@@ -38,6 +38,14 @@
                 value: $(".ord-delivery-date").val(),
             },
             {
+                name: "order_send_result",
+                value: $(".order-send-result:checked")
+                    .map(function () {
+                        return $(this).val();
+                    })
+                    .get(),
+            },
+            {
                 name: "ord_total_file_name",
                 value: $("input[name=ord_total_file_name]").val(),
             },
@@ -63,8 +71,8 @@
         },
     });
     /*------------------
-                   Function Schedule
-                --------------------*/
+                       Function Schedule
+                    --------------------*/
     function schedule(day) {
         jQuery(document).ready(function ($) {
             var transitionEnd =
@@ -230,7 +238,7 @@
                 var self = this;
                 var mq = self.mq();
                 this.animating = true;
-                $('body').css('overflow', 'hidden');
+                $("body").css("overflow", "hidden");
     
                 //update event name and time
                 this.modalHeader
@@ -472,6 +480,37 @@
                           .find(".ord-delivery-date")
                           .removeClass("form-textbox-entered");
     
+                this.modalBody.find(".block-order-send-result").html(function () {
+                    var result = event.find(".event-order-send-result").text();
+                    if (result != "") {
+                        var resultConvert = result.split(",");
+                        var lastResult = "";
+                        $.each(resultConvert, function (i, v) {
+                            if (v == "Gmail" && resultConvert.length === 1) {
+                                lastResult =
+                                    '<div class="form-checkbox"><input type="checkbox" id="result-Gmail" name="order_send_result" class="form-checkbox-input order-send-result" value="Gmail" checked><label for="result-Gmail" class="form-label">Gmail</label></div><div class="form-checkbox"><input type="checkbox" id="result-Zalo" name="order_send_result" class="form-checkbox-input order-send-result" value="Zalo"><label for="result-Zalo" class="form-label">Zalo</label></div>';
+                            } else if (v == "Zalo" && resultConvert.length === 1) {
+                                lastResult =
+                                    '<div class="form-checkbox"><input type="checkbox" id="result-Gmail" name="order_send_result" class="form-checkbox-input order-send-result" value="Gmail"><label for="result-Gmail" class="form-label">Gmail</label></div><div class="form-checkbox"><input type="checkbox" id="result-Zalo" name="order_send_result" class="form-checkbox-input order-send-result" value="Zalo" checked><label for="result-Zalo" class="form-label">Zalo</label></div>';
+                            } else {
+                                lastResult +=
+                                    '<div class="form-checkbox"><input type="checkbox" id="result-' +
+                                    v +
+                                    '" name="order_send_result" class="form-checkbox-input order-send-result" value="' +
+                                    v +
+                                    '" checked>' +
+                                    '<label for="result-' +
+                                    v +
+                                    '" class="form-label">' +
+                                    v +
+                                    "</label></div>";
+                            }
+                        });
+                        return lastResult;
+                    }
+                    return '<div class="form-checkbox"><input type="checkbox" id="result-Gmail" name="order_send_result" class="form-checkbox-input order-send-result" value="Gmail"><label for="result-Gmail" class="form-label">Gmail</label></div><div class="form-checkbox"><input type="checkbox" id="result-Zalo" name="order_send_result" class="form-checkbox-input order-send-result" value="Zalo"><label for="result-Zalo" class="form-label">Zalo</label></div>';
+                });
+    
                 if (event.find(".event-status").text() == 3) {
                     this.modalBody.find(".order-quantity").attr("disabled", true);
                     this.modalBody
@@ -487,11 +526,13 @@
                     this.modalBody
                         .find(".ord-delivery-date")
                         .attr("disabled", true);
+                    this.modalBody
+                        .find(".order-send-result")
+                        .attr("disabled", true);
                     var href = event.find(".event-total-file-path").text();
                     var fileName = event.find(".event-total-file").text();
                     this.modalBody.find(".total-file").addClass("hidden");
                     if (href != "" || fileName != "") {
-                        
                         this.modalBody.find(".event-total-file").html(function () {
                             var id = event.find(".event-details-id").html();
                             var result =
@@ -508,7 +549,7 @@
                                 '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
                             return '<div class="section-file">' + result + "</div>";
                         });
-                    }else{
+                    } else {
                         this.modalBody.find(".event-total-file").html("");
                     }
                     this.modalBody
@@ -534,6 +575,9 @@
                     this.modalBody.find(".accountant-note").attr("disabled", false);
                     this.modalBody
                         .find(".ord-delivery-date")
+                        .attr("disabled", false);
+                    this.modalBody
+                        .find(".order-send-result")
                         .attr("disabled", false);
                     var href = event.find(".event-total-file-path").text();
                     var fileName = event.find(".event-total-file").text();
@@ -657,7 +701,7 @@
                 var mq = self.mq();
     
                 this.animating = true;
-                $('body').removeAttr("style");
+                $("body").removeAttr("style");
     
                 if (mq == "mobile") {
                     this.element.removeClass("modal-is-open");
@@ -882,8 +926,8 @@
         });
     }
     /*------------------
-                   Select Month Schedule
-                --------------------*/
+                       Select Month Schedule
+                    --------------------*/
     $(document).on("change", ".select-month", function () {
         var month = $(this).val();
         var year = $(".select-year").val();
@@ -916,8 +960,8 @@
         });
     });
     /*------------------
-                Schedule Search
-                --------------------*/
+                    Schedule Search
+                    --------------------*/
     $(document).on("click", ".btn-schedule-search", function () {
         $("input[name=search-keywords]").focus();
         $(".schedule-search").addClass("search-show");
@@ -1015,14 +1059,14 @@
         });
     });
     /*------------------
-                    Set month when year change
-                    --------------------*/
+                        Set month when year change
+                        --------------------*/
     $(document).on("change", ".select-year", function () {
         $(".define-month").prop("selected", true);
     });
     /*------------------
-                   Handle Schedule
-                --------------------*/
+                       Handle Schedule
+                    --------------------*/
     $(document).on("click", ".submit-quantity-details", function () {
         var data = getValues();
         data.push(

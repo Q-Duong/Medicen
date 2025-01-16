@@ -118,6 +118,7 @@
                                         <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                        <em class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                         <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -202,6 +203,8 @@
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                         <em
+                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                        <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                         <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -284,6 +287,8 @@
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                        <em
+                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                         <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -368,6 +373,8 @@
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                         <em
+                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                        <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                         <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -450,6 +457,8 @@
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                        <em
+                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                         <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -534,6 +543,8 @@
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                         <em
+                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                        <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                         <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -616,6 +627,8 @@
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                        <em
+                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                         <em
                                             class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                         <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -749,11 +762,6 @@
                     <p class="schedule-line"></p>
                     <form onsubmit="required()" method="post">
                         @csrf
-                        <div class="form-textbox">
-                            <input type="text" class="form-textbox-input form-textbox-entered order-quantity"
-                                name="order_quantity" autocapitalize="off" autocomplete="off">
-                            <span class="form-textbox-label">Số Cas</span>
-                        </div>
                         <div class="form-dropdown">
                             <select class="form-dropdown-select accountant-doctor-read" name="accountant_doctor_read">
                                 <option class="doctor-empty" value="Không">Không</option>
@@ -798,6 +806,11 @@
                             <span class="form-textbox-label">Ngày trả kết quả</span>
                         </div>
                         <legend class="rs-form-label">
+                            <h3 class="rs-form-label-header typography-body">Hình thức trả kết quả
+                            </h3>
+                        </legend>
+                        <div class="block-order-send-result"></div>
+                        <legend class="rs-form-label">
                             <h3 class="rs-form-label-header typography-body"> File kết quả tổng</h3>
                         </legend>
                         <div class="form-textbox">
@@ -806,6 +819,11 @@
                             </p>
                             <span class="event-total-file"></span>
                             </p>
+                        </div>
+                        <div class="form-textbox">
+                            <input type="text" class="form-textbox-input form-textbox-entered order-quantity"
+                                name="order_quantity" autocapitalize="off" autocomplete="off">
+                            <span class="form-textbox-label">Số Cas</span>
                         </div>
                         <div class="rs-overlay-change">
                             <button type="button"

@@ -117,5 +117,5 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{ versionResource('assets/js/tool/schedule/schedule.js') }}" defer></script>
+    <script src="{{ versionResource('assets/js/tool/schedule/admin/schedule.js') }}" defer></script>
 @endpush

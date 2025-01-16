@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\CarKTV;
+use App\Models\HistoryEdit;
 use App\Models\OrderDetail;
 use App\Models\Staff;
 use App\Models\TempFile;
@@ -309,7 +310,8 @@ class ScheduleController extends Controller
 	{
 		$data = $request->all();
 		$order = Order::findOrFail($request->id);
-		$order->order_quantity = $data['order_quantity_details'];
+		$order->order_quantity = $request->order_quantity_details;
+		$order->order_send_result = $request->order_send_result;
 		if ($order->status_id == 4) {
 			$order->status_id = 4;
 		} else {
@@ -335,6 +337,12 @@ class ScheduleController extends Controller
 		$accountant->accountant_10X12 = $data['accountant_10X12'];
 		$accountant->accountant_note = $data['accountant_note'];
 		$accountant->save();
+
+		$history = new HistoryEdit();
+		$history->order_id = $request->id;
+		$history->user_name = Auth::user()->email;
+		$history->history_action = 'Chỉnh sửa lịch chi tiết';
+		$history->save();
 	}
 	//End Details
 

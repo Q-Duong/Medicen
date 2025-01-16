@@ -1,6 +1,6 @@
 <div data-core-fade-transition-wrapper
-    class="rc-overlay rc-overlay-popup rc-overlay-fixed-width r-fade-transition-enter-done" data-core-overlay
-    data-core-overlay-cover>
+    class="rc-overlay rc-overlay-popup rc-overlay-fixed-width r-fade-transition-enter-done"
+    data-core-overlay-cover data-core-overlay-session>
     <div class="notification">
         <div class="notification-container">
             <div class="notification-header">

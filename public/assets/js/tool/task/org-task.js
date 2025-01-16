@@ -146,7 +146,6 @@ $(document).on("click", ".rs-lookup-submit", function () {
             $("[data-core-overlay]").fadeOut(200);
             $("#task")[0].reset();
             $(".form-textbox-input").removeClass("form-textbox-entered");
-            $("body").css("overflow", "");
             $(".loader-over").delay(200).fadeOut("slow");
             $(".rs-lookup-submit").removeAttr("disabled");
         },

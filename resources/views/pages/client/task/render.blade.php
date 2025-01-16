@@ -42,7 +42,7 @@
                                 </div>
                                 <div class="task-management-button-group">
                                     @if ($task->task_status == 1)
-                                        @if (Auth::user()->name != 'Sale' || Auth::user()->name == 'Admin')
+                                        @if (Auth::user()->id == $task->user_id  || Auth::user()->name == 'Admin')
                                             <button class="edit-task-btn" id="{{ $task->id }}"
                                                 title="Chỉnh sửa">
                                                 <span>
@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="task-management-button-group">
                                     @if ($task->task_status == 1)
-                                        @if (Auth::user()->name != 'Office' || Auth::user()->name == 'Admin')
+                                        @if (Auth::user()->id == $task->user_id || Auth::user()->name == 'Admin')
                                             <button class="edit-task-btn" id="{{ $task->id }}"
                                                 title="Chỉnh sửa">
                                                 <span>
@@ -236,7 +236,7 @@
                                 </div>
                                 <div class="task-management-button-group">
                                     @if ($task->task_status == 1)
-                                        @if (Auth::user()->name != 'Accountant' || Auth::user()->name == 'Admin')
+                                        @if (Auth::user()->id == $task->user_id || Auth::user()->name == 'Admin')
                                             <button class="edit-task-btn" id="{{ $task->id }}"
                                                 title="Chỉnh sửa">
                                                 <span>

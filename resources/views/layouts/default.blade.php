@@ -57,7 +57,7 @@
     @include('layouts.section.client.footer')
     @include('layouts.section.essential.search_model')
     <div id="portal-notification">
-        {{-- @include('layouts.section.essential.session_notification') --}}
+        @include('layouts.section.essential.session_notification')
     </div>
     @include('layouts.section.essential.notification')
 

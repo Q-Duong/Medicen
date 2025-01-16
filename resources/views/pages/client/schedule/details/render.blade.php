@@ -74,6 +74,7 @@
                                     <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -126,7 +127,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -140,7 +142,8 @@
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -151,9 +154,12 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -206,7 +212,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -220,7 +227,8 @@
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -231,9 +239,12 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -286,7 +297,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -300,7 +312,8 @@
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -311,9 +324,12 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -366,7 +382,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -380,7 +397,8 @@
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -391,9 +409,12 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -446,7 +467,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -460,7 +482,8 @@
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -471,9 +494,12 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -526,7 +552,8 @@
                                     <em class="event-warning hidden">{{ $order->order_warning }}</em>
                                     <em class="event-id hidden">{{ $order->order_id }}</em>
                                     <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                    <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                     <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                     <em class="event-car-id hidden">{{ $order->id }}</em>
                                     <em class="event-unit hidden">{{ $order->unit_name }}</em>
@@ -540,7 +567,8 @@
                                     <em class="event-time hidden">{{ $order->ord_time }}</em>
                                     <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                     <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                    <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
                                     <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
                                     <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
                                     <em class="event-film hidden">{{ $order->ord_film }}</em>
@@ -551,9 +579,12 @@
                                     <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                     <em class="event-order-note hidden">{{ $order->ord_note }}</em>
                                     <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
-                                    <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                     <em class="event-email hidden">{{ $order->ord_email }}</em>
                                     <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                     <em
                                         class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                     <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -687,11 +718,6 @@
                 <p class="schedule-line"></p>
                 <form onsubmit="required()" method="post">
                     @csrf
-                    <div class="form-textbox">
-                        <input type="text" class="form-textbox-input form-textbox-entered order-quantity"
-                            name="order_quantity" autocapitalize="off" autocomplete="off">
-                        <span class="form-textbox-label">Số Cas</span>
-                    </div>
                     <div class="form-dropdown">
                         <select class="form-dropdown-select accountant-doctor-read" name="accountant_doctor_read">
                             <option class="doctor-empty" value="Không">Không</option>
@@ -709,8 +735,8 @@
                         <span class="form-textbox-label">35 X 43</span>
                     </div>
                     <div class="form-textbox">
-                        <input type="text" class="form-textbox-input accountant-polime" name="accountant_polime"
-                            autocapitalize="off" autocomplete="off">
+                        <input type="text" class="form-textbox-input accountant-polime"
+                            name="accountant_polime" autocapitalize="off" autocomplete="off">
                         <span class="form-textbox-label">Polime</span>
                     </div>
                     <div class="form-textbox">
@@ -731,10 +757,15 @@
                         <textarea name="accountant_note" rows=8 class="form-textarea accountant-note"></textarea>
                     </div>
                     <div class="form-textbox">
-                        <input type="text" class="form-textbox-input ord-delivery-date" name="ord_delivery_date"
-                            autocapitalize="off" autocomplete="off">
+                        <input type="text" class="form-textbox-input ord-delivery-date"
+                            name="ord_delivery_date" autocapitalize="off" autocomplete="off">
                         <span class="form-textbox-label">Ngày trả kết quả</span>
                     </div>
+                    <legend class="rs-form-label">
+                        <h3 class="rs-form-label-header typography-body">Hình thức trả kết quả
+                        </h3>
+                    </legend>
+                    <div class="block-order-send-result"></div>
                     <legend class="rs-form-label">
                         <h3 class="rs-form-label-header typography-body"> File kết quả tổng</h3>
                     </legend>
@@ -744,6 +775,11 @@
                         </p>
                         <span class="event-total-file"></span>
                         </p>
+                    </div>
+                    <div class="form-textbox">
+                        <input type="text" class="form-textbox-input form-textbox-entered order-quantity"
+                            name="order_quantity" autocapitalize="off" autocomplete="off">
+                        <span class="form-textbox-label">Số Cas</span>
                     </div>
                     <div class="rs-overlay-change">
                         <button type="button"

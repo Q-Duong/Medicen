@@ -180,7 +180,8 @@ final class OrderBuilder extends Builder
                 'order_quantity_draft',
                 'order_note_ktv',
                 'order_warning',
-                'order_updated'
+                'order_updated',
+                'order_send_result'
             )
             ->orderBy('order_details.ord_start_day', 'ASC')
             ->orderBy('orders.order_child', 'DESC')
@@ -248,7 +249,8 @@ final class OrderBuilder extends Builder
                 'order_quantity_draft',
                 'order_note_ktv',
                 'order_warning',
-                'order_updated'
+                'order_updated',
+                'order_send_result'
             )
             ->orderBy('order_details.ord_start_day', 'ASC')
             ->orderBy('orders.order_child', 'DESC')

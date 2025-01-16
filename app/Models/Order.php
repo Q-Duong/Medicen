@@ -34,7 +34,8 @@ class Order extends Model
         'order_all_in_one',
         'order_child',
         'order_surcharge',
-        'order_updated'
+        'order_updated',
+        'order_send_result'
     ];
 
     public function unit()

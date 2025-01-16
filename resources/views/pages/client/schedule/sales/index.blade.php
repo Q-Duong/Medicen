@@ -140,6 +140,8 @@
                                             <em class="event-email hidden">{{ $order->ord_email }}</em>
                                             <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                             <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                            <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                             <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -224,6 +226,8 @@
                                             <em class="event-email hidden">{{ $order->ord_email }}</em>
                                             <em
                                                 class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                            <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                             <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -312,6 +316,8 @@
                                             <em
                                                 class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                             <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                            <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                             <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -398,6 +404,8 @@
                                             <em class="event-email hidden">{{ $order->ord_email }}</em>
                                             <em
                                                 class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                            <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                             <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -486,6 +494,8 @@
                                             <em
                                                 class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                             <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                            <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                             <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -573,6 +583,8 @@
                                             <em
                                                 class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
                                             <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                            <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
                                             <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
@@ -659,6 +671,8 @@
                                             <em class="event-email hidden">{{ $order->ord_email }}</em>
                                             <em
                                                 class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                            <em
+                                                class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
                                             <em
                                                 class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
                                             <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
@@ -821,12 +835,14 @@
                             <span class="event-delivery-date"></span>
                         </p>
                         <p class="event-item">
+                            <span class="item-title">Hình thức trả kết quả: </span>
+                            <span class="event-order-send-result"></span>
+                        </p>
+                        <p class="event-item">
                             <span class="item-title">File kết quả tổng: </span>
                             <span class="event-total-file"></span>
                         </p>
-                        <div class="rs-overlay-change">
-
-                        </div>
+                        <div class="rs-overlay-change"></div>
                     </div>
                     <div class="body-bg"></div>
                 </div>

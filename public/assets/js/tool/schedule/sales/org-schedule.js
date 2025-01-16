@@ -337,6 +337,9 @@ function schedule(day) {
             this.modalBody
                 .find(".event-delivery-date")
                 .html(event.find(".event-delivery-date").text());
+            this.modalBody
+                .find(".event-order-send-result")
+                .html(event.find(".event-order-send-result").text());
             var href = event.find(".event-total-file-path").text();
             var fileName = event.find(".event-total-file").text();
             if (href != "" || fileName != "") {
@@ -437,7 +440,7 @@ function schedule(day) {
             var mq = self.mq();
 
             this.animating = true;
-            $('body').removeAttr("style");
+            $("body").removeAttr("style");
 
             if (mq == "mobile") {
                 this.element.removeClass("modal-is-open");

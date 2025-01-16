@@ -511,7 +511,7 @@ html[dir=rtl] .form-textarea.form-textbox-number-input, html[dir=rtl] .form-text
 }
 
 .form-checkbox .form-label {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: flex-start;
     cursor: pointer;
@@ -2210,7 +2210,7 @@ html[dir=rtl] {
 }
 
 .section-file {
-    height: 76px;
+    /* height: 76px; */
     position: relative;
     border-radius: 15px;
     background-color: #f1f0ef;

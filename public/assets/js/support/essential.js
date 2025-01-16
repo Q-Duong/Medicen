@@ -39,7 +39,7 @@ function errorMsg(msg) {
     });
 }
 function popupNotificationSessionExpired() {
-    $("[data-core-overlay]").fadeIn(300);
+    $("[data-core-overlay-session]").fadeIn(300);
     $('body').css('overflow', 'hidden');
 }
 $(document).on("keyup click", "input", function () {

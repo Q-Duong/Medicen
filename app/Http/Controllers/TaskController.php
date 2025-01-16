@@ -18,13 +18,14 @@ class TaskController extends Controller
 			->orderBy('created_at', 'DESC')
 			->select(
 				'tasks.id',
-				'tasks.created_at',
-				'profiles.profile_firstname',
-				'profiles.profile_lastname',
 				'tasks.task_name',
 				'tasks.task_description',
 				'tasks.task_status',
 				'tasks.department',
+				'tasks.created_at',
+				'user_id',
+				'profiles.profile_firstname',
+				'profiles.profile_lastname',
 			)
 			->get();
 		$months = [];
@@ -44,13 +45,14 @@ class TaskController extends Controller
 			->orderBy('created_at', 'DESC')
 			->select(
 				'tasks.id',
-				'tasks.created_at',
-				'profiles.profile_firstname',
-				'profiles.profile_lastname',
 				'tasks.task_name',
 				'tasks.task_description',
 				'tasks.task_status',
 				'tasks.department',
+				'tasks.created_at',
+				'user_id',
+				'profiles.profile_firstname',
+				'profiles.profile_lastname',
 			)
 			->get();
 		$html = view('pages.client.task.render', compact('getAllTasks'))->render();

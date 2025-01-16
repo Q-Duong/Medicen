@@ -194,7 +194,7 @@ Main Components
 
 .cd-task .events .wrap {
 	display: flex;
-	min-width: 1200px;
+	min-width: 1100px;
 	width: 100%;
 	background-color: #f5f5f7;
 	border-radius: 15px;
@@ -286,7 +286,7 @@ Main Components
 
 .cd-task .events .single-event {
 	position: relative;
-	height: 120px;
+	height: 90px;
 	width: 96%;
 	border-radius: 15px;
 	z-index: 3;
@@ -308,7 +308,7 @@ Main Components
 
 .tile-content {
     height: 100%;
-    padding: 15px 24px;
+    padding: 10px 24px;
     transition: opacity .5s ease-in-out;
 }
 
@@ -319,13 +319,13 @@ Main Components
 }
 
 .typography-card-label {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.3333733333;
     font-weight: 500;
     letter-spacing: -0.01em;
     font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 	color: #6e6e73;
-	margin-bottom: 6px;
+    margin-bottom: 4px;
 	text-transform: uppercase;
 }
 
@@ -336,6 +336,10 @@ Main Components
     letter-spacing: .012em;
     font-family: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
     color: #1d1d1f;
+	width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tile-timestamp{
@@ -352,8 +356,8 @@ Main Components
 .tile-button-wrapper {
 	width: 30px;
     height: 30px;
-    bottom: 15px;
-	right: 15px;
+    bottom: 10px;
+	right: 10px;
 	margin-bottom: 0;
     cursor: pointer;
     display: flex;
