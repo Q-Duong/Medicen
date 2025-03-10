@@ -115,6 +115,7 @@ class ScheduleController extends Controller
 		$statistic_N = 0;
 		$statistic_T = 0;
 		$statistic_G = 0;
+		$statistic_A = 0;
 		$statistic_K = 0;
 		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
@@ -158,6 +159,8 @@ class ScheduleController extends Controller
 							$statistic_T += $statistic->order_quantity;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += $statistic->order_quantity;
 						} else {
 							$statistic_K += $statistic->order_quantity;
 						}
@@ -169,6 +172,8 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
+						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
 						}
@@ -189,7 +194,7 @@ class ScheduleController extends Controller
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'months', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$html = view('pages.client.schedule.details.index_render')->with(compact('orders', 'months', 'currentMonth', 'currentYear', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_A', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
 	}
@@ -241,6 +246,7 @@ class ScheduleController extends Controller
 		$statistic_N = 0;
 		$statistic_T = 0;
 		$statistic_G = 0;
+		$statistic_A = 0;
 		$statistic_K = 0;
 		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
@@ -274,6 +280,8 @@ class ScheduleController extends Controller
 							$statistic_T += $statistic->order_quantity;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += $statistic->order_quantity;
 						} else {
 							$statistic_K += $statistic->order_quantity;
 						}
@@ -285,6 +293,8 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
+						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
 						}
@@ -301,7 +311,7 @@ class ScheduleController extends Controller
 			}
 		}
 
-		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$view = view('pages.client.schedule.details.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_A', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
@@ -361,6 +371,7 @@ class ScheduleController extends Controller
 		$statistic_N = 0;
 		$statistic_T = 0;
 		$statistic_G = 0;
+		$statistic_A = 0;
 		$statistic_K = 0;
 		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
@@ -389,6 +400,8 @@ class ScheduleController extends Controller
 							$statistic_T += $statistic->order_quantity;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += $statistic->order_quantity;
 						} else {
 							$statistic_K += $statistic->order_quantity;
 						}
@@ -400,6 +413,8 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
+						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
 						}
@@ -420,7 +435,7 @@ class ScheduleController extends Controller
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'months', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'));
+		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'months', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_A', 'statistic_K'));
 	}
 
 	public function selectMonthSales(Request $request)
@@ -437,6 +452,7 @@ class ScheduleController extends Controller
 		$statistic_N = 0;
 		$statistic_T = 0;
 		$statistic_G = 0;
+		$statistic_A = 0;
 		$statistic_K = 0;
 		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
@@ -470,6 +486,8 @@ class ScheduleController extends Controller
 							$statistic_T += $statistic->order_quantity;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += $statistic->order_quantity;
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += $statistic->order_quantity;
 						} else {
 							$statistic_K += $statistic->order_quantity;
 						}
@@ -481,6 +499,8 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
+						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
 						}
@@ -497,7 +517,7 @@ class ScheduleController extends Controller
 			}
 		}
 
-		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_K'))->render();
+		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_A', 'statistic_K'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}

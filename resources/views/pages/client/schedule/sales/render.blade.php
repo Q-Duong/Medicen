@@ -866,6 +866,12 @@
             </div>
             <div class="col-lg-3 col-md-6">
                 <div class="account-content">
+                    <span class="account-title">Võ Duy Ân: </span>
+                    <span class="account-content-child">{{ $statistic_A }}</span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="account-content">
                     <span class="account-title">Nguyễn Thanh Giang: </span>
                     <span class="account-content-child">{{ $statistic_G }}</span>
                 </div>

@@ -410,6 +410,10 @@
                     event.find(".event-accountant-doctor-read").html() == "Giang"
                 ) {
                     this.modalBody.find(".doctor-G").prop("selected", true);
+                }else if (
+                    event.find(".event-accountant-doctor-read").html() == "Ân"
+                ) {
+                    this.modalBody.find(".doctor-A").prop("selected", true);
                 } else {
                     this.modalBody.find(".doctor-empty").prop("selected", true);
                 }

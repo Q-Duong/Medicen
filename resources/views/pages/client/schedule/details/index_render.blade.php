@@ -768,6 +768,7 @@
                                 <option class="doctor-N" value="Nhân">Võ Nguyễn Thành Nhân</option>
                                 <option class="doctor-T" value="Trung">Hồ Chí Trung</option>
                                 <option class="doctor-G" value="Giang">Nguyễn Thanh Giang</option>
+                                <option class="doctor-A" value="Ân">Võ Duy Ân</option>
                             </select>
                             <span class="form-dropdown-chevron" aria-hidden="true"><i
                                     class="fa-solid fa-angle-down"></i></span>
@@ -913,6 +914,12 @@
                     <div class="account-content">
                         <span class="account-title">Không: </span>
                         <span class="account-content-child">{{ $statistic_K }}</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="account-content">
+                        <span class="account-title">Võ Duy Ân: </span>
+                        <span class="account-content-child">{{ $statistic_A }}</span>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
