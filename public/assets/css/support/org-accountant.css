@@ -1,9 +1,9 @@
-.clear-filter button{
+.clear-filter button {
     margin-top: 0;
     background: #f06566;
     border: 0.1rem solid #f06566;
 }
- 
+
 /* Table */
 .table-scroll {
     position: relative;
@@ -38,13 +38,14 @@
     border-top-right-radius: 15px;
 }
 
-.section-title>th{
+.section-title>th {
     padding: 15px 8px !important;
 }
 
-.section-filter>th{
+.section-filter>th {
     background: #f8f8f8;
 }
+
 .table-scroll>.table>thead>.section-title>th {
     border-top: 1px solid #ddd !important;
 }
@@ -54,12 +55,12 @@
     vertical-align: middle;
 }
 
-.acc-status-paid{
+.acc-status-paid {
     background: #63e281;
     color: #fff !important;
 }
 
-.acc-status-unpaid{
+.acc-status-unpaid {
     background: #f06566;
     color: #fff !important;
 }
@@ -145,7 +146,7 @@
     cursor: auto;
 }
 
-.textbox-accountant:focus, .selectbox-accountant:focus{
+.textbox-accountant:focus, .selectbox-accountant:focus {
     border: 0.1rem solid rgba(144, 139, 232);
     outline: none;
 }
@@ -178,7 +179,7 @@
     width: 240px;
 }
 
-.updateAccount , .completeAccount{
+.updateAccount, .completeAccount {
     cursor: pointer;
     margin: 0 auto;
 }
@@ -195,9 +196,21 @@
     color: #0071e3;
 }
 
-.updateAccount:hover i, .completeAccount:hover i{
+.updateAccount:hover i, .completeAccount:hover i {
     -webkit-transition: all, 0.6s;
     -o-transition: all, 0.6s;
     transition: all, 0.6s;
     color: rgba(144, 139, 232);
+}
+
+.table>tbody>tr.debt-overrated>td{
+    background-color: #ffb4a9;
+}
+
+.table>tbody>tr.debt-warning>td{
+    background-color: #f8ecae;
+}
+
+.white-col {
+    background-color: #ffffff !important;
 }

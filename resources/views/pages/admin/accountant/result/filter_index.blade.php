@@ -34,81 +34,10 @@
             {{ $accountant->ord_cty_name }}</td>
 
         <td>
-            {{ $accountant->accountant_deadline }}
-        </td>
-
-        <td>
-            {{ $accountant->accountant_number }}
-        </td>
-
-        <td>
-            {{ $accountant->accountant_date != null ? date('d/m/Y', strtotime($accountant->accountant_date)) : '' }}
-        </td>
-
-        <td>
-            {{ $accountant->order_vat }}
-        </td>
-
-        <td>
             {{ $accountant->order_quantity }}
         </td>
-
-        <td>
-            {{ number_format($accountant->order_cost, 0, ',', '.') }}
-        </td>
-
-        <td>
-            {{ number_format($accountant->order_price, 0, ',', '.') }}
-        </td>
-
-        <td>
-            <select
-                class="selectbox-accountant {{ $accountant->accountant_status == 0 ? 'acc-status-unpaid' : 'acc-status-paid' }}">
-                <option value="0" {{ $accountant->accountant_status == 0 ? 'selected' : '' }}>
-                    Chưa thanh toán</option>
-                <option value="1" {{ $accountant->accountant_status == 1 ? 'selected' : '' }}>Đã
-                    thanh toán</option>
-            </select>
-        </td>
-
-        <td>
-            {{ $accountant->accountant_day_payment != null ? date('d/m/Y', strtotime($accountant->accountant_day_payment)) : '' }}
-        </td>
-
-        <td>
-            {{ $accountant->accountant_method }}
-        </td>
-
-        <td>
-            {{ number_format($accountant->accountant_amount_paid, 0, ',', '.') }}
-        </td>
-
-        <td>
-            {{ number_format($accountant->accountant_owe, 0, ',', '.') }}
-        </td>
-
-        <td>
-            {{ $accountant->order_percent_discount }}
-        </td>
-
-        <td>
-            {{ number_format($accountant->order_discount, 0, ',', '.') }}
-        </td>
-
-        <td>
-            {{ $accountant->accountant_discount_day != null ? date('d/m/Y', strtotime($accountant->accountant_discount_day)) : '' }}
-        </td>
-
-        <td>
-            {{ number_format($accountant->order_profit, 0, ',', '.') }}
-        </td>
-
         <td>
             {{ $accountant->accountant_doctor_read }}
-        </td>
-
-        <td>
-            {{ $accountant->accountant_doctor_date_payment != null ? date('d/m/Y', strtotime($accountant->accountant_doctor_date_payment)) : '' }}
         </td>
 
         <td>

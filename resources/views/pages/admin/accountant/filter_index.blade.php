@@ -1,5 +1,15 @@
 @foreach ($getAllAccountant as $key => $accountant)
-    <tr>
+    @php
+        $class = '';
+        if ($accountant->accountant_status == 0) {
+            if (now()->diffInDays($accountant->ord_start_day) >= 60) {
+                $class = 'debt-overrated';
+            } elseif (now()->diffInDays($accountant->ord_start_day) >= 45) {
+                $class = 'debt-warning';
+            }
+        }
+    @endphp
+    <tr class="{{ $class }}">
         <form class="updateAccountant_{{ $accountant->order_id }}">
             @csrf
             <input type="hidden" name="accountant_id_{{ $accountant->order_id }}" value="{{ $accountant->id }}">
@@ -149,7 +159,8 @@
             <td>
                 <input type="text" name="ord_form_{{ $accountant->order_id }}"
                     class="textbox-accountant  width-accountant-quantity ord_form_{{ $accountant->order_id }}"
-                    value="{{ $accountant->ord_form == 'PhimLon' ? 'IN35X43' : $accountant->ord_form }}" onclick="ordFormFunction(event)">
+                    value="{{ $accountant->ord_form == 'PhimLon' ? 'IN35X43' : $accountant->ord_form }}"
+                    onclick="ordFormFunction(event)">
             </td>
 
             <td>
@@ -189,7 +200,7 @@
                 <input type="text" class="textbox-accountant  width-accountant-note"
                     value="{{ $accountant->ord_note }}">
             </td>
-            <td class="status_id_{{ $accountant->order_id }}">
+            <td class="status_id_{{ $accountant->order_id }} white-col">
                 @if ($accountant->status_id == 0)
                     <span style="color: #27c24c;">Đơn hàng mới</span>
                 @elseif($accountant->status_id == 1)
@@ -204,7 +215,7 @@
                     <span style="color: #e53637;">Hủy đơn hàng</span>
                 @endif
             </td>
-            <td>
+            <td class="white-col">
                 <a data-id="{{ $accountant->order_id }}" class="management-btn completeAccount">
                     <i class="fa fa-clipboard-check"></i>
                 </a>

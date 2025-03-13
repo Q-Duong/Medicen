@@ -572,7 +572,7 @@ function getListAccountant(year, type) {
         },
         beforeSend: function () {},
     })
-        .then(function (data) {
+        .done(function (data) {
             $(".table-content").html(data.html);
             $("#total-price").text(
                 new Intl.NumberFormat("vi-VN").format(data.totalPrice)
@@ -595,7 +595,10 @@ function getListAccountant(year, type) {
             $("#total-10").text(data.total10);
             $("#total-pack").text(data.totalPack);
         })
-        .always(function () {
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            popupNotificationSessionExpired();
+        })
+        .complete(function () {
             $(".loader-over").fadeOut();
         });
 }
@@ -630,9 +633,12 @@ $(".year-filter, .type-filter").on("change", function () {
 
 $(document).on("change", ".accountant_status", function () {
     var value = $(this).val();
-    value == 0
-        ? $(this).removeClass("acc-status-paid").addClass("acc-status-unpaid")
-        : $(this).removeClass("acc-status-unpaid").addClass("acc-status-paid");
+    if(value == 0){
+        $(this).removeClass("acc-status-paid").addClass("acc-status-unpaid");
+    }else{
+        $(this).removeClass("acc-status-unpaid").addClass("acc-status-paid");
+        $(this).closest("tr").removeClass("debt-overrated debt-warning");
+    }
 });
 
 $(document).on(
@@ -648,8 +654,9 @@ $(document).on(
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
             },
             data: data,
-            success: function (data) {
-                data.flagEmpty
+        })
+        .done(function (data) {
+            data.flagEmpty
                     ? $(".clear-filter").addClass("hidden")
                     : $(".clear-filter").removeClass("hidden");
                 $(".tbody-content").html(data.html);
@@ -674,10 +681,12 @@ $(document).on(
                 $("#total-10").text(data.total10);
                 $("#total-pack").text(data.totalPack);
                 $(".loader-over").fadeOut();
-            },
-            error: function (textStatus) {
-                popupNotificationSessionExpired();
-            },
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+            popupNotificationSessionExpired();
+        })
+        .complete(function () {
+            $(".loader-over").fadeOut();
         });
     }
 );
@@ -700,18 +709,21 @@ $(document).on("click", ".completeAccount", function () {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         data: data,
-        success: function (data) {
+    })
+        .done(function (data) {
             $(".status_id_" + order_id).html(
                 '<span style="color: #0071e3;">Đã xử lý</span>'
             );
             $(".update-account-" + order_id).html("");
             $(".loader-over").fadeOut();
             successMsg(data.success);
-        },
-        error: function (textStatus) {
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
             popupNotificationSessionExpired();
-        },
-    });
+        })
+        .complete(function () {
+            $(".loader-over").fadeOut();
+        });
 });
 
 $(document).on("change", "input[type=text], .select-update", function () {
@@ -729,7 +741,8 @@ $(document).on("change", "input[type=text], .select-update", function () {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
         data: data,
-        success: function (data) {
+    })
+        .done(function (data) {
             if (typeof data.html != "undefined" && data.html !== null) {
                 console.log(data.multi);
                 if (data.multi) {
@@ -742,9 +755,11 @@ $(document).on("change", "input[type=text], .select-update", function () {
             $(".status_id_" + order_id).html(
                 '<span style="color: #00d0e3;">Đã cập nhật doanh thu</span>'
             );
-        },
-        error: function (textStatus) {
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
             popupNotificationSessionExpired();
-        },
-    });
+        })
+        .complete(function () {
+            $(".loader-over").fadeOut();
+        });
 });

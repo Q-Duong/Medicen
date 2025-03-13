@@ -57,6 +57,14 @@
                             </a>
                         </li>
                     @endif
+                @else
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('accountant_result.index') ? 'active' : '' }}"
+                            href="{{ route('accountant_result.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý công nợ (Kết quả)</span>
+                        </a>
+                    </li>
                 @endif
             </ul>
             <!-- sidebar menu end-->

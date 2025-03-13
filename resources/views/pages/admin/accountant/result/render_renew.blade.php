@@ -9,24 +9,8 @@
                 <th class="sticky-col fifth-col">Km</th>
                 <th class="sticky-col six-col">Đơn vị hợp tác</th>
                 <th class="sticky-col seven-col">Tên Cty</th>
-                <th>THCN</th>
-                <th>Số HĐ</th>
-                <th>Ngày HĐ</th>
-                <th>VAT</th>
                 <th>Số lượng</th>
-                <th>Đơn giá</th>
-                <th>Thành tiền</th>
-                <th>Trạng thái thanh toán</th>
-                <th>Ngày TT</th>
-                <th>Hình thức</th>
-                <th>Số tiền đã thanh toán</th>
-                <th>Còn nợ</th>
-                <th>%CK</th>
-                <th>Thành tiền CK</th>
-                <th>Ngày trích CK</th>
-                <th>Lợi nhuận</th>
                 <th>BS đọc kq</th>
-                <th>NTT</th>
                 <th>HT in Phim</th>
                 <th>35 X 43</th>
                 <th>Polime</th>
@@ -105,176 +89,11 @@
                     </select>
                 </th>
                 <th>
-                    <select class="accountant-deadline select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($accDeadlines) && !empty($accDeadlines))
-                            @foreach ($accDeadlines as $deadline)
-                                <option value="{{ $deadline }}">
-                                    {{ $deadline }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-number select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($accNumbers) && !empty($accNumbers))
-                            @foreach ($accNumbers as $number)
-                                <option value="{{ $number }}">
-                                    {{ $number }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-date select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($accDates) && !empty($accDates))
-                            @foreach ($accDates as $date)
-                                <option value="{{ $date }}">
-                                    {{ date('d/m/Y', strtotime($date)) }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="order-vat select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($vats) && !empty($vats))
-                            @foreach ($vats as $vat)
-                                <option value="{{ $vat }}">
-                                    {{ $vat }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
                     <select class="order-quantity select-2" multiple="multiple">
                         @if (isset($quantities) && !empty($quantities))
                             @foreach ($quantities as $quantity)
                                 <option value="{{ $quantity }}">
                                     {{ $quantity }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="order-cost select-2" multiple="multiple">
-                        @if (isset($costs) && !empty($costs))
-                            @foreach ($costs as $cost)
-                                <option value="{{ $cost }}">
-                                    {{ number_format($cost, 0, ',', '.') }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="order-price select-2" multiple="multiple">
-                        @if (isset($prices) && !empty($prices))
-                            @foreach ($prices as $price)
-                                <option value="{{ $price }}">
-                                    {{ number_format($price, 0, ',', '.') }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-status select-2" multiple="multiple">
-                        <option value="0">Chưa thanh toán</option>
-                        <option value="1">Đã thanh toán</option>
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-day-payment select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($accDayPayments) && !empty($accDayPayments))
-                            @foreach ($accDayPayments as $dayPayment)
-                                <option value="{{ $dayPayment }}">
-                                    {{ date('d/m/Y', strtotime($dayPayment)) }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-method select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        <option value="HDB">HDB</option>
-                        <option value="AGRI">AGRI</option>
-                        <option value="VCB">VCB</option>
-                        <option value="TM">TM</option>
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-amount-paid select-2" multiple="multiple">
-                        @if (isset($accAmountPaid) && !empty($accAmountPaid))
-                            @foreach ($accAmountPaid as $paid)
-                                <option value="{{ $paid }}">
-                                    {{ number_format($paid, 0, ',', '.') }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-owe select-2" multiple="multiple">
-                        @if (isset($accOwes) && !empty($accOwes))
-                            @foreach ($accOwes as $owe)
-                                <option value="{{ $owe }}">
-                                    {{ number_format($owe, 0, ',', '.') }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="order-percent-discount select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($percentDiscounts) && !empty($percentDiscounts))
-                            @foreach ($percentDiscounts as $perDiscount)
-                                <option value="{{ $perDiscount }}">
-                                    {{ $perDiscount }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="order-discount select-2" multiple="multiple">
-                        @if (isset($discounts) && !empty($discounts))
-                            @foreach ($discounts as $discount)
-                                <option value="{{ $discount }}">
-                                    {{ number_format($discount, 0, ',', '.') }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-discount-day select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($accDiscountDays) && !empty($accDiscountDays))
-                            @foreach ($accDiscountDays as $discountDay)
-                                <option value="{{ $discountDay }}">
-                                    {{ date('d/m/Y', strtotime($discountDay)) }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                </th>
-                <th>
-                    <select class="order-profit select-2" multiple="multiple">
-                        @if (isset($profits) && !empty($profits))
-                            @foreach ($profits as $profit)
-                                <option value="{{ $profit }}">
-                                    {{ number_format($profit, 0, ',', '.') }}
                                 </option>
                             @endforeach
                         @endif
@@ -287,18 +106,6 @@
                         <option value="Nhân">Nhân</option>
                         <option value="Trung">Trung</option>
                         <option value="Giang">Giang</option>
-                    </select>
-                </th>
-                <th>
-                    <select class="accountant-doctor-date-payment select-2" multiple="multiple">
-                        <option value="empty">Empty</option>
-                        @if (isset($accDoctorDatePayments) && !empty($accDoctorDatePayments))
-                            @foreach ($accDoctorDatePayments as $doctorPayment)
-                                <option value="{{ $doctorPayment }}">
-                                    {{ date('d/m/Y', strtotime($doctorPayment)) }}
-                                </option>
-                            @endforeach
-                        @endif
                     </select>
                 </th>
                 <th>
@@ -443,81 +250,10 @@
                         {{ $accountant->ord_cty_name }}</td>
 
                     <td>
-                        {{ $accountant->accountant_deadline }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->accountant_number }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->accountant_date != null ? date('d/m/Y', strtotime($accountant->accountant_date)) : '' }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->order_vat }}
-                    </td>
-
-                    <td>
                         {{ $accountant->order_quantity }}
                     </td>
-
-                    <td>
-                        {{ number_format($accountant->order_cost, 0, ',', '.') }}
-                    </td>
-
-                    <td>
-                        {{ number_format($accountant->order_price, 0, ',', '.') }}
-                    </td>
-
-                    <td>
-                        <select
-                            class="selectbox-accountant {{ $accountant->accountant_status == 0 ? 'acc-status-unpaid' : 'acc-status-paid' }}">
-                            <option value="0" {{ $accountant->accountant_status == 0 ? 'selected' : '' }}>
-                                Chưa thanh toán</option>
-                            <option value="1" {{ $accountant->accountant_status == 1 ? 'selected' : '' }}>Đã
-                                thanh toán</option>
-                        </select>
-                    </td>
-
-                    <td>
-                        {{ $accountant->accountant_day_payment != null ? date('d/m/Y', strtotime($accountant->accountant_day_payment)) : '' }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->accountant_method }}
-                    </td>
-
-                    <td>
-                        {{ number_format($accountant->accountant_amount_paid, 0, ',', '.') }}
-                    </td>
-
-                    <td>
-                        {{ number_format($accountant->accountant_owe, 0, ',', '.') }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->order_percent_discount }}
-                    </td>
-
-                    <td>
-                        {{ number_format($accountant->order_discount, 0, ',', '.') }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->accountant_discount_day != null ? date('d/m/Y', strtotime($accountant->accountant_discount_day)) : '' }}
-                    </td>
-
-                    <td>
-                        {{ number_format($accountant->order_profit, 0, ',', '.') }}
-                    </td>
-
                     <td>
                         {{ $accountant->accountant_doctor_read }}
-                    </td>
-
-                    <td>
-                        {{ $accountant->accountant_doctor_date_payment != null ? date('d/m/Y', strtotime($accountant->accountant_doctor_date_payment)) : '' }}
                     </td>
 
                     <td>

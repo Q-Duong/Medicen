@@ -264,6 +264,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::post('filter', [AccountantController::class, 'filterSales'])->name('accountant_sales.filter');
         });
     });
+
+    Route::prefix('accountant-result')->group(function () {
+        Route::get('/', [AccountantController::class, 'indexResult'])->name('accountant_result.index');
+        Route::post('get-accountant', [AccountantController::class, 'getAccountantResult'])->name('accountant_result.get');
+        Route::post('filter', [AccountantController::class, 'filterResult'])->name('accountant_result.filter');
+    });
 });
 
 //Zalo
