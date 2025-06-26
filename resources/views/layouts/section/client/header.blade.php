@@ -38,23 +38,8 @@
                 </li>
 
                 <li class="globalnav">
-                    <a href="{{ Route('blog.index') }}" aria-label="Tin tức" data-analytics-title="Tin tức"
+                    <a href="{{ Route('home.index') }}" aria-label="Tin tức" data-analytics-title="Tin tức"
                         class="globalnav-link-text" previewlistener="true">Tin tức</a>
-                    <div class="globalnav-submenu-link">
-                        <div class="globalnav-submenu-group">
-                            <ul class="submenu-list">
-                                <h4 class="submenu-header">Tin tức</h4>
-                                @foreach ($getAllBlogCategory as $key => $blogCategory)
-                                    <li class="submenu-list-item">
-                                        <a href="{{ Route('blog_category.index', $blogCategory->blog_category_slug) }}"
-                                            class="submenu-link" aria-label="{{ $blogCategory->blog_category_name }}"
-                                            data-analytics-title="{{ $blogCategory->blog_category_name }}"
-                                            previewlistener="true">{{ $blogCategory->blog_category_name }}</a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
                 </li>
                 <li class="globalnav">
                     <a href="{{ Route('contact.index') }}" aria-label="Liên hệ" data-analytics-title="Liên hệ"
@@ -194,24 +179,6 @@
                         <span class="globalnav-link-text" aria-label="Tin tức" data-analytics-title="Tin tức"
                             previewlistener="true">Tin tức
                         </span>
-                        <ul class="submenu-list">
-                            <li class="submenu-list-item">
-                                <a href="{{ Route('blog.index') }}" class="submenu-link"
-                                    data-analytics-title="@lang('masterpages.header.exploreHÏart')" previewlistener="true">
-                                    @lang('masterpages.header.exploreHart')
-                                </a>
-                            </li>
-                            @foreach ($getAllBlogCategory as $key => $blogCategory)
-                                <li class="submenu-list-item">
-                                    <a href="{{ Route('blog_category.index', $blogCategory->blog_category_slug) }}"
-                                        class="submenu-link"
-                                        data-analytics-title="{{ $blogCategory->blog_category_name }}"
-                                        previewlistener="true">
-                                        {{ $blogCategory->blog_category_name }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
                     </li>
                     <li class="globalnav">
                         <a href="{{ Route('contact.index') }}" aria-label="Liên hệ" data-analytics-title="Liên hệ"

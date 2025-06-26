@@ -58,13 +58,23 @@
                         </li>
                     @endif
                 @else
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('accountant_result.index') ? 'active' : '' }}"
-                            href="{{ route('accountant_result.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>Quản lý công nợ (Kết quả)</span>
-                        </a>
-                    </li>
+                    @if (Auth::user()->name == 'Office')
+                        <li class="sub-menu">
+                            <a class="{{ request()->routeIs('accountant_result.index') ? 'active' : '' }}"
+                                href="{{ route('accountant_result.index') }}">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <span>Quản lý công nợ (Kết quả)</span>
+                            </a>
+                        </li>
+                    @else
+                        <li class="sub-menu">
+                            <a class="{{ request()->routeIs('contract.index') ? 'active' : '' }}"
+                                href="{{ route('contract.index') }}">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <span>Quản lý hợp đồng</span>
+                            </a>
+                        </li>
+                    @endif
                 @endif
             </ul>
             <!-- sidebar menu end-->

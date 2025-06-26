@@ -36,6 +36,10 @@ class AdminController extends Controller
         return view('pages.admin.index')->with(compact('service','post','order','customer','getAllUnit'));
     }
 
+    public function chat(){
+        return view('pages.admin.chatbox.admin');
+    }
+
     public function login(){
         if(Auth::check()){
             return Redirect::route('dashboard.index');

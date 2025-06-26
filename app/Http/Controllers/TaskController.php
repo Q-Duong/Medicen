@@ -20,6 +20,7 @@ class TaskController extends Controller
 				'tasks.id',
 				'tasks.task_name',
 				'tasks.task_description',
+				'tasks.task_progress',
 				'tasks.task_status',
 				'tasks.department',
 				'tasks.created_at',
@@ -47,6 +48,7 @@ class TaskController extends Controller
 				'tasks.id',
 				'tasks.task_name',
 				'tasks.task_description',
+				'tasks.task_progress',
 				'tasks.task_status',
 				'tasks.department',
 				'tasks.created_at',
@@ -67,30 +69,60 @@ class TaskController extends Controller
 		// }
 		// DB::beginTransaction();
 		// try {
-			if ($request->type == 'create') {
-				$task = new Task();
-				$task->task_name = $request->task_name;
-				$task->task_description = $request->task_description;
-				$task->department = $request->department;
-				$task->user_id = Auth::user()->id;
-				$task->save();
-				$message = 'Đã tạo nhiệm vụ thành công';
-				$history_action = 'Tạo nhiệm vụ';
-			} else {
-				$task = Task::findOrFail($request->id);
-				$task->task_name = $request->task_name;
-				$task->task_description = $request->task_description;
-				$task->user_id = Auth::user()->id;
-				$task->save();
-				$message = 'Đã cập nhật nhiệm vụ thành công';
-				$history_action = 'Cập nhật nhiệm vụ';
-			}
+		if ($request->type == 'create') {
+			$task = new Task();
+			$task->task_name = $request->task_name;
+			$task->task_description = $request->task_description;
+			$task->department = $request->department;
+			$task->user_id = Auth::user()->id;
+			$task->save();
+			$message = 'Đã tạo nhiệm vụ thành công';
+			$history_action = 'Tạo nhiệm vụ';
+		} else {
+			$task = Task::findOrFail($request->id);
+			$task->task_name = $request->task_name;
+			$task->task_description = $request->task_description;
+			$task->user_id = Auth::user()->id;
+			$task->save();
+			$message = 'Đã cập nhật nhiệm vụ thành công';
+			$history_action = 'Cập nhật nhiệm vụ';
+		}
 
-			$history = new HistoryEdit();
-			$history->order_id = $task->id;
-			$history->user_name = Auth::user()->email;
-			$history->history_action = $history_action;
-			$history->save();
+		$history = new HistoryEdit();
+		$history->order_id = $task->id;
+		$history->user_name = Auth::user()->email;
+		$history->history_action = $history_action;
+		$history->save();
+
+		// 	DB::commit();
+		// 	return response()->json(array('success' => true, 'message' => $message));
+		// } catch (\Exception $e) {
+		// 	DB::rollback();
+		// 	return response()->json(array('success' => false, 'route' => '500'));
+		// }
+	}
+
+	public function updateProgress(Request $request)
+	{
+		// $validator = Validator::make($request->all(), $this->validateVartContent(), $this->messageVartContent());
+		// if ($validator->fails()) {
+		//     return response()->json(array('errors' => true, 'validator' => $validator->errors()));
+		// }
+		// DB::beginTransaction();
+		// try {
+
+		$task = Task::findOrFail($request->id);
+		$task->task_progress = $request->task_progress;
+		$task->save();
+		$message = 'Đã cập nhật tiến độ thành công';
+		$history_action = 'Cập nhật nhiệm vụ';
+
+
+		$history = new HistoryEdit();
+		$history->order_id = $task->id;
+		$history->user_name = Auth::user()->email;
+		$history->history_action = $history_action;
+		$history->save();
 
 		// 	DB::commit();
 		// 	return response()->json(array('success' => true, 'message' => $message));

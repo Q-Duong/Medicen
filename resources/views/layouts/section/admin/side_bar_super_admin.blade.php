@@ -203,23 +203,20 @@
                         </li>
                     </ul>
                 </li>
-                @if (Auth::user()->role == 0 || Auth::user()->role == 1 || Auth::user()->role == 3)
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
-                            href="{{ route('accountant.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>Quản lý công nợ</span>
-                        </a>
-                    </li>
-                @elseif (Auth::user()->role == 0 || Auth::user()->role == 1 || Auth::user()->role == 2)
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('accountant_sales.index') ? 'active' : '' }}"
-                            href="{{ route('accountant_sales.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>Quản lý công nợ (Sales)</span>
-                        </a>
-                    </li>
-                @endif
+                <li class="sub-menu">
+                    <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
+                        href="{{ route('accountant.index') }}">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Quản lý công nợ</span>
+                    </a>
+                </li>
+                <li class="sub-menu">
+                    <a class="{{ request()->routeIs('contract.index') ? 'active' : '' }}"
+                        href="{{ route('contract.index') }}">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Quản lý hợp đồng</span>
+                    </a>
+                </li>
                 <li class="sub-menu">
                     <a class="{{ request()->routeIs('history.index') ? 'active' : '' }}"
                         href="{{ route('history.index') }}">

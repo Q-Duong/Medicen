@@ -36,7 +36,11 @@ if (!function_exists('saveImageFileDrive')) {
         $specialCharacters = array('@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '/', '\\', '|', '[', ']', '{', '}', '<', '>', ',', '?', '!', ':', ';', '~', '`', "'", '"', ' ');
         $name_revert = str_replace($specialCharacters, '_', $new_file);
         Storage::cloud()->put($name_revert, $fileData);
-        $fileUploaded = collect(Storage::cloud()->listContents('', true))->where('path', $name_revert)->first();
+        $fileUploaded = Storage::cloud()->exists($name_revert)
+            ? collect(Storage::cloud()->listContents(dirname($name_revert)))
+            ->where('path', $name_revert)
+            ->first()
+            : null;
         $response = ['fileName' => $name_revert, 'virtual_path' => $fileUploaded['extraMetadata']['virtual_path']];
         return $response;
     }

@@ -16,6 +16,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\TaskController;
@@ -108,7 +109,7 @@ Route::post('admin/logout', [AdminController::class, 'logout'])->name('admin.log
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index');
-
+    Route::get('chat', [AdminController::class, 'chat'])->name('dashboard.chat');
     Route::post('/revenue-statistics-by-date', [AdminController::class, 'revenue_statistics_by_date'])->name('url-revenue-statistics-by-date');
     Route::post('/optional-revenue-statistics', [AdminController::class, 'optional_revenue_statistics'])->name('url-optional-revenue-statistics');
     Route::post('/revenue-statistics-for-the-month', [AdminController::class, 'revenue_statistics_for_the_month'])->name('url-revenue-statistics-for-the-month');
@@ -269,6 +270,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('/', [AccountantController::class, 'indexResult'])->name('accountant_result.index');
         Route::post('get-accountant', [AccountantController::class, 'getAccountantResult'])->name('accountant_result.get');
         Route::post('filter', [AccountantController::class, 'filterResult'])->name('accountant_result.filter');
+    });
+
+    Route::prefix('contract')->group(function () {
+        Route::get('/', [ContractController::class, 'index'])->name('contract.index');
+        Route::post('get-contract', [ContractController::class, 'getContract'])->name('contract.get');
+        Route::patch('update', [ContractController::class, 'update'])->name('contract.update');
+        Route::post('filter', [ContractController::class, 'filter'])->name('contract.filter');
     });
 });
 

@@ -13,7 +13,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
+            {{-- <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="footer__widget">
                     <p>Tin tức</p>
                     <ul>
@@ -24,7 +24,7 @@
                         @endforeach
                     </ul>
                 </div>
-            </div>
+            </div> --}}
             <div class="col-lg-4 col-md-12 col-sm-12">
                 <div class="footer__widget">
                     <p>Thông tin liên hệ </p>

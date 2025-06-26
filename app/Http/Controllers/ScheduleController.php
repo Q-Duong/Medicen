@@ -46,7 +46,19 @@ class ScheduleController extends Controller
 		// 	$lastDayofThisMonth = Carbon::now()->month($data['month'])->endOfMonth()->toDateString();
 		// 	$dayInMonth = Carbon::now()->month($data['month'])->subMonth()->daysInMonth;
 		// }
-		if ($request->month == 'November') {
+		if ($request->month == 'April') {
+			$firstDayofThisMonth = $request->year . '-04-01';
+			$lastDayofThisMonth = $request->year . '-04-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'June') {
+			$firstDayofThisMonth = $request->year . '-06-01';
+			$lastDayofThisMonth = $request->year . '-06-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'September') {
+			$firstDayofThisMonth = $request->year . '-09-01';
+			$lastDayofThisMonth = $request->year . '-00-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'November') {
 			$firstDayofThisMonth = $request->year . '-11-01';
 			$lastDayofThisMonth = $request->year . '-11-30';
 			$dayInMonth = 30;
@@ -55,7 +67,6 @@ class ScheduleController extends Controller
 			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
 		}
-
 		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
 		$view = view('pages.client.schedule.technologist.render', compact('orders', 'dayInMonth'))->render();
 
@@ -130,7 +141,19 @@ class ScheduleController extends Controller
 		} else {
 			$currentYear = $request->currentTime['year'];
 			$currentMonth = $request->currentTime['month'];
-			if ($currentMonth == 'November') {
+			if ($currentMonth == 'April') {
+				$firstDayofThisMonth = $currentYear . '-04-01';
+				$lastDayofThisMonth = $currentYear . '-04-30';
+				$dayInMonth = 30;
+			} elseif ($currentMonth == 'June') {
+				$firstDayofThisMonth = $currentYear . '-06-01';
+				$lastDayofThisMonth = $currentYear . '-06-30';
+				$dayInMonth = 30;
+			} elseif ($currentMonth == 'September') {
+				$firstDayofThisMonth = $currentYear . '-09-01';
+				$lastDayofThisMonth = $currentYear . '-00-30';
+				$dayInMonth = 30;
+			} elseif ($currentMonth == 'November') {
 				$firstDayofThisMonth = $currentYear . '-11-01';
 				$lastDayofThisMonth = $currentYear . '-11-30';
 				$dayInMonth = 30;
@@ -172,7 +195,7 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
-						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
 							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
@@ -251,8 +274,19 @@ class ScheduleController extends Controller
 		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
 		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
-
-		if ($request->month == 'November') {
+		if ($request->month == 'April') {
+			$firstDayofThisMonth = $request->year . '-04-01';
+			$lastDayofThisMonth = $request->year . '-04-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'June') {
+			$firstDayofThisMonth = $request->year . '-06-01';
+			$lastDayofThisMonth = $request->year . '-06-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'September') {
+			$firstDayofThisMonth = $request->year . '-09-01';
+			$lastDayofThisMonth = $request->year . '-00-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'November') {
 			$firstDayofThisMonth = $request->year . '-11-01';
 			$lastDayofThisMonth = $request->year . '-11-30';
 			$dayInMonth = 30;
@@ -261,7 +295,6 @@ class ScheduleController extends Controller
 			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
 			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
 		}
-
 		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
 		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
 
@@ -293,7 +326,7 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
-						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
 							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
@@ -413,7 +446,7 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
-						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
 							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;
@@ -458,7 +491,19 @@ class ScheduleController extends Controller
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
 		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 
-		if ($request->month == 'November') {
+		if ($request->month == 'April') {
+			$firstDayofThisMonth = $request->year . '-04-01';
+			$lastDayofThisMonth = $request->year . '-04-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'June') {
+			$firstDayofThisMonth = $request->year . '-06-01';
+			$lastDayofThisMonth = $request->year . '-06-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'September') {
+			$firstDayofThisMonth = $request->year . '-09-01';
+			$lastDayofThisMonth = $request->year . '-00-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'November') {
 			$firstDayofThisMonth = $request->year . '-11-01';
 			$lastDayofThisMonth = $request->year . '-11-30';
 			$dayInMonth = 30;
@@ -499,7 +544,7 @@ class ScheduleController extends Controller
 							$statistic_T += ($statistic->order_quantity) * 2;
 						} elseif ($statistic->accountant_doctor_read == 'Giang') {
 							$statistic_G += ($statistic->order_quantity) * 2;
-						}elseif ($statistic->accountant_doctor_read == 'Ân') {
+						} elseif ($statistic->accountant_doctor_read == 'Ân') {
 							$statistic_A += ($statistic->order_quantity) * 2;
 						} else {
 							$statistic_K += ($statistic->order_quantity) * 2;

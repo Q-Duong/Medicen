@@ -27,7 +27,7 @@ final class OrderBuilder extends Builder
                 'ord_type',
                 'schedule_status'
             )
-            ->paginate(10);
+            ->paginate(20);
         return $getAllOrder;
     }
 

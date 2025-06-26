@@ -55,7 +55,7 @@
         @yield('content')
     </div> --}}
     @include('layouts.section.client.footer')
-    @include('layouts.section.client.chat_box')
+    {{-- @include('layouts.section.client.chat_box') --}}
     {{-- @include('layouts.section.essential.zalo') --}}
     @include('layouts.section.essential.search_model')
     <div id="portal-notification">
