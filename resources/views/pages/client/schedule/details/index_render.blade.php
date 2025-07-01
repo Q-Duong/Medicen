@@ -100,7 +100,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
@@ -182,7 +182,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
@@ -267,7 +267,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
@@ -352,7 +352,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
@@ -437,7 +437,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
@@ -522,7 +522,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
@@ -607,7 +607,7 @@
                                             ({{ $order->customer_phone }})</em>
                                         <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
                                         <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
                                         <em class="event-time hidden">{{ $order->ord_time }}</em>
                                         <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
                                         <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>

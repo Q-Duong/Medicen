@@ -53,3 +53,39 @@ if (!function_exists('deleteImageFileDrive')) {
         return true;
     }
 }
+
+if (!function_exists('capitalizeWordsExceptAbbreviations')) {
+    function capitalizeWordsExceptAbbreviations($string)
+    {
+        $abbreviations = ['TNHH', 'CP', 'LLC', 'LTD', 'JSC', 'XNK', 'THCS', 'THPT', 'MTV', 'TM', 'SX', 'NSTP', 'CN', 'KSK', 'ĐLTS', 'VN'];
+        $string = preg_replace('/\s+/', ' ', trim($string));
+        $words = explode(' ', $string);
+
+        foreach ($words as &$word) {
+            $firstChar = mb_substr($word, 0, 1, 'UTF-8');
+            $coreWord = $word;
+            if (preg_match('/[\(\[\{\'\"]/', $firstChar)) {
+                $coreWord = mb_substr($word, 1, null, 'UTF-8');
+            } else {
+                $firstChar = '';
+            }
+            if (in_array(strtoupper($coreWord), $abbreviations)) {
+                $coreWord = strtoupper($coreWord);
+            } else {
+                $firstLetter = mb_substr($coreWord, 0, 1, 'UTF-8');
+                $rest = mb_substr($coreWord, 1, null, 'UTF-8');
+                $coreWord = mb_strtoupper($firstLetter, 'UTF-8') . mb_strtolower($rest, 'UTF-8');
+            }
+            $word = $firstChar . $coreWord;
+        }
+
+        return implode(' ', $words);
+    }
+}
+
+if (!function_exists('upperVietnamese')) {
+    function upperVietnamese($string)
+    {
+        return mb_strtoupper($string, 'UTF-8');
+    }
+}

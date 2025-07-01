@@ -33,9 +33,8 @@
             </td>
             <td title="{{ $accountant->unit_name }}" class="sticky-col six-col">
                 {{ $accountant->unit_name }}</td>
-            <td title="{{ $accountant->ord_cty_name }}" class="sticky-col seven-col">
-                {{ $accountant->ord_cty_name }}</td>
-
+            <td title="{{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}" class="sticky-col seven-col">
+                {{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}</td>
             <td>
                 <input type="text" name="accountant_deadline_{{ $accountant->order_id }}"
                     class="textbox-accountant  width-accountant-min accountant_deadline_{{ $accountant->order_id }}"
