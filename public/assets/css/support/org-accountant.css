@@ -214,3 +214,18 @@
 .white-col {
     background-color: #ffffff !important;
 }
+
+.contract-status-1 {
+    background: #FCB322;
+    color: #fff !important;
+}
+
+.contract-status-2 {
+    background: #27c24c;
+    color: #fff !important;
+}
+
+.contract-status-3 {
+    background: #0071e3;
+    color: #fff !important;
+}

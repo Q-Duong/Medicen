@@ -33,7 +33,11 @@ class Accountant extends Model
         'accountant_10X12',
         'accountant_film_bag',
         'accountant_note',
-        'accountant_status'
+        'accountant_status',
+        'liquidation_number',
+        'contract_type',
+        'contract_date',
+        'contract_status',
     ];
 
     public function order()

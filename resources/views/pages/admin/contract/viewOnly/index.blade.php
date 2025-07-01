@@ -47,9 +47,8 @@
 @endsection
 @push('js')
     <script type="">
-    var url_get_contract = "{{ route('contract.get') }}";
-    var url_update_contract = "{{ route('contract.update') }}";
-    var url_filter_contract = "{{ route('contract.filter') }}";
+    var url_get_contract = "{{ route('contract.view_only.get') }}";
+    var url_filter_contract = "{{ route('contract.view_only.filter') }}";
 </script>
     <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
     <script src="{{ versionResource('backend/js/tool/select2.min.js') }}"></script>

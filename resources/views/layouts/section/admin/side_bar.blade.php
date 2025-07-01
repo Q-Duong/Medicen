@@ -10,7 +10,7 @@
                         <span>Thống kê doanh thu</span>
                     </a>
                 </li>
-                @if (Auth::user()->name != 'Office')
+                @if (Auth::user()->name == 'SubAdmin' || Auth::user()->name == 'Sale')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="javascript:;">
@@ -39,42 +39,51 @@
                             <span>Lịch KTV và Xe</span>
                         </a>
                     </li>
-
-                    @if (Auth::user()->role == 0 || Auth::user()->role == 1 || Auth::user()->role == 3)
-                        <li class="sub-menu">
-                            <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
-                                href="{{ route('accountant.index') }}">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                <span>Quản lý công nợ</span>
-                            </a>
-                        </li>
-                    @elseif (Auth::user()->role == 0 || Auth::user()->role == 1 || Auth::user()->role == 2)
-                        <li class="sub-menu">
-                            <a class="{{ request()->routeIs('accountant_sales.index') ? 'active' : '' }}"
-                                href="{{ route('accountant_sales.index') }}">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                <span>Quản lý công nợ (Sales)</span>
-                            </a>
-                        </li>
-                    @endif
-                @else
-                    @if (Auth::user()->name == 'Office')
-                        <li class="sub-menu">
-                            <a class="{{ request()->routeIs('accountant_result.index') ? 'active' : '' }}"
-                                href="{{ route('accountant_result.index') }}">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                <span>Quản lý công nợ (Kết quả)</span>
-                            </a>
-                        </li>
-                    @else
-                        <li class="sub-menu">
-                            <a class="{{ request()->routeIs('contract.index') ? 'active' : '' }}"
-                                href="{{ route('contract.index') }}">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                <span>Quản lý hợp đồng</span>
-                            </a>
-                        </li>
-                    @endif
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('accountant_sales.index') ? 'active' : '' }}"
+                            href="{{ route('accountant_sales.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý công nợ (Sales)</span>
+                        </a>
+                    </li>
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('contract.view_only.index') ? 'active' : '' }}"
+                            href="{{ route('contract.view_only.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý hợp đồng (Sales)</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->name == 'Accountant')
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
+                            href="{{ route('accountant.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý công nợ</span>
+                        </a>
+                    </li>
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('contract.view_only.index') ? 'active' : '' }}"
+                            href="{{ route('contract.view_only.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý hợp đồng</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->name == 'Office')
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('accountant_result.index') ? 'active' : '' }}"
+                            href="{{ route('accountant_result.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý công nợ (Kết quả)</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->name == 'HR')
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('contract.index') ? 'active' : '' }}"
+                            href="{{ route('contract.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Quản lý hợp đồng</span>
+                        </a>
+                    </li>
                 @endif
             </ul>
             <!-- sidebar menu end-->

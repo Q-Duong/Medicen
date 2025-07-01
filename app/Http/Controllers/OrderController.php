@@ -121,7 +121,6 @@ class OrderController extends Controller
 
 	public function storeOrderDetailsClient(OrderClientRequestForm $request)
 	{
-		// dd($request->all());
 		DB::beginTransaction();
 		try {
 			$data = $request->all();

@@ -57,28 +57,6 @@ final class AccountantBuilder extends Builder
         return $accountants;
     }
 
-    public function getAllContractByFilter($year)
-    {
-        $contracts = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
-            ->join('units', 'units.id', '=', 'orders.unit_id')
-            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-            ->orderBy('accountant_number', 'ASC')
-            ->select(
-                'accountants.id',
-                'accountants.order_id',
-                'accountant_number',
-                'accountant_date',
-                'unit_name',
-                'ord_start_day'
-            );
-        if ($year != 'all') {
-            $contracts->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
-        }
-        return $contracts->get()->unique('accountant_number')
-            ->sortBy('accountant_number')
-            ->values();
-    }
-
     public function getAccountantForUpdateOrder($order_id)
     {
         $accountant = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
@@ -167,6 +145,32 @@ final class AccountantBuilder extends Builder
             $accountants->where('ord_type', $type);
         }
         return $accountants->get();
+    }
+
+    public function getAllContractByFilter($year)
+    {
+        $contracts = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->orderBy('accountant_number', 'ASC')
+            ->select(
+                'accountants.id',
+                'accountants.order_id',
+                'accountant_number',
+                'accountant_date',
+                'unit_name',
+                'ord_start_day',
+                'liquidation_number',
+                'contract_type',
+                'contract_date',
+                'contract_status',
+            );
+        if ($year != 'all') {
+            $contracts->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
+        }
+        return $contracts->get()->unique('accountant_number')
+            ->sortBy('accountant_number')
+            ->values();
     }
 
     public function getStatistics($firstDayofThisMonth, $lastDayofThisMonth)
@@ -507,6 +511,74 @@ final class AccountantBuilder extends Builder
         return $query;
     }
 
+    public function getContractQueryBuilderBySearchData($searchData, $year)
+    {
+
+        $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->orderBy('accountant_number', 'ASC')
+            ->select(
+                'accountants.id',
+                'accountants.order_id',
+                'accountant_number',
+                'accountant_date',
+                'unit_name',
+                'ord_start_day',
+                'liquidation_number',
+                'contract_type',
+                'contract_date',
+                'contract_status',
+            );
+
+        if ($year != 'all') {
+            $query->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
+        }
+        //Unit Name
+        if (isset($searchData['unit_name']) && !empty($searchData['unit_name'])) {
+            $query->whereIn('unit_name', explode(',', $searchData['unit_name']));
+        }
+        //Accountant Number
+        if (isset($searchData['accountant_number'])) {
+            $query->whereIn('accountant_number', explode(',', $searchData['accountant_number']));
+        }
+        //Accountant Date
+        if (isset($searchData['accountant_date']) && !empty($searchData['accountant_date'])) {
+            $query->whereIn('accountant_date', explode(',', $searchData['accountant_date']));
+        }
+        //Liquidation Number
+        if (isset($searchData['liquidation_number']) && !empty($searchData['liquidation_number'])) {
+            if ($searchData['liquidation_number'] == 'empty') {
+                $query->whereNull('liquidation_number');
+            } else {
+                $query->whereIn('liquidation_number', explode(',', $searchData['liquidation_number']));
+            }
+        }
+        //Contract Type
+        if (isset($searchData['contract_type']) && !empty($searchData['contract_type'])) {
+            if ($searchData['contract_type'] == 'empty') {
+                $query->whereNull('contract_type');
+            } else {
+                $query->whereIn('contract_type', explode(',', $searchData['contract_type']));
+            }
+        }
+        //Contract Date
+        if (isset($searchData['contract_date']) && !empty($searchData['contract_date'])) {
+            if ($searchData['contract_date'] == 'empty') {
+                $query->whereNull('contract_date');
+            } else {
+                $query->whereIn('contract_date', explode(',', $searchData['contract_date']));
+            }
+        }
+        //Contract Status
+        if (isset($searchData['contract_status'])) {
+            $query->whereIn('contract_status', explode(',', $searchData['contract_status']));
+        }
+        return $query->get()->unique('accountant_number')
+            ->sortBy('accountant_number')
+            ->values();
+    }
+
     public function renewFilterWhenUpdated($currentChange, $year)
     {
         $filters = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
@@ -526,6 +598,27 @@ final class AccountantBuilder extends Builder
                 return mb_strtoupper($item, 'UTF-8');
             })->unique()->sort();
         } elseif (in_array($currentChange, $paramsNull)) {
+            $uniqueFilters = $filters->where($currentChange, '!=', null)->pluck($currentChange)->unique()->sort();
+        } else {
+            $uniqueFilters = $filters->pluck($currentChange)->unique()->sort();
+        }
+
+        return $uniqueFilters;
+    }
+
+    public function renewFilterWhenContractUpdated($currentChange, $year)
+    {
+        $filters = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->orderBy('accountant_number', 'ASC')
+            ->select($currentChange);
+        if ($year != 'all') {
+            $filters->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
+        }
+        $filters->get();
+        $paramsNull = ['liquidation_number', 'contract_date'];
+        if (in_array($currentChange, $paramsNull)) {
             $uniqueFilters = $filters->where($currentChange, '!=', null)->pluck($currentChange)->unique()->sort();
         } else {
             $uniqueFilters = $filters->pluck($currentChange)->unique()->sort();

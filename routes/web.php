@@ -277,6 +277,11 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::post('get-contract', [ContractController::class, 'getContract'])->name('contract.get');
         Route::patch('update', [ContractController::class, 'update'])->name('contract.update');
         Route::post('filter', [ContractController::class, 'filter'])->name('contract.filter');
+        Route::prefix('view-only')->group(function () {
+            Route::get('/', [ContractController::class, 'indexViewOnly'])->name('contract.view_only.index');
+            Route::post('get-contract', [ContractController::class, 'getContractViewOnly'])->name('contract.view_only.get');
+            Route::post('filter', [ContractController::class, 'filterViewOnly'])->name('contract.view_only.filter');
+        });
     });
 });
 

@@ -11,7 +11,6 @@ final class OrderBuilder extends Builder
     {
         $getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
-            ->orderBy('ord_start_day', 'DESC')
             ->select(
                 'orders.id',
                 'orders.created_at',
@@ -27,6 +26,7 @@ final class OrderBuilder extends Builder
                 'ord_type',
                 'schedule_status'
             )
+            ->orderBy('ord_start_day', 'DESC')
             ->paginate(20);
         return $getAllOrder;
     }

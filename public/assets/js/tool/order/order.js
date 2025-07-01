@@ -45,3 +45,12 @@ $(".order_all_in_one").click(function () {
         $(".block-order-cost").addClass("hidden");
     }
 });
+
+$(document).on("change", ".unit-id", function () {
+    var value = $(this).val();
+    if (value == 5) {
+        $(".suggest").removeClass("hidden");
+    } else{
+        $(".suggest").addClass("hidden");
+    }
+});

@@ -13,6 +13,7 @@
                 <table class="table">
                     <thead>
                         <tr class="section-title">
+                            <th>TG đăng ký</th>
                             <th>Mã ĐH</th>
                             <th>Ngày chụp</th>
                             <th>Đơn vị thuê xe</th>
@@ -20,9 +21,8 @@
                             <th>Loại</th>
                             <th>Số lượng</th>
                             <th>Tổng tiền</th>
-                            <th>Trạng thái</th>
                             <th>Bộ phận chụp</th>
-                            <th>TG đăng ký</th>
+                            <th>Trạng thái</th>
                             <th>Quản lý</th>
                             <th>Quản lý lịch</th>
                         </tr>
@@ -30,6 +30,7 @@
                     <tbody class="tbody-content">
                         @foreach ($getAll as $key => $order)
                             <tr>
+                                <td>{{ \Carbon\Carbon::parse($order->created_at)->format('H:i:s d/m/Y') }}</td>
                                 <td>{{ $order->id }}</td>
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
                                 <td>{{ $order->unit_name }}</td>
@@ -37,6 +38,7 @@
                                 <td>{{ $order->ord_type == 1 ? "X-Quang" : "Siêu Âm" }}</td>
                                 <td>{{ $order->order_quantity }}</td>
                                 <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
+                                <td>{{ $order->ord_select }}</td>
                                 <td>
                                     @if ($order->status_id == 0)
                                         <span style="color: #27c24c;">Đơn hàng mới</span>
@@ -52,8 +54,6 @@
                                         <span style="color: #e53637;">Hủy đơn hàng</span>
                                     @endif
                                 </td>
-                                <td>{{ $order->ord_select }}</td>
-                                <td>{{ date('d/m/Y', strtotime($order->created_at)) }}</td>
                                 @if (Auth::user()->role == 0)
                                     <td class="management">
                                         <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
