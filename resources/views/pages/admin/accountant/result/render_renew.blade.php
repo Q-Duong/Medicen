@@ -246,8 +246,9 @@
                     </td>
                     <td title="{{ $accountant->unit_name }}" class="sticky-col six-col">
                         {{ $accountant->unit_name }}</td>
-                    <td title="{{ $accountant->ord_cty_name }}" class="sticky-col seven-col">
-                        {{ $accountant->ord_cty_name }}</td>
+                    <td title="{{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}"
+                        class="sticky-col seven-col">
+                        {{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}</td>
 
                     <td>
                         {{ $accountant->order_quantity }}
