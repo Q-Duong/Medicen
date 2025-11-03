@@ -19,6 +19,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ZaloController;
 use Illuminate\Support\Facades\Artisan;
@@ -110,10 +111,15 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index');
     Route::get('chat', [AdminController::class, 'chat'])->name('dashboard.chat');
-    Route::post('/revenue-statistics-by-date', [AdminController::class, 'revenue_statistics_by_date'])->name('url-revenue-statistics-by-date');
-    Route::post('/optional-revenue-statistics', [AdminController::class, 'optional_revenue_statistics'])->name('url-optional-revenue-statistics');
-    Route::post('/revenue-statistics-for-the-month', [AdminController::class, 'revenue_statistics_for_the_month'])->name('url-revenue-statistics-for-the-month');
-    Route::post('/revenue-statistics-by-unit', [AdminController::class, 'revenue_statistics_by_unit'])->name('url-revenue-statistics-by-unit');
+
+    //Statistics
+    Route::prefix('statistics')->group(function () {
+        Route::post('revenue-by-date', [StatisticsController::class, 'revenueByDate'])->name('statistics.revenue_by_date');
+        Route::post('optional-revenue', [StatisticsController::class, 'optionalRevenue'])->name('statistics.optional_revenue');
+        Route::post('revenue-for-the-month', [StatisticsController::class, 'revenueForTheMonth'])->name('statistics.revenue_for_the_month');
+        Route::post('revenue-by-unit', [StatisticsController::class, 'revenueByUnit'])->name('statistics.revenue_by_unit');
+        Route::get('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis');
+    });
 
     //Information Account
     Route::get('/information', [AdminController::class, 'information'])->name('information');

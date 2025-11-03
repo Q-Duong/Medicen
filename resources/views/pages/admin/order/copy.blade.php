@@ -152,7 +152,8 @@
                                         Siêu
                                         âm ĐMC, Mạch Máu Chi Dưới</option>
                                     <option value="Đo loãng xương"
-                                        {{ $order->order->orderDetail->ord_select == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
+                                        {{ $order->order->orderDetail->ord_select == 'Đo loãng xương' ? 'selected' : '' }}>
+                                        Đo loãng xương
                                     </option>
                                     <option value="Khác"
                                         {{ $order->order->orderDetail->ord_select == 'Khác' ? 'selected' : '' }}>Khác
@@ -477,17 +478,19 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="form-group @error('ord_deadline') has-error @enderror">
-                                <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
-                                <input type="text" name="ord_deadline" class="input-control"
-                                    placeholder="Điền thời hạn giao kết quả"
-                                    value="{{ $order->order->orderDetail->ord_deadline }}">
-                                @error('ord_deadline')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
+                            @if (Auth::user()->role == 0)
+                                <div class="form-group @error('ord_deadline') has-error @enderror">
+                                    <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
+                                    <input type="text" name="ord_deadline" class="input-control"
+                                        placeholder="Điền thời hạn giao kết quả"
+                                        value="{{ $order->order->orderDetail->ord_deadline }}">
+                                    @error('ord_deadline')
+                                        <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                            @endif
 
                             <div class="form-group @error('ord_deliver_results') has-error @enderror">
                                 <label for="exampleInputPassword1">Địa chỉ & sđt giao kết quả</label>

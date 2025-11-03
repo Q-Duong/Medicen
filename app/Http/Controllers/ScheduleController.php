@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\CarKTV;
 use App\Models\HistoryEdit;
 use App\Models\OrderDetail;
+use App\Models\PerformanceAnalysis;
 use App\Models\Staff;
 use App\Models\TempFile;
 use Carbon\Carbon;
@@ -80,6 +81,31 @@ class ScheduleController extends Controller
 		$order->order_quantity_draft = $data['order_quantity_draft'];
 		$order->order_note_ktv = $data['order_note_ktv'];
 		$order->save();
+
+		$ordStartDay = OrderDetail::firstWhere('id', $order->order_detail_id)->ord_start_day;
+
+		$now = Carbon::now()->setTime(0, 0, 0);
+		$dateEqual = Carbon::parse($ordStartDay);
+
+		if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual)) {
+			$performanceScore = 100;
+			$description = 'Completed ahead of schedule';
+			$status = 1;
+		} else {
+			$performanceScore = 0;
+			$description = 'Missed deadline';
+			$status = 0;
+		}
+		$performanceAnalysis = new PerformanceAnalysis();
+		$performanceAnalysis->order_id = $request->id;
+		$performanceAnalysis->user_id = 30;
+		$performanceAnalysis->part = 2;
+		$performanceAnalysis->performance = $performanceScore;
+		$performanceAnalysis->description = $description;
+		$performanceAnalysis->first_edit_time = $order->updated_at;
+		$performanceAnalysis->status = $status;
+		$performanceAnalysis->save();
+
 		return response()->json(array('success' => true));
 	}
 	//End Technologist
@@ -353,6 +379,8 @@ class ScheduleController extends Controller
 	{
 		$data = $request->all();
 		$order = Order::findOrFail($request->id);
+		$statusBeforeUpdate = $order->status_id;
+		$orderUpdatedBeforeUpdate = $order->order_updated;
 		$order->order_quantity = $request->order_quantity_details;
 		$order->order_send_result = $request->order_send_result;
 		if ($order->status_id == 4) {
@@ -380,6 +408,19 @@ class ScheduleController extends Controller
 		$accountant->accountant_10X12 = $data['accountant_10X12'];
 		$accountant->accountant_note = $data['accountant_note'];
 		$accountant->save();
+
+		if ($orderUpdatedBeforeUpdate == 0) {
+			$performance = app(StatisticsController::class)->performanceFunction(3, $orderDetail->ord_deadline, $request->ord_delivery_date);
+			$performanceAnalysis = new PerformanceAnalysis();
+			$performanceAnalysis->order_id = $request->id;
+			$performanceAnalysis->user_id = Auth::user()->id;
+			$performanceAnalysis->part = 3;
+			$performanceAnalysis->performance = $performance['score'];
+			$performanceAnalysis->description = $performance['description'];
+			$performanceAnalysis->first_edit_time = $order->updated_at;
+			$performanceAnalysis->status = $performance['status'];
+			$performanceAnalysis->save();
+		}
 
 		$history = new HistoryEdit();
 		$history->order_id = $request->id;
@@ -581,33 +622,50 @@ class ScheduleController extends Controller
 
 	public function store(Request $request)
 	{
+		dd($request->all());
 		$message = 'Thêm lịch không gửi Zalo thành công';
-		$data = $request->all();
-		foreach ($request->car_name as $key => $car_name) {
-			$car = new CarKTV();
-			$driver[$key] = explode("_", $request->car_driver_name[$key]);
-			$name_driver[$key] = array_shift($driver[$key]);
-			$phone_driver[$key] = array_pop($driver[$key]);
+		// $data = $request->all();
+		// foreach ($request->car_name as $key => $car_name) {
+		// 	$car = new CarKTV();
+		// 	$driver[$key] = explode("_", $request->car_driver_name[$key]);
+		// 	$name_driver[$key] = array_shift($driver[$key]);
+		// 	$phone_driver[$key] = array_pop($driver[$key]);
 
-			$ktv1[$key] = explode("_", $request->car_ktv_name_1[$key]);
-			$name_ktv1[$key] = array_shift($ktv1[$key]);
-			$phone_ktv1[$key] = array_pop($ktv1[$key]);
+		// 	$ktv1[$key] = explode("_", $request->car_ktv_name_1[$key]);
+		// 	$name_ktv1[$key] = array_shift($ktv1[$key]);
+		// 	$phone_ktv1[$key] = array_pop($ktv1[$key]);
 
-			$ktv2[$key] = explode("_", $request->car_ktv_name_2[$key]);
-			$name_ktv2[$key] = array_shift($ktv2[$key]);
-			$phone_ktv2[$key] = array_pop($ktv2[$key]);
+		// 	$ktv2[$key] = explode("_", $request->car_ktv_name_2[$key]);
+		// 	$name_ktv2[$key] = array_shift($ktv2[$key]);
+		// 	$phone_ktv2[$key] = array_pop($ktv2[$key]);
 
-			$car->order_id = $data['order_id'];
-			$car->car_name = $request->car_name[$key];
-			$car->car_active = $request->car_active[$key];
-			$car->car_driver_name = $name_driver[$key];
-			$car->car_driver_phone = $phone_driver[$key];
-			$car->car_ktv_name_1 = $name_ktv1[$key];
-			$car->car_ktv_phone_1 = $phone_ktv1[$key];
-			$car->car_ktv_name_2 = $name_ktv2[$key];
-			$car->car_ktv_phone_2 = $phone_ktv2[$key];
-			$car->save();
-		}
+		// 	$car->order_id = $data['order_id'];
+		// 	$car->car_name = $request->car_name[$key];
+		// 	$car->car_active = $request->car_active[$key];
+		// 	$car->car_driver_name = $name_driver[$key];
+		// 	$car->car_driver_phone = $phone_driver[$key];
+		// 	$car->car_ktv_name_1 = $name_ktv1[$key];
+		// 	$car->car_ktv_phone_1 = $phone_ktv1[$key];
+		// 	$car->car_ktv_name_2 = $name_ktv2[$key];
+		// 	$car->car_ktv_phone_2 = $phone_ktv2[$key];
+		// 	$car->save();
+		// }
+		$car = new CarKTV();
+		$driver = explode("_", $request->car_driver_name);
+		$ktv1 = explode("_", $request->car_ktv_name_1);
+		$ktv2 = explode("_", $request->car_ktv_name_2);
+
+		$car->order_id = $request->order_id;
+		$car->car_name = $request->car_name;
+		$car->car_active = 1;
+		$car->car_driver_name = array_shift($driver);
+		$car->car_driver_phone = array_pop($driver);
+		$car->car_ktv_name_1 = array_shift($ktv1);
+		$car->car_ktv_phone_1 = array_pop($ktv1);
+		$car->car_ktv_name_2 = array_shift($ktv2);
+		$car->car_ktv_phone_2 = array_pop($ktv2);
+		$car->save();
+
 		$order = Order::findOrFail($data['order_id']);
 		$order->schedule_status = 1;
 		$order->status_id = 1;
@@ -615,7 +673,7 @@ class ScheduleController extends Controller
 
 		if (!empty($data['zalo'])) {
 			$getOrderId = CarKTV::orderBy('updated_at', 'DESC')->first();
-			$carActive = CarKTV::where('order_id', $getOrderId->order_id)->where('car_active', 1)->get();
+			$carActive = CarKTV::firstWhere('order_id', $getOrderId->order_id);
 			foreach ($carActive as $key => $car) {
 				if ($car->car_driver_phone != null && $car->car_driver_name != null) {
 					app(ZaloController::class)->notificationSchedule($car, 'drv');

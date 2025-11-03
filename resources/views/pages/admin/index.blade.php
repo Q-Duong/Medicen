@@ -170,9 +170,9 @@
     <script src="{{ versionResource('backend/js/chart/chart.min.js') }}" defer></script>
     <script type="text/javascript">
         // Revenue Statistics Url
-        var url_revenue_statistics_for_the_month = "{{ route('url-revenue-statistics-for-the-month') }}";
-        var url_optional_revenue_statistics = "{{ route('url-optional-revenue-statistics') }}";
-        var url_revenue_statistics_by_unit = "{{ route('url-revenue-statistics-by-unit') }}";
-        var url_revenue_statistics_by_date = "{{ route('url-revenue-statistics-by-date') }}";
+        var url_revenue_statistics_for_the_month = "{{ route('statistics.revenue_for_the_month') }}";
+        var url_optional_revenue_statistics = "{{ route('statistics.optional_revenue') }}";
+        var url_revenue_statistics_by_unit = "{{ route('statistics.revenue_by_unit') }}";
+        var url_revenue_statistics_by_date = "{{ route('statistics.revenue_by_date') }}";
     </script>
 @endpush

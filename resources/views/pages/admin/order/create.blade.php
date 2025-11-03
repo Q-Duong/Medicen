@@ -68,12 +68,14 @@
                                 <label for="exampleInputPassword1">Đơn vị thuê xe</label>
                                 <select name="unit_id" class="select-2 unit-id">
                                     @foreach ($getAllUnit as $key => $unit)
-                                        <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
+                                        <option value="{{ $unit->id }}"
+                                            {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="suggest hidden">
-                                <img src="{{asset('assets/images/suggest.jpg')}}" class="suggest-img">
+                                <img src="{{ asset('assets/images/suggest.jpg') }}" class="suggest-img">
                             </div>
 
                             <div class="form-group @error('ord_cty_name') has-error @enderror">
@@ -116,21 +118,49 @@
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Bộ phận chụp</label>
                                 <select name="ord_select" class="input-control">
-                                    <option selected value="Phổi (1 Tư thế)" {{ old('ord_select') == 'Phổi (1 Tư thế)' ? 'selected' : '' }}>Phổi (1 Tư thế)</option>
-                                    <option value="Phổi (2 Tư thế)" {{ old('ord_select') == 'Phổi (2 Tư thế)' ? 'selected' : '' }}>Phổi (2 Tư thế)</option>
-                                    <option value="Cột sống thắt lưng (1 Tư thế)" {{ old('ord_select') == 'Cột sống thắt lưng (1 Tư thế)' ? 'selected' : '' }}>Cột sống thắt lưng (1 Tư thế)</option>
-                                    <option value="Cột sống thắt lưng (2 Tư thế)" {{ old('ord_select') == 'Cột sống thắt lưng (2 Tư thế)' ? 'selected' : '' }}>Cột sống thắt lưng (2 Tư thế)</option>
-                                    <option value="Cột sống cổ (1 Tư thế)" {{ old('ord_select') == 'Cột sống cổ (1 Tư thế)' ? 'selected' : '' }}>Cột sống cổ (1 Tư thế)</option>
-                                    <option value="Cột sống cổ (2 Tư thế)" {{ old('ord_select') == 'Cột sống cổ (2 Tư thế)' ? 'selected' : '' }}>Cột sống cổ (2 Tư thế)</option>
-                                    <option value="Vai (1 Tư thế)" {{ old('ord_select') == 'Vai (1 Tư thế)' ? 'selected' : '' }}>Vai (1 Tư thế)</option>
-                                    <option value="Vai (2 Tư thế)" {{ old('ord_select') == 'Vai (2 Tư thế)' ? 'selected' : '' }}>Vai (2 Tư thế)</option>
-                                    <option value="Gối (1 Tư thế)" {{ old('ord_select') == 'Gối (1 Tư thế)' ? 'selected' : '' }}>Gối (1 Tư thế)</option>
-                                    <option value="Gối (2 Tư thế)" {{ old('ord_select') == 'Gối (2 Tư thế)' ? 'selected' : '' }}>Gối (2 Tư thế)</option>
-                                    <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng" {{ old('ord_select') == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng</option>
-                                    <option value="Siêu âm Tim" {{ old('ord_select') == 'Siêu âm Tim' ? 'selected' : '' }}>Siêu âm Tim</option>
-                                    <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới" {{ old('ord_select') == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu âm ĐMC, Mạch Máu Chi Dưới</option>
-                                    <option value="Đo loãng xương" {{ old('ord_select') == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương</option>
-                                    <option value="Khác" {{ old('ord_select') == 'Khác' ? 'selected' : '' }}>Khác</option>
+                                    <option selected value="Phổi (1 Tư thế)"
+                                        {{ old('ord_select') == 'Phổi (1 Tư thế)' ? 'selected' : '' }}>Phổi (1 Tư thế)
+                                    </option>
+                                    <option value="Phổi (2 Tư thế)"
+                                        {{ old('ord_select') == 'Phổi (2 Tư thế)' ? 'selected' : '' }}>Phổi (2 Tư thế)
+                                    </option>
+                                    <option value="Cột sống thắt lưng (1 Tư thế)"
+                                        {{ old('ord_select') == 'Cột sống thắt lưng (1 Tư thế)' ? 'selected' : '' }}>Cột
+                                        sống thắt lưng (1 Tư thế)</option>
+                                    <option value="Cột sống thắt lưng (2 Tư thế)"
+                                        {{ old('ord_select') == 'Cột sống thắt lưng (2 Tư thế)' ? 'selected' : '' }}>Cột
+                                        sống thắt lưng (2 Tư thế)</option>
+                                    <option value="Cột sống cổ (1 Tư thế)"
+                                        {{ old('ord_select') == 'Cột sống cổ (1 Tư thế)' ? 'selected' : '' }}>Cột sống cổ
+                                        (1 Tư thế)</option>
+                                    <option value="Cột sống cổ (2 Tư thế)"
+                                        {{ old('ord_select') == 'Cột sống cổ (2 Tư thế)' ? 'selected' : '' }}>Cột sống cổ
+                                        (2 Tư thế)</option>
+                                    <option value="Vai (1 Tư thế)"
+                                        {{ old('ord_select') == 'Vai (1 Tư thế)' ? 'selected' : '' }}>Vai (1 Tư thế)
+                                    </option>
+                                    <option value="Vai (2 Tư thế)"
+                                        {{ old('ord_select') == 'Vai (2 Tư thế)' ? 'selected' : '' }}>Vai (2 Tư thế)
+                                    </option>
+                                    <option value="Gối (1 Tư thế)"
+                                        {{ old('ord_select') == 'Gối (1 Tư thế)' ? 'selected' : '' }}>Gối (1 Tư thế)
+                                    </option>
+                                    <option value="Gối (2 Tư thế)"
+                                        {{ old('ord_select') == 'Gối (2 Tư thế)' ? 'selected' : '' }}>Gối (2 Tư thế)
+                                    </option>
+                                    <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
+                                        {{ old('ord_select') == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>
+                                        Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng</option>
+                                    <option value="Siêu âm Tim"
+                                        {{ old('ord_select') == 'Siêu âm Tim' ? 'selected' : '' }}>Siêu âm Tim</option>
+                                    <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới"
+                                        {{ old('ord_select') == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu
+                                        âm ĐMC, Mạch Máu Chi Dưới</option>
+                                    <option value="Đo loãng xương"
+                                        {{ old('ord_select') == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
+                                    </option>
+                                    <option value="Khác" {{ old('ord_select') == 'Khác' ? 'selected' : '' }}>Khác
+                                    </option>
                                 </select>
                             </div>
 
@@ -336,23 +366,25 @@
                                 <div class="row">
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="" id="print_result1"
-                                                class="accent" checked
+                                            <input type="radio" name="ord_print_result" value=""
+                                                id="print_result1" class="accent" checked
                                                 {{ old('ord_print_result') == '' ? 'checked' : '' }}>
                                             <label for="print_result1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="Có" id="print_result2"
-                                                class="accent" {{ old('ord_print_result') == 'Có' ? 'checked' : '' }}>
+                                            <input type="radio" name="ord_print_result" value="Có"
+                                                id="print_result2" class="accent"
+                                                {{ old('ord_print_result') == 'Có' ? 'checked' : '' }}>
                                             <label for="print_result2" class="radio-title">Có</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
-                                            <input type="radio" name="ord_print_result" value="Không" id="print_result3"
-                                                class="accent" {{ old('ord_print_result') == 'Không' ? 'checked' : '' }}>
+                                            <input type="radio" name="ord_print_result" value="Không"
+                                                id="print_result3" class="accent"
+                                                {{ old('ord_print_result') == 'Không' ? 'checked' : '' }}>
                                             <label for="print_result3" class="radio-title">Không</label>
                                         </section>
                                     </div>
@@ -384,7 +416,8 @@
                                             <input type="radio" name="ord_film_sheet"
                                                 value="Bỏ flim và phiếu vào bao thư" id="film_sheet3" class="accent"
                                                 {{ old('ord_film_sheet') == 'Bỏ flim và phiếu vào bao thư' ? 'checked' : '' }}>
-                                            <label for="film_sheet3" class="radio-title">Bỏ flim và phiếu vào bao thư</label>
+                                            <label for="film_sheet3" class="radio-title">Bỏ flim và phiếu vào bao
+                                                thư</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
@@ -425,16 +458,18 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="form-group @error('ord_deadline') has-error @enderror">
-                                <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
-                                <input type="text" name="ord_deadline" class="input-control"
-                                    placeholder="Điền thời hạn giao kết quả" value="{{ old('ord_deadline') }}">
-                                @error('ord_deadline')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
+                            @if (Auth::user()->role == 0)
+                                <div class="form-group @error('ord_deadline') has-error @enderror">
+                                    <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
+                                    <input type="text" name="ord_deadline" class="input-control"
+                                        placeholder="Điền thời hạn giao kết quả" value="{{ old('ord_deadline') }}">
+                                    @error('ord_deadline')
+                                        <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                            @endif
 
                             <div class="form-group @error('ord_deliver_results') has-error @enderror">
                                 <label for="exampleInputPassword1">Địa chỉ & sđt giao kết quả</label>
@@ -464,8 +499,10 @@
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Xe đi xa hoặc gần</label>
                                 <select name="accountant_distance" class="input-control">
-                                    <option selected value="G" {{ old('accountant_distance') == 'G' ? 'selected' : '' }}>Gần</option>
-                                    <option value="X" {{ old('accountant_distance') == 'X' ? 'selected' : '' }}>Xa</option>
+                                    <option selected value="G"
+                                        {{ old('accountant_distance') == 'G' ? 'selected' : '' }}>Gần</option>
+                                    <option value="X" {{ old('accountant_distance') == 'X' ? 'selected' : '' }}>Xa
+                                    </option>
                                 </select>
                             </div>
 

@@ -67,7 +67,7 @@
                                 </select>
                             </div>
                             <div class="suggest hidden">
-                                <img src="{{asset('assets/images/suggest.jpg')}}" class="suggest-img">
+                                <img src="{{ asset('assets/images/suggest.jpg') }}" class="suggest-img">
                             </div>
 
                             <div class="form-group @error('ord_cty_name') has-error @enderror">
@@ -449,16 +449,18 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="form-group @error('ord_deadline') has-error @enderror">
-                                <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
-                                <input type="text" name="ord_deadline" class="input-control"
-                                    placeholder="Điền thời hạn giao kết quả" value="{{ $order->ord_deadline }}">
-                                @error('ord_deadline')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
+                            @if (Auth::user()->role == 0)
+                                <div class="form-group @error('ord_deadline') has-error @enderror">
+                                    <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
+                                    <input type="text" name="ord_deadline" class="input-control"
+                                        placeholder="Điền thời hạn giao kết quả" value="{{ $order->ord_deadline }}">
+                                    @error('ord_deadline')
+                                        <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                            @endif
 
                             <div class="form-group @error('ord_deliver_results') has-error @enderror">
                                 <label for="exampleInputPassword1">Địa chỉ & sđt giao kết quả</label>

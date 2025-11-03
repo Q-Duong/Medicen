@@ -248,7 +248,7 @@ class OrderController extends Controller
 			$orderDetail->ord_print_result = $data['ord_print_result'];
 			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
 			$orderDetail->ord_note = $data['ord_note'];
-			$orderDetail->ord_deadline = $data['ord_deadline'];
+			$orderDetail->ord_deadline = $this->deadlineFunction($request->ord_start_day, $request->unit_id, $request->order_quantity);
 			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->ord_time = $data['ord_time'];
@@ -393,7 +393,7 @@ class OrderController extends Controller
 		$orderDetail->ord_print_result = $data['ord_print_result'];
 		$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
 		$orderDetail->ord_note = $data['ord_note'];
-		$orderDetail->ord_deadline = $data['ord_deadline'];
+		$orderDetail->ord_deadline = $this->deadlineFunction($request->ord_start_day, $request->unit_id, $request->order_quantity);
 		$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
 		$orderDetail->ord_cty_name = $data['ord_cty_name'];
 		$orderDetail->ord_time = $data['ord_time'];
@@ -460,7 +460,7 @@ class OrderController extends Controller
 			$orderDetail->ord_print_result = $data['ord_print_result'];
 			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
 			$orderDetail->ord_note = $data['ord_note'];
-			$orderDetail->ord_deadline = $data['ord_deadline'];
+			$orderDetail->ord_deadline = $this->deadlineFunction($request->ord_start_day, $request->unit_id, $request->order_quantity);
 			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->ord_time = $data['ord_time'];
@@ -561,8 +561,26 @@ class OrderController extends Controller
 
 	public function exportExcel(Request $request)
 	{
-		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+		if ($request->month == 'April') {
+			$firstDayofThisMonth = $request->year . '-04-01';
+			$lastDayofThisMonth = $request->year . '-04-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'June') {
+			$firstDayofThisMonth = $request->year . '-06-01';
+			$lastDayofThisMonth = $request->year . '-06-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'September') {
+			$firstDayofThisMonth = $request->year . '-09-01';
+			$lastDayofThisMonth = $request->year . '-00-30';
+			$dayInMonth = 30;
+		} elseif ($request->month == 'November') {
+			$firstDayofThisMonth = $request->year . '-11-01';
+			$lastDayofThisMonth = $request->year . '-11-30';
+			$dayInMonth = 30;
+		} else {
+			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
+			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+		}
 		// $year=$request->year;
 		// $month=$request->month;
 		//$user = Customer::findOrFail($customer_id);
@@ -769,5 +787,39 @@ class OrderController extends Controller
 
 
 		return $output;
+	}
+
+	public function deadlineFunction($ord_start_day, $unit, $order_quantity)
+	{
+		$ordStartDay = Carbon::parse($ord_start_day);
+		if ($unit == 28 || $unit == 3 || $unit == 87) {
+			$deadline = $ordStartDay->addDays(6);
+			return $deadline->toDateString();
+		}
+		
+		if ($ordStartDay->month == '04') {
+			$firstDayofThisMonth = $ordStartDay->year . '-04-01';
+			$lastDayofThisMonth = $ordStartDay->year . '-04-30';
+		} elseif ($ordStartDay->month == '06') {
+			$firstDayofThisMonth = $ordStartDay->year . '-06-01';
+			$lastDayofThisMonth = $ordStartDay->year . '-06-30';
+		} elseif ($ordStartDay->month == '09') {
+			$firstDayofThisMonth = $ordStartDay->year . '-09-01';
+			$lastDayofThisMonth = $ordStartDay->year . '-00-30';
+		} elseif ($ordStartDay->month == '11') {
+			$firstDayofThisMonth = $ordStartDay->year . '-11-01';
+			$lastDayofThisMonth = $ordStartDay->year . '-11-30';
+		} else {
+			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $ordStartDay->format('F') . ' ' . $ordStartDay->year)->firstOfMonth()->toDateString();
+			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $ordStartDay->format('F') . ' ' . $ordStartDay->year)->endOfMonth()->toDateString();
+		}
+		$countOrders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth)->count();
+
+		if ($order_quantity >= 150 && $countOrders > 40) {
+			$deadline = $ordStartDay->addDays(6);
+		} else {
+			$deadline = $ordStartDay->addDays(4);
+		}
+		return $deadline->toDateString();
 	}
 }
