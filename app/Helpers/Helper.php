@@ -89,3 +89,17 @@ if (!function_exists('upperVietnamese')) {
         return mb_strtoupper($string, 'UTF-8');
     }
 }
+
+if (!function_exists('carRenameFunction')) {
+    function carRenameFunction($car)
+    {
+        if ($car == 6) {
+            $car = 'Xe thuê';
+        } elseif ($car == 7) {
+            $car = 'Xe tăng cường';
+        } elseif ($car == 8) {
+            $car = 'Xe siêu âm';
+        }
+        return $car;
+    }
+}

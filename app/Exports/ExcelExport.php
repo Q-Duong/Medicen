@@ -79,7 +79,7 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping
             $accountant->accountant_month,
             $accountant->ord_start_day != null ? date('d/m/Y', strtotime($accountant->ord_start_day)) : '',
             $accountant->ord_type == 1 ? "X-Quang" : "Siêu Âm",
-            $accountant->car_name == 6 ? 'Xe thuê' : $accountant->car_name,
+            carRenameFunction($accountant->car_name),
             $accountant->accountant_distance,
             $accountant->unit_code,
             $accountant->unit_name,
