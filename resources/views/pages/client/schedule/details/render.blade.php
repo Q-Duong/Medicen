@@ -601,6 +601,91 @@
                     @endforeach
                 </ul>
             </li>
+
+            <li class="events-group">
+                <div class="top-info child-8"><span>Xe Siêu Âm</span></div>
+                <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
+                    @foreach ($orders as $key => $order)
+                        @if ($order->car_name == 8 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
+                            <li class="single-event"
+                                data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                                data-content="event-rowing-workout" data-event="event-5"
+                                data-child="{{ $order->order_child }}">
+                                @if ($order->order_updated == 1)
+                                    <div class="order-status">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                @endif
+                                @if ($order->order_warning == 'Có')
+                                    <div class="order-warning">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                    </div>
+                                @endif
+                                @php
+                                    $str1 = explode(' ', $order->car_ktv_name_1);
+                                    $name1 = array_pop($str1);
+                                    $str2 = explode(' ', $order->car_ktv_name_2);
+                                    $name2 = array_pop($str2);
+                                @endphp
+                                <a href="javascript:;">
+                                    <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
+                                            {{ $name2 }}</em>
+                                    <em class="event-name-unit"><span class="item-title">Đơn vị:
+                                            {{ $order->unit_name }}</em>
+                                    <em class="event-status hidden">{{ $order->status_id }}</em>
+                                    <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
+                                    <em class="event-warning hidden">{{ $order->order_warning }}</em>
+                                    <em class="event-id hidden">{{ $order->order_id }}</em>
+                                    <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
+                                    <em
+                                        class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
+                                    <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
+                                    <em class="event-car-id hidden">{{ $order->id }}</em>
+                                    <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                    <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                    <em class="event-note hidden">{{ $order->customer_note }}</em>
+                                    <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                        ({{ $order->customer_phone }})</em>
+                                    <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
+                                    <em class="event-select hidden">{{ $order->ord_select }}</em>
+                                    <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
+                                    <em class="event-time hidden">{{ $order->ord_time }}</em>
+                                    <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                    <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                    <em
+                                        class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
+                                    <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
+                                    <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
+                                    <em class="event-film hidden">{{ $order->ord_film }}</em>
+                                    <em class="event-form hidden">{{ $order->ord_form }}</em>
+                                    <em class="event-print hidden">{{ $order->ord_print }}</em>
+                                    <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
+                                    <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
+                                    <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
+                                    <em class="event-order-note hidden">{{ $order->ord_note }}</em>
+                                    <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                    <em
+                                        class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
+                                    <em class="event-email hidden">{{ $order->ord_email }}</em>
+                                    <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
+                                    <em
+                                        class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
+                                    <em
+                                        class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
+                                    <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
+                                    <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
+                                    <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
+                                    <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
+                                    <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
+                                    <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
+                                    <em
+                                        class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
+                                </a>
+                            </li>
+                        @endif
+                    @endforeach
+                </ul>
+            </li>
         </ul>
     </div>
 
@@ -758,7 +843,7 @@
                         <textarea name="accountant_note" rows=8 class="form-textarea accountant-note"></textarea>
                     </div>
                     <div class="form-textbox">
-                        <input type="text" class="form-textbox-input ord-delivery-date"
+                        <input type="date" class="form-textbox-input ord-delivery-date"
                             name="ord_delivery_date" autocapitalize="off" autocomplete="off">
                         <span class="form-textbox-label">Ngày trả kết quả</span>
                     </div>

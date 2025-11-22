@@ -135,13 +135,16 @@ class StatisticsController extends Controller
     public function performanceFunction($part, $deadline, $delivery_date)
     {
         $now = Carbon::now()->setTime(0, 0, 0);
-        $deliveryDate = Carbon::parse($delivery_date);
         $deadline = Carbon::parse($deadline);
-        if ($deliveryDate->isAfter($now) || $deliveryDate->equalTo($now)) {
-            $dateEqual = $deliveryDate;
-        } else {
-            $dateEqual = $now;
-        }
+        $dateEqual = $now;
+
+        if ($delivery_date != null) {
+            $deliveryDate = Carbon::parse($delivery_date);
+
+            if ($deliveryDate->isAfter($now) || $deliveryDate->equalTo($now)) {
+                $dateEqual = $deliveryDate;
+            }
+        } 
 
         if ($dateEqual->isBefore($deadline) || $dateEqual->equalTo($deadline)) {
             $performanceScore = 100;

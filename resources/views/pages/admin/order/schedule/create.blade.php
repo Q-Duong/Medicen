@@ -11,69 +11,71 @@
                     </span>
                 </header>
                 <div class="panel-body">
-                    <div class="container">
-                        <form action="{{ route('schedule.store') }}" method="post">
-                            @csrf
-                            <input type="hidden" name="order_id" value="{{ $order_id }}">
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Chọn Xe</label>
-                                        <select name="ord_select" class="input-control">
-                                            @for ($i = 1; $i < 9; $i++)
-                                                @if ($i == 6)
-                                                    <option value="{{ $i }}">Xe Thuê</option>
-                                                @elseif ($i == 7)
-                                                    <option value="{{ $i }}">Xe Tăng Cường</option>
-                                                @elseif ($i == 8)
-                                                    <option value="{{ $i }}">Xe Siêu Âm</option>
-                                                @else
-                                                    <option value="{{ $i }}">Xe {{ $i }}</option>
-                                                @endif
-                                            @endfor
-                                        </select>
-                                    </div>
+                    <form action="{{ route('schedule.store') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="order_id" value="{{ $order_id }}">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Chọn Xe</label>
+                                    <select name="car_name" class="input-control">
+                                        @for ($i = 1; $i < 9; $i++)
+                                            @if ($i == 6)
+                                                <option value="{{ $i }}">Xe Thuê</option>
+                                            @elseif ($i == 7)
+                                                <option value="{{ $i }}">Xe Tăng Cường</option>
+                                            @elseif ($i == 8)
+                                                <option value="{{ $i }}">Xe Siêu Âm</option>
+                                            @else
+                                                <option value="{{ $i }}">Xe {{ $i }}</option>
+                                            @endif
+                                        @endfor
+                                    </select>
                                 </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Chọn Tài xế</label>
-                                        <select name="car_driver_name" class="input-control">
-                                            @foreach ($getAllStaff as $key => $staff)
-                                                @if ($staff->staff_role == 'TX')
-                                                    <option value="{{ $staff->staff_name }}_{{ $staff->staff_phone }}">
-                                                        {{ $staff->staff_name }}</option>
-                                                @endif
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Chọn Tài xế</label>
+                                    <select name="car_driver_name" class="input-control">
+                                        @foreach ($getAllStaff as $key => $staff)
+                                            @if ($staff->staff_role == 'TX')
+                                                <option value="{{ $staff->staff_name }}_{{ $staff->staff_phone }}">
+                                                    {{ $staff->staff_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Chọn KTV 1</label>
-                                        <select name="car_ktv_name_1" class="input-control">
-                                            @foreach ($getAllStaff as $key => $staff)
-                                                @if ($staff->staff_role == 'KTV')
-                                                    <option value="{{ $staff->staff_name }}_{{ $staff->staff_phone }}">
-                                                        {{ $staff->staff_name }}</option>
-                                                @endif
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Chọn KTV 1</label>
+                                    <select name="car_ktv_name_1" class="input-control">
+                                        <option selected value="">Trống</option>
+                                        @foreach ($getAllStaff as $key => $staff)
+                                            @if ($staff->staff_role == 'KTV')
+                                                <option value="{{ $staff->staff_name }}_{{ $staff->staff_phone }}">
+                                                    {{ $staff->staff_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>Chọn KTV 2</label>
-                                        <select name="car_ktv_name_2" class="input-control">
-                                            @foreach ($getAllStaff as $key => $staff)
-                                                @if ($staff->staff_role == 'KTV')
-                                                    <option value="{{ $staff->staff_name }}_{{ $staff->staff_phone }}">
-                                                        {{ $staff->staff_name }}</option>
-                                                @endif
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>Chọn KTV 2</label>
+                                    <select name="car_ktv_name_2" class="input-control">
+                                        <option selected value="">Trống</option>
+                                        @foreach ($getAllStaff as $key => $staff)
+                                            @if ($staff->staff_role == 'KTV')
+                                                <option value="{{ $staff->staff_name }}_{{ $staff->staff_phone }}">
+                                                    {{ $staff->staff_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
                                 </div>
-                                {{-- <div class="row">
+                            </div>
+
+                            {{-- <div class="row">
                                     @for ($i = 1; $i < 9; $i++)
                                         <div class="col-lg-6 col-md-6">
                                             <section>
@@ -141,10 +143,24 @@
                                         </div>
                                     @endfor
                                 </div> --}}
-                            </div>
-                            <div class="row">
-                                <div class="block-btn-schedule">
-                                    @if (Auth::user()->role == 0)
+                        </div>
+                        <div class="row">
+                            <div class="block-btn-schedule">
+                                @if (Auth::user()->role == 0)
+                                    <div class="col-lg-4">
+                                        <button type="submit" value="true" name="zalo"
+                                            class="primary-btn-submit button-submit">
+                                            Thêm Lịch (Gửi Zalo)
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <button type="submit" value="true" name="notZalo"
+                                            class="primary-btn-submit button-submit">
+                                            Thêm Lịch (Không gửi Zalo)
+                                        </button>
+                                    </div>
+                                @else
+                                    @if (Carbon\Carbon::now() < $order->ord_start_day)
                                         <div class="col-lg-4">
                                             <button type="submit" value="true" name="zalo"
                                                 class="primary-btn-submit button-submit">
@@ -157,26 +173,11 @@
                                                 Thêm Lịch (Không gửi Zalo)
                                             </button>
                                         </div>
-                                    @else
-                                        @if (Carbon\Carbon::now() < $order->ord_start_day)
-                                            <div class="col-lg-4">
-                                                <button type="submit" value="true" name="zalo"
-                                                    class="primary-btn-submit button-submit">
-                                                    Thêm Lịch (Gửi Zalo)
-                                                </button>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <button type="submit" value="true" name="notZalo"
-                                                    class="primary-btn-submit button-submit">
-                                                    Thêm Lịch (Không gửi Zalo)
-                                                </button>
-                                            </div>
-                                        @endif
                                     @endif
-                                </div>
+                                @endif
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </section>
         </div>

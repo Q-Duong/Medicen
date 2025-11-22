@@ -67,6 +67,7 @@ final class AccountantBuilder extends Builder
                 'accountants.order_id',
                 'order_quantity',
                 'order_vat',
+                'order_all_in_one',
                 'order_cost',
                 'order_percent_discount',
                 'order_price',

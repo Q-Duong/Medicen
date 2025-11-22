@@ -789,14 +789,29 @@ class OrderController extends Controller
 		return $output;
 	}
 
+
+	function weekendPlusDayFunction($dateString, $numberOfDaysAdded)
+	{
+		$startDay = Carbon::parse($dateString);
+		$numberOfWeekends = 0;
+		for ($i = 1; $i <= $numberOfDaysAdded; $i++) {
+			$ngayKiemTra = $startDay->copy()->addDays($i);
+			if ($ngayKiemTra->isWeekend()) {
+				$numberOfWeekends++;
+			}
+		}
+		$totalNumberOfDaysAdded = $numberOfDaysAdded + $numberOfWeekends;
+
+		return $startDay->addDays($totalNumberOfDaysAdded)->toDateString();
+	}
+
 	public function deadlineFunction($ord_start_day, $unit, $order_quantity)
 	{
 		$ordStartDay = Carbon::parse($ord_start_day);
 		if ($unit == 28 || $unit == 3 || $unit == 87) {
-			$deadline = $ordStartDay->addDays(6);
-			return $deadline->toDateString();
+			return $this->weekendPlusDayFunction($ord_start_day, 6);
 		}
-		
+
 		if ($ordStartDay->month == '04') {
 			$firstDayofThisMonth = $ordStartDay->year . '-04-01';
 			$lastDayofThisMonth = $ordStartDay->year . '-04-30';
@@ -816,10 +831,10 @@ class OrderController extends Controller
 		$countOrders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth)->count();
 
 		if ($order_quantity >= 150 && $countOrders > 40) {
-			$deadline = $ordStartDay->addDays(6);
+			$deadline = $this->weekendPlusDayFunction($ord_start_day, 6);
 		} else {
-			$deadline = $ordStartDay->addDays(4);
+			$deadline = $this->weekendPlusDayFunction($ord_start_day, 4);
 		}
-		return $deadline->toDateString();
+		return $deadline;
 	}
 }

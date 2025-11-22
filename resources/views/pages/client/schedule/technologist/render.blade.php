@@ -359,6 +359,57 @@
                 @endforeach
             </ul>
         </li>
+
+        <li class="events-group">
+            <div class="top-info child-8"><span>Xe Siêu Âm</span></div>
+            <ul>
+                @foreach ($orders as $key => $order)
+                    @if ($order->car_name == 8 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
+                        @php
+                            $str1 = explode(' ', $order->car_ktv_name_1);
+                            $name1 = array_pop($str1);
+                            $str2 = explode(' ', $order->car_ktv_name_2);
+                            $name2 = array_pop($str2);
+                        @endphp
+                        <li class="single-event"
+                            data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                            data-content="event-rowing-workout" data-event="event-5"
+                            data-child="{{ $order->order_child }}">
+                            @if ($order->order_updated == 1)
+                                <div class="order-status">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            @endif
+                            <a href="javascript:;">
+                                <em class="event-name-id"><span class="item-title">Mã Đơn:
+                                        {{ $order->order_id }}</em>
+                                <em class="event-name"><span class="item-title">KTV:
+                                        {{ $name1 }},
+                                        {{ $name2 }}</em>
+                                <em class="event-name-unit"><span class="item-title">Đơn vị:
+                                        {{ $order->unit_name }}</em>
+                                <em class="event-id hidden">{{ $order->order_id }}</em>
+                                <em class="event-car-id hidden">{{ $order->id }}</em>
+                                <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                <em class="event-select hidden">{{ $order->ord_select }}</em>
+                                <em class="event-cty-name hidden">{{ $order->ord_cty_name }}</em>
+                                <em class="event-order-note hidden">{{ $order->ord_note }}</em>
+                                <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
+                                <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
+                                <em class="event-time hidden">{{ $order->ord_time }} giờ</em>
+                                <em class="event-address hidden">{{ $order->customer_address }}</em>
+                                <em class="event-note hidden">{{ $order->customer_note }}</em>
+                                <em class="event-info-contact hidden">{{ $order->customer_name }}
+                                    ({{ $order->customer_phone }})</em>
+                                <em class="event-quantity hidden">{{ $order->order_quantity }} Cas</em>
+                                <em class="event-quantity-ktv hidden">{{ $order->order_quantity_draft }}</em>
+                                <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
+                            </a>
+                        </li>
+                    @endif
+                @endforeach
+            </ul>
+        </li>
     </ul>
 </div>
 <div class="event-modal">
