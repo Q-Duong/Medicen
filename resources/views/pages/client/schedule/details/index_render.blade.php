@@ -84,7 +84,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -93,7 +93,7 @@
                                         <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -165,7 +165,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -175,7 +175,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -250,7 +250,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -260,7 +260,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -335,7 +335,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -345,7 +345,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -420,7 +420,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -430,7 +430,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -505,7 +505,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -515,7 +515,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -590,7 +590,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -600,7 +600,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}
@@ -675,7 +675,7 @@
                                         <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
                                                 {{ $name2 }}</em>
                                         <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_name }}</em>
+                                                {{ $order->unit_abbreviation }}</em>
                                         <em class="event-status hidden">{{ $order->status_id }}</em>
                                         <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
                                         <em class="event-warning hidden">{{ $order->order_warning }}</em>
@@ -685,7 +685,7 @@
                                             class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
                                         <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
                                         <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_name }}</em>
+                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
                                         <em class="event-address hidden">{{ $order->customer_address }}</em>
                                         <em class="event-note hidden">{{ $order->customer_note }}</em>
                                         <em class="event-info-contact hidden">{{ $order->customer_name }}

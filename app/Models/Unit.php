@@ -15,7 +15,9 @@ class Unit extends Model
 
     protected $fillable = [
         'unit_code',
-        'unit_name'
+        'unit_abbreviation',
+        'unit_name',
+        'unit_tax_code'
     ];
     
     public function order()
