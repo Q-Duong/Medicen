@@ -98,7 +98,7 @@ if (!function_exists('carRenameFunction')) {
         } elseif ($car == 7) {
             $car = 'Xe tăng cường';
         } elseif ($car == 8) {
-            $car = 'Xe siêu âm';
+            $car = 'Siêu âm';
         }
         return $car;
     }
