@@ -73,6 +73,8 @@
                                     Xe thuê
                                 @elseif($car == 7)
                                     Xe tăng cường
+                                @elseif($car == 8)
+                                    Siêu âm
                                 @else
                                     {{ $car }}
                                 @endif
@@ -426,7 +428,7 @@
                     <td class="sticky-col third-col">
                         {{ date('d/m/Y', strtotime($accountant->ord_start_day)) }}</td>
                     <td class="sticky-col fourth-col">
-                        {{carRenameFunction($accountant->car_name)}}
+                        {{ carRenameFunction($accountant->car_name) }}
                     </td>
                     <td class="sticky-col fifth-col">
                         {{ $accountant->accountant_distance }}
