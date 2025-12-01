@@ -250,18 +250,14 @@ class StatisticsController extends Controller
                     'kpi' => number_format((($getPerformanceResults->count() - $getPerformanceResults->where('performance', 0)->count()) / $getPerformanceResults->count() * 100), 0)
                 ];
 
-            $pdf = Pdf::setOptions([
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-            ])
-                ->setPaper('a4')->loadView('pages.admin.statistics.performance', [
-                    'orders' => $orders,
-                    'totalPerformance' => $totalPerformance,
-                    'totalPerformanceSales' => $totalPerformanceSales,
-                    'totalPerformanceTechnicians' => $totalPerformanceTechnicians,
-                    'total' => $total,
-                    'totalPerformanceResults' => $totalPerformanceResults,
-                ]);
+            $pdf = Pdf::setOptions(['isHtml5ParserEnabled' => true])->loadView('pages.admin.statistics.performance', [
+                'orders' => $orders,
+                'totalPerformance' => $totalPerformance,
+                'totalPerformanceSales' => $totalPerformanceSales,
+                'totalPerformanceTechnicians' => $totalPerformanceTechnicians,
+                'total' => $total,
+                'totalPerformanceResults' => $totalPerformanceResults,
+            ]);
 
             return $pdf->stream('Performance-Analysis.pdf');
         }

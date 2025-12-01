@@ -831,9 +831,9 @@ class OrderController extends Controller
 		$countOrders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth)->count();
 
 		if ($order_quantity >= 150 && $countOrders > 40) {
-			$deadline = $this->weekendPlusDayFunction($ord_start_day, 6);
+			$deadline = $this->weekendPlusDayFunction($ord_start_day, 7);
 		} else {
-			$deadline = $this->weekendPlusDayFunction($ord_start_day, 4);
+			$deadline = $this->weekendPlusDayFunction($ord_start_day, 5);
 		}
 		return $deadline;
 	}
