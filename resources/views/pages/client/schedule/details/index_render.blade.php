@@ -114,7 +114,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
                                         <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
@@ -197,7 +197,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
@@ -282,7 +282,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
@@ -367,7 +367,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
@@ -452,7 +452,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
@@ -537,7 +537,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
@@ -622,7 +622,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
@@ -707,7 +707,7 @@
                                         <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
                                         <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
                                         <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ $order->ord_deadline }}</em>
+                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
                                         <em
                                             class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
                                         <em class="event-email hidden">{{ $order->ord_email }}</em>
