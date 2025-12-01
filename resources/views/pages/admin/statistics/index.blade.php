@@ -1,63 +1,66 @@
-<!doctype html>
-<html lang="{{ app()->getLocale() }}">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Invitation Letter</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-</head>
-
-<body
-    style="font-family: SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif; width: 100%; height: 100%; background: #f5f5f7;margin: 0;">
-    <div style="margin: 0 auto; width: 600px; padding: 40px 0">
-        <a href="https://vart.vn/"
-            style="display: flex; margin: 0 auto; width: 106px; text-decoration: none; color: #601e89;">
-            <img src="https://images.vart.vn/gmail/hrtta-logo.png" style="height: 50px; width: 50px;">
-            <h4 style="text-align: left; text-transform: uppercase; font-size: 14px; margin-left: 10px;">
-                
-            </h4>
-        </a>
+@extends('layouts.default_auth')
+@section('admin_content')
+    <div class="chart_statistic">
+        <p class="chart-statistic-title">Thống kê doanh thu</p>
+        <div class="chart-statistic-content">
+            <div class="filter">
+                <div class="filter-title">
+                    <p class="filter-title-text">
+                        Bộ lọc
+                    </p>
+                </div>
+                <div class="filter-content">
+                    <div class="row">
+                        <form role="form" action="{{ route('statistics.performance_analysis') }}" method="post">
+                            @csrf
+                            <div class="col-md-4">
+                                <div class="col-md-6">
+                                    <p class="filter-content-title">Chọn năm</p>
+                                    <select name="year" class="input-control select-year">
+                                        @for ($i = 0; $i <= 10; $i++)
+                                            <option value="{{ $i + 2023 }}"
+                                                {{ Carbon\Carbon::now()->format('Y') == $i + 2023 ? 'selected' : '' }}>
+                                                {{ $i + 2023 }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="filter-content-title">Chọn tháng</p>
+                                    <select name="month" class="input-control select-month-details">
+                                        <option disabled="" class="define-month-details">Chọn tháng</option>
+                                        <option value="January" {{ Carbon\Carbon::now()->format('F') == 'January' ? 'selected' : '' }}>1</option>
+                                        <option value="February" {{ Carbon\Carbon::now()->format('F') == 'February' ? 'selected' : '' }}>2</option>
+                                        <option value="March" {{ Carbon\Carbon::now()->format('F') == 'March' ? 'selected' : '' }}>3</option>
+                                        <option value="April" {{ Carbon\Carbon::now()->format('F') == 'April' ? 'selected' : '' }}>4</option>
+                                        <option value="May" {{ Carbon\Carbon::now()->format('F') == 'May' ? 'selected' : '' }}>5</option>
+                                        <option value="June" {{ Carbon\Carbon::now()->format('F') == 'June' ? 'selected' : '' }}>6</option>
+                                        <option value="July" {{ Carbon\Carbon::now()->format('F') == 'July' ? 'selected' : '' }}>7</option>
+                                        <option value="August" {{ Carbon\Carbon::now()->format('F') == 'August' ? 'selected' : '' }}>8</option>
+                                        <option value="September" {{ Carbon\Carbon::now()->format('F') == 'September' ? 'selected' : '' }}>9</option>
+                                        <option value="October" {{ Carbon\Carbon::now()->format('F') == 'October' ? 'selected' : '' }}>10</option>
+                                        <option value="November" {{ Carbon\Carbon::now()->format('F') == 'November' ? 'selected' : '' }}>11</option>
+                                        <option value="December" {{ Carbon\Carbon::now()->format('F') == 'December' ? 'selected' : '' }}>12</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="primary-btn-submit button-submit">Performance Analysis
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                {{-- <form role="form" action="{{ route('statistics.performance_analysis') }}" method="post">
+                    @csrf
+                    <button type="submit" class="primary-btn-submit button-submit">Performance Analysis
+                    </button>
+                </form> --}}
+            </div>
+        </div>
     </div>
-    <div
-        style="background: #ffffff;border-radius: 20px;padding: 20px;  width: 700px; margin: 0 auto; position: relative;">
-        <div style="display: flex; align-items: center;">
-            <img src="https://images.vart.vn/gmail/hrtta-logo.png" style="height: 50px; width: 50px; float: left;">
-            <h4 style="text-align: left; text-transform: uppercase; font-size: 14px; margin-left: 10px;">
-                HỘI KỸ THUẬT XẠ TRỊ THÀNH PHỐ HỒ CHÍ MINH
-            </h4>
-        </div>
-        <div>
-            <h3 style="text-align: center; color: #601e89;">
-                BẢNG BÁO CÁO HIỆU SUẤT CÔNG VIỆC
-            </h3>
-        </div>
-        <div style="width: 86%; margin: 50px auto;">
-            Thời gian: Từ 01/10/2025 đến 31/10/2025
-        </div>
-        <div style="width: 86%; margin: 50px auto;">
-            Tổng số đơn: {{$orders->count()}}
-        </div>
-        <div style="width: 86%; margin: 50px auto;">
-            BỘ PHẬN KẾT QUẢ
-        </div>
-    </div>
-    <div style="margin: 0 auto; width: 600px; padding: 40px 0">
-        <div style="display: flex; margin: 0 auto; width: 244px; font-size: 13px">
-            <a href="https://vart.vn/vart" style="color: #601e89;">VART</a>&nbsp;•&nbsp;
-            <a href="https://vart.vn/hart" style="color: #601e89;">HART</a>&nbsp;•&nbsp;
-            <a href="https://vart.vn/conference" style="color: #601e89;">Conference</a>&nbsp;•&nbsp;
-            <a href="https://vart.vn/forum" style="color: #601e89;">Forum</a>&nbsp;•&nbsp;
-            <a href="https://vart.vn/blog" style="color: #601e89;">Blog</a>
-        </div>
-        <div style="text-align: center; margin-top: 25px ; font-size: 13px">Bản quyền © Vart.
-            {{ \Carbon\Carbon::now()->year }} Bảo lưu mọi quyền.</div>
-        <div style="text-align: center; margin-top: 5px ; font-size: 13px">Bệnh viện Bạch Mai Hà Nội, 78 Đường Giải
-            Phóng,
-            Phường Phương Mai, Quận Đống Đa, Hà Nội.</div>
-    </div>
-</body>
-
-</html>
+@endsection
+@push('js')
+    </script>
+@endpush

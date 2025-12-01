@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Accountant;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Profile;
 use App\Models\Statistic;
+use App\Models\User;
 use Carbon\Carbon;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StatisticsController extends Controller
 {
@@ -144,7 +146,7 @@ class StatisticsController extends Controller
             if ($deliveryDate->isAfter($now) || $deliveryDate->equalTo($now)) {
                 $dateEqual = $deliveryDate;
             }
-        } 
+        }
 
         if ($dateEqual->isBefore($deadline) || $dateEqual->equalTo($deadline)) {
             $performanceScore = 100;
@@ -160,39 +162,110 @@ class StatisticsController extends Controller
         return $response;
     }
 
+    public function index()
+    {
+        return view('pages.admin.statistics.index');
+    }
+
     public function performanceAnalysis(Request $request)
     {
+        if ($request->month == 'April') {
+            $firstDayOfThisMonth = $request->year . '-04-01';
+            $lastDayOfThisMonth = $request->year . '-04-30';
+        } elseif ($request->month == 'June') {
+            $firstDayOfThisMonth = $request->year . '-06-01';
+            $lastDayOfThisMonth = $request->year . '-06-30';
+        } elseif ($request->month == 'September') {
+            $firstDayOfThisMonth = $request->year . '-09-01';
+            $lastDayOfThisMonth = $request->year . '-00-30';
+        } elseif ($request->month == 'November') {
+            $firstDayOfThisMonth = $request->year . '-11-01';
+            $lastDayOfThisMonth = $request->year . '-11-30';
+        } else {
+            $firstDayOfThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
+            $lastDayOfThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
+        }
+        $orders = Order::getScheduleDetails('2025-11-01', '2025-11-30');
+        $getPerformances = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('performance_analysis', 'performance_analysis.order_id', '=', 'orders.id')
+            ->select(
+                'orders.id',
+                'unit_abbreviation',
+                'unit_name',
+                'ord_start_day',
+                'ord_end_day',
+                'user_id',
+                'part',
+                'performance',
+                'description',
+                'first_edit_time',
+                'status'
+            )
+            ->whereBetween('ord_start_day', [$firstDayOfThisMonth, $lastDayOfThisMonth])
+            ->whereBetween('ord_end_day', [$firstDayOfThisMonth, $lastDayOfThisMonth])
+            ->orderBy('ord_start_day', 'ASC')
+            ->orderBy('unit_abbreviation', 'DESC')
+            ->get();
 
+        if ($getPerformances->count() > 1) {
+            $totalPerformance =
+                [
+                    'total' => $getPerformances->count(),
+                    'missed' => $getPerformances->where('performance', 0)->count(),
+                    'kpi' => number_format((($getPerformances->count() - $getPerformances->where('performance', 0)->count()) / $getPerformances->count() * 100), 0)
+                ];
 
-        $data = $request->all();
-        $statistic_complete = 0;
-        $statistic_cas = 0;
+            $getPerformanceSales = $getPerformances->where('part', 1);
+            $totalPerformanceSales =
+                [
+                    'missed' => $getPerformanceSales->where('performance', 0)->count(),
+                    'data' => $getPerformanceSales->where('performance', 0),
+                    'kpi' => number_format((($getPerformances->count() - $getPerformanceSales->where('performance', 0)->count()) / $getPerformances->count() * 100), 0)
+                ];
 
-        // if ($request->month == 'April') {
-        // 	$firstDayofThisMonth = $request->year . '-04-01';
-        // 	$lastDayofThisMonth = $request->year . '-04-30';
-        // 	$dayInMonth = 30;
-        // } elseif ($request->month == 'June') {
-        // 	$firstDayofThisMonth = $request->year . '-06-01';
-        // 	$lastDayofThisMonth = $request->year . '-06-30';
-        // 	$dayInMonth = 30;
-        // } elseif ($request->month == 'September') {
-        // 	$firstDayofThisMonth = $request->year . '-09-01';
-        // 	$lastDayofThisMonth = $request->year . '-00-30';
-        // 	$dayInMonth = 30;
-        // } elseif ($request->month == 'November') {
-        // 	$firstDayofThisMonth = $request->year . '-11-01';
-        // 	$lastDayofThisMonth = $request->year . '-11-30';
-        // 	$dayInMonth = 30;
-        // } else {
-        // 	$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-        // 	$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-        // 	$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-        // }
-        $orders = Order::getScheduleDetails('2025-10-01', '2025-10-31');
+            $getPerformanceTechnicians = $getPerformances->where('part', 2);
+            $total = $getPerformances->where('part', 2)->count();
+            $userId = $getPerformances->where('part', 2)->pluck('user_id')
+                ->unique()
+                ->values();
+            foreach ($userId as $key => $id) {
+                $profile = Profile::findOrFail(User::findOrFail($id)->profile_id);
+                $totalPerformanceTechnicians[$key] =
+                    [
+                        'name' => $profile->profile_firstname . ' ' . $profile->profile_lastname,
+                        'total' => $getPerformanceTechnicians->where('user_id', $id)->count(),
+                        'missed' => $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0)->count(),
+                        'data' => $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0),
+                        'kpi' => number_format((($getPerformanceTechnicians->where('user_id', $id)->count() - $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0)->count()) / $getPerformanceTechnicians->where('user_id', $id)->count() * 100), 0)
+                    ];
+            }
 
+            $getPerformanceResults = $getPerformances->where('part', 3);
+            $totalPerformanceResults =
+                [
+                    'total' => $getPerformanceResults->count(),
+                    'missed' => $getPerformanceResults->where('performance', 0)->count(),
+                    'data' => $getPerformanceResults->where('performance', 0),
+                    'kpi' => number_format((($getPerformanceResults->count() - $getPerformanceResults->where('performance', 0)->count()) / $getPerformanceResults->count() * 100), 0)
+                ];
 
+            $pdf = Pdf::setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+            ])
+                ->setPaper('a4')->loadView('pages.admin.statistics.performance', [
+                    'orders' => $orders,
+                    'totalPerformance' => $totalPerformance,
+                    'totalPerformanceSales' => $totalPerformanceSales,
+                    'totalPerformanceTechnicians' => $totalPerformanceTechnicians,
+                    'total' => $total,
+                    'totalPerformanceResults' => $totalPerformanceResults,
+                ]);
 
-        return view('pages.admin.statistics.index')->with(compact('orders'));
+            return $pdf->stream('Performance-Analysis.pdf');
+        }
+
+        return Redirect()->back()->with('success', 'Không có dữ liệu');
     }
 }

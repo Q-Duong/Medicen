@@ -218,6 +218,13 @@
                     </a>
                 </li>
                 <li class="sub-menu">
+                    <a class="{{ request()->routeIs('statistics.index') ? 'active' : '' }}"
+                        href="{{ route('statistics.index') }}">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Tính KPI</span>
+                    </a>
+                </li>
+                <li class="sub-menu">
                     <a class="{{ request()->routeIs('history.index') ? 'active' : '' }}"
                         href="{{ route('history.index') }}">
                         <i class="fas fa-history"></i>

@@ -118,7 +118,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::post('optional-revenue', [StatisticsController::class, 'optionalRevenue'])->name('statistics.optional_revenue');
         Route::post('revenue-for-the-month', [StatisticsController::class, 'revenueForTheMonth'])->name('statistics.revenue_for_the_month');
         Route::post('revenue-by-unit', [StatisticsController::class, 'revenueByUnit'])->name('statistics.revenue_by_unit');
-        Route::get('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis');
+        Route::get('/', [StatisticsController::class, 'index'])->name('statistics.index');
+        Route::post('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis');
     });
 
     //Information Account

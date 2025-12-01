@@ -62,7 +62,7 @@
                                 <select name="unit_id" class="select-2 unit-id">
                                     @foreach ($getAllUnit as $key => $unit)
                                         <option {{ $unit->id == $order->unit_id ? 'selected' : '' }}
-                                            value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+                                            value="{{ $unit->id }}">{{ $unit->unit_abbreviation }}</option>
                                     @endforeach
                                 </select>
                             </div>

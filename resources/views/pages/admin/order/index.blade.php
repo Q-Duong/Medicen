@@ -33,7 +33,7 @@
                                 <td>{{ \Carbon\Carbon::parse($order->created_at)->format('H:i:s d/m/Y') }}</td>
                                 <td>{{ $order->id }}</td>
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
-                                <td>{{ $order->unit_name }}</td>
+                                <td>{{ $order->unit_abbreviation }}</td>
                                 <td>{{ $order->ord_cty_name }}</td>
                                 <td>{{ $order->ord_type == 1 ? "X-Quang" : "Siêu Âm" }}</td>
                                 <td>{{ $order->order_quantity }}</td>

@@ -103,3 +103,17 @@ if (!function_exists('carRenameFunction')) {
         return $car;
     }
 }
+
+if (!function_exists('colorKPI')) {
+    function colorKPI($kpi)
+    {
+        if ($kpi >= 90) {
+            $class = 'type-1';
+        } elseif ($kpi >= 80) {
+            $class = 'type-2';
+        } elseif ($kpi < 79 ) {
+            $class = 'type-3';
+        }
+        return $class;
+    }
+}

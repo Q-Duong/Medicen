@@ -64,8 +64,8 @@
                                 <label for="exampleInputPassword1">Đơn vị thuê xe</label>
                                 <select name="unit_id" class="select-2">
                                     @foreach ($getAllUnit as $key => $unit)
-                                        <option {{ $unit->id == $order->order->unit->unit_id ? 'selected' : '' }}
-                                            value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+                                        <option {{ $unit->id == $order->order->unit_id ? 'selected' : '' }}
+                                            value="{{ $unit->id }}">{{ $unit->unit_abbreviation }}</option>
                                     @endforeach
                                 </select>
                             </div>
