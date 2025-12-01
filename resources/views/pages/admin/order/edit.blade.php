@@ -630,12 +630,17 @@
                                     hàng
                                 </button>
                             @else
-                                @if (
-                                    ($order->status_id == 0 || $order->status_id == 1 || $order->status_id == 2) &&
-                                        Carbon\Carbon::now() < $order->ord_start_day)
-                                    <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin đơn
-                                        hàng
-                                    </button>
+                                @php
+                                    $now = Carbon\Carbon::now()->setTime(0, 0, 0);
+                                    $dateEqual = Carbon\Carbon::parse($order->ord_start_day);
+                                @endphp
+                                @if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual))
+                                    @if ($order->status_id == 0 || $order->status_id == 1)
+                                        <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin
+                                            đơn
+                                            hàng
+                                        </button>
+                                    @endif
                                 @endif
                             @endif
                         </form>

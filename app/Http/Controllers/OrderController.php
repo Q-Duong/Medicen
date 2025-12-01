@@ -430,8 +430,8 @@ class OrderController extends Controller
 
 	public function copy($order_id)
 	{
-		$order = Accountant::where('order_id', $order_id)->first();
-		$files = array_combine(explode(',', $order->order->orderDetail->ord_list_file), explode(',', $order->order->orderDetail->ord_list_file_path));
+		$order = Order::getOneOrder($order_id);
+		$files = array_combine(explode(',', $order->ord_list_file), explode(',', $order->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
 		return view('pages.admin.order.copy', compact('order', 'getAllUnit', 'files'));
 	}
@@ -809,7 +809,7 @@ class OrderController extends Controller
 	{
 		$ordStartDay = Carbon::parse($ord_start_day);
 		if ($unit == 28 || $unit == 3 || $unit == 87) {
-			return $this->weekendPlusDayFunction($ord_start_day, 6);
+			return $this->weekendPlusDayFunction($ord_start_day, 7);
 		}
 
 		if ($ordStartDay->month == '04') {

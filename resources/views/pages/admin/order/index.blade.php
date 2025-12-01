@@ -35,7 +35,7 @@
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
                                 <td>{{ $order->unit_abbreviation }}</td>
                                 <td>{{ $order->ord_cty_name }}</td>
-                                <td>{{ $order->ord_type == 1 ? "X-Quang" : "Siêu Âm" }}</td>
+                                <td>{{ $order->ord_type == 1 ? 'X-Quang' : 'Siêu Âm' }}</td>
                                 <td>{{ $order->order_quantity }}</td>
                                 <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
                                 <td>{{ $order->ord_select }}</td>
@@ -86,7 +86,11 @@
                                         @endif
                                     </td>
                                 @else
-                                    @if (Carbon\Carbon::now() < $order->ord_start_day)
+                                    @php
+                                        $now = Carbon\Carbon::now()->setTime(0, 0, 0);
+                                        $dateEqual = Carbon\Carbon::parse($order->ord_start_day);
+                                    @endphp
+                                    @if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual))
                                         <td class="management">
                                             <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                     class="fa fa-pencil-square-o text-success text-active"></i>
