@@ -8,7 +8,7 @@
                     <div class="breadcrumb__text">
                         <h4>Đăng nhập</h4>
                         <div class="breadcrumb__links">
-                            <a href="{{ URL::to('/') }}">Trang chủ</a>
+                            <a href="{{ route('home.index') }}">Trang chủ</a>
                             <span>Đăng nhập</span>
                         </div>
                     </div>
@@ -20,7 +20,7 @@
     <section class="checkout spad">
         <div class="container">
             <div class="checkout__form">
-                <form action="{{ URL::to('/login-schedule') }}" method="POST">
+                <form action="{{ route('schedules.login.post') }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="col-lg-5 col-md-5">

@@ -110,7 +110,7 @@
     <div class="main">
         <div>
             <h2 class="title">
-                BÁO CÁO HIỆU SUẤT HOẠT ĐỘNG THÁNG 11
+                BÁO CÁO HIỆU SUẤT HOẠT ĐỘNG THÁNG {{ $date }}
             </h2>
         </div>
         <div class="description">
@@ -138,123 +138,129 @@
 
             <div class="section-2">
                 <h4 class="sub-title">CHI TIẾT 3 BỘ PHẬN</h4>
-                <div>
-                    <h5 class="title-center {{ colorKPI($totalPerformanceSales['kpi']) }}">1. BỘ PHẬN SALES</h5>
-                    <div class="content">
-                        <ul class="list-item">
-                            <li><strong>KPI: <span
-                                        class="{{ colorKPI($totalPerformanceSales['kpi']) }}">{{ $totalPerformanceSales['kpi'] }}%</span></strong>
-                            </li>
-                            <li><strong>Tổng số đơn đã vi phạm:</strong> {{ $totalPerformanceSales['missed'] }}</li>
-                            <li><strong>Những đơn đã vi phạm:</strong>
-                                <table class="description-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Stt</th>
-                                            <th>Đơn vị</th>
-                                            <th>Ngày</th>
-                                            <th>Mô tả vi phạm</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($totalPerformanceSales['data'] as $key => $result)
-                                            <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $result->unit_abbreviation }}</td>
-                                                <td>Ngày
-                                                    {{ Carbon\Carbon::parse($result->ord_start_day)->format('d/m/Y') }}
-                                                </td>
-                                                <td>{{ $result->description }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div>
-                    <h5 class="title-center">2. BỘ PHẬN KTV</h5>
-                    @foreach ($totalPerformanceTechnicians as $key => $technician)
+                @isset($totalPerformanceSales)
+                    <div>
+                        <h5 class="title-center {{ colorKPI($totalPerformanceSales['kpi']) }}">1. BỘ PHẬN SALES</h5>
                         <div class="content">
-                            <h5 class="title-left {{ colorKPI($technician['kpi']) }}">{{ $technician['name'] }}</h5>
                             <ul class="list-item">
-                                <li><strong>KPI:
-                                        <span
-                                            class="{{ colorKPI($technician['kpi']) }}">{{ $technician['kpi'] }}%</span>
-                                    </strong>
+                                <li><strong>KPI: <span
+                                            class="{{ colorKPI($totalPerformanceSales['kpi']) }}">{{ $totalPerformanceSales['kpi'] }}%</span></strong>
                                 </li>
-                                <li><strong>Tổng số đơn đã hoàn thành:</strong> {{ $technician['total'] }}
-                                </li>
-                                <li><strong>Tổng số đơn đã trễ deadline:</strong> {{ $technician['missed'] }}
-                                </li>
-                                @if ($technician['data']->count() >= 1)
-                                    <li><strong>Những ngày đã trễ deadline:</strong>
-                                        <table class="description-table">
-                                            <thead>
+                                <li><strong>Tổng số đơn đã vi phạm:</strong> {{ $totalPerformanceSales['missed'] }}</li>
+                                <li><strong>Những đơn đã vi phạm:</strong>
+                                    <table class="description-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Stt</th>
+                                                <th>Đơn vị</th>
+                                                <th>Ngày</th>
+                                                <th>Mô tả vi phạm</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($totalPerformanceSales['data'] as $key => $result)
                                                 <tr>
-                                                    <th>Stt</th>
-                                                    <th>Đơn vị</th>
-                                                    <th>Ngày</th>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $result->unit_abbreviation }}</td>
+                                                    <td>Ngày
+                                                        {{ Carbon\Carbon::parse($result->ord_start_day)->format('d/m/Y') }}
+                                                    </td>
+                                                    <td>{{ $result->description }}</td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($technician['data'] as $key => $technicianData)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $technicianData->unit_abbreviation }}</td>
-                                                        <td>Ngày
-                                                            {{ Carbon\Carbon::parse($technicianData->ord_start_day)->format('d/m/Y') }}
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </li>
-                                @endif
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </li>
                             </ul>
                         </div>
-                    @endforeach
-                </div>
-
-                <div>
-                    <h5 class="title-center {{ colorKPI($totalPerformanceResults['kpi']) }}">3. BỘ PHẬN KẾT QUẢ</h5>
-                    <div class="content">
-                        <ul class="list-item">
-                            <li><strong>KPI: <span
-                                        class="{{ colorKPI($totalPerformanceResults['kpi']) }}">{{ $totalPerformanceResults['kpi'] }}%</span>
-                                </strong>
-                            </li>
-                            <li><strong>Tổng số đơn đã hoàn thành:</strong>
-                                {{ $totalPerformanceResults['total'] }}</li>
-                            <li><strong>Tổng số đơn đã trễ deadline:</strong>
-                                {{ $totalPerformanceResults['missed'] }}</li>
-                            <li><strong>Những ngày đã trễ deadline:</strong>
-                                <table class="description-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Stt</th>
-                                            <th>Đơn vị</th>
-                                            <th>Ngày</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($totalPerformanceResults['data'] as $key => $result)
-                                            <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $result->unit_abbreviation }}</td>
-                                                <td>Ngày
-                                                    {{ Carbon\Carbon::parse($result->ord_start_day)->format('d/m/Y') }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </li>
-                        </ul>
                     </div>
-                </div>
+                @endisset
+
+                @isset($totalPerformanceTechnicians)
+                    <div>
+                        <h5 class="title-center">2. BỘ PHẬN KTV</h5>
+                        @foreach ($totalPerformanceTechnicians as $key => $technician)
+                            <div class="content">
+                                <h5 class="title-left {{ colorKPI($technician['kpi']) }}">{{ $technician['name'] }}</h5>
+                                <ul class="list-item">
+                                    <li><strong>KPI:
+                                            <span
+                                                class="{{ colorKPI($technician['kpi']) }}">{{ $technician['kpi'] }}%</span>
+                                        </strong>
+                                    </li>
+                                    <li><strong>Tổng số đơn đã hoàn thành:</strong> {{ $technician['total'] }}
+                                    </li>
+                                    <li><strong>Tổng số đơn đã trễ deadline:</strong> {{ $technician['missed'] }}
+                                    </li>
+                                    @if ($technician['data']->count() >= 1)
+                                        <li><strong>Những ngày đã trễ deadline:</strong>
+                                            <table class="description-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Stt</th>
+                                                        <th>Đơn vị</th>
+                                                        <th>Ngày</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($technician['data'] as $key => $technicianData)
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ $technicianData->unit_abbreviation }}</td>
+                                                            <td>Ngày
+                                                                {{ Carbon\Carbon::parse($technicianData->ord_start_day)->format('d/m/Y') }}
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endforeach
+                    </div>
+                @endisset
+
+                @isset($totalPerformanceResults)
+                    <div>
+                        <h5 class="title-center {{ colorKPI($totalPerformanceResults['kpi']) }}">3. BỘ PHẬN KẾT QUẢ</h5>
+                        <div class="content">
+                            <ul class="list-item">
+                                <li><strong>KPI: <span
+                                            class="{{ colorKPI($totalPerformanceResults['kpi']) }}">{{ $totalPerformanceResults['kpi'] }}%</span>
+                                    </strong>
+                                </li>
+                                <li><strong>Tổng số đơn đã hoàn thành:</strong>
+                                    {{ $totalPerformanceResults['total'] }}</li>
+                                <li><strong>Tổng số đơn đã trễ deadline:</strong>
+                                    {{ $totalPerformanceResults['missed'] }}</li>
+                                <li><strong>Những ngày đã trễ deadline:</strong>
+                                    <table class="description-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Stt</th>
+                                                <th>Đơn vị</th>
+                                                <th>Ngày</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($totalPerformanceResults['data'] as $key => $result)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $result->unit_abbreviation }}</td>
+                                                    <td>Ngày
+                                                        {{ Carbon\Carbon::parse($result->ord_start_day)->format('d/m/Y') }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                @endisset
             </div>
         </div>
     </div>

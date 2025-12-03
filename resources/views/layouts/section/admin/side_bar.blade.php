@@ -33,12 +33,6 @@
 
                         </ul>
                     </li>
-                    <li>
-                        <a href="{{ route('schedule.show.technologist') }}" target="_blank">
-                            <i class="far fa-calendar-alt"></i>
-                            <span>Lịch KTV và Xe</span>
-                        </a>
-                    </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant_sales.index') ? 'active' : '' }}"
                             href="{{ route('accountant_sales.index') }}">

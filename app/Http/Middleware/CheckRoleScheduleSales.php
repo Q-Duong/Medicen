@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
-class CheckLoginSchedule
+class CheckRoleScheduleSales
 {
     /**
      * Handle an incoming request.
@@ -18,7 +18,7 @@ class CheckLoginSchedule
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::check()){
+        if(Auth::user()->name == 'Admin' || Auth::user()->name == 'Sale'){
             return $next($request);
         }else{
             Auth::logout();

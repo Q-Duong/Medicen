@@ -3,49 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\PerformanceAnalysis;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
-class ScheduleController extends Controller
+class ScheduleTechniciansController extends Controller
 {
-	public function showLogin()
-	{
-		return view('pages.client.schedule.login');
-	}
-
-	public function login(Request $request)
-	{
-		$data = $request->all();
-		if (Auth::attempt([
-			'email' => $data['email'],
-			'password' => $data['password'],
-		], true)) {
-			switch (Auth::user()->name) {
-				case ('Admin'):
-					$route = 'schedules.results.index';
-					break;
-				case ('Sale'):
-					$route = 'schedules.sales.index';
-					break;
-				case ('Technician'):
-					$route = 'schedules.technicians.index';
-					break;
-				case ('Office'):
-					$route = 'schedules.results.index';
-					break;
-				default:
-					$route = 'dashboard.index';
-					break;
-			}
-			return Redirect::route($route);
-		} else {
-			return Redirect::route('schedules.login')->with('error', 'Mật khẩu hoặc tài khoản bị sai.Vui lòng nhập lại');
-		}
-	}
-
-	//Drivers
 	public function index()
 	{
 		$months = [];
@@ -60,7 +25,7 @@ class ScheduleController extends Controller
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.drivers.index', compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
+		return view('pages.client.schedule.technicians.index', compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
 	}
 
 	public function select(Request $request)
@@ -87,8 +52,43 @@ class ScheduleController extends Controller
 			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
 		}
 		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
-		$view = view('pages.client.schedule.drivers.render', compact('orders', 'dayInMonth'))->render();
+		$view = view('pages.client.schedule.technicians.render', compact('orders', 'dayInMonth'))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
+	}
+
+	public function update(Request $request)
+	{
+		$data = $request->all();
+		$order = Order::findOrFail($request->id);
+		$order->order_quantity_draft = $data['order_quantity_draft'];
+		$order->order_note_ktv = $data['order_note_ktv'];
+		$order->save();
+
+		$ordStartDay = OrderDetail::firstWhere('id', $order->order_detail_id)->ord_start_day;
+
+		$now = Carbon::now()->setTime(0, 0, 0);
+		$dateEqual = Carbon::parse($ordStartDay);
+
+		if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual)) {
+			$performanceScore = 100;
+			$description = 'Completed ahead of schedule';
+			$status = 1;
+		} else {
+			$performanceScore = 0;
+			$description = 'Missed deadline';
+			$status = 0;
+		}
+		$performanceAnalysis = new PerformanceAnalysis();
+		$performanceAnalysis->order_id = $request->id;
+		$performanceAnalysis->user_id = Auth::user()->id;
+		$performanceAnalysis->part = 2;
+		$performanceAnalysis->performance = $performanceScore;
+		$performanceAnalysis->description = $description;
+		$performanceAnalysis->first_edit_time = $order->updated_at;
+		$performanceAnalysis->status = $status;
+		$performanceAnalysis->save();
+
+		return response()->json(array('success' => true));
 	}
 }

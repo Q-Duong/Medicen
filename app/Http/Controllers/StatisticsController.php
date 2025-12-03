@@ -185,7 +185,8 @@ class StatisticsController extends Controller
             $firstDayOfThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
             $lastDayOfThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
         }
-        $orders = Order::getScheduleDetails('2025-11-01', '2025-11-30');
+        $date = Carbon::parse($firstDayOfThisMonth)->format('m/Y');
+        $orders = Order::getScheduleDetails($firstDayOfThisMonth, $lastDayOfThisMonth);
         $getPerformances = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->join('performance_analysis', 'performance_analysis.order_id', '=', 'orders.id')
@@ -208,7 +209,7 @@ class StatisticsController extends Controller
             ->orderBy('unit_abbreviation', 'DESC')
             ->get();
 
-        if ($getPerformances->count() > 1) {
+        if ($getPerformances->count() > 0) {
             $totalPerformance =
                 [
                     'total' => $getPerformances->count(),
@@ -216,48 +217,59 @@ class StatisticsController extends Controller
                     'kpi' => number_format((($getPerformances->count() - $getPerformances->where('performance', 0)->count()) / $getPerformances->count() * 100), 0)
                 ];
 
+            $data = [
+                'date' => $date,
+                'orders' => $orders,
+                'totalPerformance' => $totalPerformance,
+            ];
+
             $getPerformanceSales = $getPerformances->where('part', 1);
-            $totalPerformanceSales =
-                [
-                    'missed' => $getPerformanceSales->where('performance', 0)->count(),
-                    'data' => $getPerformanceSales->where('performance', 0),
-                    'kpi' => number_format((($getPerformances->count() - $getPerformanceSales->where('performance', 0)->count()) / $getPerformances->count() * 100), 0)
-                ];
+            if ($getPerformanceSales->count() > 0) {
+                $totalPerformanceSales =
+                    [
+                        'missed' => $getPerformanceSales->where('performance', 0)->count(),
+                        'data' => $getPerformanceSales->where('performance', 0),
+                        'kpi' => number_format((($getPerformances->count() - $getPerformanceSales->where('performance', 0)->count()) / $getPerformances->count() * 100), 0)
+                    ];
+                $data['totalPerformanceSales'] = $totalPerformanceSales;
+            }
 
             $getPerformanceTechnicians = $getPerformances->where('part', 2);
-            $total = $getPerformances->where('part', 2)->count();
-            $userId = $getPerformances->where('part', 2)->pluck('user_id')
-                ->unique()
-                ->values();
-            foreach ($userId as $key => $id) {
-                $profile = Profile::findOrFail(User::findOrFail($id)->profile_id);
-                $totalPerformanceTechnicians[$key] =
-                    [
-                        'name' => $profile->profile_firstname . ' ' . $profile->profile_lastname,
-                        'total' => $getPerformanceTechnicians->where('user_id', $id)->count(),
-                        'missed' => $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0)->count(),
-                        'data' => $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0),
-                        'kpi' => number_format((($getPerformanceTechnicians->where('user_id', $id)->count() - $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0)->count()) / $getPerformanceTechnicians->where('user_id', $id)->count() * 100), 0)
-                    ];
+            if ($getPerformanceTechnicians->count() > 0) {
+                $total = $getPerformances->where('part', 2)->count();
+                $userId = $getPerformances->where('part', 2)->pluck('user_id')
+                    ->unique()
+                    ->values();
+                foreach ($userId as $key => $id) {
+                    $profile = Profile::findOrFail(User::findOrFail($id)->profile_id);
+                    $totalPerformanceTechnicians[$key] =
+                        [
+                            'name' => $profile->profile_firstname . ' ' . $profile->profile_lastname,
+                            'total' => $getPerformanceTechnicians->where('user_id', $id)->count(),
+                            'missed' => $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0)->count(),
+                            'data' => $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0),
+                            'kpi' => number_format((($getPerformanceTechnicians->where('user_id', $id)->count() - $getPerformanceTechnicians->where('user_id', $id)->where('performance', 0)->count()) / $getPerformanceTechnicians->where('user_id', $id)->count() * 100), 0)
+                        ];
+                }
+                $data = array_merge($data, [
+                    'total' => $total,
+                    'totalPerformanceTechnicians' => $totalPerformanceTechnicians,
+                ]);
             }
 
             $getPerformanceResults = $getPerformances->where('part', 3);
-            $totalPerformanceResults =
-                [
-                    'total' => $getPerformanceResults->count(),
-                    'missed' => $getPerformanceResults->where('performance', 0)->count(),
-                    'data' => $getPerformanceResults->where('performance', 0),
-                    'kpi' => number_format((($getPerformanceResults->count() - $getPerformanceResults->where('performance', 0)->count()) / $getPerformanceResults->count() * 100), 0)
-                ];
+            if ($getPerformanceResults->count() > 0) {
+                $totalPerformanceResults =
+                    [
+                        'total' => $getPerformanceResults->count(),
+                        'missed' => $getPerformanceResults->where('performance', 0)->count(),
+                        'data' => $getPerformanceResults->where('performance', 0),
+                        'kpi' => number_format((($getPerformanceResults->count() - $getPerformanceResults->where('performance', 0)->count()) / $getPerformanceResults->count() * 100), 0)
+                    ];
+                $data['totalPerformanceResults'] = $totalPerformanceResults;
+            }
 
-            $pdf = Pdf::setOptions(['isHtml5ParserEnabled' => true])->loadView('pages.admin.statistics.performance', [
-                'orders' => $orders,
-                'totalPerformance' => $totalPerformance,
-                'totalPerformanceSales' => $totalPerformanceSales,
-                'totalPerformanceTechnicians' => $totalPerformanceTechnicians,
-                'total' => $total,
-                'totalPerformanceResults' => $totalPerformanceResults,
-            ]);
+            $pdf = Pdf::setOptions(['isHtml5ParserEnabled' => true])->loadView('pages.admin.statistics.performance', $data);
 
             return $pdf->stream('Performance-Analysis.pdf');
         }

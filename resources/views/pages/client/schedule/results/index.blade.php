@@ -8,16 +8,16 @@
         as="style" />
 @endpush
 @section('content')
-@section('title', 'Lịch xe chi tiết - ')
+@section('title', 'Lịch xe chi tiết kết quả - ')
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__text">
-                    <h4>LỊCH XE CHI TIẾT</h4>
+                    <h4>LỊCH XE CHI TIẾT KẾT QUẢ</h4>
                     <div class="breadcrumb__links">
-                        <a href="{{ URL::to('/') }}">Trang chủ</a>
-                        <span>Lịch xe chi tiết</span>
+                        <a href="{{ route('home.index') }}">Trang chủ</a>
+                        <span>Lịch xe chi tiết kết quả</span>
                     </div>
                 </div>
             </div>
@@ -28,11 +28,11 @@
 @endsection
 @push('js')
 <script type="text/javascript">
-    var url_get_schedule = "{{ route('schedule.get.details') }}";
-    var url_select_details = "{{ route('schedule.select.details') }}";
-    var url_update_details = "{{ route('schedule.update.details') }}";
-    var url_search_suggest = "{{ route('schedule.suggest.details') }}";
-    var url_schedule_search = "{{ route('schedule.search.details') }}";
+    var url_get_schedule = "{{ route('schedules.results.get') }}";
+    var url_select_details = "{{ route('schedules.results.select') }}";
+    var url_update_details = "{{ route('schedules.results.update') }}";
+    var url_search_suggest = "{{ route('schedules.results.suggest') }}";
+    var url_schedule_search = "{{ route('schedules.results.search') }}";
     var url_file_process = "{{ route('file.process') }}";
     var url_file_revert = "{{ route('file.revert') }}";
     var url_file_delete_total = "{{ route('file.delete_file_total') }}";

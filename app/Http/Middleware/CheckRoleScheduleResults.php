@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
-class CheckRoleSchedule
+class CheckRoleScheduleResults
 {
     /**
      * Handle an incoming request.
@@ -22,7 +22,7 @@ class CheckRoleSchedule
             return $next($request);
         }else{
             Auth::logout();
-            return Redirect::route('schedule.login_details');
+            return Redirect::route('schedules.login');
         }
     }
 }

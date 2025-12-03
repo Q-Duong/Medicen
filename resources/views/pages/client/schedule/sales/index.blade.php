@@ -6,16 +6,16 @@
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/file.css') }}" type="text/css" as="style" />
 @endpush
 @section('content')
-@section('title', 'Lịch Chi Tiết - ')
+@section('title', 'Lịch xe chi tiết Sales - ')
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__text">
-                    <h4>LỊCH CHI TIẾT KTV VÀ TÀI XẾ X-QUANG</h4>
+                    <h4>LỊCH XE CHI TIẾT SALES</h4>
                     <div class="breadcrumb__links">
-                        <a href="{{ URL::to('/') }}">Trang chủ</a>
-                        <span>Lịch chi tiết KTV và Tài xế X-Quang</span>
+                        <a href="{{ route('home.index') }}">Trang chủ</a>
+                        <span>Lịch xe chi tiết Sales</span>
                     </div>
                 </div>
             </div>
@@ -1034,8 +1034,7 @@
 @push('js')
 <script type="text/javascript">
     var day = {{ $dayInMonth }};
-    var url_select_sales = "{{ route('schedule.select.sales') }}";
-    var url_update_sales = "{{ route('schedule.update.sales') }}";
+    var url_select_sales = "{{ route('schedules.sales.select') }}";
 </script>
 <script src="{{ asset('assets/js/support/essential.js') }}"></script>
 <script src="{{ asset('assets/js/tool/schedule/sales/schedule.js') }}"></script>

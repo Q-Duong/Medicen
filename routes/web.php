@@ -19,11 +19,15 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\ScheduleResultsController;
+use App\Http\Controllers\ScheduleSalesController;
+use App\Http\Controllers\ScheduleTechniciansController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ZaloController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,31 +71,56 @@ Route::post('save-order-client', [OrderController::class, 'storeOrderClient'])->
 Route::get('dang-ky/chi-tiet', [OrderController::class, 'createOrderDetailsClient'])->name('order.clients.create_details');
 Route::post('save-order-details-client', [OrderController::class, 'storeOrderDetailsClient'])->name('order.clients.store_details');
 Route::get('successful-medical-registration', [OrderController::class, 'successfulRegistration'])->name('order.clients.alert');
+
+Route::get('hash-password', function () {
+    dd(Hash::make('Medicen@2025'));
+});
+
 //Schedule
-//Technologist
-Route::get('lichxe-ktv', [ScheduleController::class, 'showSchedule'])->name('schedule.show.technologist');
-Route::post('schedule-select-month', [ScheduleController::class, 'selectMonth'])->name('schedule.select.technologist');
-Route::post('/update-quantity-ktv', [ScheduleController::class, 'updateQuantityKTV'])->name('schedule.update.technologist');
+Route::prefix('schedules')->group(function () {
+    Route::get('login', [ScheduleController::class, 'showLogin'])->name('schedules.login');
+    Route::post('login', [ScheduleController::class, 'login'])->name('schedules.login.post');
 
-Route::get('/lichchitiet', [ScheduleController::class, 'loginScheduleDetails'])->name('schedule.login_details');
-Route::post('/login-schedule', [ScheduleController::class, 'login_schedule']);
-Route::group(['middleware' => 'checkSchedule'], function () {
-    //Details
-    Route::get('/show-schedule-details', [ScheduleController::class, 'showScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.show.details');
-    Route::post('/get-schedule-details', [ScheduleController::class, 'getScheduleDetails'])->middleware('checkRoleSchedule')->name('schedule.get.details');
-    Route::post('/schedule-search-suggest', [ScheduleController::class, 'scheduleSearchSuggest'])->middleware('checkRoleSchedule')->name('schedule.suggest.details');
-    Route::post('/schedule-search', [ScheduleController::class, 'scheduleSearch'])->middleware('checkRoleSchedule')->name('schedule.search.details');
-    Route::post('/schedule-select-month-details', [ScheduleController::class, 'selectMonthDetails'])->name('schedule.select.details');
-    Route::post('/update-quantity-details', [ScheduleController::class, 'updateQuantityDetails'])->name('schedule.update.details');
+    //Drivers
+    Route::prefix('drivers')->group(function () {
+        Route::get('/', [ScheduleController::class, 'index'])->name('schedules.drivers.index');
+        Route::post('select', [ScheduleController::class, 'select'])->name('schedules.drivers.select');
+    });
 
-    //Sales
-    Route::get('/lichxechitiet', [ScheduleController::class, 'showScheduleSale'])->name('schedule.show.sales');
-    Route::post('/schedule-select-month-sales', [ScheduleController::class, 'selectMonthSales'])->name('schedule.select.sales');
-    Route::post('/update-order-sales', [OrderController::class, 'updateOrderSales'])->name('schedule.update.sales');
+    Route::group(['middleware' => 'schedules.login'], function () {
+        //Sales
+        Route::group(['middleware' => 'schedules.role.sales'], function () {
+            Route::prefix('sales')->group(function () {
+                Route::get('/', [ScheduleSalesController::class, 'index'])->name('schedules.sales.index');
+                Route::post('select', [ScheduleSalesController::class, 'select'])->name('schedules.sales.select');
+            });
+        });
+
+        //Technicians
+        Route::group(['middleware' => 'schedules.role.technicians'], function () {
+            Route::prefix('technicians')->group(function () {
+                Route::get('/', [ScheduleTechniciansController::class, 'index'])->name('schedules.technicians.index');
+                Route::post('select', [ScheduleTechniciansController::class, 'select'])->name('schedules.technicians.select');
+                Route::post('update', [ScheduleTechniciansController::class, 'update'])->name('schedules.technicians.update');
+            });
+        });
+
+        //Results
+        Route::group(['middleware' => 'schedules.role.results'], function () {
+            Route::prefix('results')->group(function () {
+                Route::get('/', [ScheduleResultsController::class, 'index'])->name('schedules.results.index');
+                Route::post('get', [ScheduleResultsController::class, 'get'])->name('schedules.results.get');
+                Route::post('suggest', [ScheduleResultsController::class, 'suggest'])->name('schedules.results.suggest');
+                Route::post('search', [ScheduleResultsController::class, 'search'])->name('schedules.results.search');
+                Route::post('select', [ScheduleResultsController::class, 'select'])->name('schedules.results.select');
+                Route::post('update', [ScheduleResultsController::class, 'update'])->name('schedules.results.update');
+            });
+        });
+    });
 });
 
 //Task
-Route::group(['middleware' => 'checkSchedule'], function () {
+Route::group(['middleware' => 'schedules.login'], function () {
     Route::prefix('task-manager')->group(function () {
         Route::get('/', [TaskController::class, 'index'])->name('task.index');
         Route::get('load', [TaskController::class, 'load'])->name('task.load');
@@ -160,6 +189,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::delete('delete/{id}', [UnitController::class, 'destroy'])->name('unit.destroy');
     });
 
+    //File
+    Route::prefix('file')->group(function () {
+        Route::post('process', [FileController::class, 'process'])->name('file.process');
+        Route::delete('revert', [FileController::class, 'revert'])->name('file.revert');
+        Route::delete('delete-file-order', [FileController::class, 'destroyFileOrder'])->name('file.delete_file_order');
+        Route::delete('delete-file-total', [FileController::class, 'destroyFileTotal'])->name('file.delete_file_total');
+    });
+
     //Export Excel
     Route::post('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
 
@@ -206,20 +243,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('view/{code}', [OrderController::class, 'view'])->name('order.view');
             Route::get('print/{id}', [OrderController::class, 'print'])->name('order.print');
         });
-        //File
-        Route::prefix('file')->group(function () {
-            Route::post('process', [FileController::class, 'process'])->name('file.process');
-            Route::delete('revert', [FileController::class, 'revert'])->name('file.revert');
-            Route::delete('delete-file-order', [FileController::class, 'destroyFileOrder'])->name('file.delete_file_order');
-            Route::delete('delete-file-total', [FileController::class, 'destroyFileTotal'])->name('file.delete_file_total');
-        });
-        //Schuedule
+        
+        //schedule
         Route::prefix('schedule')->group(function () {
-            Route::get('create/{id}', [ScheduleController::class, 'create'])->name('schedule.create');
-            Route::post('save', [ScheduleController::class, 'store'])->name('schedule.store');
-            Route::get('edit/{id}', [ScheduleController::class, 'edit'])->name('schedule.edit');
-            Route::patch('update/{id}', [ScheduleController::class, 'update'])->name('schedule.update');
-            Route::post('cancel', [ScheduleController::class, 'cancel'])->name('schedule.cancel');
+            Route::get('create/{id}', [ScheduleSalesController::class, 'create'])->name('schedule.create');
+            Route::post('save', [ScheduleSalesController::class, 'store'])->name('schedule.store');
+            Route::get('edit/{id}', [ScheduleSalesController::class, 'edit'])->name('schedule.edit');
+            Route::patch('update/{id}', [ScheduleSalesController::class, 'update'])->name('schedule.update');
+            Route::post('cancel', [ScheduleSalesController::class, 'cancel'])->name('schedule.cancel');
         });
         //Slider
         Route::prefix('slider')->group(function () {
