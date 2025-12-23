@@ -48,47 +48,147 @@ class ScheduleController extends Controller
 	//Drivers
 	public function index()
 	{
-		$months = [];
-		$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::now()->endOfMonth()->toDateString();
-		$currentYear = Carbon::now()->format('Y');
-		$currentMonth = Carbon::now()->format('F');
-		$dayInMonth = Carbon::now()->daysInMonth;
-		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
+		$date = Carbon::now();
+		$currentYear  = $date->year;
+		$currentMonth = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth   = $date->daysInMonth;
 
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
+
+		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
+
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0
+					&& $order->order_surcharge == 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
+
+		$months = [];
 		for ($m = 1; $m <= 12; $m++) {
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.drivers.index', compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
+		return view('pages.client.schedule.drivers.index', compact(
+			'scheduleData',
+			'months',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+		));
 	}
 
 	public function select(Request $request)
 	{
-		if ($request->month == 'April') {
-			$firstDayofThisMonth = $request->year . '-04-01';
-			$lastDayofThisMonth = $request->year . '-04-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'June') {
-			$firstDayofThisMonth = $request->year . '-06-01';
-			$lastDayofThisMonth = $request->year . '-06-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'September') {
-			$firstDayofThisMonth = $request->year . '-09-01';
-			$lastDayofThisMonth = $request->year . '-00-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'November') {
-			$firstDayofThisMonth = $request->year . '-11-01';
-			$lastDayofThisMonth = $request->year . '-11-30';
-			$dayInMonth = 30;
-		} else {
-			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		}
-		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
-		$view = view('pages.client.schedule.drivers.render', compact('orders', 'dayInMonth'))->render();
+		$date = Carbon::createFromDate($request->year, Carbon::parse($request->month)->month, 1);
+		$currentYear  = $date->year;
+		$currentMonth = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth   = $date->daysInMonth;
+
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
+
+		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
+
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0
+					&& $order->order_surcharge == 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
+		$view = view('pages.client.schedule.drivers.render', compact(
+			'scheduleData',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+		))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
+	}
+
+	public function calculateStatistics($statistics)
+	{
+		$stats = [
+			'statistic_complete' => 0,
+			'statistic_cas'      => 0,
+			'statistic_ultrasound' => 0,
+			'statistic_bone'     => 0,
+			'statistic_35'       => 0,
+			'statistic_8'        => 0,
+			'statistic_10'       => 0,
+			'statistic_N'        => 0,
+			'statistic_T'        => 0,
+			'statistic_G'        => 0,
+			'statistic_A'        => 0,
+			'statistic_K'        => 0,
+		];
+
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
+		$ultraSound    = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
+
+		foreach ($statistics as $statistic) {
+			if (in_array($statistic->status_id, [2, 3, 4]) && !in_array($statistic->ord_select, $ultraSound)) {
+				$stats['statistic_cas'] += $statistic->order_quantity;
+				$stats['statistic_35']  += $statistic->accountant_35X43;
+				$stats['statistic_8']   += $statistic->accountant_8X10;
+				$stats['statistic_10']  += $statistic->accountant_10X12;
+
+				$multiplier = 0;
+				if (in_array($statistic->ord_select, $xray1Position)) {
+					$multiplier = 1;
+				} elseif (in_array($statistic->ord_select, $xray2Position)) {
+					$multiplier = 2;
+				}
+
+				if ($multiplier > 0) {
+					$quantityToAdd = $statistic->order_quantity * $multiplier;
+					$stats['statistic_complete'] += $quantityToAdd;
+
+					switch ($statistic->accountant_doctor_read) {
+						case 'Nhân':
+							$stats['statistic_N'] += $quantityToAdd;
+							break;
+						case 'Trung':
+							$stats['statistic_T'] += $quantityToAdd;
+							break;
+						case 'Giang':
+							$stats['statistic_G'] += $quantityToAdd;
+							break;
+						case 'Ân':
+							$stats['statistic_A'] += $quantityToAdd;
+							break;
+						default:
+							$stats['statistic_K'] += $quantityToAdd;
+							break;
+					}
+				}
+			}
+
+			if ($statistic->schedule_status) {
+				if (in_array($statistic->ord_select, $ultraSound)) {
+					$stats['statistic_ultrasound'] += $statistic->order_quantity;
+				}
+				if ($statistic->ord_select == "Đo loãng xương") {
+					$stats['statistic_bone'] += $statistic->order_quantity;
+				}
+			}
+		}
+		return $stats;
 	}
 }

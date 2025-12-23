@@ -10,7 +10,7 @@
                         <span>Thống kê doanh thu</span>
                     </a>
                 </li>
-                @if (Auth::user()->name == 'SubAdmin' || Auth::user()->name == 'Sale')
+                @if (Auth::user()->name == 'Admin' || Auth::user()->name == 'Sale')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="javascript:;">

@@ -117,3 +117,15 @@ if (!function_exists('colorKPI')) {
         return $class;
     }
 }
+
+if (!function_exists('getShortName')) {
+    function getShortName($fullName)
+    {
+        if (empty($fullName)) {
+            return '';
+        }
+        $fullName = trim($fullName);
+        $parts = explode(' ', $fullName);
+        return array_pop($parts);
+    }
+}

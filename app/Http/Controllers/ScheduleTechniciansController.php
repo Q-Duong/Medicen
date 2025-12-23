@@ -13,46 +13,75 @@ class ScheduleTechniciansController extends Controller
 {
 	public function index()
 	{
-		$months = [];
-		$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::now()->endOfMonth()->toDateString();
-		$currentYear = Carbon::now()->format('Y');
-		$currentMonth = Carbon::now()->format('F');
-		$dayInMonth = Carbon::now()->daysInMonth;
-		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
+		$date = Carbon::now();
+		$currentYear  = $date->year;
+		$currentMonth = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth   = $date->daysInMonth;
 
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
+
+		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
+
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0
+					&& $order->order_surcharge == 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
+
+		$months = [];
 		for ($m = 1; $m <= 12; $m++) {
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.technicians.index', compact('orders', 'months', 'dayInMonth', 'currentMonth', 'currentYear'));
+		return view('pages.client.schedule.technicians.index', compact(
+			'scheduleData',
+			'months',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+		));
 	}
 
 	public function select(Request $request)
 	{
-		if ($request->month == 'April') {
-			$firstDayofThisMonth = $request->year . '-04-01';
-			$lastDayofThisMonth = $request->year . '-04-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'June') {
-			$firstDayofThisMonth = $request->year . '-06-01';
-			$lastDayofThisMonth = $request->year . '-06-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'September') {
-			$firstDayofThisMonth = $request->year . '-09-01';
-			$lastDayofThisMonth = $request->year . '-00-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'November') {
-			$firstDayofThisMonth = $request->year . '-11-01';
-			$lastDayofThisMonth = $request->year . '-11-30';
-			$dayInMonth = 30;
-		} else {
-			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		}
-		$orders = Order::getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth);
-		$view = view('pages.client.schedule.technicians.render', compact('orders', 'dayInMonth'))->render();
+		$date = Carbon::createFromDate($request->year, Carbon::parse($request->month)->month, 1);
+		$currentYear  = $date->year;
+		$currentMonth = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth   = $date->daysInMonth;
+
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
+
+		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
+
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0
+					&& $order->order_surcharge == 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
+		$view = view('pages.client.schedule.technicians.render', compact(
+			'scheduleData',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+		))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}

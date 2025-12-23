@@ -513,33 +513,6 @@
                             </div>
 
                             <div class="radio-group">
-                                <label for="exampleInputPassword1">Thứ tự đơn</label>
-                                <div class="row">
-                                    <div class="col-lg-4 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_child" value="1" id="child1"
-                                                class="accent" checked {{ old('order_child') == 1 ? 'checked' : '' }}>
-                                            <label for="child1" class="radio-title">Đơn chính</label>
-                                        </section>
-                                    </div>
-                                    <div class="col-lg-4 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_child" value="2" id="child2"
-                                                class="accent" {{ old('order_child') == 2 ? 'checked' : '' }}>
-                                            <label for="child2" class="radio-title">Đơn phụ 1</label>
-                                        </section>
-                                    </div>
-                                    <div class="col-lg-4 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_child" value="3" id="child3"
-                                                class="accent" {{ old('order_child') == 3 ? 'checked' : '' }}>
-                                            <label for="child3" class="radio-title">Đơn phụ 2</label>
-                                        </section>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="radio-group">
                                 <label for="exampleInputPassword1">Đơn phụ thu</label>
                                 <div class="row">
                                     <div class="col-lg-6 col-md-12 centered">

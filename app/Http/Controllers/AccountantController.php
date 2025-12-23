@@ -296,10 +296,10 @@ class AccountantController extends Controller
 		$order = Order::findOrFail($order_id);
 		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		if ($order->order_status == 4) {
-			// if(Carbon::parse($orderDetail->ord_start_day)->month < 11){
-			// 	$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
-			// 	$orderDetail->save();
-			// }
+			if(Carbon::parse($orderDetail->ord_start_day)->month < 12){
+				$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
+				$orderDetail->save();
+			}
 		} else {
 			$order->order_cost = $request->order_all_in_one == 0 ? formatPrice($request->order_cost) : 0;
 			$order->order_all_in_one = $request->order_all_in_one;
@@ -308,10 +308,10 @@ class AccountantController extends Controller
 			$order->order_price = formatPrice($request->order_price);
 			$order->order_quantity =  empty($request->order_quantity) ? $order->order_quantity : $request->order_quantity;
 			$order->save();
-			// if(Carbon::parse($orderDetail->ord_start_day)->month < 11){
-			// 	$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
-			// 	$orderDetail->save();
-			// }
+			if(Carbon::parse($orderDetail->ord_start_day)->month < 12){
+				$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
+				$orderDetail->save();
+			}
 			// $orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
 			// $orderDetail->save();
 			$accountant = Accountant::where('order_id', $order_id)->first();

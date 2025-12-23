@@ -15,177 +15,106 @@ class ScheduleSalesController extends Controller
 	//Client
 	public function index()
 	{
+		$date = Carbon::now();
+		$currentYear  = $date->year;
+		$currentMonth = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth   = $date->daysInMonth;
+
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
+
+		$rawOrders = Order::getScheduleDetails($firstDayOfThisMonth, $lastDayOfThisMonth);
+		$statistics = Accountant::getStatistics($firstDayOfThisMonth, $lastDayOfThisMonth);
+
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
+
+		$statsArray = app(ScheduleController::class)->calculateStatistics($statistics);
+		extract($statsArray);
+
 		$months = [];
-		$statistic_complete = 0;
-		$statistic_cas = 0;
-		$statistic_ultrasound = 0;
-		$statistic_bone = 0;
-		$statistic_35 = 0;
-		$statistic_8 = 0;
-		$statistic_10 = 0;
-		$statistic_4 = 0;
-		$statistic_N = 0;
-		$statistic_T = 0;
-		$statistic_G = 0;
-		$statistic_A = 0;
-		$statistic_K = 0;
-		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
-		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
-		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
-		$firstDayofThisMonth = Carbon::now()->startOfMonth()->toDateString();
-		$lastDayofThisMonth = Carbon::now()->endOfMonth()->toDateString();
-		$currentYear = Carbon::now()->format('Y');
-		$currentMonth = Carbon::now()->format('F');
-		$dayInMonth = Carbon::now()->daysInMonth;
-
-		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
-		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
-
-		foreach ($statistics as $key => $statistic) {
-			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
-				if (!in_array($statistic->ord_select, $ultraSound)) {
-					$statistic_cas += $statistic->order_quantity;
-					$statistic_35 += $statistic->accountant_35X43;
-					$statistic_8 += $statistic->accountant_8X10;
-					$statistic_10 += $statistic->accountant_10X12;
-					if (in_array($statistic->ord_select, $xray1Position)) {
-						$statistic_complete += $statistic->order_quantity;
-						if ($statistic->accountant_doctor_read == 'Nhân') {
-							$statistic_N += $statistic->order_quantity;
-						} elseif ($statistic->accountant_doctor_read == 'Trung') {
-							$statistic_T += $statistic->order_quantity;
-						} elseif ($statistic->accountant_doctor_read == 'Giang') {
-							$statistic_G += $statistic->order_quantity;
-						} elseif ($statistic->accountant_doctor_read == 'Ân') {
-							$statistic_A += $statistic->order_quantity;
-						} else {
-							$statistic_K += $statistic->order_quantity;
-						}
-					} elseif (in_array($statistic->ord_select, $xray2Position)) {
-						$statistic_complete += ($statistic->order_quantity) * 2;
-						if ($statistic->accountant_doctor_read == 'Nhân') {
-							$statistic_N += ($statistic->order_quantity) * 2;
-						} elseif ($statistic->accountant_doctor_read == 'Trung') {
-							$statistic_T += ($statistic->order_quantity) * 2;
-						} elseif ($statistic->accountant_doctor_read == 'Giang') {
-							$statistic_G += ($statistic->order_quantity) * 2;
-						} elseif ($statistic->accountant_doctor_read == 'Ân') {
-							$statistic_A += ($statistic->order_quantity) * 2;
-						} else {
-							$statistic_K += ($statistic->order_quantity) * 2;
-						}
-					}
-				}
-			}
-			if ($statistic->schedule_status) {
-				if (in_array($statistic->ord_select, $ultraSound)) {
-					$statistic_ultrasound += ($statistic->order_quantity);
-				}
-				if ($statistic->ord_select == "Đo loãng xương") {
-					$statistic_bone += ($statistic->order_quantity);
-				}
-			}
-		}
-
 		for ($m = 1; $m <= 12; $m++) {
 			$months[] = date('F', mktime(0, 0, 0, $m, 1, date('Y')));
 		}
 
-		return view('pages.client.schedule.sales.index')->with(compact('orders', 'currentMonth', 'currentYear', 'months', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_A', 'statistic_K'));
+		return view('pages.client.schedule.sales.index')->with(compact(
+			'scheduleData',
+			'months',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+			'statistic_complete',
+			'statistic_cas',
+			'statistic_ultrasound',
+			'statistic_bone',
+			'statistic_35',
+			'statistic_8',
+			'statistic_10',
+			'statistic_N',
+			'statistic_T',
+			'statistic_G',
+			'statistic_A',
+			'statistic_K'
+		));
 	}
 
 	public function select(Request $request)
 	{
-		$data = $request->all();
-		$statistic_complete = 0;
-		$statistic_cas = 0;
-		$statistic_ultrasound = 0;
-		$statistic_bone = 0;
-		$statistic_35 = 0;
-		$statistic_8 = 0;
-		$statistic_10 = 0;
-		$statistic_4 = 0;
-		$statistic_N = 0;
-		$statistic_T = 0;
-		$statistic_G = 0;
-		$statistic_A = 0;
-		$statistic_K = 0;
-		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
-		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
-		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
+		$date = Carbon::createFromDate($request->year, Carbon::parse($request->month)->month, 1);
+		$currentYear  = $date->year;
+		$currentMonth = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth   = $date->daysInMonth;
 
-		if ($request->month == 'April') {
-			$firstDayofThisMonth = $request->year . '-04-01';
-			$lastDayofThisMonth = $request->year . '-04-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'June') {
-			$firstDayofThisMonth = $request->year . '-06-01';
-			$lastDayofThisMonth = $request->year . '-06-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'September') {
-			$firstDayofThisMonth = $request->year . '-09-01';
-			$lastDayofThisMonth = $request->year . '-00-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'November') {
-			$firstDayofThisMonth = $request->year . '-11-01';
-			$lastDayofThisMonth = $request->year . '-11-30';
-			$dayInMonth = 30;
-		} else {
-			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-			$dayInMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->daysInMonth;
-		}
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
 
-		$orders = Order::getScheduleDetails($firstDayofThisMonth, $lastDayofThisMonth);
-		$statistics = Accountant::getStatistics($firstDayofThisMonth, $lastDayofThisMonth);
+		$rawOrders = Order::getScheduleDetails($firstDayOfThisMonth, $lastDayOfThisMonth);
+		$statistics = Accountant::getStatistics($firstDayOfThisMonth, $lastDayOfThisMonth);
 
-		foreach ($statistics as $key => $statistic) {
-			if ($statistic->status_id == 2 || $statistic->status_id == 3 || $statistic->status_id == 4) {
-				if (!in_array($statistic->ord_select, $ultraSound)) {
-					$statistic_cas += $statistic->order_quantity;
-					$statistic_35 += $statistic->accountant_35X43;
-					$statistic_8 += $statistic->accountant_8X10;
-					$statistic_10 += $statistic->accountant_10X12;
-					if (in_array($statistic->ord_select, $xray1Position)) {
-						$statistic_complete += $statistic->order_quantity;
-						if ($statistic->accountant_doctor_read == 'Nhân') {
-							$statistic_N += $statistic->order_quantity;
-						} elseif ($statistic->accountant_doctor_read == 'Trung') {
-							$statistic_T += $statistic->order_quantity;
-						} elseif ($statistic->accountant_doctor_read == 'Giang') {
-							$statistic_G += $statistic->order_quantity;
-						} elseif ($statistic->accountant_doctor_read == 'Ân') {
-							$statistic_A += $statistic->order_quantity;
-						} else {
-							$statistic_K += $statistic->order_quantity;
-						}
-					} elseif (in_array($statistic->ord_select, $xray2Position)) {
-						$statistic_complete += ($statistic->order_quantity) * 2;
-						if ($statistic->accountant_doctor_read == 'Nhân') {
-							$statistic_N += ($statistic->order_quantity) * 2;
-						} elseif ($statistic->accountant_doctor_read == 'Trung') {
-							$statistic_T += ($statistic->order_quantity) * 2;
-						} elseif ($statistic->accountant_doctor_read == 'Giang') {
-							$statistic_G += ($statistic->order_quantity) * 2;
-						} elseif ($statistic->accountant_doctor_read == 'Ân') {
-							$statistic_A += ($statistic->order_quantity) * 2;
-						} else {
-							$statistic_K += ($statistic->order_quantity) * 2;
-						}
-					}
-				}
-			}
-			if ($statistic->schedule_status) {
-				if (in_array($statistic->ord_select, $ultraSound)) {
-					$statistic_ultrasound += ($statistic->order_quantity);
-				}
-				if ($statistic->ord_select == "Đo loãng xương") {
-					$statistic_bone += ($statistic->order_quantity);
-				}
-			}
-		}
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
 
-		$view = view('pages.client.schedule.sales.render')->with(compact('orders', 'dayInMonth', 'statistic_complete', 'statistic_cas', 'statistic_ultrasound', 'statistic_bone', 'statistic_35', 'statistic_8', 'statistic_10', 'statistic_N', 'statistic_T', 'statistic_G', 'statistic_A', 'statistic_K'))->render();
+		$statsArray = app(ScheduleController::class)->calculateStatistics($statistics);
+		extract($statsArray);
+
+		$view = view('pages.client.schedule.sales.render')->with(compact(
+			'scheduleData',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+			'statistic_complete',
+			'statistic_cas',
+			'statistic_ultrasound',
+			'statistic_bone',
+			'statistic_35',
+			'statistic_8',
+			'statistic_10',
+			'statistic_N',
+			'statistic_T',
+			'statistic_G',
+			'statistic_A',
+			'statistic_K'
+		))->render();
 
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}

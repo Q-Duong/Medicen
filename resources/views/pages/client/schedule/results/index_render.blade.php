@@ -57,696 +57,788 @@
             <ul class="wrap">
                 <li class="events-group">
                     <div class="top-info child-1"><span>Xe 1</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 1 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event border-child"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                    <ul style="height: {{ $dayInMonth == 31 ? '1 0px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[1][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-blue' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
                                     data-content="event-rowing-workout" data-event="event-1"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-blue stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info"><span>Xe 2</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 2 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[2][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-gray' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
                                     data-content="event-rowing-workout" data-event="event-2"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-gray stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info"><span>Xe 3</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 3 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[3][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-green' }}  border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
                                     data-content="event-rowing-workout" data-event="event-3"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-green stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info"><span>Xe 4</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 4 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[4][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-red' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
                                     data-content="event-rowing-workout" data-event="event-4"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-red stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info"><span>Xe 5</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 5 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[5][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-yellow' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
                                     data-content="event-rowing-workout" data-event="event-5"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-yellow stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info"><span>Xe Thuê</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 6 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                    data-content="event-rowing-workout" data-event="event-5"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[6][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-purple' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
+                                    data-content="event-rowing-workout" data-event="event-6"
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-purple stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info child-7"><span>Xe Tăng Cường</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 7 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                    data-content="event-rowing-workout" data-event="event-5"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[7][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-orange' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
+                                    data-content="event-rowing-workout" data-event="event-7"
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-orange stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
 
                 <li class="events-group">
                     <div class="top-info child-8"><span>Xe Siêu Âm</span></div>
-                    <ul {{ $dayInMonth == 31 ? 'style=height:1550px' : 'style=height:1500px' }}>
-                        @foreach ($orders as $key => $order)
-                            @if ($order->car_name == 8 && $order->car_active == 1 && $order->status_id != 0 && $order->order_surcharge == 0)
-                                <li class="single-event"
-                                    data-start="{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}"
-                                    data-content="event-rowing-workout" data-event="event-5"
-                                    data-child="{{ $order->order_child }}">
-                                    @if ($order->order_updated == 1)
-                                        <div class="order-status">
-                                            <i class="fas fa-check-circle"></i>
+                    <ul style="height: {{ $dayInMonth == 31 ? '1550px' : '1500px' }}">
+                        @for ($i = 1; $i <= $dayInMonth; $i++)
+                            @php
+                                $dateKey = \Carbon\Carbon::createFromDate($currentYear, $currentMonthNum, $i)->format(
+                                    'Y-m-d',
+                                );
+                                $dailyOrders = $scheduleData[8][$dateKey] ?? collect([]);
+                                $count = $dailyOrders->count();
+                            @endphp
+                            @if ($count > 0)
+                                @php
+                                    $firstOrder = $dailyOrders->first();
+                                @endphp
+                                <li class="single-event {{ $count > 1 ? 'bg-back' : 'bg-teal' }} border-child"
+                                    data-start="{{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}"
+                                    data-content="event-rowing-workout" data-event="event-8"
+                                    data-json='{{ json_encode($dailyOrders) }}'>
+                                    @if ($count > 1)
+                                        <div class="multi-event-wrapper" onclick="openMultiModal(this)"
+                                            data-json='{{ json_encode($dailyOrders) }}'>
+                                            <div class="event-card bg-teal stack-front">
+                                                <div class="notification-icon-block">
+                                                    <div class="more-badge">
+                                                        <span>{{ $count }}</span>
+                                                    </div>
+                                                    @if ($firstOrder->order_warning == 'Có')
+                                                        <div class="order-warning">
+                                                            <i class="fa fa-exclamation-triangle"></i>
+                                                        </div>
+                                                    @endif
+                                                    @if ($firstOrder->order_updated == 1)
+                                                        <div class="order-status">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="event-title">
+                                                    <div class="sub-title">
+                                                        <span class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </span>
+                                                        <p class="line">-</p>
+                                                        <span class="sub-title-technician"><b>KTV:</b>
+                                                            {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="event-name-unit"><b>Đơn vị:</b>
+                                                        {{ $firstOrder->unit_abbreviation }}
+                                                    </p>
+                                                    <div class="see-more">(Click để xem thêm
+                                                        {{ $count }} lịch khác)</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
-                                    @if ($order->order_warning == 'Có')
-                                        <div class="order-warning">
-                                            <i class="fa fa-exclamation-triangle"></i>
+                                    @else
+                                        <div class="notification-icon-block">
+                                            @if ($firstOrder->order_warning == 'Có')
+                                                <div class="order-warning">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                </div>
+                                            @endif
+                                            @if ($firstOrder->order_updated == 1)
+                                                <div class="order-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            @endif
                                         </div>
+                                        <a href="javascript:;">
+                                            <div class="event-title">
+                                                <div class="sub-title">
+                                                    <span class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </span>
+                                                    <p class="line">-</p>
+                                                    <span class="sub-title-technician"><b>KTV:</b>
+                                                        {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
+                                                    </span>
+                                                </div>
+                                                <p class="event-name-unit"><b>Đơn vị:</b>
+                                                    {{ $firstOrder->unit_abbreviation }}
+                                                </p>
+                                            </div>
+                                        </a>
                                     @endif
-                                    @php
-                                        $str1 = explode(' ', $order->car_ktv_name_1);
-                                        $name1 = array_pop($str1);
-                                        $str2 = explode(' ', $order->car_ktv_name_2);
-                                        $name2 = array_pop($str2);
-                                    @endphp
-                                    <a href="javascript:;">
-                                        <em class="event-name"><span class="item-title">KTV: {{ $name1 }},
-                                                {{ $name2 }}</em>
-                                        <em class="event-name-unit"><span class="item-title">Đơn vị:
-                                                {{ $order->unit_abbreviation }}</em>
-                                        <em class="event-status hidden">{{ $order->status_id }}</em>
-                                        <em class="event-start-day hidden">{{ $order->ord_start_day }}</em>
-                                        <em class="event-warning hidden">{{ $order->order_warning }}</em>
-                                        <em class="event-id hidden">{{ $order->order_id }}</em>
-                                        <em class="event-quantity hidden">{{ $order->order_quantity }}</em>
-                                        <em
-                                            class="event-quantity-draft hidden">{{ $order->order_quantity_draft }}</em>
-                                        <em class="event-note-ktv hidden">{{ $order->order_note_ktv }}</em>
-                                        <em class="event-car-id hidden">{{ $order->id }}</em>
-                                        <em class="event-unit hidden">{{ $order->unit_abbreviation }}</em>
-                                        <em class="event-address hidden">{{ $order->customer_address }}</em>
-                                        <em class="event-note hidden">{{ $order->customer_note }}</em>
-                                        <em class="event-info-contact hidden">{{ $order->customer_name }}
-                                            ({{ $order->customer_phone }})</em>
-                                        <em class="event-details-id hidden">{{ $order->order_detail_id }}</em>
-                                        <em class="event-select hidden">{{ $order->ord_select }}</em>
-                                        <em class="event-cty-name hidden">{{ upperVietnamese($order->ord_cty_name) }}</em>
-                                        <em class="event-time hidden">{{ $order->ord_time }}</em>
-                                        <em class="event-list-file-path hidden">{{ $order->ord_list_file_path }}</em>
-                                        <em class="event-list-file hidden">{{ $order->ord_list_file }}</em>
-                                        <em
-                                            class="event-total-file-path hidden">{{ $order->ord_total_file_path }}</em>
-                                        <em class="event-total-file hidden">{{ $order->ord_total_file_name }}</em>
-                                        <em class="event-doctor-read hidden">{{ $order->ord_doctor_read }}</em>
-                                        <em class="event-film hidden">{{ $order->ord_film }}</em>
-                                        <em class="event-form hidden">{{ $order->ord_form }}</em>
-                                        <em class="event-print hidden">{{ $order->ord_print }}</em>
-                                        <em class="event-form-print hidden">{{ $order->ord_form_print }}</em>
-                                        <em class="event-print-result hidden">{{ $order->ord_print_result }}</em>
-                                        <em class="event-film-sheet hidden">{{ $order->ord_film_sheet }}</em>
-                                        <em class="event-order-note hidden">{{ $order->ord_note }}</em>
-                                        <em class="event-deadline hidden">{{ Carbon\Carbon::parse($order->ord_deadline)->format('d/m/Y') }}</em>
-                                        <em
-                                            class="event-deliver-results hidden">{{ $order->ord_deliver_results }}</em>
-                                        <em class="event-email hidden">{{ $order->ord_email }}</em>
-                                        <em class="event-delivery-date hidden">{{ $order->ord_delivery_date }}</em>
-                                        <em
-                                            class="event-order-send-result hidden">{{ $order->order_send_result }}</em>
-                                        <em
-                                            class="event-accountant-doctor-read hidden">{{ $order->accountant_doctor_read }}</em>
-                                        <em class="event-35X43 hidden">{{ $order->accountant_35X43 }}</em>
-                                        <em class="event-polime hidden">{{ $order->accountant_polime }}</em>
-                                        <em class="event-8X10 hidden">{{ $order->accountant_8X10 }}</em>
-                                        <em class="event-10X12 hidden">{{ $order->accountant_10X12 }}</em>
-                                        <em class="event-film-bag hidden">{{ $order->accountant_film_bag }}</em>
-                                        <em class="event-accountant-note hidden">{{ $order->accountant_note }}</em>
-                                        <em
-                                            class="event-route-edit hidden">{{ route('order.edit', $order->order_id) }}</em>
-                                    </a>
                                 </li>
                             @endif
-                        @endforeach
+                        @endfor
                     </ul>
                 </li>
             </ul>
         </div>
 
+        <div id="calendarModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="header-date-label" class="header-date-label"></h4>
+                    <h2 id="header-headline" class="header-headline"></h2>
+                </div>
+                <div id="modalBody" class="modal-body">
+                </div>
+                <button type="button" class="rc-close" aria-label="close" data-autom="overlay-close"
+                    onclick="closeMultiModal()">
+                    <span class="rc-closesvg">
+                        <svg width="21" height="21"
+                            class="as-svgicon as-svgicon-close as-svgicon-tiny as-svgicon-closetiny" role="img"
+                            aria-hidden="true">
+                            <path fill="none" d="M0 0h21v21H0z"></path>
+                            <path
+                                d="m12.12 10 4.07-4.06a1.5 1.5 0 1 0-2.11-2.12L10 7.88 5.94 3.81a1.5 1.5 0 1 0-2.12 2.12L7.88 10l-4.07 4.06a1.5 1.5 0 0 0 0 2.12 1.51 1.51 0 0 0 2.13 0L10 12.12l4.06 4.07a1.45 1.45 0 0 0 1.06.44 1.5 1.5 0 0 0 1.06-2.56Z">
+                            </path>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+
         <div class="event-modal">
             <header class="header">
                 <div class="content">
-                    <span class="event-date"></span>
-                    <h3 class="event-name"></h3>
-                    <h3 class="event-name-unit"></h3>
+                    <div class="sub-title">
+                        <span class="sub-title-date"><b>Ngày:</b>
+                            <span class="event-date"></span>
+                        </span>
+                        <p class="line">-</p>
+                        <span class="sub-title-technician"><b>KTV:</b>
+                            <span class="event-technician"></span>
+                        </span>
+                    </div>
+                    <h2 class="event-unit"></h2>
                 </div>
-
                 <div class="header-bg"></div>
             </header>
 
             <div class="body">
                 <div class="event-info">
-                    <p class="event-item"><span class="item-title">Mã đơn hàng: </span><span class="event-id"></span>
+                    <p class="event-item">
+                        <span class="item-title">Mã đơn hàng: </span>
+                        <span class="event-order-id"></span>
                     </p>
                     <p class="hidden event-car-id"></p>
                     <p class="event-item">
@@ -763,7 +855,7 @@
                     </p>
                     <p class="event-item event-note">
                         <span class="item-title">Địa chỉ khác: </span>
-                        <span class="event-note-content"></span>
+                        <span class="event-other-address"></span>
                     </p>
                     <p class="event-item">
                         <span class="item-title">Bộ phận chụp: </span>
@@ -920,7 +1012,18 @@
                 </div>
                 <div class="body-bg"></div>
             </div>
-            <a href="javascript:;" class="close"></a>
+            <button type="button" class="rc-close close" aria-label="close" data-autom="overlay-close">
+                <span class="rc-closesvg">
+                    <svg width="21" height="21"
+                        class="as-svgicon as-svgicon-close as-svgicon-tiny as-svgicon-closetiny" role="img"
+                        aria-hidden="true">
+                        <path fill="none" d="M0 0h21v21H0z"></path>
+                        <path
+                            d="m12.12 10 4.07-4.06a1.5 1.5 0 1 0-2.11-2.12L10 7.88 5.94 3.81a1.5 1.5 0 1 0-2.12 2.12L7.88 10l-4.07 4.06a1.5 1.5 0 0 0 0 2.12 1.51 1.51 0 0 0 2.13 0L10 12.12l4.06 4.07a1.45 1.45 0 0 0 1.06.44 1.5 1.5 0 0 0 1.06-2.56Z">
+                        </path>
+                    </svg>
+                </span>
+            </button>
         </div>
         <div class="cover-layer"></div>
     </div>

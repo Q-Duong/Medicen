@@ -28,6 +28,7 @@ final class OrderBuilder extends Builder
                 'schedule_status'
             )
             ->orderBy('ord_start_day', 'DESC')
+            ->orderBy('orders.created_at', 'DESC')
             ->paginate(20);
         return $getAllOrder;
     }
@@ -115,10 +116,11 @@ final class OrderBuilder extends Builder
                 'ord_time',
                 'order_quantity',
                 'order_quantity_draft',
-                'order_note_ktv'
+                'order_note_ktv',
+                'orders.created_at'
             )
             ->orderBy('order_details.ord_start_day', 'ASC')
-            ->orderBy('orders.order_child', 'DESC')
+            ->orderBy('orders.created_at', 'ASC')
             ->get();
         return $getScheduleTechnologist;
     }
@@ -184,10 +186,11 @@ final class OrderBuilder extends Builder
                 'order_note_ktv',
                 'order_warning',
                 'order_updated',
-                'order_send_result'
+                'order_send_result',
+                'orders.created_at'
             )
             ->orderBy('order_details.ord_start_day', 'ASC')
-            ->orderBy('orders.order_child', 'DESC')
+            ->orderBy('orders.created_at', 'ASC')
             ->get();
         return $getScheduleDetails;
     }

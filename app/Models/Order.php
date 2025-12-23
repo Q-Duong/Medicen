@@ -11,6 +11,7 @@ class Order extends Model
     use HasFactory;
 
     protected $table = 'orders';
+    protected $appends = ['edit_url'];
 
     public $timestamps = true;
 
@@ -37,6 +38,11 @@ class Order extends Model
         'order_updated',
         'order_send_result'
     ];
+
+    public function getEditUrlAttribute()
+    {
+        return route('order.edit', $this->order_id);
+    }
 
     public function unit()
     {
@@ -72,6 +78,4 @@ class Order extends Model
     {
         return new OrderBuilder($query);
     }
-
-    
 }

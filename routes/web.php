@@ -25,6 +25,7 @@ use App\Http\Controllers\ScheduleTechniciansController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ZaloController;
+use App\Http\Controllers\QrController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -71,6 +72,9 @@ Route::post('save-order-client', [OrderController::class, 'storeOrderClient'])->
 Route::get('dang-ky/chi-tiet', [OrderController::class, 'createOrderDetailsClient'])->name('order.clients.create_details');
 Route::post('save-order-details-client', [OrderController::class, 'storeOrderDetailsClient'])->name('order.clients.store_details');
 Route::get('successful-medical-registration', [OrderController::class, 'successfulRegistration'])->name('order.clients.alert');
+
+//QR Code
+Route::get('create-qr-code', [QrController::class, 'index'])->name('qr.index');
 
 Route::get('hash-password', function () {
     dd(Hash::make('Medicen@2025'));

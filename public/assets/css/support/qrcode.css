@@ -1,0 +1,130 @@
+.qr-section {
+    background: #eef2f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 800px;
+    margin: 0;
+}
+
+.qr-card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 550px;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+p {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+}
+
+.qr-input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Custom file input */
+.qr-custom-file {
+    border: 2px dashed #cbd5e0;
+    padding: 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s;
+    background: #f8fafc;
+}
+
+.qr-custom-file:hover {
+    border-color: #346fdb;
+    background: #ebf8ff;
+}
+
+.file-icon {
+    font-size: 24px;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
+
+input[type=file] {
+    display: none;
+}
+
+.btn-main {
+    background: #346fdb;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    transition: 0.3s;
+    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+}
+
+.btn-main:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-reset {
+    background: #555;
+    border: 1px solid #bdc3c7;
+    color: #ffffff;
+    margin-top: 10px;
+    width: 100%;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    display: none;
+}
+
+.btn-main:hover:not(:disabled) {
+    background: #3498db;
+    transform: translateY(-1px);
+}
+
+#status {
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 20px;
+    color: #27ae60;
+}
+
+#hidden-area {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    visibility: hidden;
+}

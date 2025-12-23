@@ -293,7 +293,6 @@ class OrderController extends Controller
 			$order->schedule_status = 0;
 			$order->accountant_updated = 0;
 			$order->order_warning = $data['order_warning'];
-			$order->order_child = $data['order_child'];
 			$order->order_surcharge = $data['order_surcharge'];
 			$order->save();
 
@@ -350,8 +349,6 @@ class OrderController extends Controller
 		$order->order_percent_discount = $data['order_percent_discount'];
 		$order->order_vat = $data['order_vat'];
 		$order->order_warning = $data['order_warning'];
-
-		$order->order_child = $data['order_child'];
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->save();
 
@@ -505,7 +502,6 @@ class OrderController extends Controller
 			$order->schedule_status = 0;
 			$order->accountant_updated = 0;
 			$order->order_warning = $data['order_warning'];
-			$order->order_child = $data['order_child'];
 			$order->order_surcharge = $data['order_surcharge'];
 
 			$order->save();

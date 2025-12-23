@@ -1,59 +1,7 @@
 schedule(day);
-// --- Helper Functions ---
-
-function getShortName(fullName) {
-    if (!fullName) return "";
-    return fullName.trim().split(" ").pop();
-}
-
-function formatDate(dateString) {
-    if (!dateString) return "";
-    var date = new Date(dateString);
-    var day = date.getDate();
-    var month = date.getMonth() + 1;
-    var year = date.getFullYear();
-    day = day < 10 ? "0" + day : day;
-    month = month < 10 ? "0" + month : month;
-    return day + "/" + month + "/" + year;
-}
-
-function carRenameFunction(car) {
-    const carNames = {
-        6: "Xe Thuê",
-        7: "Xe Tăng Cường",
-        8: "Xe Siêu Âm",
-    };
-
-    return carNames[car] || "Xe " + car;
-}
-
-function getCarColor(carId) {
-    var id = parseInt(carId);
-    switch (id) {
-        case 1:
-            return "bg-blue";
-        case 2:
-            return "bg-gray";
-        case 3:
-            return "bg-green";
-        case 4:
-            return "bg-red";
-        case 5:
-            return "bg-yellow";
-        case 6:
-            return "bg-purple";
-        case 7:
-            return "bg-orange";
-        case 8:
-            return "bg-teal";
-        default:
-            return "bg-blue";
-    }
-}
-
 /*------------------
-                       Function Schedule
-                    --------------------*/
+           Function Schedule
+        --------------------*/
 function schedule(day) {
     jQuery(document).ready(function ($) {
         var transitionEnd =
@@ -148,23 +96,19 @@ function schedule(day) {
             var self = this;
 
             this.singleEvents.each(function () {
-                // detect click on the event and open the modal
+                //create the .event-date element for each event
+                var start = getDate($(this).data("start"));
+
+                var durationLabel =
+                    '<span class="event-date">Ngày chụp: ' + start + "</span>";
+                $(this).children("a").prepend($(durationLabel));
+
+                //detect click on the event and open the modal
                 $(this).on("click", "a", function (event) {
                     event.preventDefault();
                     if (!self.animating) self.openModal($(this));
                 });
             });
-
-            $(document)
-                .off("click", ".single-card-event a")
-                .on("click", ".single-card-event a", function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    if (!self.animating) {
-                        self.openModal($(this));
-                    }
-                });
 
             //close modal window
             this.modal.on("click", ".close", function (event) {
@@ -185,21 +129,20 @@ function schedule(day) {
                 //place each event in the grid -> need to set top position and height
                 var start = getScheduleTimestamp($(this).attr("data-start")),
                     end = getScheduleTimestamp($(this).attr("data-start")),
-                    extraTop = 0,
-                    subtractWidth = 20;
-
-                if ($(this).hasClass("bg-back")) {
-                    extraTop = 5;
-                    subtractWidth = 36;
+                    child = $(this).attr("data-child");
+                if (child == 1) {
                     $(this).css({
-                        left: 18 + "px",
+                        left: 0 + "px",
+                    });
+                } else if (child == 2) {
+                    $(this).css({
+                        left: 23 + "px",
                     });
                 } else {
                     $(this).css({
-                        left: 10 + "px",
+                        right: 0 + "px",
                     });
                 }
-
                 if (start == end) {
                     duration = 60;
                 } else {
@@ -213,9 +156,8 @@ function schedule(day) {
                         self.timelineUnitDuration;
 
                 $(this).css({
-                    top: eventTop + 10 + extraTop + "px",
-                    height: eventHeight - 20 + "px",
-                    width: "calc(100% - " + subtractWidth + "px)",
+                    top: eventTop - 1 + "px",
+                    height: eventHeight + 1 + "px",
                 });
             });
             this.element.removeClass("loading");
@@ -224,129 +166,65 @@ function schedule(day) {
         SchedulePlan.prototype.openModal = function (event) {
             var self = this;
             var mq = self.mq();
+            const now = new Date();
+            const start_date = new Date(event.find(".event-start-day").html());
             this.animating = true;
             $("body").css("overflow", "hidden");
 
-            // Kiểm tra xem #calendarModal có đang hiển thị không
-            if ($("#calendarModal").is(":visible")) {
-                this.isFromMulti = true;
-                $("#calendarModal").hide();
-            } else {
-                this.isFromMulti = false;
-            }
-
-            // 1. LẤY DỮ LIỆU TỪ JSON
-            var parentItem = event.closest("[data-json]");
-            if (parentItem.length === 0)
-                parentItem = event.closest(".single-event");
-
-            var rawJson = parentItem.attr("data-json");
-            var parsedData = {};
-            try {
-                if (rawJson)
-                    parsedData =
-                        typeof rawJson === "string"
-                            ? JSON.parse(rawJson)
-                            : rawJson;
-            } catch (e) {}
-            var data = Array.isArray(parsedData) ? parsedData[0] : parsedData;
-
-            // 2. HEADER
-            var fullKtv1 = data.car_ktv_name_1;
-            var fullKtv2 = data.car_ktv_name_2;
-            var name1 = getShortName(fullKtv1);
-            var name2 = getShortName(fullKtv2);
-            var displayName = name1 + (name2 ? ", " + name2 : "");
-
+            //update event name and time
+            this.modalHeader
+                .find(".event-name-id")
+                .text(event.find(".event-name-id").text());
+            this.modalHeader
+                .find(".event-name")
+                .text(event.find(".event-name").text());
+            this.modalHeader
+                .find(".event-name-unit")
+                .text(event.find(".event-name-unit").text());
             this.modalHeader
                 .find(".event-date")
-                .html(formatDate(data.ord_start_day));
-            this.modalHeader.find(".event-technician").html(displayName);
-            this.modalHeader
-                .find(".event-order-id")
-                .html("<b>Mã đơn hàng:</b> " + data.order_id);
-            this.modalHeader
-                .find(".event-unit")
-                .html("<b>Đơn vị:</b> " + data.unit_abbreviation);
-
-            // Set màu cho Modal
+                .text(event.find(".event-date").text());
             this.modal.attr("data-event", event.parent().attr("data-event"));
 
-            var mb = self.modalBody;
-            // Helper function để điền text/html an toàn
-            var setHtml = (selector, val) =>
-                mb
-                    .find(selector)
-                    .html(val !== null && val !== undefined ? val : "");
-            var setText = (selector, val) =>
-                mb
-                    .find(selector)
-                    .text(val !== null && val !== undefined ? val : "");
-
-            setText(".event-car-id").text(data.id);
-            setText(".event-order-id").text(data.order_id);
-            setText(".event-unit").text(data.unit_abbreviation);
-            setText(".event-cty-name").text(data.ord_cty_name);
-            setText(".event-address").text(data.customer_address);
-            setText(".event-other-address").text(data.customer_note);
-            setText(".event-select").text(data.ord_select);
-            setText(".event-info-contact").html(
-                (data.customer_name || "") +
-                    " (" +
-                    (data.customer_phone || "") +
-                    ")"
-            );
-            setText(".event-time").html(data.ord_time);
-            setText(".event-quantity").html(data.order_quantity);
-            setText(".event-doctor-read").html(data.ord_doctor_read);
-            setText(".event-film").html(data.ord_film);
-            setText(".event-form").html(data.ord_form);
-            setText(".event-print").html(data.ord_print);
-            setText(".event-form-print").html(data.ord_form_print);
-            setText(".event-print-result").html(data.ord_print_result);
-            setText(".event-film-sheet").html(data.ord_film_sheet);
-            setText(".event-order-note").html(data.ord_note);
-            setText(".event-ord-warning").html(data.order_warning);
-            setText(".event-deadline").html(formatDate(data.ord_deadline));
-            setText(".event-deliver-results").html(data.ord_deliver_results);
-            setText(".event-email").html(data.ord_email);
-            setText(".event-draft").html(
-                (data.order_quantity_draft || 0) + " Cas"
-            );
-            setText(".event-noteKtv").html(data.order_note_ktv);
-            setText(".event-accountant-doctor-read").html(
-                data.accountant_doctor_read
-            );
-            setText(".event-accountant-35X43").html(data.accountant_35X43);
-            setText(".event-accountant-polime").html(data.accountant_polime);
-            setText(".event-accountant-8X10").html(data.accountant_8X10);
-            setText(".event-accountant-10X12").html(data.accountant_10X12);
-            setText(".event-accountant-note").html(data.accountant_note);
-            setText(".event-ord-delivery-date").html(
-                formatDate(data.ord_delivery_date)
-            );
-            setText(".event-order-send-result").html(data.order_send_result);
-
-            // Status
-            var statusHtml = '<span class="processed">Đã xử lý</span>';
-            if (data.status_id == 1)
-                statusHtml = '<span class="processing">Đang xử lý</span>';
-            else if (data.status_id == 2)
-                statusHtml =
-                    '<span class="updated">Đã cập nhật số Cas thực tế</span>';
-            else if (data.status_id == 4)
-                statusHtml =
-                    '<span class="update-acc">Đã cập nhật doanh thu</span>';
-            mb.find(".event-status").html(statusHtml);
-
-            // Files
-            var href = data.ord_list_file_path || "";
-            var fileName = data.ord_list_file || "";
-            if (href != "" || fileName != 0) {
-                var hrefConvert = href.split(",");
-                var fileNameConvert = fileName.split(",");
-                var result = "";
-                if (!Array.prototype.associate) {
+            //update event content
+            this.modalBody
+                .find(".event-info")
+                .load(
+                    event.parent().attr("data-content") +
+                        ".html .event-info > *",
+                    function (data) {
+                        //once the event content has been loaded
+                        self.element.addClass("content-loaded");
+                    }
+                );
+            this.modalBody
+                .find(".event-car-id")
+                .html(event.find(".event-car-id").html());
+            this.modalBody
+                .find(".event-id")
+                .html(event.find(".event-id").html());
+            this.modalBody
+                .find(".event-unit")
+                .html(event.find(".event-unit").html());
+            this.modalBody
+                .find(".event-cty-name")
+                .html(event.find(".event-cty-name").html());
+            this.modalBody
+                .find(".event-address")
+                .html(event.find(".event-address").html());
+            this.modalBody
+                .find(".event-note-content")
+                .html(event.find(".event-note").html());
+            this.modalBody
+                .find(".event-select")
+                .html(event.find(".event-select").html());
+            this.modalBody.find(".event-list-file").html(function () {
+                var href = event.find(".event-list-file-path").text();
+                var fileName = event.find(".event-list-file").text();
+                if (href != "" || fileName != 0) {
+                    var hrefConvert = href.split(",");
+                    var fileNameConvert = fileName.split(",");
+                    var result = "";
                     Array.prototype.associate = function (keys) {
                         var result = {};
                         this.forEach(function (el, i) {
@@ -354,64 +232,147 @@ function schedule(day) {
                         });
                         return result;
                     };
+                    $.each(hrefConvert.associate(fileNameConvert), (k, v) => {
+                        result +=
+                            '<div class="main-file"><div class="file-content"><div class="file-name">' +
+                            k +
+                            '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                            v +
+                            '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                    });
+                    return '<div class="section-file">' + result + "</div>";
                 }
-                $.each(hrefConvert.associate(fileNameConvert), (k, v) => {
-                    result +=
-                        '<div class="main-file"><div class="file-content"><div class="file-name">' +
-                        k +
+                return "Không có danh sách";
+            });
+            this.modalBody
+                .find(".event-info-contact")
+                .html(event.find(".event-info-contact").html());
+            this.modalBody
+                .find(".event-time")
+                .html(event.find(".event-time").html());
+            this.modalBody
+                .find(".event-doctor-read")
+                .html(event.find(".event-doctor-read").html());
+            this.modalBody
+                .find(".event-film")
+                .html(event.find(".event-film").html());
+            this.modalBody
+                .find(".event-form")
+                .html(event.find(".event-form").html());
+            this.modalBody
+                .find(".event-print")
+                .html(event.find(".event-print").html());
+            this.modalBody
+                .find(".event-form-print")
+                .html(event.find(".event-form-print").html());
+            this.modalBody
+                .find(".event-print-result")
+                .html(event.find(".event-print-result").html());
+            this.modalBody
+                .find(".event-film-sheet")
+                .html(event.find(".event-film-sheet").html());
+            this.modalBody
+                .find(".event-order-note")
+                .html(event.find(".event-order-note").html());
+            this.modalBody
+                .find(".event-ord-warning")
+                .html(event.find(".event-warning").html());
+            this.modalBody
+                .find(".event-deadline")
+                .html(event.find(".event-deadline").html());
+            this.modalBody
+                .find(".event-deliver-results")
+                .html(event.find(".event-deliver-results").html());
+            this.modalBody
+                .find(".event-email")
+                .html(event.find(".event-email").html());
+            if (event.find(".event-status").html() == 1) {
+                this.modalBody
+                    .find(".event-status")
+                    .html('<span class="processing">Đang xử lý</span>');
+            } else if (event.find(".event-status").html() == 2) {
+                this.modalBody
+                    .find(".event-status")
+                    .html(
+                        '<span class="updated">Đã cập nhật số Cas thực tế</span>'
+                    );
+            } else if (event.find(".event-status").html() == 4) {
+                this.modalBody
+                    .find(".event-status")
+                    .html(
+                        '<span class="update-acc">Đã cập nhật doanh thu</span>'
+                    );
+            } else {
+                this.modalBody
+                    .find(".event-status")
+                    .html('<span class="processed">Đã xử lý</span>');
+            }
+            this.modalBody
+                .find(".event-quantity")
+                .html(event.find(".event-quantity").html());
+            this.modalBody
+                .find(".event-draft")
+                .html(event.find(".event-quantity-draft").html() + " Cas");
+            this.modalBody
+                .find(".event-noteKtv")
+                .html(event.find(".event-note-ktv").html());
+            this.modalBody
+                .find(".event-accountant-doctor-read")
+                .html(event.find(".event-accountant-doctor-read").text());
+            this.modalBody
+                .find(".event-35X43")
+                .html(event.find(".event-35X43").text());
+            this.modalBody
+                .find(".event-polime")
+                .html(event.find(".event-polime").text());
+            this.modalBody
+                .find(".event-8X10")
+                .html(event.find(".event-8X10").text());
+            this.modalBody
+                .find(".event-10X12")
+                .html(event.find(".event-10X12").text());
+            this.modalBody
+                .find(".event-accountant-note")
+                .html(event.find(".event-accountant-note").text());
+            this.modalBody
+                .find(".event-delivery-date")
+                .html(event.find(".event-delivery-date").text());
+            this.modalBody
+                .find(".event-order-send-result")
+                .html(event.find(".event-order-send-result").text());
+            var href = event.find(".event-total-file-path").text();
+            var fileName = event.find(".event-total-file").text();
+            if (href != "" || fileName != "") {
+                this.modalBody.find(".event-total-file").html(function () {
+                    var result =
+                        '<input type="hidden" name="path" value="' +
+                        href +
+                        '"><input type="hidden" name="file" value="' +
+                        fileName +
+                        '"><div class="main-file"><div class="file-content"><div class="file-name">' +
+                        fileName +
                         '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
-                        v +
+                        href +
                         '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                    return '<div class="section-file">' + result + "</div>";
                 });
-                mb.find(".event-list-file").html(
-                    '<div class="section-file">' + result + "</div>"
-                );
             } else {
-                mb.find(".event-list-file").html("Không có danh sách");
+                this.modalBody.find(".event-total-file").html("");
+            }
+            if (start_date.getTime() > now.getTime()) {
+                this.modalBody
+                    .find(".rs-overlay-change")
+                    .html(
+                        "<a href=" +
+                            event.find(".event-route-edit").text() +
+                            ' target="_blank" class="form-button button-submit rs-lookup-submit">Chỉnh sửa</a>'
+                    );
+            } else {
+                this.modalBody.find(".rs-overlay-change").html("");
             }
 
-            // Total File
-            var totalHref = data.ord_total_file_path || "";
-            var totalName = data.ord_total_file_name || "";
-            var detailId = data.order_detail_id || "";
-            var $uploadBlock = mb.find(".total-file");
-            var $previewBlock = mb.find(".event-total-file");
-
-            if (totalHref !== "" || totalName !== "") {
-                $uploadBlock.addClass("hidden");
-                var fileHtml = `
-                            <div class="section-file">
-                                <input type="hidden" name="path" value="${totalHref}">
-                                <input type="hidden" name="file" value="${totalName}">
-                                <input type="hidden" name="id" value="${detailId}">
-                                <div class="main-file">
-                                    <div class="file-content">
-                                        <div class="file-name">${totalName}</div>
-                                        <div class="file-action">
-                                            <a href="https://drive.google.com/file/d/${totalHref}/view" target="_blank" class="download-file"><i class="far fa-eye"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                $previewBlock.html(fileHtml);
-            } else {
-                $previewBlock.html("");
-            }
-
-            // Locking Logic
-            const now = new Date();
-            now.setHours(0, 0, 0, 0);
-            const start_date = new Date(data.ord_start_day);
-            
-            var htmlContent =
-                start_date.getTime() >= now.getTime()
-                    ? `<a href="${data.edit_url}" target="_blank" class="form-button button-submit rs-lookup-submit">Chỉnh sửa</a>`
-                    : "";
-            mb.find(".rs-overlay-change").html(htmlContent);
-
-            // 4. ANIMATION
-            self.element.addClass("content-loaded");
             this.element.addClass("modal-is-open");
+
             setTimeout(function () {
                 //fixes a flash when an event is selected - desktop version only
                 event.parent("li").addClass("selected-event");
@@ -479,14 +440,7 @@ function schedule(day) {
             var mq = self.mq();
 
             this.animating = true;
-            self.modalBody.find(".rs-overlay-change").html('');
             $("body").removeAttr("style");
-
-            //HIỆN LẠI POPUP DANH SÁCH (NẾU CẦN)
-            if (this.isFromMulti) {
-                $("body").css("overflow", "hidden");
-                $("#calendarModal").css("display", "flex");
-            }
 
             if (mq == "mobile") {
                 this.element.removeClass("modal-is-open");
@@ -497,7 +451,9 @@ function schedule(day) {
                     event.removeClass("selected-event");
                 });
             } else {
-                var eventHeight = event.innerHeight(),
+                var eventTop = event.offset().top - $(window).scrollTop(),
+                    eventLeft = event.offset().left,
+                    eventHeight = event.innerHeight(),
                     eventWidth = event.innerWidth();
 
                 var modalTop = Number(self.modal.css("top").replace("px", "")),
@@ -505,8 +461,8 @@ function schedule(day) {
                         self.modal.css("left").replace("px", "")
                     );
 
-                var modalTranslateX = modalLeft,
-                    modalTranslateY = modalTop;
+                var modalTranslateX = eventLeft - modalLeft,
+                    modalTranslateY = eventTop - modalTop;
 
                 self.element.removeClass("animation-completed modal-is-open");
 
@@ -588,8 +544,10 @@ function schedule(day) {
                 self.element.addClass("animation-completed");
                 var event = self.eventsGroup.find(".selected-event");
 
-                (eventHeight = event.innerHeight()),
-                    (eventWidth = event.innerWidth());
+                var eventTop = event.offset().top - $(window).scrollTop(),
+                    eventLeft = event.offset().left,
+                    eventHeight = event.innerHeight(),
+                    eventWidth = event.innerWidth();
 
                 var windowWidth = $(window).width(),
                     windowHeight = $(window).height();
@@ -602,6 +560,9 @@ function schedule(day) {
                         windowHeight * 0.8 > self.modalMaxHeight
                             ? self.modalMaxHeight
                             : windowHeight * 0.8;
+
+                var HeaderBgScaleY = modalHeight / eventHeight,
+                    BodyBgScaleX = modalWidth - eventWidth;
 
                 setTimeout(function () {
                     self.modal.css({
@@ -703,85 +664,6 @@ function schedule(day) {
         }
     });
 }
-
-function openMultiModal(element) {
-    $("body").css("overflow", "hidden");
-    var rawData = element.getAttribute("data-json");
-    if (!rawData) return;
-    var allOrders = JSON.parse(rawData);
-    var modalBody = document.getElementById("modalBody");
-    var modalDateLabel = document.getElementById("header-date-label");
-    var modalHeadline = document.getElementById("header-headline");
-    if (allOrders.length > 0) {
-        modalDateLabel.innerText =
-            " Ngày " + formatDate(allOrders[0].ord_start_day);
-
-        modalHeadline.innerText =
-            "Danh Sách Lịch " + carRenameFunction(allOrders[0].car_name);
-    }
-    modalBody.innerHTML = "";
-
-    allOrders.forEach(function (order) {
-        var div = document.createElement("div");
-        var colorClass = getCarColor(order.car_name);
-        div.className = `single-event single-card-event ${colorClass} border-child`;
-        div.setAttribute("data-start", formatDate(order.ord_start_day));
-        div.setAttribute("data-content", "event-rowing-workout");
-        div.setAttribute("data-event", "event-" + order.car_name);
-        div.setAttribute("data-json", JSON.stringify(order));
-        var name1 = getShortName(order.car_ktv_name_1);
-        var name2 = getShortName(order.car_ktv_name_2);
-        var displayName = name1 + (name2 ? ", " + name2 : "");
-
-        div.innerHTML = `
-            <div class="notification-icon-block">
-                ${
-                    order.order_warning == "Có"
-                        ? `<div class="order-warning"><i class="fa fa-exclamation-triangle"></i></div>`
-                        : ""
-                }
-                ${
-                    order.order_updated == 1
-                        ? `<div class="order-status"><i class="fas fa-check-circle"></i></div>`
-                        : ""
-                }
-            </div>
-            <a href="javascript:;" style="padding: 10px; display: block;">
-                <div class="event-title">
-                    <div class="sub-title">
-                        <span class="sub-title-date"><b>Ngày:</b>
-                            ${formatDate(order.ord_start_day)}
-                        </span>
-                        <p class="line">-</p>
-                        <span class="sub-title-technician"><b>KTV:</b>
-                            ${displayName}
-                        </span>
-                    </div>
-                    <span class="event-name-unit">
-                        <b>Mã đơn hàng:</b> ${order.order_id}
-                    </span>
-                    <p class="event-name-unit">
-                        <b>Đơn vị:</b> ${order.unit_abbreviation}
-                    </p>
-                </div>
-            </a>
-        `;
-
-        modalBody.appendChild(div);
-    });
-    document.getElementById("calendarModal").style.display = "flex";
-}
-
-function closeMultiModal() {
-    $("body").removeAttr("style");
-    document.getElementById("calendarModal").style.display = "none";
-}
-
-window.onclick = function (event) {
-    if (event.target == document.getElementById("calendarModal")) {
-        closeMultiModal();
-    }
-};
 /*------------------
            Select Month Schedule
         --------------------*/

@@ -70,62 +70,9 @@
             schedule(data.day);
         },
     });
-    
-    // --- Helper Functions ---
-    
-    function getShortName(fullName) {
-        if (!fullName) return "";
-        return fullName.trim().split(" ").pop();
-    }
-    
-    function formatDate(dateString) {
-        if (!dateString) return "";
-        var date = new Date(dateString);
-        var day = date.getDate();
-        var month = date.getMonth() + 1;
-        var year = date.getFullYear();
-        day = day < 10 ? "0" + day : day;
-        month = month < 10 ? "0" + month : month;
-        return day + "/" + month + "/" + year;
-    }
-    
-    function carRenameFunction(car) {
-        const carNames = {
-            6: "Xe Thuê",
-            7: "Xe Tăng Cường",
-            8: "Xe Siêu Âm",
-        };
-    
-        return carNames[car] || "Xe " + car;
-    }
-    
-    function getCarColor(carId) {
-        var id = parseInt(carId);
-        switch (id) {
-            case 1:
-                return "bg-blue";
-            case 2:
-                return "bg-gray";
-            case 3:
-                return "bg-green";
-            case 4:
-                return "bg-red";
-            case 5:
-                return "bg-yellow";
-            case 6:
-                return "bg-purple";
-            case 7:
-                return "bg-orange";
-            case 8:
-                return "bg-teal";
-            default:
-                return "bg-blue";
-        }
-    }
-    
     /*------------------
-                           Function Schedule
-                        --------------------*/
+                       Function Schedule
+                    --------------------*/
     function schedule(day) {
         jQuery(document).ready(function ($) {
             var transitionEnd =
@@ -220,23 +167,19 @@
                 var self = this;
     
                 this.singleEvents.each(function () {
-                    // detect click on the event and open the modal
+                    //create the .event-date element for each event
+                    var start = getDate($(this).data("start"));
+    
+                    var durationLabel =
+                        '<span class="event-date">Ngày chụp: ' + start + "</span>";
+                    $(this).children("a").prepend($(durationLabel));
+    
+                    //detect click on the event and open the modal
                     $(this).on("click", "a", function (event) {
                         event.preventDefault();
                         if (!self.animating) self.openModal($(this));
                     });
                 });
-    
-                $(document)
-                    .off("click", ".single-card-event a")
-                    .on("click", ".single-card-event a", function (event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-    
-                        if (!self.animating) {
-                            self.openModal($(this));
-                        }
-                    });
     
                 //close modal window
                 this.modal.on("click", ".close", function (event) {
@@ -257,21 +200,20 @@
                     //place each event in the grid -> need to set top position and height
                     var start = getScheduleTimestamp($(this).attr("data-start")),
                         end = getScheduleTimestamp($(this).attr("data-start")),
-                        extraTop = 0,
-                        subtractWidth = 20;
-    
-                    if ($(this).hasClass("bg-back")) {
-                        extraTop = 5;
-                        subtractWidth = 36;
+                        child = $(this).attr("data-child");
+                    if (child == 1) {
                         $(this).css({
-                            left: 18 + "px",
+                            left: 0 + "px",
+                        });
+                    } else if (child == 2) {
+                        $(this).css({
+                            left: 23 + "px",
                         });
                     } else {
                         $(this).css({
-                            left: 10 + "px",
+                            right: 0 + "px",
                         });
                     }
-    
                     if (start == end) {
                         duration = 60;
                     } else {
@@ -285,9 +227,8 @@
                             self.timelineUnitDuration;
     
                     $(this).css({
-                        top: eventTop + 10 + extraTop + "px",
-                        height: eventHeight - 20 + "px",
-                        width: "calc(100% - " + subtractWidth + "px)",
+                        top: eventTop - 1 + "px",
+                        height: eventHeight + 1 + "px",
                     });
                 });
                 this.element.removeClass("loading");
@@ -299,116 +240,60 @@
                 this.animating = true;
                 $("body").css("overflow", "hidden");
     
-                // Kiểm tra xem #calendarModal có đang hiển thị không
-                if ($("#calendarModal").is(":visible")) {
-                    this.isFromMulti = true;
-                    $("#calendarModal").hide();
-                } else {
-                    this.isFromMulti = false;
-                }
-    
-                // 1. LẤY DỮ LIỆU TỪ JSON
-                var parentItem = event.closest("[data-json]");
-                if (parentItem.length === 0)
-                    parentItem = event.closest(".single-event");
-    
-                var rawJson = parentItem.attr("data-json");
-                var parsedData = {};
-                try {
-                    if (rawJson)
-                        parsedData =
-                            typeof rawJson === "string"
-                                ? JSON.parse(rawJson)
-                                : rawJson;
-                } catch (e) {}
-                var data = Array.isArray(parsedData) ? parsedData[0] : parsedData;
-    
-                // 2. HEADER
-                var fullKtv1 = data.car_ktv_name_1;
-                var fullKtv2 = data.car_ktv_name_2;
-                var name1 = getShortName(fullKtv1);
-                var name2 = getShortName(fullKtv2);
-                var displayName = name1 + (name2 ? ", " + name2 : "");
-    
+                //update event name and time
+                this.modalHeader
+                    .find(".event-name-id")
+                    .text(event.find(".event-name-id").text());
+                this.modalHeader
+                    .find(".event-name")
+                    .text(event.find(".event-name").text());
+                this.modalHeader
+                    .find(".event-name-unit")
+                    .text(event.find(".event-name-unit").text());
                 this.modalHeader
                     .find(".event-date")
-                    .html(formatDate(data.ord_start_day));
-                this.modalHeader
-                    .find(".event-technician")
-                    .html(displayName);
-                this.modalHeader
-                    .find(".event-order-id")
-                    .html("<b>Mã đơn hàng:</b> " + data.order_id);
-                this.modalHeader
-                    .find(".event-unit")
-                    .html("<b>Đơn vị:</b> " + data.unit_abbreviation);
-    
-                // Set màu cho Modal
+                    .text(event.find(".event-date").text());
                 this.modal.attr("data-event", event.parent().attr("data-event"));
     
-                var mb = self.modalBody;
-                // Helper function để điền text/html an toàn
-                var setHtml = (selector, val) =>
-                    mb
-                        .find(selector)
-                        .html(val !== null && val !== undefined ? val : "");
-                var setText = (selector, val) =>
-                    mb
-                        .find(selector)
-                        .text(val !== null && val !== undefined ? val : "");
-    
-                setText(".event-car-id").text(data.id);
-                setText(".event-order-id").text(data.order_id);
-                setText(".event-unit").text(data.unit_abbreviation);
-                setText(".event-cty-name").text(data.ord_cty_name);
-                setText(".event-address").text(data.customer_address);
-                setText(".event-other-address").text(data.customer_note);
-                setText(".event-select").text(data.ord_select);
-                setText(".event-info-contact").html(
-                    (data.customer_name || "") +
-                        " (" +
-                        (data.customer_phone || "") +
-                        ")"
-                );
-                setText(".event-time").html(data.ord_time);
-                setText(".event-quantity").html(data.order_quantity);
-                setText(".event-doctor-read").html(data.ord_doctor_read);
-                setText(".event-film").html(data.ord_film);
-                setText(".event-form").html(data.ord_form);
-                setText(".event-print").html(data.ord_print);
-                setText(".event-form-print").html(data.ord_form_print);
-                setText(".event-print-result").html(data.ord_print_result);
-                setText(".event-film-sheet").html(data.ord_film_sheet);
-                setText(".event-order-note").html(data.ord_note);
-                setText(".event-ord-warning").html(data.order_warning);
-                setText(".event-deadline").html(formatDate(data.ord_deadline));
-                setText(".event-deliver-results").html(data.ord_deliver_results);
-                setText(".event-email").html(data.ord_email);
-                setText(".event-draft").html(
-                    (data.order_quantity_draft || 0) + " Cas"
-                );
-                setText(".event-noteKtv").html(data.order_note_ktv);
-    
-                // Status
-                var statusHtml = '<span class="processed">Đã xử lý</span>';
-                if (data.status_id == 1)
-                    statusHtml = '<span class="processing">Đang xử lý</span>';
-                else if (data.status_id == 2)
-                    statusHtml =
-                        '<span class="updated">Đã cập nhật số Cas thực tế</span>';
-                else if (data.status_id == 4)
-                    statusHtml =
-                        '<span class="update-acc">Đã cập nhật doanh thu</span>';
-                mb.find(".event-status").html(statusHtml);
-    
-                // Files
-                var href = data.ord_list_file_path || "";
-                var fileName = data.ord_list_file || "";
-                if (href != "" || fileName != 0) {
-                    var hrefConvert = href.split(",");
-                    var fileNameConvert = fileName.split(",");
-                    var result = "";
-                    if (!Array.prototype.associate) {
+                //update event content when open modal
+                this.modalBody
+                    .find(".event-info")
+                    .load(
+                        event.parent().attr("data-content") +
+                            ".html .event-info > *",
+                        function (data) {
+                            //once the event content has been loaded
+                            self.element.addClass("content-loaded");
+                        }
+                    );
+                this.modalBody
+                    .find(".event-car-id")
+                    .html(event.find(".event-car-id").html());
+                this.modalBody
+                    .find(".event-id")
+                    .html(event.find(".event-id").html());
+                this.modalBody
+                    .find(".event-unit")
+                    .html(event.find(".event-unit").html());
+                this.modalBody
+                    .find(".event-cty-name")
+                    .html(event.find(".event-cty-name").html());
+                this.modalBody
+                    .find(".event-address")
+                    .html(event.find(".event-address").html());
+                this.modalBody
+                    .find(".event-note-content")
+                    .html(event.find(".event-note").html());
+                this.modalBody
+                    .find(".event-select")
+                    .html(event.find(".event-select").html());
+                this.modalBody.find(".event-list-file").html(function () {
+                    var href = event.find(".event-list-file-path").text();
+                    var fileName = event.find(".event-list-file").text();
+                    if (href != "" || fileName != 0) {
+                        var hrefConvert = href.split(",");
+                        var fileNameConvert = fileName.split(",");
+                        var result = "";
                         Array.prototype.associate = function (keys) {
                             var result = {};
                             this.forEach(function (el, i) {
@@ -416,117 +301,319 @@
                             });
                             return result;
                         };
+                        $.each(hrefConvert.associate(fileNameConvert), (k, v) => {
+                            result +=
+                                '<div class="main-file"><div class="file-content"><div class="file-name">' +
+                                k +
+                                '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                                v +
+                                '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                        });
+                        return '<div class="section-file">' + result + "</div>";
                     }
-                    $.each(hrefConvert.associate(fileNameConvert), (k, v) => {
-                        result +=
-                            '<div class="main-file"><div class="file-content"><div class="file-name">' +
-                            k +
-                            '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
-                            v +
-                            '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
-                    });
-                    mb.find(".event-list-file").html(
-                        '<div class="section-file">' + result + "</div>"
-                    );
+                    return "Không có danh sách";
+                });
+                this.modalBody
+                    .find(".event-info-contact")
+                    .html(event.find(".event-info-contact").html());
+                this.modalBody
+                    .find(".event-time")
+                    .html(event.find(".event-time").html());
+                this.modalBody
+                    .find(".event-quantity")
+                    .html(event.find(".event-quantity").html());
+                this.modalBody
+                    .find(".event-doctor-read")
+                    .html(event.find(".event-doctor-read").html());
+                this.modalBody
+                    .find(".event-film")
+                    .html(event.find(".event-film").html());
+                this.modalBody
+                    .find(".event-form")
+                    .html(event.find(".event-form").html());
+                this.modalBody
+                    .find(".event-print")
+                    .html(event.find(".event-print").html());
+                this.modalBody
+                    .find(".event-form-print")
+                    .html(event.find(".event-form-print").html());
+                this.modalBody
+                    .find(".event-print-result")
+                    .html(event.find(".event-print-result").html());
+                this.modalBody
+                    .find(".event-film-sheet")
+                    .html(event.find(".event-film-sheet").html());
+                this.modalBody
+                    .find(".event-order-note")
+                    .html(event.find(".event-order-note").html());
+                this.modalBody
+                    .find(".event-ord-warning")
+                    .html(event.find(".event-warning").html());
+                this.modalBody
+                    .find(".event-deadline")
+                    .html(event.find(".event-deadline").html());
+                this.modalBody
+                    .find(".event-deliver-results")
+                    .html(event.find(".event-deliver-results").html());
+                this.modalBody
+                    .find(".event-email")
+                    .html(event.find(".event-email").html());
+                if (event.find(".event-status").html() == 1) {
+                    this.modalBody
+                        .find(".event-status")
+                        .html('<span class="processing">Đang xử lý</span>');
+                } else if (event.find(".event-status").html() == 2) {
+                    this.modalBody
+                        .find(".event-status")
+                        .html(
+                            '<span class="updated">Đã cập nhật số Cas thực tế</span>'
+                        );
+                } else if (event.find(".event-status").html() == 4) {
+                    this.modalBody
+                        .find(".event-status")
+                        .html(
+                            '<span class="update-acc">Đã cập nhật doanh thu</span>'
+                        );
                 } else {
-                    mb.find(".event-list-file").html("Không có danh sách");
+                    this.modalBody
+                        .find(".event-status")
+                        .html('<span class="processed">Đã xử lý</span>');
+                }
+                this.modalBody
+                    .find(".event-draft")
+                    .html(event.find(".event-quantity-draft").html() + " Cas");
+                this.modalBody
+                    .find(".event-noteKtv")
+                    .html(event.find(".event-note-ktv").html());
+    
+                //set handle base on status
+    
+                this.modalBody
+                    .find(".order-quantity")
+                    .val(event.find(".event-quantity").text());
+                event.find(".event-quantity").text() != ""
+                    ? this.modalBody
+                          .find(".order-quantity")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".order-quantity")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody.find(".accountant-doctor-read");
+                if (event.find(".event-accountant-doctor-read").html() == "Nhân") {
+                    this.modalBody.find(".doctor-N").prop("selected", true);
+                } else if (
+                    event.find(".event-accountant-doctor-read").html() == "Trung"
+                ) {
+                    this.modalBody.find(".doctor-T").prop("selected", true);
+                } else if (
+                    event.find(".event-accountant-doctor-read").html() == "Giang"
+                ) {
+                    this.modalBody.find(".doctor-G").prop("selected", true);
+                }else if (
+                    event.find(".event-accountant-doctor-read").html() == "Ân"
+                ) {
+                    this.modalBody.find(".doctor-A").prop("selected", true);
+                } else {
+                    this.modalBody.find(".doctor-empty").prop("selected", true);
                 }
     
-                // FILL FORM INPUT
-                var setInput = (selector, val) => {
-                    var el = mb.find(selector);
-                    el.val(val);
-                    if (val) el.addClass("form-textbox-entered");
-                    else el.removeClass("form-textbox-entered");
-                };
-                setInput(".order-quantity", data.order_quantity);
-                setInput(".accountant-35X43", data.accountant_35X43);
-                setInput(".accountant-polime", data.accountant_polime);
-                setInput(".accountant-8X10", data.accountant_8X10);
-                setInput(".accountant-10X12", data.accountant_10X12);
-                setInput(".accountant-note", data.accountant_note);
-                setInput(".ord-delivery-date", data.ord_delivery_date);
+                this.modalBody
+                    .find(".accountant-35X43")
+                    .val(event.find(".event-35X43").text());
+                event.find(".event-35X43").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-35X43")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-35X43")
+                          .removeClass("form-textbox-entered");
     
-                // Doctor Select
-                var doctorMap = {
-                    Nhân: ".doctor-N",
-                    Trung: ".doctor-T",
-                    Giang: ".doctor-G",
-                    Ân: ".doctor-A",
-                };
-                var docSelector =
-                    doctorMap[data.accountant_doctor_read] || ".doctor-empty";
+                this.modalBody
+                    .find(".accountant-polime")
+                    .val(event.find(".event-polime").text());
+                event.find(".event-polime").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-polime")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-polime")
+                          .removeClass("form-textbox-entered");
     
-                // Reset select về mặc định trước khi chọn
-                mb.find(".accountant-doctor-read option").prop("selected", false);
-                mb.find(docSelector).prop("selected", true);
+                this.modalBody
+                    .find(".accountant-8X10")
+                    .val(event.find(".event-8X10").text());
+                event.find(".event-8X10").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-8X10")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-8X10")
+                          .removeClass("form-textbox-entered");
     
-                // Checkbox
-                mb.find(".block-order-send-result").html(function () {
-                    var result = data.order_send_result || "";
-                    var htmlRes = "";
-                    var arr = result.split(",");
-                    var hasGmail = arr.includes("Gmail");
-                    var hasZalo = arr.includes("Zalo");
+                this.modalBody
+                    .find(".accountant-10X12")
+                    .val(event.find(".event-10X12").text());
+                event.find(".event-10X12").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-10X12")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-10X12")
+                          .removeClass("form-textbox-entered");
     
-                    // Hàm tạo HTML checkbox
-                    var genBox = (val, chk) =>
-                        `<div class="form-checkbox"><input type="checkbox" id="result-${val}" name="order_send_result" class="form-checkbox-input order-send-result" value="${val}" ${
-                            chk ? "checked" : ""
-                        }><label for="result-${val}" class="form-label">${val}</label></div>`;
+                this.modalBody
+                    .find(".accountant-note")
+                    .val(event.find(".event-accountant-note").text());
+                event.find(".event-accountant-note").text() != ""
+                    ? this.modalBody
+                          .find(".accountant-note")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".accountant-note")
+                          .removeClass("form-textbox-entered");
     
-                    htmlRes += genBox("Gmail", hasGmail);
-                    htmlRes += genBox("Zalo", hasZalo);
-                    return htmlRes;
+                this.modalBody
+                    .find(".ord-delivery-date")
+                    .val(event.find(".event-delivery-date").text());
+                event.find(".event-delivery-date").text() != ""
+                    ? this.modalBody
+                          .find(".ord-delivery-date")
+                          .addClass("form-textbox-entered")
+                    : this.modalBody
+                          .find(".ord-delivery-date")
+                          .removeClass("form-textbox-entered");
+    
+                this.modalBody.find(".block-order-send-result").html(function () {
+                    var result = event.find(".event-order-send-result").text();
+                    if (result != "") {
+                        var resultConvert = result.split(",");
+                        var lastResult = "";
+                        $.each(resultConvert, function (i, v) {
+                            if (v == "Gmail" && resultConvert.length === 1) {
+                                lastResult =
+                                    '<div class="form-checkbox"><input type="checkbox" id="result-Gmail" name="order_send_result" class="form-checkbox-input order-send-result" value="Gmail" checked><label for="result-Gmail" class="form-label">Gmail</label></div><div class="form-checkbox"><input type="checkbox" id="result-Zalo" name="order_send_result" class="form-checkbox-input order-send-result" value="Zalo"><label for="result-Zalo" class="form-label">Zalo</label></div>';
+                            } else if (v == "Zalo" && resultConvert.length === 1) {
+                                lastResult =
+                                    '<div class="form-checkbox"><input type="checkbox" id="result-Gmail" name="order_send_result" class="form-checkbox-input order-send-result" value="Gmail"><label for="result-Gmail" class="form-label">Gmail</label></div><div class="form-checkbox"><input type="checkbox" id="result-Zalo" name="order_send_result" class="form-checkbox-input order-send-result" value="Zalo" checked><label for="result-Zalo" class="form-label">Zalo</label></div>';
+                            } else {
+                                lastResult +=
+                                    '<div class="form-checkbox"><input type="checkbox" id="result-' +
+                                    v +
+                                    '" name="order_send_result" class="form-checkbox-input order-send-result" value="' +
+                                    v +
+                                    '" checked>' +
+                                    '<label for="result-' +
+                                    v +
+                                    '" class="form-label">' +
+                                    v +
+                                    "</label></div>";
+                            }
+                        });
+                        return lastResult;
+                    }
+                    return '<div class="form-checkbox"><input type="checkbox" id="result-Gmail" name="order_send_result" class="form-checkbox-input order-send-result" value="Gmail"><label for="result-Gmail" class="form-label">Gmail</label></div><div class="form-checkbox"><input type="checkbox" id="result-Zalo" name="order_send_result" class="form-checkbox-input order-send-result" value="Zalo"><label for="result-Zalo" class="form-label">Zalo</label></div>';
                 });
     
-                // Locking Logic
-                var isLocked = data.status_id == 3;
-    
-                mb.find(
-                    ".order-quantity, .accountant-doctor-read, .accountant-35X43, .accountant-polime, .accountant-8X10, .accountant-10X12, .accountant-note, .ord-delivery-date, .order-send-result, .submit-quantity-details"
-                ).attr("disabled", isLocked);
-                if (isLocked)
-                    mb.find(".submit-quantity-details").addClass("hidden");
-                else mb.find(".submit-quantity-details").removeClass("hidden");
-    
-                // Total File
-                var totalHref = data.ord_total_file_path || "";
-                var totalName = data.ord_total_file_name || "";
-                var detailId = data.order_detail_id || "";
-                var $uploadBlock = mb.find(".total-file");
-                var $previewBlock = mb.find(".event-total-file");
-    
-                if (totalHref !== "" || totalName !== "") {
-                    $uploadBlock.addClass("hidden");
-                    var deleteBtn = isLocked
-                        ? ""
-                        : `<button class="delete-file del-total-file" type="button"><i class="fas fa-times"></i></button>`;
-                    var fileHtml = `
-                                <div class="section-file">
-                                    <input type="hidden" name="path" value="${totalHref}">
-                                    <input type="hidden" name="file" value="${totalName}">
-                                    <input type="hidden" name="id" value="${detailId}">
-                                    <div class="main-file">
-                                        <div class="file-content">
-                                            <div class="file-name">${totalName}</div>
-                                            <div class="file-action">
-                                                <a href="https://drive.google.com/file/d/${totalHref}/view" target="_blank" class="download-file"><i class="far fa-eye"></i></a>
-                                                ${deleteBtn}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>`;
-                    $previewBlock.html(fileHtml);
+                if (event.find(".event-status").text() == 3) {
+                    this.modalBody.find(".order-quantity").attr("disabled", true);
+                    this.modalBody
+                        .find(".accountant-doctor-read")
+                        .attr("disabled", true);
+                    this.modalBody.find(".accountant-35X43").attr("disabled", true);
+                    this.modalBody
+                        .find(".accountant-polime")
+                        .attr("disabled", true);
+                    this.modalBody.find(".accountant-8X10").attr("disabled", true);
+                    this.modalBody.find(".accountant-10X12").attr("disabled", true);
+                    this.modalBody.find(".accountant-note").attr("disabled", true);
+                    this.modalBody
+                        .find(".ord-delivery-date")
+                        .attr("disabled", true);
+                    this.modalBody
+                        .find(".order-send-result")
+                        .attr("disabled", true);
+                    var href = event.find(".event-total-file-path").text();
+                    var fileName = event.find(".event-total-file").text();
+                    this.modalBody.find(".total-file").addClass("hidden");
+                    if (href != "" || fileName != "") {
+                        this.modalBody.find(".event-total-file").html(function () {
+                            var id = event.find(".event-details-id").html();
+                            var result =
+                                '<input type="hidden" name="path" value="' +
+                                href +
+                                '"><input type="hidden" name="file" value="' +
+                                fileName +
+                                '"><input type="hidden" name="id" value="' +
+                                id +
+                                '"><div class="main-file"><div class="file-content"><div class="file-name">' +
+                                fileName +
+                                '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                                href +
+                                '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
+                            return '<div class="section-file">' + result + "</div>";
+                        });
+                    } else {
+                        this.modalBody.find(".event-total-file").html("");
+                    }
+                    this.modalBody
+                        .find(".submit-quantity-details")
+                        .attr("disabled", true)
+                        .addClass("hidden");
                 } else {
-                    if (isLocked) $uploadBlock.addClass("hidden");
-                    else $uploadBlock.removeClass("hidden");
-                    $previewBlock.html("");
-                }
+                    this.modalBody.find(".order-quantity").attr("disabled", false);
+                    this.modalBody
+                        .find(".accountant-doctor-read")
+                        .attr("disabled", false);
     
-                // 4. ANIMATION
-                self.element.addClass("content-loaded");
+                    this.modalBody
+                        .find(".accountant-35X43")
+                        .attr("disabled", false);
+                    this.modalBody
+                        .find(".accountant-polime")
+                        .attr("disabled", false);
+                    this.modalBody.find(".accountant-8X10").attr("disabled", false);
+                    this.modalBody
+                        .find(".accountant-10X12")
+                        .attr("disabled", false);
+                    this.modalBody.find(".accountant-note").attr("disabled", false);
+                    this.modalBody
+                        .find(".ord-delivery-date")
+                        .attr("disabled", false);
+                    this.modalBody
+                        .find(".order-send-result")
+                        .attr("disabled", false);
+                    var href = event.find(".event-total-file-path").text();
+                    var fileName = event.find(".event-total-file").text();
+                    if (href != "" || fileName != "") {
+                        this.modalBody.find(".total-file").addClass("hidden");
+                        this.modalBody.find(".event-total-file").html(function () {
+                            var id = event.find(".event-details-id").html();
+                            var result =
+                                '<input type="hidden" name="path" value="' +
+                                href +
+                                '"><input type="hidden" name="file" value="' +
+                                fileName +
+                                '"><input type="hidden" name="id" value="' +
+                                id +
+                                '"><div class="main-file"><div class="file-content"><div class="file-name">' +
+                                fileName +
+                                '</div><div class="file-action"><a href="https://drive.google.com/file/d/' +
+                                href +
+                                '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a><button class="delete-file del-total-file" type="button"><i class="fas fa-times"></i></button></div></div></div>';
+                            return '<div class="section-file">' + result + "</div>";
+                        });
+                    } else {
+                        this.modalBody.find(".total-file").removeClass("hidden");
+                        this.modalBody.find(".event-total-file").html("");
+                    }
+                    this.modalBody
+                        .find(".submit-quantity-details")
+                        .attr("disabled", false)
+                        .removeClass("hidden");
+                }
                 this.element.addClass("modal-is-open");
+    
                 setTimeout(function () {
                     //fixes a flash when an event is selected - desktop version only
                     event.parent("li").addClass("selected-event");
@@ -576,6 +663,30 @@
                             "px)"
                     );
     
+                    //set modalHeader width
+                    // self.modalHeader.css({
+                    //     width: eventWidth + "px",
+                    // });
+                    //set modalBody left margin
+                    // self.modalBody.css({
+                    //     marginLeft: eventWidth + "px",
+                    // });
+    
+                    //change modalBodyBg height/width ans scale it
+                    // self.modalBodyBg.css({
+                    //     height: eventHeight + 'px',
+                    //     width: '1px',
+                    // });
+                    // transformElement(self.modalBodyBg, 'scaleY(' + HeaderBgScaleY + ') scaleX(' +
+                    //     BodyBgScaleX + ')');
+    
+                    //change modal modalHeaderBg height/width and scale it
+                    // self.modalHeaderBg.css({
+                    //     // height: eventHeight + 'px',
+                    //     width: eventWidth + "px",
+                    // });
+                    // transformElement(self.modalHeaderBg, 'scaleY(' + HeaderBgScaleY + ')');
+    
                     self.modalHeaderBg.one(transitionEnd, function () {
                         //wait for the  end of the modalHeaderBg transformation and show the modal content
                         self.modalHeaderBg.off(transitionEnd);
@@ -596,12 +707,6 @@
                 this.animating = true;
                 $("body").removeAttr("style");
     
-                //HIỆN LẠI POPUP DANH SÁCH (NẾU CẦN)
-                if (this.isFromMulti) {
-                    $("body").css("overflow", "hidden");
-                    $("#calendarModal").css("display", "flex");
-                }
-    
                 if (mq == "mobile") {
                     this.element.removeClass("modal-is-open");
                     this.modal.one(transitionEnd, function () {
@@ -611,7 +716,9 @@
                         event.removeClass("selected-event");
                     });
                 } else {
-                    var eventHeight = event.innerHeight(),
+                    var eventTop = event.offset().top - $(window).scrollTop(),
+                        eventLeft = event.offset().left,
+                        eventHeight = event.innerHeight(),
                         eventWidth = event.innerWidth();
     
                     var modalTop = Number(self.modal.css("top").replace("px", "")),
@@ -619,8 +726,8 @@
                             self.modal.css("left").replace("px", "")
                         );
     
-                    var modalTranslateX = modalLeft,
-                        modalTranslateY = modalTop;
+                    var modalTranslateX = eventLeft - modalLeft,
+                        modalTranslateY = eventTop - modalTop;
     
                     self.element.removeClass("animation-completed modal-is-open");
     
@@ -702,8 +809,10 @@
                     self.element.addClass("animation-completed");
                     var event = self.eventsGroup.find(".selected-event");
     
-                    (eventHeight = event.innerHeight()),
-                        (eventWidth = event.innerWidth());
+                    var eventTop = event.offset().top - $(window).scrollTop(),
+                        eventLeft = event.offset().left,
+                        eventHeight = event.innerHeight(),
+                        eventWidth = event.innerWidth();
     
                     var windowWidth = $(window).width(),
                         windowHeight = $(window).height();
@@ -716,6 +825,9 @@
                             windowHeight * 0.8 > self.modalMaxHeight
                                 ? self.modalMaxHeight
                                 : windowHeight * 0.8;
+    
+                    var HeaderBgScaleY = modalHeight / eventHeight,
+                        BodyBgScaleX = modalWidth - eventWidth;
     
                     setTimeout(function () {
                         self.modal.css({
@@ -817,88 +929,9 @@
             }
         });
     }
-    
-    function openMultiModal(element) {
-        $("body").css("overflow", "hidden");
-        var rawData = element.getAttribute("data-json");
-        if (!rawData) return;
-        var allOrders = JSON.parse(rawData);
-        var modalBody = document.getElementById("modalBody");
-        var modalDateLabel = document.getElementById("header-date-label");
-        var modalHeadline = document.getElementById("header-headline");
-        if (allOrders.length > 0) {
-            modalDateLabel.innerText =
-                " Ngày " + formatDate(allOrders[0].ord_start_day);
-    
-            modalHeadline.innerText =
-                "Danh Sách Lịch " + carRenameFunction(allOrders[0].car_name);
-        }
-        modalBody.innerHTML = "";
-    
-        allOrders.forEach(function (order) {
-            var div = document.createElement("div");
-            var colorClass = getCarColor(order.car_name);
-            div.className = `single-event single-card-event ${colorClass} border-child`;
-            div.setAttribute("data-start", formatDate(order.ord_start_day));
-            div.setAttribute("data-content", "event-rowing-workout");
-            div.setAttribute("data-event", "event-" + order.car_name);
-            div.setAttribute("data-json", JSON.stringify(order));
-            var name1 = getShortName(order.car_ktv_name_1);
-            var name2 = getShortName(order.car_ktv_name_2);
-            var displayName = name1 + (name2 ? ", " + name2 : "");
-    
-            div.innerHTML = `
-                <div class="notification-icon-block">
-                    ${
-                        order.order_warning == "Có"
-                            ? `<div class="order-warning"><i class="fa fa-exclamation-triangle"></i></div>`
-                            : ""
-                    }
-                    ${
-                        order.order_updated == 1
-                            ? `<div class="order-status"><i class="fas fa-check-circle"></i></div>`
-                            : ""
-                    }
-                </div>
-                <a href="javascript:;" style="padding: 10px; display: block;">
-                    <div class="event-title">
-                        <div class="sub-title">
-                            <span class="sub-title-date"><b>Ngày:</b>
-                                ${formatDate(order.ord_start_day)}
-                            </span>
-                            <p class="line">-</p>
-                            <span class="sub-title-technician"><b>KTV:</b>
-                                ${displayName}
-                            </span>
-                        </div>
-                        <span class="event-name-unit">
-                            <b>Mã đơn hàng:</b> ${order.order_id}
-                        </span>
-                        <p class="event-name-unit">
-                            <b>Đơn vị:</b> ${order.unit_abbreviation}
-                        </p>
-                    </div>
-                </a>
-            `;
-    
-            modalBody.appendChild(div);
-        });
-        document.getElementById("calendarModal").style.display = "flex";
-    }
-    
-    function closeMultiModal() {
-        $("body").removeAttr("style");
-        document.getElementById("calendarModal").style.display = "none";
-    }
-    
-    window.onclick = function (event) {
-        if (event.target == document.getElementById("calendarModal")) {
-            closeMultiModal();
-        }
-    };
     /*------------------
-                           Select Month Schedule
-                        --------------------*/
+                       Select Month Schedule
+                    --------------------*/
     $(document).on("change", ".select-month", function () {
         var month = $(this).val();
         var year = $(".select-year").val();
@@ -931,8 +964,8 @@
         });
     });
     /*------------------
-                        Schedule Search
-                        --------------------*/
+                    Schedule Search
+                    --------------------*/
     $(document).on("click", ".btn-schedule-search", function () {
         $("input[name=search-keywords]").focus();
         $(".schedule-search").addClass("search-show");
@@ -1030,20 +1063,20 @@
         });
     });
     /*------------------
-                            Set month when year change
-                            --------------------*/
+                        Set month when year change
+                        --------------------*/
     $(document).on("change", ".select-year", function () {
         $(".define-month").prop("selected", true);
     });
     /*------------------
-                           Handle Schedule
-                        --------------------*/
+                       Handle Schedule
+                    --------------------*/
     $(document).on("click", ".submit-quantity-details", function () {
         var data = getValues();
         data.push(
             {
                 name: "id",
-                value: $(".event-info").find(".event-order-id").text(),
+                value: $(".event-info").find(".event-id").text(),
             },
             {
                 name: "_token",
