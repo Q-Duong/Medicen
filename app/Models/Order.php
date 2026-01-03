@@ -41,7 +41,11 @@ class Order extends Model
 
     public function getEditUrlAttribute()
     {
-        return route('order.edit', $this->order_id);
+        if (empty($this->order_id)) {
+            return '#';
+        }
+    
+        return route('order.edit', ['id' => $this->order_id]);
     }
 
     public function unit()

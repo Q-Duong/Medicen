@@ -21,13 +21,11 @@
                         <form role="form" action="{{ route('order.store_copy') }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="order_detail_id"
-                                value="{{ $order->order_detail_id }}">
+                            <input type="hidden" name="order_detail_id" value="{{ $order->order_detail_id }}">
                             <div class="form-group @error('customer_name') has-error @enderror">
                                 <label for="exampleInputEmail1">Họ tên khách hàng</label>
                                 <input type="text" name="customer_name" class="input-control"
-                                    placeholder="Điền họ tên khách hàng"
-                                    value="{{ $order->customer_name }}">
+                                    placeholder="Điền họ tên khách hàng" value="{{ $order->customer_name }}">
                                 @error('customer_name')
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
                                 @enderror
@@ -46,8 +44,7 @@
                             <div class="form-group @error('customer_address') has-error @enderror">
                                 <label for="exampleInputPassword1">Địa chỉ chụp</label>
                                 <input type="text" name="customer_address" class="input-control"
-                                    placeholder="Điền địa chỉ chụp"
-                                    value="{{ $order->customer_address }}">
+                                    placeholder="Điền địa chỉ chụp" value="{{ $order->customer_address }}">
                                 @error('customer_address')
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
                                     </div>
@@ -155,8 +152,10 @@
                                         {{ $order->ord_select == 'Đo loãng xương' ? 'selected' : '' }}>
                                         Đo loãng xương
                                     </option>
-                                    <option value="Khác"
-                                        {{ $order->ord_select == 'Khác' ? 'selected' : '' }}>Khác
+                                    <option value="Nhũ Ảnh" {{ $order->ord_select == 'Nhũ Ảnh' ? 'selected' : '' }}>
+                                        Nhũ Ảnh
+                                    </option>
+                                    <option value="Khác" {{ $order->ord_select == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>
                                 </select>
                             </div>
@@ -175,16 +174,14 @@
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_doctor_read" value="Có" id="doctor2"
-                                                class="accent"
-                                                {{ $order->ord_doctor_read == 'Có' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_doctor_read == 'Có' ? 'checked' : '' }}>
                                             <label for="doctor2" class="radio-title">Có</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_doctor_read" value="Không" id="doctor3"
-                                                class="accent"
-                                                {{ $order->ord_doctor_read == 'Không' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_doctor_read == 'Không' ? 'checked' : '' }}>
                                             <label for="doctor3" class="radio-title">Không</label>
                                         </section>
                                     </div>
@@ -199,32 +196,28 @@
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film" value="" id="film1"
-                                                class="accent"
-                                                {{ $order->ord_film == '' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_film == '' ? 'checked' : '' }}>
                                             <label for="film1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film" value="Bình thường" id="film2"
-                                                class="accent"
-                                                {{ $order->ord_film == 'Bình thường' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_film == 'Bình thường' ? 'checked' : '' }}>
                                             <label for="film2" class="radio-title">Bình thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film" value="Bất thường" id="film3"
-                                                class="accent"
-                                                {{ $order->ord_film == 'Bất thường' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_film == 'Bất thường' ? 'checked' : '' }}>
                                             <label for="film3" class="radio-title">Bất thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film" value="Cả 2" id="film4"
-                                                class="accent"
-                                                {{ $order->ord_film == 'Cả 2' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_film == 'Cả 2' ? 'checked' : '' }}>
                                             <label for="film4" class="radio-title">Cả 2</label>
                                         </section>
                                     </div>
@@ -237,72 +230,63 @@
                                     <div class="col-lg-4 col-md-12 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="ko in" id="form1"
-                                                class="accent"
-                                                {{ $order->ord_form == 'ko in' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'ko in' ? 'checked' : '' }}>
                                             <label for="form1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-12 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN4" id="form2"
-                                                class="accent"
-                                                {{ $order->ord_form == 'IN4' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'IN4' ? 'checked' : '' }}>
                                             <label for="form2" class="radio-title">16,5 x 21,5(IN4)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN12" id="form3"
-                                                class="accent"
-                                                {{ $order->ord_form == 'IN12' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'IN12' ? 'checked' : '' }}>
                                             <label for="form3" class="radio-title">11 x 10,5(IN12)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN16" id="form4"
-                                                class="accent"
-                                                {{ $order->ord_form == 'IN16' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'IN16' ? 'checked' : '' }}>
                                             <label for="form4" class="radio-title">8,5 x 10,5(IN16)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN8X10" id="form5"
-                                                class="accent"
-                                                {{ $order->ord_form == 'IN8X10' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'IN8X10' ? 'checked' : '' }}>
                                             <label for="form5" class="radio-title">20,5 x 25,5(IN8X10)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN10X12" id="form6"
-                                                class="accent"
-                                                {{ $order->ord_form == 'IN10X12' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'IN10X12' ? 'checked' : '' }}>
                                             <label for="form6" class="radio-title">25,5 x 30,5(IN10X12)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="PhimLon" id="form7"
-                                                class="accent"
-                                                {{ $order->ord_form == 'PhimLon' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'PhimLon' ? 'checked' : '' }}>
                                             <label for="form7" class="radio-title">35 x 43(Phim Lớn)</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="Bệnh lý" id="form8"
-                                                class="accent"
-                                                {{ $order->ord_form == 'Bệnh lý' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'Bệnh lý' ? 'checked' : '' }}>
                                             <label for="form8" class="radio-title">Bệnh lý</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="Giấy đặc biệt" id="form9"
-                                                class="accent"
-                                                {{ $order->ord_form == 'Giấy đặc biệt' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form == 'Giấy đặc biệt' ? 'checked' : '' }}>
                                             <label for="form9" class="radio-title">Giấy đặc biệt</label>
                                         </section>
                                     </div>
@@ -315,32 +299,28 @@
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_print" value="" id="print1"
-                                                class="accent"
-                                                {{ $order->ord_print == '' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_print == '' ? 'checked' : '' }}>
                                             <label for="print1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_print" value="Bình thường" id="print2"
-                                                class="accent"
-                                                {{ $order->ord_print == 'Bình thường' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_print == 'Bình thường' ? 'checked' : '' }}>
                                             <label for="print2" class="radio-title">Bình thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_print" value="Bất thường" id="print3"
-                                                class="accent"
-                                                {{ $order->ord_print == 'Bất thường' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_print == 'Bất thường' ? 'checked' : '' }}>
                                             <label for="print3" class="radio-title">Bất thường</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_print" value="Cả 2" id="print4"
-                                                class="accent"
-                                                {{ $order->ord_print == 'Cả 2' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_print == 'Cả 2' ? 'checked' : '' }}>
                                             <label for="print4" class="radio-title">Cả 2</label>
                                         </section>
                                     </div>
@@ -353,24 +333,21 @@
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_form_print" value="" id="form_print1"
-                                                class="accent"
-                                                {{ $order->ord_form_print == '' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form_print == '' ? 'checked' : '' }}>
                                             <label for="form_print1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_form_print" value="A4" id="form_print2"
-                                                class="accent"
-                                                {{ $order->ord_form_print == 'A4' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form_print == 'A4' ? 'checked' : '' }}>
                                             <label for="form_print2" class="radio-title">A4</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_form_print" value="A5" id="form_print3"
-                                                class="accent"
-                                                {{ $order->ord_form_print == 'A5' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_form_print == 'A5' ? 'checked' : '' }}>
                                             <label for="form_print3" class="radio-title">A5</label>
                                         </section>
                                     </div>
@@ -416,8 +393,7 @@
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_film_sheet" value="" id="film_sheet1"
-                                                class="accent"
-                                                {{ $order->ord_film_sheet == '' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->ord_film_sheet == '' ? 'checked' : '' }}>
                                             <label for="film_sheet1" class="radio-title">Trống</label>
                                         </section>
                                     </div>
@@ -463,16 +439,14 @@
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="order_warning" value="Không" id="warning1"
-                                                class="accent"
-                                                {{ $order->order_warning == 'Không' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->order_warning == 'Không' ? 'checked' : '' }}>
                                             <label for="warning1" class="radio-title">Không</label>
                                         </section>
                                     </div>
                                     <div class="col-lg-6 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="order_warning" value="Có" id="warning2"
-                                                class="accent"
-                                                {{ $order->order_warning == 'Có' ? 'checked' : '' }}>
+                                                class="accent" {{ $order->order_warning == 'Có' ? 'checked' : '' }}>
                                             <label for="warning2" class="radio-title">Có</label>
                                         </section>
                                     </div>
@@ -482,8 +456,7 @@
                                 <div class="form-group @error('ord_deadline') has-error @enderror">
                                     <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
                                     <input type="text" name="ord_deadline" class="input-control"
-                                        placeholder="Điền thời hạn giao kết quả"
-                                        value="{{ $order->ord_deadline }}">
+                                        placeholder="Điền thời hạn giao kết quả" value="{{ $order->ord_deadline }}">
                                     @error('ord_deadline')
                                         <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
                                             {{ $message }}
@@ -506,8 +479,7 @@
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Địa chỉ email khách hàng</label>
                                 <input type="text" name="ord_email" class="input-control"
-                                    placeholder="Điền Địa chỉ email khách hàng"
-                                    value="{{ $order->ord_email }}">
+                                    placeholder="Điền Địa chỉ email khách hàng" value="{{ $order->ord_email }}">
                             </div>
 
                             <div class="form-group">
@@ -583,8 +555,7 @@
                                 @enderror
                             </div>
 
-                            <div
-                                class="form-group block-order-cost {{ $order->order_all_in_one == 0 ? '' : 'hidden' }}">
+                            <div class="form-group block-order-cost {{ $order->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($order->order_cost, 0, ',', '.') }}"

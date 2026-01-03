@@ -23,7 +23,9 @@ class ScheduleResultsController extends Controller
 	{
 		// --- 1. XỬ LÝ THỜI GIAN
 		if ($request->filled('currentTime')) {
-			$date = Carbon::createFromDate($request->currentTime['year'], Carbon::parse($request->currentTime['month'])->month, 1);
+			$month = Carbon::parse('1 ' . $request->currentTime['month'])->month;
+
+			$date = Carbon::createFromDate($request->currentTime['year'], $month, 1);
 		} else {
 			$date = Carbon::now();
 		}
@@ -125,7 +127,7 @@ class ScheduleResultsController extends Controller
 		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
 
 		$rawOrders = Order::getScheduleDetailsForSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
-		
+
 		$scheduleData = $rawOrders
 			->filter(function ($order) {
 				return $order->status_id != 0
@@ -151,11 +153,12 @@ class ScheduleResultsController extends Controller
 
 	public function select(Request $request)
 	{
-		$date = Carbon::createFromDate($request->year, Carbon::parse($request->month)->month, 1);
-		$currentYear  = $date->year;
-		$currentMonth = $date->format('F');
+		$monthNum = Carbon::parse('1 ' . $request->month)->month;
+		$date = Carbon::createFromDate($request->year, $monthNum, 1);
+		$currentYear     = $date->year;
+		$currentMonth    = $date->format('F');
 		$currentMonthNum = $date->month;
-		$dayInMonth   = $date->daysInMonth;
+		$dayInMonth      = $date->daysInMonth;
 
 		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
 		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();

@@ -152,6 +152,9 @@
                                     <option value="Đo loãng xương"
                                         {{ $order->ord_select == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
                                     </option>
+                                    <option value="Nhũ Ảnh"
+                                        {{ $order->ord_select == 'Nhũ Ảnh' ? 'selected' : '' }}>Nhũ Ảnh
+                                    </option>
                                     <option value="Khác" {{ $order->ord_select == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>
                                 </select>

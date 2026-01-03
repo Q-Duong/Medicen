@@ -111,7 +111,7 @@ if (!function_exists('colorKPI')) {
             $class = 'type-1';
         } elseif ($kpi >= 80) {
             $class = 'type-2';
-        } elseif ($kpi < 79 ) {
+        } elseif ($kpi < 79) {
             $class = 'type-3';
         }
         return $class;
@@ -129,3 +129,27 @@ if (!function_exists('getShortName')) {
         return array_pop($parts);
     }
 }
+
+if (!function_exists('smartFormatDate')) {
+    function smartFormatDate($dateString)
+    {
+        if (empty($dateString)) return '';
+        $parts = explode('-', $dateString);
+
+        if (count($parts) === 3) {
+            return $parts[2] . '/' . $parts[1] . '/' . $parts[0];
+        }
+
+        return $dateString;
+    }
+};
+
+if (!function_exists('formatCurrency')) {
+    function formatCurrency($value)
+    {
+        if (is_numeric($value)) {
+            return number_format($value, 0, ',', '.');
+        }
+        return $value;
+    }
+};

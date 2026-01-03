@@ -247,7 +247,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('view/{code}', [OrderController::class, 'view'])->name('order.view');
             Route::get('print/{id}', [OrderController::class, 'print'])->name('order.print');
         });
-        
+
         //schedule
         Route::prefix('schedule')->group(function () {
             Route::get('create/{id}', [ScheduleSalesController::class, 'create'])->name('schedule.create');
@@ -294,9 +294,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::prefix('accountant')->group(function () {
             Route::get('/', [AccountantController::class, 'index'])->name('accountant.index');
             Route::post('get-accountant', [AccountantController::class, 'getAccountant'])->name('accountant.get');
-            Route::patch('update', [AccountantController::class, 'update'])->name('accountant.update');
+            Route::patch('update', [AccountantController::class, 'updateRow'])->name('accountant.update');
             Route::patch('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
             Route::post('filter', [AccountantController::class, 'filter'])->name('accountant.filter');
+            Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant.filter_options');
         });
     });
 

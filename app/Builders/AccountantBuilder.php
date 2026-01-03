@@ -92,61 +92,79 @@ final class AccountantBuilder extends Builder
         return $accountant;
     }
 
-    public function getAccountantByFilter($year, $type)
-    {
-        $accountants = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
-            ->join('units', 'units.id', '=', 'orders.unit_id')
-            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
-            ->where('car_active', 1)
-            ->orderBy('ord_start_day', 'ASC')
-            ->select(
-                'accountants.id',
-                'accountants.order_id',
-                'accountant_month',
-                'accountant_distance',
-                'accountant_deadline',
-                'accountant_number',
-                'accountant_date',
-                'accountant_payment',
-                'accountant_day_payment',
-                'accountant_method',
-                'accountant_amount_paid',
-                'accountant_owe',
-                'accountant_discount_day',
-                'accountant_doctor_read',
-                'accountant_doctor_date_payment',
-                'accountant_35X43',
-                'accountant_polime',
-                'accountant_8X10',
-                'accountant_10X12',
-                'accountant_film_bag',
-                'accountant_note',
-                'accountant_status',
-                'ord_type',
-                'ord_start_day',
-                'ord_form',
-                'ord_note',
-                'ord_cty_name',
-                'order_vat',
-                'order_quantity',
-                'order_cost',
-                'order_price',
-                'order_percent_discount',
-                'order_discount',
-                'order_profit',
-                'status_id',
-                'car_name',
-                'unit_name',
-            );
-        if ($year != 'all') {
-            $accountants->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
-        }
-        if ($type != 'all') {
-            $accountants->where('ord_type', $type);
-        }
-        return $accountants->get();
-    }
+    // public function getAccountantByFilter($year, $type)
+    // {
+    //     $accountants = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+    //         ->join('units', 'units.id', '=', 'orders.unit_id')
+    //         ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+    //         ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+    //         ->where('car_active', 1)
+    //         ->orderBy('ord_start_day', 'ASC')
+    //         ->select(
+    //             'accountants.id',
+    //             'accountants.order_id',
+    //             'accountant_month',
+    //             'accountant_distance',
+    //             'accountant_deadline',
+    //             'accountant_number',
+    //             'accountant_date',
+    //             'accountant_payment',
+    //             'accountant_day_payment',
+    //             'accountant_method',
+    //             'accountant_amount_paid',
+    //             'accountant_owe',
+    //             'accountant_discount_day',
+    //             'accountant_doctor_read',
+    //             'accountant_doctor_date_payment',
+    //             'accountant_35X43',
+    //             'accountant_polime',
+    //             'accountant_8X10',
+    //             'accountant_10X12',
+    //             'accountant_film_bag',
+    //             'accountant_note',
+    //             'accountant_status',
+    //             'ord_type',
+    //             'ord_start_day',
+    //             'ord_form',
+    //             'ord_note',
+    //             'ord_cty_name',
+    //             'order_vat',
+    //             'order_quantity',
+    //             'order_cost',
+    //             'order_price',
+    //             'order_percent_discount',
+    //             'order_discount',
+    //             'order_profit',
+    //             'status_id',
+    //             'car_name',
+    //             'unit_name',
+    //         );
+    //     if ($year != 'all') {
+    //         $accountants->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
+    //     }
+    //     if ($type != 'all') {
+    //         $accountants->where('ord_type', $type);
+    //     }
+    //     return $accountants->get();
+    // }
+
+    // public static function getAccountantByFilter($year, $type)
+    // {
+    //     $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+    //         ->join('units', 'units.id', '=', 'orders.unit_id')
+    //         ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+    //         ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+    //         ->where('car_active', 1);
+
+    //     if ($year != 'all') {
+    //         $query->whereYear('ord_start_day', $year);
+    //     }
+
+    //     if ($type != 'all') {
+    //         $query->where('ord_type', $type);
+    //     }
+    //     return $query;
+    // }
 
     public function getAllContractByFilter($year)
     {
@@ -247,6 +265,162 @@ final class AccountantBuilder extends Builder
             ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->orderBy('order_details.ord_start_day', 'ASC');
         return $accountants;
+    }
+
+    public static function getAccountantByFilter($params = [])
+    {
+        $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+            ->where('car_active', 1);
+
+        if (isset($params['year']) && $params['year'] != 'all') {
+            $query->whereYear('ord_start_day', $params['year']);
+        }
+
+        if (isset($params['type']) && $params['type'] != 'all') {
+            $query->where('ord_type', $params['type']);
+        }
+
+        $filterMap = [
+            'order_id'                          => 'accountants.order_id',
+            'status_id'                         => 'orders.status_id',
+            'car_name'                          => 'car_name',
+            'unit_name'                         => 'unit_name',
+            'accountant_month'                  => 'accountants.accountant_month',
+            'accountant_distance'               => 'accountant_distance',
+            'accountant_deadline'               => 'accountant_deadline',
+            'accountant_number'                 => 'accountant_number',
+            'accountant_date'                   => 'accountant_date',
+            'accountant_payment'                => 'accountant_payment',
+            'accountant_day_payment'            => 'accountant_day_payment',
+            'accountant_method'                 => 'accountant_method',
+            'accountant_amount_paid'            => 'accountant_amount_paid',
+            'accountant_owe'                    => 'accountant_owe',
+            'accountant_discount_day'           => 'accountant_discount_day',
+            'accountant_doctor_read'            => 'accountant_doctor_read',
+            'accountant_doctor_date_payment'    => 'accountant_doctor_date_payment',
+            'accountant_35X43'                  => 'accountant_35X43',
+            'accountant_polime'                 => 'accountant_polime',
+            'accountant_8X10'                   => 'accountant_8X10',
+            'accountant_10X12'                  => 'accountant_10X12',
+            'accountant_film_bag'               => 'accountant_film_bag',
+            'accountant_note'                   => 'accountant_note',
+            'accountant_status'                 => 'accountant_status',
+            'ord_type'                          => 'ord_type',
+            'ord_start_day'                     => 'ord_start_day',
+            'ord_form'                          => 'ord_form',
+            'ord_note'                          => 'ord_note',
+            'ord_cty_name'                      => 'ord_cty_name',
+            'order_vat'                         => 'order_vat',
+            'order_quantity'                    => 'order_quantity',
+            'order_cost'                        => 'order_cost',
+            'order_price'                       => 'order_price',
+            'order_percent_discount'            => 'order_percent_discount',
+            'order_discount'                    => 'order_discount',
+            'order_profit'                      => 'order_profit',
+        ];
+
+        $moneyFields = [
+            'order_price',
+            'order_cost',
+            'order_quantity',
+            'accountant_amount_paid',
+            'accountant_owe',
+            'accountant_35X43',
+            'accountant_polime',
+            'accountant_8X10',
+            'accountant_10X12',
+            'accountant_film_bag'
+        ];
+
+        $dateFields = [
+            'ord_start_day',
+            'accountant_date',
+            'accountant_day_payment',
+            'accountant_discount_day',
+            'accountant_doctor_date_payment'
+        ];
+
+        foreach ($filterMap as $inputKey => $dbColumn) {
+            if (isset($params[$inputKey])) {
+                $value = $params[$inputKey];
+        
+                // Bỏ qua nếu rỗng
+                if (is_null($value) || $value === '') continue;
+        
+                if (is_array($value)) {
+                    // Check NULL
+                    $hasNull = in_array('NULL_EMPTY', $value);
+                    // Lấy giá trị thực
+                    $realValues = array_filter($value, fn($v) => $v !== 'NULL_EMPTY');
+        
+                    // --- BẮT ĐẦU: SƠ CHẾ DỮ LIỆU (QUAN TRỌNG) ---
+                    
+                    // A. Xử lý Tiền tệ (Bỏ chấm phẩy)
+                    if (in_array($inputKey, $moneyFields)) {
+                        $realValues = array_map(function($v) {
+                            return preg_replace('/[^0-9]/', '', $v);
+                        }, $realValues);
+                    }
+        
+                    // B. Xử lý Ngày tháng & Chuỗi đặc biệt (FIX LỖI +)
+                    if (in_array($inputKey, $dateFields)) {
+                        $realValues = array_map(function($v) {
+                            // 1. Fix lỗi dấu "+" bị biến thành dấu cách
+                            // Nếu chuỗi có dạng "2025-04-05 25" -> Đổi lại thành "2025-04-05+25"
+                            // Regex này tìm: Năm-Tháng-Ngày[Dấu Cách]Số
+                            if (preg_match('/^\d{4}-\d{2}-\d{2}\s\d{1,2}$/', $v)) {
+                                 return str_replace(' ', '+', $v);
+                            }
+                            // Nếu chuỗi có dạng "2025-04-05 2025-06-07" -> Đổi lại thành "2025-04-05+2025-06-07"
+                            if (preg_match('/^\d{4}-\d{2}-\d{2}\s\d{4}-\d{2}-\d{2}$/', $v)) {
+                                 return str_replace(' ', '+', $v);
+                            }
+        
+                            // 2. Fix định dạng ngày Việt Nam (d/m/Y -> Y-m-d)
+                            if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $v)) {
+                                try {
+                                    return \Carbon\Carbon::createFromFormat('d/m/Y', $v)->format('Y-m-d');
+                                } catch (\Exception $e) { return $v; }
+                            }
+        
+                            return $v; // Giữ nguyên các trường hợp khác
+                        }, $realValues);
+                    }
+                    // ---------------------------------------------
+        
+                    // Query
+                    $query->where(function ($q) use ($dbColumn, $realValues, $hasNull) {
+                        if (!empty($realValues)) {
+                            $q->whereIn($dbColumn, $realValues);
+                        }
+                        if ($hasNull) {
+                            $q->orWhereNull($dbColumn)->orWhere($dbColumn, '');
+                        }
+                    });
+                } else {
+                    // Xử lý Input đơn (nếu có)
+                    if ($value === 'NULL_EMPTY') {
+                        $query->where(function ($q) use ($dbColumn) {
+                            $q->whereNull($dbColumn)->orWhere($dbColumn, '');
+                        });
+                    } else {
+                        // Cũng cần clean data cho input đơn
+                         if (in_array($inputKey, $moneyFields)) $value = preg_replace('/[^0-9]/', '', $value);
+                         // Fix lỗi + cho input đơn
+                         if (in_array($inputKey, $dateFields) && preg_match('/^\d{4}-\d{2}-\d{2}\s\d{1,2}$/', $value)) {
+                             $value = str_replace(' ', '+', $value);
+                         }
+                         
+                        $query->where($dbColumn, $value);
+                    }
+                }
+            }
+        }
+
+        return $query;
     }
 
     public function getQueryBuilderBySearchData($searchData, $year, $type)

@@ -159,6 +159,9 @@
                                     <option value="Đo loãng xương"
                                         {{ old('ord_select') == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
                                     </option>
+                                    <option value="Nhũ Ảnh"
+                                        {{ old('ord_select') == 'Nhũ Ảnh' ? 'selected' : '' }}>Nhũ Ảnh
+                                    </option>
                                     <option value="Khác" {{ old('ord_select') == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>
                                 </select>

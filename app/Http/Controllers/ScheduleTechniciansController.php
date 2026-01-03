@@ -13,13 +13,13 @@ class ScheduleTechniciansController extends Controller
 {
 	public function index()
 	{
-		$date = Carbon::now();
-		$currentYear  = $date->year;
-		$currentMonth = $date->format('F');
+		$date = Carbon::now()->startOfMonth();
+		$currentYear     = $date->year;
+		$currentMonth    = $date->format('F');
 		$currentMonthNum = $date->month;
-		$dayInMonth   = $date->daysInMonth;
+		$dayInMonth      = $date->daysInMonth;
 
-		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$firstDayOfThisMonth = $date->toDateString();
 		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
 
 		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
@@ -53,11 +53,12 @@ class ScheduleTechniciansController extends Controller
 
 	public function select(Request $request)
 	{
-		$date = Carbon::createFromDate($request->year, Carbon::parse($request->month)->month, 1);
-		$currentYear  = $date->year;
-		$currentMonth = $date->format('F');
+		$monthNum = Carbon::parse('1 ' . $request->month)->month;
+		$date = Carbon::createFromDate($request->year, $monthNum, 1);
+		$currentYear     = $date->year;
+		$currentMonth    = $date->format('F');
 		$currentMonthNum = $date->month;
-		$dayInMonth   = $date->daysInMonth;
+		$dayInMonth      = $date->daysInMonth;
 
 		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
 		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
