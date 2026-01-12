@@ -824,6 +824,7 @@ $(document).ready(function () {
             '<div class="text-center text-muted p-2">Loading...</div>'
         );
         $(".tbody-content").empty();
+        resetAllColumnFilters();
         getListAccountant();
     });
 
@@ -1257,8 +1258,82 @@ function getValuesRow(order_id) {
 }
 
 function initForceDateFormat() {
-    $('.force-date-format').each(function() {
+    $(".force-date-format").each(function () {
         updateDateDisplay(this);
+    });
+}
+
+function resetAllColumnFilters() {
+
+    // -----------------------------------------------------------
+    // PHẦN 1: XỬ LÝ DỮ LIỆU (LOCALSTORAGE)
+    // -----------------------------------------------------------
+    let storageKey = "accountant_filter_state"; // Key bạn đang dùng
+    let currentParams = localStorage.getItem(storageKey);
+
+    if (currentParams) {
+        let paramsObj = JSON.parse(currentParams);
+        let newParams = {};
+
+        // Danh sách các Key "Bất tử" (Không được xóa)
+        // Bạn kiểm tra xem trong code bạn đặt tên key là 'year' hay 'accountant_year' nhé
+        const keysToKeep = [
+            "year",
+            "type",
+        ];
+
+        // Chỉ giữ lại những thằng nằm trong danh sách "Bất tử"
+        keysToKeep.forEach((key) => {
+            if (paramsObj.hasOwnProperty(key)) {
+                newParams[key] = paramsObj[key];
+            }
+        });
+
+        // Lưu lại object mới (đã loại bỏ các filter rác)
+        localStorage.setItem(storageKey, JSON.stringify(newParams));
+    }
+
+    // -----------------------------------------------------------
+    // PHẦN 2: XỬ LÝ GIAO DIỆN (UI)
+    // -----------------------------------------------------------
+    // Chỉ reset giao diện của các cột KHÔNG PHẢI là Year hoặc Type
+    $(".dropdown-list-container").each(function () {
+        let container = $(this);
+        let fieldName = container.data("field"); // Lấy tên cột
+
+        // [QUAN TRỌNG] Nếu cột này trùng tên với Year/Type thì BỎ QUA, không reset nó
+        if (fieldName === "year" || fieldName === "type") {
+            return; // Continue (Nhảy qua vòng lặp này)
+        }
+
+        // --- Tìm về cha (Logic hỗ trợ cả Mode Fixed Body) ---
+        let dropdownMenu = container.closest(".excel-dropdown");
+        let parentId = dropdownMenu.attr("data-parent-id");
+        let dropdownWrapper;
+
+        if (parentId) {
+            dropdownWrapper = $("#" + parentId);
+        } else {
+            dropdownWrapper = container.closest(".dropdown");
+        }
+
+        let btnToggle = dropdownWrapper.find(".dropdown-toggle");
+
+        // --- Reset về mặc định ---
+        // 1. Xóa data đã chọn
+        container.removeData("saved-values");
+
+        // 2. Xóa cache đã load (để lần sau bấm vào nó tải list mới theo Năm mới)
+        container.removeData("loaded");
+        container.html(
+            '<div class="text-center text-muted p-2">Loading...</div>'
+        );
+
+        // 3. Đổi icon về màu xám
+        btnToggle.removeClass("btn-info");
+        btnToggle
+            .find(".selected-text")
+            .html('<i class="fa-solid fa-filter"></i>');
     });
 }
 
@@ -1277,7 +1352,7 @@ $(document).ready(function () {
     });
 });
 
-$(document).on('change', '.force-date-format', function() {
+$(document).on("change", ".force-date-format", function () {
     updateDateDisplay(this);
 });
 
