@@ -18,7 +18,7 @@ class CheckRoleScheduleTechnicians
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Auth::user()->name == 'Admin' || Auth::user()->name == 'Technician' || Auth::user()->name == 'Office'){
+        if(Auth::user()->name == 'Admin' || Auth::user()->name == 'SubAdmin' || Auth::user()->name == 'Technician' || Auth::user()->name == 'Office'){
             return $next($request);
         }else{
             Auth::logout();

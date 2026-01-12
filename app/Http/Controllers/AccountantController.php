@@ -73,7 +73,7 @@ class AccountantController extends Controller
 			SUM(accountants.accountant_film_bag) as total_pack
 		')->first();
 
-		$perPage = 20;
+		$perPage = 30;
 		$data = $baseQuery
 			->orderBy('ord_start_day', 'ASC')
 			->select(
@@ -625,7 +625,7 @@ class AccountantController extends Controller
 			SUM(accountants.accountant_film_bag) as total_pack
 		')->first();
 
-		$perPage = 20;
+		$perPage = 30;
 		$data = $baseQuery
 			->orderBy('ord_start_day', 'ASC')
 			->select(
@@ -731,7 +731,7 @@ class AccountantController extends Controller
 			SUM(accountants.accountant_film_bag) as total_pack
 		')->first();
 
-		$perPage = 20;
+		$perPage = 30;
 		$data = $baseQuery
 			->orderBy('ord_start_day', 'ASC')
 			->select(
