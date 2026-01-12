@@ -10,6 +10,22 @@
                         <span>Thống kê doanh thu</span>
                     </a>
                 </li>
+                <li>
+                    <a class="{{ request()->routeIs('profit.index') ? 'active' : '' }}"
+                        href="{{ route('profit.index') }}">
+                        <i class="far fa-chart-bar"></i>
+                        <span>Tính lợi nhuận X-Quang</span>
+                    </a>
+                </li>
+                @if (Auth::user()->name == 'SubAdmin')
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('statistics.index') ? 'active' : '' }}"
+                            href="{{ route('statistics.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Tính KPI</span>
+                        </a>
+                    </li>
+                @endif
                 @if (Auth::user()->name == 'Admin' || Auth::user()->name == 'Sale')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"

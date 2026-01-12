@@ -33,49 +33,49 @@
         <td>
             <input type="text" name="accountant_deadline"
                 class="textbox-accountant  width-accountant-min accountant_deadline input-accountant"
-                value="{{ $accountant->accountant_deadline }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->accountant_deadline }}" disabled>
         </td>
 
         <td>
             <input type="text" name="accountant_number"
                 class="textbox-accountant width-accountant-min accountant_number input-accountant"
-                value="{{ $accountant->accountant_number }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->accountant_number }}" disabled>
         </td>
 
         <td>
             <input type="date" name="accountant_date"
                 class="textbox-accountant  width-accountant-day accountant_date input-accountant force-date-format"
-                value="{{ $accountant->accountant_date }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->accountant_date }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_vat"
                 class="textbox-accountant width-accountant-price order_vat input-accountant"
-                value="{{ $accountant->order_vat }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->order_vat }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_quantity"
                 class="textbox-accountant  width-accountant-quantity order_quantity calc-quantity calc-inputs"
-                value="{{ formatCurrency($accountant->order_quantity) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->order_quantity) }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_cost"
                 class="textbox-accountant  width-accountant-price order_cost calc-cost calc-inputs"
-                value="{{ formatCurrency($accountant->order_cost) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->order_cost) }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_price"
                 class="textbox-accountant width-accountant-price order_price calc-price calc-inputs"
-                value="{{ formatCurrency($accountant->order_price) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->order_price) }}" disabled>
         </td>
 
         <td>
             <select
                 class="selectbox-accountant select-update accountant_status {{ $accountant->accountant_status == 0 ? 'acc-status-unpaid' : 'acc-status-paid' }}"
-                name="accountant_status" {{ $isLocked ? 'disabled' : '' }}>
+                name="accountant_status" disabled>
                 <option value="0" {{ $accountant->accountant_status == 0 ? 'selected' : '' }}>Chưa thanh toán
                 </option>
                 <option value="1" {{ $accountant->accountant_status == 1 ? 'selected' : '' }}>Đã
@@ -86,11 +86,11 @@
         <td>
             <input type="text" name="accountant_day_payment"
                 class="textbox-accountant width-accountant-day accountant_day_payment input-accountant"
-                value="{{ smartFormatDate($accountant->accountant_day_payment) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ smartFormatDate($accountant->accountant_day_payment) }}" disabled>
         </td>
 
         <td>
-            <select class="selectbox-accountant select-update accountant_method" name="accountant_method" {{ $isLocked ? 'disabled' : '' }}>
+            <select class="selectbox-accountant select-update accountant_method" name="accountant_method" disabled>
                 <option value="" {{ $accountant->accountant_method == null ? 'selected' : '' }}>
                 </option>
                 <option value="HDB" {{ $accountant->accountant_method == 'HDB' ? 'selected' : '' }}>HDB</option>
@@ -104,37 +104,37 @@
         <td>
             <input type="text" name="accountant_amount_paid"
                 class="textbox-accountant  width-accountant-price accountant_amount_paid calc-paid calc-inputs"
-                value="{{ formatCurrency($accountant->accountant_amount_paid) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->accountant_amount_paid) }}" disabled>
         </td>
 
         <td>
             <input type="text" name="accountant_owe"
                 class="textbox-accountant  width-accountant-price accountant_owe calc-inputs"
-                value="{{ formatCurrency($accountant->accountant_owe) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->accountant_owe) }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_percent_discount"
                 class="textbox-accountant  width-accountant-price order_percent_discount input-accountant"
-                value="{{ $accountant->order_percent_discount }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->order_percent_discount }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_discount"
                 class="textbox-accountant  width-accountant-price order_discount calc-inputs"
-                value="{{ formatCurrency($accountant->order_discount) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->order_discount) }}" disabled>
         </td>
 
         <td>
             <input type="date" name="accountant_discount_day"
                 class="textbox-accountant  width-accountant-day accountant_discount_day input-accountant force-date-format"
-                value="{{ $accountant->accountant_discount_day }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->accountant_discount_day }}" disabled>
         </td>
 
         <td>
             <input type="text" name="order_profit"
                 class="textbox-accountant  width-accountant-price order_profit calc-inputs"
-                value="{{ formatCurrency($accountant->order_profit) }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ formatCurrency($accountant->order_profit) }}" disabled>
         </td>
 
         <td>
@@ -144,7 +144,7 @@
         <td>
             <input type="date" name="accountant_doctor_date_payment"
                 class="textbox-accountant  width-accountant-day accountant_doctor_date_payment input-accountant force-date-format"
-                value="{{ $accountant->accountant_doctor_date_payment }}" {{ $isLocked ? 'disabled' : '' }}>
+                value="{{ $accountant->accountant_doctor_date_payment }}" disabled>
         </td>
 
         <td>
@@ -188,18 +188,6 @@
             @elseif($accountant->status_id == 4)
                 <span class="badge badge-primary text-white" style="background-color: #00d0e3">Đã cập nhật doanh
                     thu</span>
-            @endif
-        </td>
-        <td class="white-col">
-            @if ($accountant->status_id != 3)
-                <button type="button" class="btn btn-complete-account" data-id="{{ $accountant->order_id }}"
-                    title="Hoàn thành">
-                    <i class="fa fa-check-circle"></i> Hoàn thành
-                </button>
-            @else
-                <button class="btn btn-secondary" disabled>
-                    <i class="fa fa-lock"></i> Đã hoàn thành
-                </button>
             @endif
         </td>
     </tr>

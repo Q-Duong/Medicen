@@ -5,6 +5,8 @@ var typingTimer;
 var doneTypingInterval = 600;
 var nextPageUrl = null;
 var isLoading = false;
+let originalParent = null;
+let currentMenu = null;
 const STORAGE_KEY = "accountant_filter_state";
 
 /**
@@ -115,6 +117,22 @@ function formatOrderStatus(status_id) {
     }
 }
 
+// 10.
+function updateDateDisplay(input) {
+    let val = $(input).val(); // Giá trị thực: 2026-01-05
+    if (val) {
+        let date = new Date(val);
+        if (!isNaN(date.getTime())) {
+            // Cắt chuỗi cho chính xác (tránh bị lệch múi giờ)
+            let parts = val.split("-"); // [2026, 01, 05]
+            let formatted = `${parts[2]}/${parts[1]}/${parts[0]}`; // 05/01/2026
+            $(input).attr("data-date", formatted);
+        }
+    } else {
+        $(input).attr("data-date", ""); // Nếu rỗng thì ẩn
+    }
+}
+
 /**
  * DOCUMENT READY & EVENTS
  */
@@ -129,6 +147,7 @@ $(document).ready(function () {
 
     restoreFilterState();
     getListAccountant();
+    initForceDateFormat();
 
     // ----------------------------------------------------------------
     // A. XỬ LÝ TÍNH TOÁN TRÊN GIAO DIỆN (EVENT DELEGATION)
@@ -233,17 +252,77 @@ $(document).ready(function () {
     });
 
     $(document).on("shown.bs.dropdown", ".dropdown", function () {
-        let container = $(this).find(".dropdown-list-container");
+        let dropdownContainer = $(this); // Đây là cái vỏ trong bảng (Wrapper)
+        let dropdownMenu = dropdownContainer.find(".excel-dropdown"); // Menu cần bứng đi
+        let button = dropdownContainer.find(".dropdown-toggle");
+
+        // Nếu không tìm thấy menu (có thể do lỗi hoặc nó đã bị bứng đi rồi), return luôn
+        if (dropdownMenu.length === 0) return;
+
+        let container = dropdownMenu.find(".dropdown-list-container");
         let fieldName = container.data("field");
-        let dropdownMenu = container.closest(".dropdown-menu");
         let checkAllBox = dropdownMenu.find(".check-all");
-        let btnApply = dropdownMenu.find(".btn-apply-filter"); // Tìm nút Áp dụng
-        let searchInput = $(this)
+        let btnApply = dropdownMenu.find(".btn-apply-filter");
+
+        // -----------------------------------------------------------
+        // [BƯỚC 1] GẮN THẺ ĐỊNH DANH (ID) ĐỂ TÌM ĐƯỜNG VỀ
+        // -----------------------------------------------------------
+        let parentId = dropdownContainer.attr("id");
+        if (!parentId) {
+            parentId =
+                "dropdown-gen-" + Math.random().toString(36).substr(2, 9);
+            dropdownContainer.attr("id", parentId);
+        }
+        // Gán ID wrapper vào menu
+        dropdownMenu.attr("data-parent-id", parentId);
+
+        // -----------------------------------------------------------
+        // [BƯỚC 2] BỨNG RA BODY (QUAN TRỌNG: LÀM TRƯỚC KHI TÍNH TOÁN)
+        // -----------------------------------------------------------
+        originalParent = dropdownContainer;
+        currentMenu = dropdownMenu;
+
+        // Bứng menu ra khỏi bảng, gắn vào body
+        $("body").append(dropdownMenu);
+
+        // -----------------------------------------------------------
+        // [BƯỚC 3] TÍNH TOÁN VỊ TRÍ & HIỂN THỊ
+        // -----------------------------------------------------------
+        let rect = button[0].getBoundingClientRect();
+        let top = rect.bottom;
+        let left = rect.left;
+
+        // Chống tràn màn hình
+        let menuWidth = 300; // Hoặc dropdownMenu.outerWidth()
+        if (left + menuWidth > $(window).width()) left = rect.right - menuWidth;
+
+        let menuHeight = 400; // Hoặc dropdownMenu.outerHeight()
+        if (top + menuHeight > $(window).height()) top = rect.top - menuHeight;
+
+        // Gán CSS để hiển thị ngay
+        dropdownMenu.css({
+            display: "block",
+            position: "fixed",
+            top: top + "px",
+            left: left + "px",
+            "z-index": "9999999",
+            margin: 0,
+        });
+
+        // -----------------------------------------------------------
+        // [BƯỚC 4] FOCUS VÀO Ô SEARCH (LÀM CUỐI CÙNG)
+        // -----------------------------------------------------------
+        // Lúc này menu đã yên vị ở Body, ta mới tìm ô input và focus
+
+        let searchInput = dropdownMenu
             .find('input[type="text"], .search-in-dropdown')
             .first();
 
         if (searchInput.length > 0) {
-            searchInput.focus();
+            // Dùng setTimeout để đảm bảo trình duyệt đã render xong vị trí mới
+            setTimeout(function () {
+                searchInput.trigger("focus");
+            }, 50);
         }
 
         // Lấy dữ liệu đã lưu
@@ -460,35 +539,68 @@ $(document).ready(function () {
             });
     });
 
-    // 6. Xử lý nút OK (Apply Filter)
+    $(".dropdown").on("hidden.bs.dropdown", function () {
+        if (currentMenu && originalParent) {
+            currentMenu.css({
+                display: "",
+                top: "",
+                left: "",
+                position: "",
+                "z-index": "",
+            });
+            originalParent.append(currentMenu);
+            currentMenu = null;
+            originalParent = null;
+        }
+    });
+
+    // 6. Apply Filter
     $(document).on("click", ".btn-apply-filter", function (e) {
         e.preventDefault();
         e.stopPropagation();
 
         try {
-            let dropdown = $(this).closest(".dropdown");
-            let container = dropdown.find(".dropdown-list-container");
-            let btnToggle = dropdown.find(".dropdown-toggle");
+            // ===========================================================
+            // 1. [FIX QUAN TRỌNG] TÌM LẠI CHA CŨ (VÌ MENU ĐANG Ở BODY)
+            // ===========================================================
+            let dropdownMenu = $(this).closest(".excel-dropdown"); // Menu đang đứng (ở body)
+            let container = dropdownMenu.find(".dropdown-list-container"); // Container dữ liệu
+
+            // Lấy ID cha cũ đã lưu lúc mở (xem lại code show.bs.dropdown ở bước trước)
+            let parentId = dropdownMenu.attr("data-parent-id");
+
+            // Tìm lại cái vỏ dropdown cũ đang nằm trong bảng
+            let dropdownWrapper = $("#" + parentId);
+
+            // Fallback: Nếu không tìm thấy ID (phòng hờ), thử tìm theo cách cũ
+            if (dropdownWrapper.length === 0)
+                dropdownWrapper = $(this).closest(".dropdown");
+
+            // Lấy nút Toggle (cái phễu) trong bảng
+            let btnToggle = dropdownWrapper.find(".dropdown-toggle");
 
             if (container.length === 0) return;
 
             let currentField = container.data("field");
 
-            // 1. KIỂM TRA KHÓA
+            // 2. KIỂM TRA KHÓA
             if ($(this).attr("data-locked") === "true") {
-                dropdown
+                dropdownWrapper
                     .removeClass("open show")
                     .find(".dropdown-toggle")
                     .attr("aria-expanded", "false");
+
+                // Quan trọng: Gọi lệnh này để trả menu về chỗ cũ
+                dropdownWrapper.trigger("hidden.bs.dropdown");
                 return;
             }
 
             // ===========================================================
-            // 2. [FIX QUAN TRỌNG] LẤY DỮ LIỆU THÔNG MINH
+            // 3. LẤY DỮ LIỆU THÔNG MINH (LOGIC CỦA BẠN)
             // ===========================================================
 
             // Kiểm tra xem có đang tìm kiếm không?
-            let searchInput = dropdown.find("input[type='text']");
+            let searchInput = dropdownMenu.find("input[type='text']"); // Tìm trong menu (không phải wrapper)
             let isSearching =
                 searchInput.val() && searchInput.val().trim() !== "";
 
@@ -498,9 +610,7 @@ $(document).ready(function () {
             let newValues = [];
 
             if (isSearching) {
-                // [LOGIC MỚI] NẾU ĐANG TÌM KIẾM -> CHỈ TÍNH NHỮNG CÁI ĐANG HIỆN (VISIBLE)
-                // Bỏ qua những cái đang ẩn (dù nó có đang tick hay không)
-
+                // [LOGIC SEARCH] CHỈ TÍNH NHỮNG CÁI ĐANG HIỆN (VISIBLE)
                 let visibleCheckboxes = container.find(
                     ".filter-checkbox:visible:checked"
                 );
@@ -510,7 +620,7 @@ $(document).ready(function () {
                     newValues.push(String($(this).val()));
                 });
             } else {
-                // NẾU KHÔNG TÌM KIẾM -> LẤY TẤT CẢ NHỮNG CÁI ĐANG TICK (KỂ CẢ ẨN)
+                // [LOGIC THƯỜNG] LẤY TẤT CẢ (KỂ CẢ ẨN)
                 let allChecked = container.find(".filter-checkbox:checked");
                 checkedCount = allChecked.length;
 
@@ -518,16 +628,16 @@ $(document).ready(function () {
                     newValues.push(String($(this).val()));
                 });
             }
-            // 3. QUYẾT ĐỊNH: RESET HAY FILTER?
+
+            // 4. QUYẾT ĐỊNH: RESET HAY FILTER?
             let isSelectAll = false;
 
             if (totalCount === 0) {
                 isSelectAll = true;
             } else if (isSearching) {
-                // Nếu đang search -> Luôn là Lọc (trừ khi không chọn cái nào)
-                if (checkedCount === 0)
-                    isSelectAll = true; // Không chọn gì = All (Tùy logic)
-                else isSelectAll = false; // Có chọn -> Lọc cứng
+                // Đang search -> Luôn là Lọc (trừ khi không chọn cái nào)
+                if (checkedCount === 0) isSelectAll = true;
+                else isSelectAll = false;
             } else {
                 // Không search -> So sánh số lượng
                 if (checkedCount === totalCount) {
@@ -537,7 +647,7 @@ $(document).ready(function () {
                 }
             }
 
-            // 4. KIỂM TRA THAY ĐỔI
+            // 5. KIỂM TRA THAY ĐỔI
             let oldSaved = container.data("saved-values");
             let isChanged = false;
 
@@ -555,14 +665,15 @@ $(document).ready(function () {
             }
 
             if (!isChanged) {
-                dropdown
+                dropdownWrapper
                     .removeClass("open show")
                     .find(".dropdown-toggle")
                     .attr("aria-expanded", "false");
+                dropdownWrapper.trigger("hidden.bs.dropdown"); // Trả về chỗ cũ
                 return;
             }
 
-            // 5. UPDATE & RELOAD
+            // 6. UPDATE & RELOAD
             let finalFilters = getValuesFilterObj();
 
             if (isSelectAll) {
@@ -572,6 +683,7 @@ $(document).ready(function () {
                     .find(".selected-text")
                     .html('<i class="fa-solid fa-filter"></i>');
                 btnToggle.removeClass("btn-info");
+
                 if (finalFilters.hasOwnProperty(currentField))
                     delete finalFilters[currentField];
             } else {
@@ -584,20 +696,25 @@ $(document).ready(function () {
                 finalFilters[currentField] = newValues;
             }
 
+            // Xóa cache các cột khác
             let otherContainers = $(".dropdown-list-container").not(container);
             otherContainers.removeData("loaded");
             otherContainers.html(
                 '<div class="text-center text-muted p-2">Loading...</div>'
             );
 
-            dropdown
+            // Đóng dropdown và trả về
+            dropdownWrapper
                 .removeClass("open show")
                 .find(".dropdown-toggle")
                 .attr("aria-expanded", "false");
+            dropdownWrapper.trigger("hidden.bs.dropdown"); // QUAN TRỌNG NHẤT
+
+            // Lưu và Reload
             localStorage.setItem(
                 "accountant_filter_state",
                 JSON.stringify(finalFilters)
-            );
+            ); // Lưu ý key: params hay state tùy bạn thống nhất
 
             $(".tbody-content").empty();
             if (typeof getListAccountant === "function") getListAccountant();
@@ -612,18 +729,86 @@ $(document).ready(function () {
         e.preventDefault();
         e.stopPropagation();
 
-        let dropdown = $(this).closest(".dropdown");
+        // 1. Tìm cái Menu đang chứa nút Close (đang nằm ở Body)
+        let dropdownMenu = $(this).closest(".excel-dropdown");
 
-        dropdown.removeClass("show open");
-        dropdown.find(".dropdown-menu").removeClass("show");
-        dropdown.find(".dropdown-toggle").attr("aria-expanded", "false");
+        // 2. Tìm lại cái cha (Wrapper) đang nằm trong bảng thông qua ID đã lưu
+        let parentId = dropdownMenu.attr("data-parent-id");
+        let dropdownWrapper = $("#" + parentId);
+
+        // Fallback: Nếu không tìm thấy ID (trường hợp chưa bị bứng đi), dùng cách cũ
+        if (dropdownWrapper.length === 0) {
+            dropdownWrapper = $(this).closest(".dropdown");
+        }
+
+        // 3. Thực hiện đóng
+        // - Xóa class hiển thị của Bootstrap
+        dropdownWrapper.removeClass("show open");
+        dropdownWrapper.find(".dropdown-toggle").attr("aria-expanded", "false");
+
+        // - [QUAN TRỌNG] Gọi sự kiện hidden.bs.dropdown
+        // Lệnh này sẽ kích hoạt đoạn code "trả menu về bảng" mà ta đã viết ở bước trước.
+        // Nếu thiếu dòng này, menu sẽ biến mất nhưng vẫn nằm lại ở Body -> Rác DOM.
+        dropdownWrapper.trigger("hidden.bs.dropdown");
+    });
+
+    // 8. Hold Filter Dropdown
+    let isDragging = false;
+    let currentDropdown = null;
+    let offsetX, offsetY;
+
+    // 1. KHI NHẤN CHUỘT (MOUSEDOWN)
+    $(document).on("mousedown", ".draggable-handle", function (e) {
+        if (e.button !== 0) return; // Chỉ chuột trái
+        e.preventDefault(); // Chống bôi đen
+
+        currentDropdown = $(this).closest(".dropdown-menu");
+        isDragging = true;
+
+        // Tính khoảng cách từ con trỏ chuột đến góc trái trên của menu
+        // Dùng getBoundingClientRect() vì nó chuẩn cho position: fixed
+        let rect = currentDropdown[0].getBoundingClientRect();
+
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        currentDropdown.css({
+            cursor: "move",
+        });
+    });
+
+    // 2. KHI DI CHUYỂN CHUỘT (MOUSEMOVE) - Gắn vào document
+    $(document).on("mousemove", function (e) {
+        if (isDragging && currentDropdown) {
+            // Tính vị trí mới dựa trên toạ độ chuột hiện tại (e.clientX/Y)
+            let newLeft = e.clientX - offsetX;
+            let newTop = e.clientY - offsetY;
+
+            // Cập nhật CSS
+            currentDropdown.css({
+                left: newLeft + "px",
+                top: newTop + "px",
+            });
+        }
+    });
+
+    // 3. KHI NHẢ CHUỘT (MOUSEUP)
+    $(document).on("mouseup", function () {
+        if (isDragging && currentDropdown) {
+            isDragging = false;
+            currentDropdown.css({
+                opacity: "1",
+                cursor: "default",
+            });
+            currentDropdown = null;
+        }
     });
 
     // 3. Infinite Scroll (Cuộn để tải thêm)
-    $('.table-scroll').on('scroll', function () {
+    $(".table-scroll").on("scroll", function () {
         let container = $(this);
         if (
-            container.scrollTop() + container.innerHeight() >= 
+            container.scrollTop() + container.innerHeight() >=
             container[0].scrollHeight - 20
         ) {
             if (nextPageUrl && !isLoading) {
@@ -638,7 +823,6 @@ $(document).ready(function () {
         $(".dropdown-list-container").html(
             '<div class="text-center text-muted p-2">Loading...</div>'
         );
-        nextPageUrl = url_filter_accountant;
         $(".tbody-content").empty();
         getListAccountant();
     });
@@ -986,6 +1170,7 @@ function getListAccountant(isAppend = false) {
 
             if (!data.html && !isAppend) {
             }
+            initForceDateFormat();
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
             popupNotificationSessionExpired();
@@ -1070,6 +1255,31 @@ function getValuesRow(order_id) {
     let inputs = $(`tr[data-id="${order_id}"]`).find(":input").serializeArray();
     return inputs;
 }
+
+function initForceDateFormat() {
+    $('.force-date-format').each(function() {
+        updateDateDisplay(this);
+    });
+}
+
+$(document).ready(function () {
+    // Bắt sự kiện click vào phần tiêu đề
+    $(".filter-title").on("click", function () {
+        // 1. Tìm thẻ cha chứa nó (.filter-tiles)
+        var $parentTile = $(this).closest(".filter-tiles");
+
+        // 2. Tìm phần nội dung (.tile-content-wrapper) nằm ngay bên dưới tiêu đề và slide lên/xuống
+        // stop() để ngăn việc animation bị lặp đi lặp lại nếu click liên tục
+        $(this).next(".tile-content-wrapper").stop().slideToggle(300);
+
+        // 3. Toggle class 'active' cho thẻ cha để xoay icon bằng CSS
+        $parentTile.toggleClass("active");
+    });
+});
+
+$(document).on('change', '.force-date-format', function() {
+    updateDateDisplay(this);
+});
 
 // Popup thông báo
 function successMsg(msg) {

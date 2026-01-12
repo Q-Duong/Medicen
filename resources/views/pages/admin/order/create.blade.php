@@ -499,14 +499,11 @@
                                 <label for="exampleInputEmail1">Danh sách chụp</label>
                             </div>
                             <input type="file" name="ord_list_file[]" class="filepond" multiple>
+
                             <div class="form-group">
-                                <label for="exampleInputPassword1">Xe đi xa hoặc gần</label>
-                                <select name="accountant_distance" class="input-control">
-                                    <option selected value="G"
-                                        {{ old('accountant_distance') == 'G' ? 'selected' : '' }}>Gần</option>
-                                    <option value="X" {{ old('accountant_distance') == 'X' ? 'selected' : '' }}>Xa
-                                    </option>
-                                </select>
+                                <label for="exampleInputPassword1">Số Km đi</label>
+                                <input type="text" name="accountant_distance" class="input-control" placeholder="Số Km đi"
+                                    value="{{ old('accountant_distance') }}">
                             </div>
 
                             <div class="form-group">

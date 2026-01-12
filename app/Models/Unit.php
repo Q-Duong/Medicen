@@ -24,4 +24,9 @@ class Unit extends Model
     {
         $this->hasMany(Order::class);
     }
+
+    public function profitReport()
+    {
+        $this->hasMany(ProfitReport::class);
+    }
 }

@@ -511,13 +511,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="exampleInputPassword1">Xe đi xa hoặc gần</label>
-                                <select name="accountant_distance" class="input-control m-bot15">
-                                    <option {{ $order->accountant_distance == 'G' ? 'selected' : '' }} value="G">Gần
-                                    </option>
-                                    <option {{ $order->accountant_distance == 'X' ? 'selected' : '' }} value="X">Xa
-                                    </option>
-                                </select>
+                                <label for="exampleInputPassword1">Số Km đi</label>
+                                <input type="text" name="accountant_distance" class="input-control" placeholder="Số Km đi"
+                                    value="{{ $order->accountant_distance }}">
                             </div>
 
                             <div class="form-group">

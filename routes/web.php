@@ -19,6 +19,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\ProfitController;
 use App\Http\Controllers\ScheduleResultsController;
 use App\Http\Controllers\ScheduleSalesController;
 use App\Http\Controllers\ScheduleTechniciansController;
@@ -144,6 +145,15 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index');
     Route::get('chat', [AdminController::class, 'chat'])->name('dashboard.chat');
+
+    //Profit
+    Route::prefix('profit')->group(function () {
+        Route::get('calculate', [ProfitController::class, 'index'])->name('profit.index');
+        Route::post('save', [ProfitController::class, 'store'])->name('profit.save');
+        Route::get('report/{id}', [ProfitController::class, 'show'])->name('profit.show');
+        Route::delete('report/{id}', [ProfitController::class, 'destroy'])->name('profit.delete');
+        Route::post('report/{id}/approve', [ProfitController::class, 'approve'])->name('profit.approve');
+    });
 
     //Statistics
     Route::prefix('statistics')->group(function () {
@@ -296,7 +306,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::post('get-accountant', [AccountantController::class, 'getAccountant'])->name('accountant.get');
             Route::patch('update', [AccountantController::class, 'updateRow'])->name('accountant.update');
             Route::patch('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
-            Route::post('filter', [AccountantController::class, 'filter'])->name('accountant.filter');
             Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant.filter_options');
         });
     });
@@ -305,14 +314,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::prefix('accountant-sales')->group(function () {
             Route::get('/', [AccountantController::class, 'indexSales'])->name('accountant_sales.index');
             Route::post('get-accountant', [AccountantController::class, 'getAccountantSales'])->name('accountant_sales.get');
-            Route::post('filter', [AccountantController::class, 'filterSales'])->name('accountant_sales.filter');
+            Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant_sales.filter_options');
         });
     });
 
     Route::prefix('accountant-result')->group(function () {
         Route::get('/', [AccountantController::class, 'indexResult'])->name('accountant_result.index');
         Route::post('get-accountant', [AccountantController::class, 'getAccountantResult'])->name('accountant_result.get');
-        Route::post('filter', [AccountantController::class, 'filterResult'])->name('accountant_result.filter');
+        Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant_result.filter_options');
     });
 
     Route::prefix('contract')->group(function () {

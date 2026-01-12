@@ -10,19 +10,17 @@
         <div class="alert alert-success" style="display:none"></div>
         <div class="filter-section accountant">
             <div class="row">
+                <!-- Block 1: Filter -->
                 <div class="col-lg-2 col-md-2 col-sm-6">
                     <div class="filter-tiles">
                         <div class="filter-title">
-                            <p class="filter-title-text">
-                                Filter
-                            </p>
+                            <p class="filter-title-text">Filter</p>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
                         </div>
-                        <form action="{{ route('export.excel') }}" method="POST" id="myForm">
-                            @csrf
+                        <div class="tile-content-wrapper">
                             <ul class="filter-content">
                                 <li class="filter-content-block">
-                                    <select id="year-select" name="year"
-                                        class="input-control year-filter filter-input">
+                                    <select id="year-select" name="year" class="input-control year-filter filter-input">
                                         <option value="all" {{ Session::get('year') == 'all' ? 'selected' : '' }}>All
                                         </option>
                                         @php
@@ -39,8 +37,7 @@
                                     </select>
                                 </li>
                                 <li class="filter-content-block">
-                                    <select id="type-select" name="type"
-                                        class="input-control type-filter filter-input">
+                                    <select id="type-select" name="type" class="input-control type-filter filter-input">
                                         <option value="all" {{ Session::get('type') == 'all' ? 'selected' : '' }}>All
                                         </option>
                                         <option value="1" {{ Session::get('type') == 1 ? 'selected' : '' }}>X-Ray
@@ -51,143 +48,128 @@
                                     </select>
                                 </li>
                             </ul>
-                        </form>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="filter-tiles">
-                        <div class="filter-title">
-                            <p class="filter-title-text">
-                                Doanh thu
-                            </p>
                         </div>
-                        <ul class="filter-content text-ellipsis">
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;Tổng tiền :
-                                </div>
-                                <div class="filter-content-details" id="total-price"></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;Đã thanh toán :
-                                </div>
-                                <div class="filter-content-details" id="total-amount-paid"`></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;Còn nợ :
-                                </div>
-                                <div class="filter-content-details" id="total-owe"></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;Chiết khấu :
-                                </div>
-                                <div class="filter-content-details" id="total-discount"></div>
-                            </li>
-                        </ul>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-4 col-sm-6">
                     <div class="filter-tiles">
                         <div class="filter-title">
-                            <p class="filter-title-text">
-                                Phim
-                            </p>
+                            <p class="filter-title-text">Doanh thu</p>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
                         </div>
-                        <ul class="filter-content">
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;Số Cas :
-                                </div>
-                                <div class="filter-content-details" id="total-quantity"></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;35 X 43 :
-                                </div>
-                                <div class="filter-content-details" id="total-35"></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;Polime :
-                                </div>
-                                <div class="filter-content-details" id="total-polime"></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;8 X 10 :
-                                </div>
-                                <div class="filter-content-details" id="total-8"></div>
-                            </li>
-                            <li class="filter-content-block">
-                                <div class="filter-content-title">
-                                    •&nbsp;10 X 12 :
-                                </div>
-                                <div class="filter-content-details" id="total-10"></div>
-                            </li>
-                        </ul>
+                        <div class="tile-content-wrapper">
+                            <ul class="filter-content text-ellipsis">
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Tổng tiền :</div>
+                                    <div class="filter-content-details" id="total-price"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Đã thanh toán :</div>
+                                    <div class="filter-content-details" id="total-amount-paid"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Còn nợ :</div>
+                                    <div class="filter-content-details" id="total-owe"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Chiết khấu :</div>
+                                    <div class="filter-content-details" id="total-discount"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-4 col-sm-6">
+                    <div class="filter-tiles">
+                        <div class="filter-title">
+                            <p class="filter-title-text">Phim</p>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="tile-content-wrapper">
+                            <ul class="filter-content">
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Số Cas :</div>
+                                    <div class="filter-content-details" id="total-quantity"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;35 X 43 :</div>
+                                    <div class="filter-content-details" id="total-35"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Polime :</div>
+                                    <div class="filter-content-details" id="total-polime"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;8 X 10 :</div>
+                                    <div class="filter-content-details" id="total-8"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;10 X 12 :</div>
+                                    <div class="filter-content-details" id="total-10"></div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
                 <div class="col-lg-2 col-md-2 col-sm-6">
                     <div class="filter-tiles">
                         <div class="filter-title">
-                            <p class="filter-title-text">
-                                Export
-                            </p>
+                            <p class="filter-title-text">Export</p>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
                         </div>
-                        <form action="{{ route('export.excel') }}" method="POST" id="myForm">
-                            @csrf
-                            <ul class="filter-content">
-                                <li class="filter-content-block">
-                                    <select name="year" class="input-control select-year">
-                                        @php
-                                            $currentYear = \Carbon\Carbon::now()->year;
-                                            $startYear = 2023;
-                                        @endphp
-                                        <option value="" selected disabled>Year</option>
-                                        @for ($i = $startYear; $i <= $currentYear; $i++)
-                                            <option value="{{ $i }}"
-                                                {{ Session::get('year') == $i ? 'selected' : '' }}>
-                                                {{ $i }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </li>
-                                <li class="filter-content-block">
-                                    <select name="month" class="input-control select-month-details">
-                                        <option value="" selected disabled>Month</option>
-                                        <option value="all">All</option>
-                                        <option value="January">1</option>
-                                        <option value="February">2</option>
-                                        <option value="March">3</option>
-                                        <option value="April">4</option>
-                                        <option value="May">5</option>
-                                        <option value="June">6</option>
-                                        <option value="July">7</option>
-                                        <option value="August">8</option>
-                                        <option value="September">9</option>
-                                        <option value="October">10</option>
-                                        <option value="November">11</option>
-                                        <option value="December">12</option>
-                                    </select>
-                                </li>
-                                <li class="filter-content-block">
-                                    <select id="type-select" name="type" class="input-control type-filter filter-input">
-                                        <option value="all">All</option>
-                                        <option value="1">X-Ray</option>
-                                        <option value="2">UltraSound</option>
-                                    </select>
-                                </li>
-                                <button type="submit" class="primary-btn-filter">Export</button>
-                            </ul>
-                        </form>
+                        <div class="tile-content-wrapper">
+                            <form action="{{ route('export.excel') }}" method="POST" id="myForm">
+                                @csrf
+                                <ul class="filter-content">
+                                    <li class="filter-content-block">
+                                        <select name="year" class="input-control select-year">
+                                            @php
+                                                $currentYear = \Carbon\Carbon::now()->year;
+                                                $startYear = 2023;
+                                            @endphp
+                                            <option value="" selected disabled>Year</option>
+                                            @for ($i = $startYear; $i <= $currentYear; $i++)
+                                                <option value="{{ $i }}"
+                                                    {{ Session::get('year') == $i ? 'selected' : '' }}>
+                                                    {{ $i }}
+                                                </option>
+                                            @endfor
+                                        </select>
+                                    </li>
+                                    <li class="filter-content-block">
+                                        <select name="month" class="input-control select-month-details">
+                                            <option value="" selected disabled>Month</option>
+                                            <option value="all">All</option>
+                                            <option value="January">1</option>
+                                            <option value="February">2</option>
+                                            <option value="March">3</option>
+                                            <option value="April">4</option>
+                                            <option value="May">5</option>
+                                            <option value="June">6</option>
+                                            <option value="July">7</option>
+                                            <option value="August">8</option>
+                                            <option value="September">9</option>
+                                            <option value="October">10</option>
+                                            <option value="November">11</option>
+                                            <option value="December">12</option>
+                                        </select>
+                                    </li>
+                                    <li class="filter-content-block">
+                                        <select  name="type" class="input-control">
+                                            <option value="all">All</option>
+                                            <option value="1">X-Ray</option>
+                                            <option value="2">UltraSound</option>
+                                        </select>
+                                    </li>
+                                    <button type="submit" class="primary-btn-filter">Export</button>
+                                </ul>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                
             </div>
         </div>
         {{-- <div class="export-excel">
@@ -348,7 +330,6 @@
     var url_get_accountant = "{{ route('accountant.get') }}";
     var url_update_accountant = "{{ route('accountant.update') }}";
     var url_complete_accountant = "{{ route('accountant.complete') }}";
-    var url_filter_accountant = "{{ route('accountant.filter') }}";
     var url_filter_options = "{{ route('accountant.filter_options') }}";
 </script>
     {{-- <script src="{{ versionResource('assets/js/support/datatables/nightly.dataTables.js') }}"></script>

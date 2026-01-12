@@ -11,6 +11,13 @@
                     </a>
                 </li>
                 <li>
+                    <a class="{{ request()->routeIs('profit.index') ? 'active' : '' }}"
+                        href="{{ route('profit.index') }}">
+                        <i class="far fa-chart-bar"></i>
+                        <span>Tính lợi nhuận X-Quang</span>
+                    </a>
+                </li>
+                <li>
                     <a class="{{ request()->routeIs('contact.edit') ? 'active' : '' }}"
                         href="{{ route('contact.edit') }}">
                         <i class="fa fa-info-circle"></i>

@@ -14,7 +14,7 @@
 
         <div class="dropdown-menu excel-dropdown">
             @if ($label)
-                <div class="dropdown-header-row d-flex justify-content-between align-items-center border-bottom pb-1 mb-2">
+                <div class="dropdown-header-row d-flex justify-content-between align-items-center border-bottom pb-1 mb-2 draggable-handle">
                     <label class="dropdown-label mb-0 font-weight-bold">{{ $label }}</label>
                     <button type="button" class="btn btn-sm btn-link text-dark p-0 close-dropdown-btn" style="text-decoration: none;">
                         <i class="fa-solid fa-xmark" style="font-size: 11px;"></i>

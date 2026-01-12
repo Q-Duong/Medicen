@@ -7,12 +7,16 @@
 /* Table */
 .table-scroll {
     position: relative;
-    max-height: 50vh;
+    max-height: 60vh;
     overflow-y: auto;
     overflow-x: auto;
     z-index: 1;
     margin: auto;
     left: 0;
+}
+
+.section-title{
+    height: 56px;
 }
 
 .section-title th {
@@ -66,7 +70,7 @@
         text-align: center;
         z-index: 64 !important;
         min-width: 45px;
-        left: 198px;
+        left: 208px;
     }
     
     .section-title th.sticky-col.six-col {
@@ -130,7 +134,7 @@
         text-align: center;
         z-index: 34;
         min-width: 45px;
-        left: 198px;
+        left: 208px;
     }
     
     tbody td.sticky-col.six-col {
@@ -331,22 +335,33 @@
 .excel-dropdown {
     width: 300px;
     padding: 0;
+    position: fixed; 
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .15), 2px 2px 6px 2px rgba(60, 64, 67, .15);
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    display: none;
+}
+
+.excel-dropdown.show {
+    display: block;
+}
+
+.filter-accountant-content-block {
+    z-index: auto; 
 }
 
 .filter-accountant-content-block .dropdown {
     width: 100%;
 }
 
-.filter-accountant-content-block .dropdown-menu {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    border-radius: 15px;
-    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .15), 2px 2px 6px 2px rgba(60, 64, 67, .15);
-}
-
 .filter-accountant-content-block .dropdown-backdrop {
     position: absolute;
+}
+
+
+.draggable-handle {
+    cursor: move;
+    user-select: none; 
 }
 
 .dropdown-header-row {
@@ -445,7 +460,7 @@
 }
 
 .dropdown-list-container {
-    max-height: 250px;
+    max-height: 200px;
     overflow-y: auto;
     margin: 5px 0;
 }
@@ -453,6 +468,7 @@
 .dropdown-item-checkbox {
     display: flex;
     align-items: center;
+    white-space: nowrap;
     padding: 3px 10px;
     cursor: pointer;
 }
@@ -471,6 +487,13 @@
     bottom: -21px;
     padding: 0 1px;
     font-size: 12px;
+}
+
+@media (max-width: 800px) {
+    .btn-icon-filter {
+        bottom: -17px;
+        font-size: 11px;
+    }
 }
 
 .btn-apply-filter:disabled {
@@ -507,7 +530,7 @@
 }
 
 .accountant .filter-content {
-    height: 180px;
+    height: 170px;
     padding: 10px;
 }
 
@@ -525,3 +548,59 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; } */
+
+.filter-title {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between; /* Đẩy chữ sang trái, icon sang phải */
+    align-items: center;
+    padding-right: 10px; /* Cách lề phải một chút cho đẹp */
+}
+
+/* Style cho icon */
+.toggle-icon {
+    font-size: 14px;
+    transition: transform 0.3s ease; /* Hiệu ứng xoay mượt mà */
+}
+
+/* Class này sẽ được jQuery thêm vào khi đang mở */
+.filter-tiles.active .toggle-icon {
+    transform: rotate(180deg); /* Xoay ngược mũi tên */
+}
+
+
+.force-date-format {
+    position: relative;
+    color: white; /* Trick: Chỉnh màu chữ trùng màu nền hoặc trong suốt */
+}
+
+/* 2. Ẩn text mặc định của Chrome/Edge/Cốc Cốc */
+.force-date-format::-webkit-datetime-edit {
+    color: transparent; 
+}
+.force-date-format::-webkit-datetime-edit-fields-wrapper {
+    background: transparent;
+}
+
+/* 3. Tạo lớp chữ giả hiển thị dd/mm/yyyy */
+.force-date-format::before {
+    content: attr(data-date); /* Lấy nội dung từ attribute data-date */
+    position: absolute;
+    top: 50%;
+    left: 10px; /* Căn chỉnh lề trái */
+    transform: translateY(-50%);
+    color: #666; /* Màu chữ đen bình thường */
+    pointer-events: none; /* Quan trọng: Cho phép click xuyên qua để mở lịch */
+    font-family: inherit;
+    font-size: inherit;
+    display: block;
+    width: 80%; /* Giới hạn chiều rộng để không đè lên icon lịch */
+    background-color: #fff; /* Nền trắng che chữ gốc bên dưới (nếu có) */
+}
+
+/* 4. Giữ icon lịch luôn hiện */
+.force-date-format::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    z-index: 10;
+    cursor: pointer;
+}
