@@ -557,33 +557,14 @@ class OrderController extends Controller
 
 	public function exportExcel(Request $request)
 	{
-		if ($request->month == 'April') {
-			$firstDayofThisMonth = $request->year . '-04-01';
-			$lastDayofThisMonth = $request->year . '-04-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'June') {
-			$firstDayofThisMonth = $request->year . '-06-01';
-			$lastDayofThisMonth = $request->year . '-06-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'September') {
-			$firstDayofThisMonth = $request->year . '-09-01';
-			$lastDayofThisMonth = $request->year . '-00-30';
-			$dayInMonth = 30;
-		} elseif ($request->month == 'November') {
-			$firstDayofThisMonth = $request->year . '-11-01';
-			$lastDayofThisMonth = $request->year . '-11-30';
-			$dayInMonth = 30;
-		} else {
-			$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-			$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-		}
+		$filters = $request->all();
 		// $year=$request->year;
 		// $month=$request->month;
 		//$user = Customer::findOrFail($customer_id);
 		// return Excel::download(new ExcelExport($customer_id), $user->customer_name.'.xlsx');
 
 		// return Excel::download(new ExcelExport($date), $date.'.xlsx');
-		return Excel::download(new ExcelExport($firstDayofThisMonth, $lastDayofThisMonth), 'Acountant.xlsx');
+		return Excel::download(new ExcelExport($filters), 'Accountant.xlsx');
 	}
 
 	public function view($order_id)

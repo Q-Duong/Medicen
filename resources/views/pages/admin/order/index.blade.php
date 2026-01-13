@@ -144,7 +144,7 @@
             'items' => $getAll,
         ])
         {{ $getAll->links('pagination::custom') }}
-        <div class="export-excel">
+        {{-- <div class="export-excel">
             <form action="{{ route('export.excel') }}" method="POST" id="myForm">
                 @csrf
                 <div class="col-md-4">
@@ -178,7 +178,7 @@
                     <button type="submit" class="primary-btn-filter button-submit">Xuất file Excel</button>
                 </div>
             </form>
-        </div>
+        </div> --}}
     </div>
 @endsection
 @push('js')

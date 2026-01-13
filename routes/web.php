@@ -212,7 +212,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 
     //Export Excel
-    Route::post('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
 
 
     //Sales

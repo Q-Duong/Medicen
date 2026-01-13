@@ -1130,6 +1130,34 @@ $(document).ready(function () {
             },
         });
     });
+
+    $(document).on('click', '.btn-export-excel', function(e) {
+        e.preventDefault();
+    
+        // 1. Lấy dữ liệu Filter hiện tại từ LocalStorage
+        let storageKey = 'accountant_filter_state';
+        let rawParams = localStorage.getItem(storageKey);
+        let paramsObj = {};
+    
+        if (rawParams) {
+            paramsObj = JSON.parse(rawParams);
+        }
+    
+        // 2. Bổ sung thêm Year/Type đang chọn trên giao diện (để chắc chắn đúng)
+        paramsObj.year = $('#year-select').val();
+        paramsObj.type = $('#type-select').val();
+    
+        // 3. Chuyển Object thành Query String (dạng ?year=2025&doctor=A...)
+        // Dùng $.param của jQuery để tự động xử lý mảng
+        let queryString = $.param(paramsObj);
+    
+        // 4. Tạo URL Export
+        // Lưu ý: Thay '/accountant/export' bằng route thực tế của bạn
+        let exportUrl = '/admin/export-excel?' + queryString;
+    
+        // 5. Mở tab mới để tải file (hoặc tải trực tiếp)
+        window.location.href = exportUrl;
+    });
 }); // End Document Ready
 
 /**

@@ -129,7 +129,7 @@ class ScheduleController extends Controller
 			'statistic_cas'      => 0,
 			'statistic_ultrasound' => 0,
 			'statistic_bone'     => 0,
-			'statistic_mammogram'=> 0,
+			'statistic_mammogram' => 0,
 			'statistic_35'       => 0,
 			'statistic_8'        => 0,
 			'statistic_10'       => 0,
@@ -140,7 +140,7 @@ class ScheduleController extends Controller
 			'statistic_K'        => 0,
 		];
 
-		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Khác'];
+		$xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Nhũ Ảnh', 'Khác'];
 		$xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
 		$ultraSound    = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 

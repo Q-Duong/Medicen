@@ -8,17 +8,18 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use DB;
 
-class ExcelExport implements WithHeadings, FromQuery, WithMapping
+class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSize, WithStyles
 {
-    protected $firstDayofThisMonth;
-    protected $lastDayofThisMonth;
+    protected $filters;
 
-    public function __construct($firstDayofThisMonth, $lastDayofThisMonth)
+    public function __construct($filters)
     {
-        $this->firstDayofThisMonth = $firstDayofThisMonth;
-        $this->lastDayofThisMonth = $lastDayofThisMonth;
+        $this->filters = $filters;
     }
 
     public function headings(): array
@@ -66,10 +67,47 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping
 
     public function query()
     {
-        $firstDayofThisMonth = $this->firstDayofThisMonth;
-        $lastDayofThisMonth = $this->lastDayofThisMonth;
+		$query = Accountant::getAccountantByFilter($this->filters);
 
-        return $order = Accountant::exportAccountant($firstDayofThisMonth, $lastDayofThisMonth);
+        return $query->select(
+            'accountants.id',
+            'accountants.order_id',
+            'accountants.accountant_month',
+            'accountant_distance',
+            'accountant_deadline',
+            'accountant_number',
+            'accountant_date',
+            'accountant_payment',
+            'accountant_day_payment',
+            'accountant_method',
+            'accountant_amount_paid',
+            'accountant_owe',
+            'accountant_discount_day',
+            'accountant_doctor_read',
+            'accountant_doctor_date_payment',
+            'accountant_35X43',
+            'accountant_polime',
+            'accountant_8X10',
+            'accountant_10X12',
+            'accountant_film_bag',
+            'accountant_note',
+            'accountant_status',
+            'ord_type',
+            'ord_start_day',
+            'ord_form',
+            'ord_note',
+            'ord_cty_name',
+            'order_vat',
+            'order_quantity',
+            'order_cost',
+            'order_price',
+            'order_percent_discount',
+            'order_discount',
+            'order_profit',
+            'orders.status_id',
+            'car_name',
+            'unit_name'
+        )->orderBy('ord_start_day', 'ASC');
     }
 
     public function map($accountant): array
@@ -112,6 +150,12 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping
             $accountant->accountant_film_bag,
             $accountant->accountant_note,
             $accountant->status_name,
+        ];
+    }
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true]],
         ];
     }
 }

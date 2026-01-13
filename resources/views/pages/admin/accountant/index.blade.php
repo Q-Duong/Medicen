@@ -121,92 +121,16 @@
                             <i class="fa-solid fa-chevron-down toggle-icon"></i>
                         </div>
                         <div class="tile-content-wrapper">
-                            <form action="{{ route('export.excel') }}" method="POST" id="myForm">
-                                @csrf
-                                <ul class="filter-content">
-                                    <li class="filter-content-block">
-                                        <select name="year" class="input-control select-year">
-                                            @php
-                                                $currentYear = \Carbon\Carbon::now()->year;
-                                                $startYear = 2023;
-                                            @endphp
-                                            <option value="" selected disabled>Year</option>
-                                            @for ($i = $startYear; $i <= $currentYear; $i++)
-                                                <option value="{{ $i }}"
-                                                    {{ Session::get('year') == $i ? 'selected' : '' }}>
-                                                    {{ $i }}
-                                                </option>
-                                            @endfor
-                                        </select>
-                                    </li>
-                                    <li class="filter-content-block">
-                                        <select name="month" class="input-control select-month-details">
-                                            <option value="" selected disabled>Month</option>
-                                            <option value="all">All</option>
-                                            <option value="January">1</option>
-                                            <option value="February">2</option>
-                                            <option value="March">3</option>
-                                            <option value="April">4</option>
-                                            <option value="May">5</option>
-                                            <option value="June">6</option>
-                                            <option value="July">7</option>
-                                            <option value="August">8</option>
-                                            <option value="September">9</option>
-                                            <option value="October">10</option>
-                                            <option value="November">11</option>
-                                            <option value="December">12</option>
-                                        </select>
-                                    </li>
-                                    <li class="filter-content-block">
-                                        <select  name="type" class="input-control">
-                                            <option value="all">All</option>
-                                            <option value="1">X-Ray</option>
-                                            <option value="2">UltraSound</option>
-                                        </select>
-                                    </li>
-                                    <button type="submit" class="primary-btn-filter">Export</button>
-                                </ul>
-                            </form>
+                            <div class="filter-content">
+                                <button type="button" class="primary-btn-filter btn-export-excel">
+                                    <i class="fa-solid fa-file-excel"></i> Export
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        {{-- <div class="export-excel">
-            <form action="{{ route('export.excel') }}" method="POST" id="myForm">
-                @csrf
-                <div class="col-md-4">
-                    <p class="export-excel-title">Xuất file Excel Công Nợ</p>
-                    <div class="col-md-6">
-                        <select name="year" class="input-control select-year">
-                            @for ($i = 0; $i <= 10; $i++)
-                                <option value="{{ $i + 2023 }}">{{ $i + 2023 }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <select name="month" class="input-control select-month-details">
-                            <option disabled="" class="define-month-details">Chọn tháng</option>
-                            <option value="January">1</option>
-                            <option value="February">2</option>
-                            <option value="March">3</option>
-                            <option value="April">4</option>
-                            <option value="May">5</option>
-                            <option value="June">6</option>
-                            <option value="July">7</option>
-                            <option value="August">8</option>
-                            <option value="September">9</option>
-                            <option value="October">10</option>
-                            <option value="November">11</option>
-                            <option value="December">12</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="primary-btn-filter">Xuất file Excel</button>
-                </div>
-            </form>
-        </div> --}}
 
         <div class="table-responsive table-content">
             <div id="table-scroll" class="table-scroll">
