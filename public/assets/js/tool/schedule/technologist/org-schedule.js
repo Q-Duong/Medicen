@@ -51,6 +51,21 @@ function getCarColor(carId) {
     }
 }
 
+function renewDataTechnicianSelect(data) {
+    const $select = $(".select-technicians");
+
+    $select.empty();
+    $select.append('<option value="all" class="define-technicians" selected>Tất cả</option>');
+
+    $.each(data, function (index, name) {
+        $select.append(
+            $("<option>", {
+                value: name,
+                text: name,
+            }),
+        );
+    });
+}
 /*------------------
                        Function Schedule
                     --------------------*/
@@ -70,7 +85,7 @@ function schedule(day) {
             this.timelineItems = this.timeline.find("li");
             this.timelineItemsNumber = this.timelineItems.length;
             this.timelineStart = getScheduleTimestamp(
-                this.timelineItems.eq(0).text()
+                this.timelineItems.eq(0).text(),
             );
             //need to store delta (in our case half hour) timestamp
             this.timelineUnitDuration =
@@ -296,14 +311,14 @@ function schedule(day) {
                 (data.customer_name || "") +
                     " (" +
                     (data.customer_phone || "") +
-                    ")"
+                    ")",
             );
             setText(".event-time").html(data.ord_time);
             setText(".event-quantity").html(data.order_quantity);
             setText(".event-order-note").html(data.ord_note);
             setText(".event-email").html(data.ord_email);
             setText(".event-draft").html(
-                (data.order_quantity_draft || 0) + " Cas"
+                (data.order_quantity_draft || 0) + " Cas",
             );
             setText(".event-noteKtv").html(data.order_note_ktv);
 
@@ -332,7 +347,7 @@ function schedule(day) {
                         '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
                 });
                 mb.find(".event-list-file").html(
-                    '<div class="section-file">' + result + "</div>"
+                    '<div class="section-file">' + result + "</div>",
                 );
             } else {
                 mb.find(".event-list-file").html("Không có danh sách");
@@ -353,7 +368,7 @@ function schedule(day) {
             mb.find(".order-note-ktv").val(technologist_note);
             mb.find(".order-quantity-ktv, .order-note-ktv").prop(
                 "disabled",
-                hasData
+                hasData,
             );
 
             mb.find(".rs-overlay-change").html(htmlContent);
@@ -388,10 +403,10 @@ function schedule(day) {
                             : windowHeight * 0.8;
 
                 var modalTranslateX = parseInt(
-                        (windowWidth - modalWidth) / 2 - eventLeft
+                        (windowWidth - modalWidth) / 2 - eventLeft,
                     ),
                     modalTranslateY = parseInt(
-                        (windowHeight - modalHeight) / 2 - eventTop
+                        (windowHeight - modalHeight) / 2 - eventTop,
                     );
 
                 //change modal height/width and translate it
@@ -407,7 +422,7 @@ function schedule(day) {
                         modalTranslateY +
                         "px) translateX(" +
                         modalTranslateX +
-                        "px)"
+                        "px)",
                 );
 
                 self.modalHeaderBg.one(transitionEnd, function () {
@@ -428,7 +443,7 @@ function schedule(day) {
             var mq = self.mq();
 
             this.animating = true;
-            self.modalBody.find(".rs-overlay-change").html('');
+            self.modalBody.find(".rs-overlay-change").html("");
             $("body").removeAttr("style");
 
             //HIỆN LẠI POPUP DANH SÁCH (NẾU CẦN)
@@ -451,7 +466,7 @@ function schedule(day) {
 
                 var modalTop = Number(self.modal.css("top").replace("px", "")),
                     modalLeft = Number(
-                        self.modal.css("left").replace("px", "")
+                        self.modal.css("left").replace("px", ""),
                     );
 
                 var modalTranslateX = modalLeft,
@@ -470,7 +485,7 @@ function schedule(day) {
                         modalTranslateX +
                         "px) translateY(" +
                         modalTranslateY +
-                        "px)"
+                        "px)",
                 );
 
                 //scale down modalBodyBg element
@@ -537,8 +552,8 @@ function schedule(day) {
                 self.element.addClass("animation-completed");
                 var event = self.eventsGroup.find(".selected-event");
 
-                (eventHeight = event.innerHeight()),
-                    (eventWidth = event.innerWidth());
+                ((eventHeight = event.innerHeight()),
+                    (eventWidth = event.innerWidth()));
 
                 var windowWidth = $(window).width(),
                     windowHeight = $(window).height();
@@ -613,7 +628,7 @@ function schedule(day) {
             if (event.keyCode == 27) {
                 objSchedulesPlan.forEach(function (element) {
                     element.closeModal(
-                        element.eventsGroup.find(".selected-event")
+                        element.eventsGroup.find(".selected-event"),
                     );
                 });
             }
@@ -751,6 +766,7 @@ $(".select-month").on("change", function () {
         success: function (data) {
             schedule(data.day);
             $(".schedule").html(data.html);
+            renewDataTechnicianSelect(data.technicianData);
             $(".loader-over").fadeOut();
         },
         error: function (textStatus) {
@@ -766,6 +782,37 @@ $(".select-month").on("change", function () {
                                                     --------------------*/
 $(".select-year").on("change", function () {
     $(".define-month").prop("selected", true);
+});
+
+/*------------------
+                                                    Select Technicians Schedule
+                                                    --------------------*/
+$(".select-technicians").on("change", function () {
+    var year = $(".select-year").val();
+    var month = $(".select-month").val();
+    var param = $(this).val();
+    $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_select_technician_technologist,
+        method: "POST",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr("content"),
+            year: year,
+            month: month,
+            param: param,
+        },
+        success: function (data) {
+            schedule(data.day);
+            $(".schedule").html(data.html);
+            $(".loader-over").fadeOut();
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
+        },
+        complete: function () {
+            $(".loader-over").fadeOut();
+        },
+    });
 });
 /*------------------
                                                    Handle Schedule

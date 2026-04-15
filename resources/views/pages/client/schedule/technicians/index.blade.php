@@ -27,7 +27,7 @@
         <div class="container">
             <div class="schedule-support">
                 <div class="row justify-content-center">
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-4 col-6">
                         <div class="form-dropdown">
                             <select class="form-dropdown-select select-year">
                                 @for ($i = 0; $i <= 10; $i++)
@@ -41,7 +41,7 @@
                             <span class="form-dropdown-label" aria-hidden="true">Năm</span>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-4 col-6">
                         <div class="form-dropdown">
                             <select class="form-dropdown-select select-month">
                                 <option disabled class="define-month">Chọn tháng</option>
@@ -54,6 +54,20 @@
                             <span class="form-dropdown-chevron" aria-hidden="true"><i
                                     class="fa-solid fa-angle-down"></i></span>
                             <span class="form-dropdown-label" aria-hidden="true">Tháng</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-12">
+                        <div class="form-dropdown">
+                            <select class="form-dropdown-select select-technicians">
+                                <option value="all" class="define-technicians" selected>Tất cả</option>
+                                @foreach ($technicianData as $technician)
+                                    <option value="{{ $technician }}">
+                                        {{ $technician }}</option>
+                                @endforeach
+                            </select>
+                            <span class="form-dropdown-chevron" aria-hidden="true"><i
+                                    class="fa-solid fa-angle-down"></i></span>
+                            <span class="form-dropdown-label" aria-hidden="true">Chọn KTV</span>
                         </div>
                     </div>
                 </div>
@@ -964,6 +978,7 @@
 <script type="text/javascript">
     var day = {{ $dayInMonth }};
     var url_select_technologist = "{{ route('schedules.technicians.select') }}";
+    var url_select_technician_technologist = "{{ route('schedules.technicians.select_technician') }}";
     var url_update_technologist = "{{ route('schedules.technicians.update') }}";
 </script>
 <script src="{{ asset('assets/js/support/essential.js') }}"></script>

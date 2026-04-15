@@ -45,9 +45,9 @@
                                 <input type="text" class="input-control" value="{{ $accountant->ord_select }}" disabled>
                             </div>
                             <div class="form-group">
-                                <label for="exampleInputPassword1">Xe đi xa hoặc gần</label>
-                                <input type="text" class="input-control"
-                                    value="{{ $accountant->accountant_distance == 'G' ? 'Gần' : 'Xa' }}" disabled>
+                                <label for="exampleInputPassword1">Số Km đi</label>
+                                <input type="text" class="input-control" name="accountant_distance"
+                                    value="{{ $accountant->accountant_distance }}" disabled>
                             </div>
                             <div class="radio-group">
                                 <label for="exampleInputPassword1">Trọn gói</label>

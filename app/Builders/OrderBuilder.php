@@ -80,6 +80,7 @@ final class OrderBuilder extends Builder
             ->first();
         return $getOneOder;
     }
+
     public function getScheduleTechnologist($firstDayofThisMonth, $lastDayofThisMonth)
     {
         $getScheduleTechnologist = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
@@ -87,8 +88,55 @@ final class OrderBuilder extends Builder
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
             ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-            ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->where('car_ktvs.car_active', 1)
+            ->select(
+                'car_name',
+                'car_active',
+                'status_id',
+                'order_surcharge',
+                'car_ktv_name_1',
+                'car_ktv_name_2',
+                'ord_start_day',
+                'ord_end_day',
+                'order_child',
+                'order_updated',
+                'car_ktvs.order_id',
+                'unit_name',
+                'unit_abbreviation',
+                'car_ktvs.id',
+                'ord_select',
+                'ord_cty_name',
+                'customer_address',
+                'customer_note',
+                'ord_note',
+                'ord_list_file',
+                'ord_list_file_path',
+                'customer_name',
+                'customer_phone',
+                'ord_time',
+                'order_quantity',
+                'order_quantity_draft',
+                'order_note_ktv',
+                'orders.created_at'
+            )
+            ->orderBy('order_details.ord_start_day', 'ASC')
+            ->orderBy('orders.created_at', 'ASC')
+            ->get();
+        return $getScheduleTechnologist;
+    }
+
+    public function getScheduleTechnicianSearch($firstDayofThisMonth, $lastDayofThisMonth, $target)
+    {
+        $getScheduleTechnologist = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->join('customers', 'customers.id', '=', 'orders.customer_id')
+            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+            ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+            ->where('car_ktvs.car_active', 1)
+            ->where(function ($query) use ($target) {
+                $query->where('car_ktvs.car_ktv_name_1', $target)
+                      ->orWhere('car_ktvs.car_ktv_name_2', $target);
+            })
             ->select(
                 'car_name',
                 'car_active',
@@ -133,7 +181,6 @@ final class OrderBuilder extends Builder
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
             ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-            ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->where('car_ktvs.car_active', 1)
             ->select(
                 'status_id',
@@ -203,7 +250,6 @@ final class OrderBuilder extends Builder
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
             ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-            ->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
             ->where('car_ktvs.car_active', 1)
             ->where('ord_cty_name', $target)
             ->select(

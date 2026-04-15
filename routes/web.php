@@ -106,6 +106,7 @@ Route::prefix('schedules')->group(function () {
             Route::prefix('technicians')->group(function () {
                 Route::get('/', [ScheduleTechniciansController::class, 'index'])->name('schedules.technicians.index');
                 Route::post('select', [ScheduleTechniciansController::class, 'select'])->name('schedules.technicians.select');
+                Route::post('select-technician', [ScheduleTechniciansController::class, 'selectTechnician'])->name('schedules.technicians.select_technician');
                 Route::post('update', [ScheduleTechniciansController::class, 'update'])->name('schedules.technicians.update');
             });
         });
