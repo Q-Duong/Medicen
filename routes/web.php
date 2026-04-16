@@ -17,6 +17,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProfitController;
@@ -164,6 +165,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::post('revenue-by-unit', [StatisticsController::class, 'revenueByUnit'])->name('statistics.revenue_by_unit');
         Route::get('/', [StatisticsController::class, 'index'])->name('statistics.index');
         Route::post('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis');
+    });
+
+    //Statistics
+    Route::prefix('employee-timekeeping')->group(function () {
+        Route::get('/', [EmployeeController::class, 'index'])->name('employee_timekeeping.index');
+        Route::post('export', [EmployeeController::class, 'export'])->name('employee_timekeeping.export');
     });
 
     //Information Account

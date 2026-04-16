@@ -226,6 +226,13 @@
                     </a>
                 </li>
                 <li class="sub-menu">
+                    <a class="{{ request()->routeIs('employee_timekeeping.index') ? 'active' : '' }}"
+                        href="{{ route('employee_timekeeping.index') }}">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Chấm công</span>
+                    </a>
+                </li>
+                <li class="sub-menu">
                     <a class="{{ request()->routeIs('history.index') ? 'active' : '' }}"
                         href="{{ route('history.index') }}">
                         <i class="fas fa-history"></i>
