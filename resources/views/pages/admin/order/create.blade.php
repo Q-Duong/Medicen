@@ -251,6 +251,13 @@
                                     </div>
                                     <div class="col-lg-4 col-md-12">
                                         <section>
+                                            <input type="radio" name="ord_form" value="IN6" id="form10"
+                                                class="accent" {{ old('ord_form') == 'IN6' ? 'checked' : '' }}>
+                                            <label for="form10" class="radio-title">IN6</label>
+                                        </section>
+                                    </div>
+                                    <div class="col-lg-4 col-md-12">
+                                        <section>
                                             <input type="radio" name="ord_form" value="IN12" id="form3"
                                                 class="accent" {{ old('ord_form') == 'IN12' ? 'checked' : '' }}>
                                             <label for="form3" class="radio-title">11 x 10,5(IN12)</label>

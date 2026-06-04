@@ -126,6 +126,9 @@
                                             <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                     class="fa fa-pencil-square-o text-success text-active"></i>
                                             </a>
+                                            <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i
+                                                    class="far fa-copy"></i></i>
+                                            </a>
                                             @if ($order->status_id != 3)
                                                 <a href="{{ route('accountant.order.update', $order->id) }}"
                                                     class="management-btn"><i class="fas fa-file-import text-warning "></i>

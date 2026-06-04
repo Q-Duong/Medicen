@@ -241,6 +241,13 @@
                                             <label for="form2" class="radio-title">16,5 x 21,5(IN4)</label>
                                         </section>
                                     </div>
+                                    <div class="col-lg-4 col-md-12">
+                                        <section>
+                                            <input type="radio" name="ord_form" value="IN6" id="form10"
+                                                class="accent" {{ $order->ord_form == 'IN6' ? 'checked' : '' }}>
+                                            <label for="form10" class="radio-title">IN6</label>
+                                        </section>
+                                    </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN12" id="form3"
@@ -486,11 +493,11 @@
                                 <label for="exampleInputEmail1">Danh sách chụp</label>
                                 <input type="file" name="ord_list_file[]" class="filepond" value="" multiple>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Số Km đi</label>
-                                <input type="text" name="accountant_distance" class="input-control" placeholder="Số Km đi"
-                                    value="{{ $order->accountant_distance }}">
+                                <input type="text" name="accountant_distance" class="input-control"
+                                    placeholder="Số Km đi" value="{{ $order->accountant_distance }}">
                             </div>
 
                             <div class="form-group">
@@ -578,22 +585,11 @@
                                     </div>
                                 @enderror
                             </div>
-                            @if (Auth::user()->role == 0)
-                                <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin đơn
-                                    hàng
-                                </button>
-                            @else
-                                @php
-                                    $now = Carbon\Carbon::now()->setTime(0, 0, 0);
-                                    $dateEqual = Carbon\Carbon::parse($order->ord_start_day);
-                                @endphp
-                                @if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual))
-                                    <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin
-                                        đơn
-                                        hàng
-                                    </button>
-                                @endif
-                            @endif
+
+                            <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin
+                                đơn
+                                hàng
+                            </button>
                         </form>
                     </div>
                 </div>

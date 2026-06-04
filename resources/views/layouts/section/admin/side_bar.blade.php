@@ -105,6 +105,13 @@
                             <span>Quản lý hợp đồng (Sales)</span>
                         </a>
                     </li>
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('employee_timekeeping.index') ? 'active' : '' }}"
+                            href="{{ route('employee_timekeeping.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Chấm công</span>
+                        </a>
+                    </li>
                 @elseif(Auth::user()->name == 'Accountant')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"

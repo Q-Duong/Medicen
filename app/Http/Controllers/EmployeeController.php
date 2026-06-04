@@ -44,7 +44,7 @@ class EmployeeController extends Controller
                 'car_ktvs.car_ktv_name_1', 
                 'car_ktvs.car_ktv_name_2', 
                 'car_ktvs.car_driver_name', 
-                'orders.order_quantity'
+                'orders.order_quantity_draft'
             )
             ->get();
 
@@ -65,7 +65,7 @@ class EmployeeController extends Controller
                 if (!isset($summary[$name])) {
                     $summary[$name] = 0;
                 }
-                $summary[$name] += $order->order_quantity;
+                $summary[$name] += $order->order_quantity_draft;
             }
         }
 

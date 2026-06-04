@@ -241,6 +241,13 @@
                                             <label for="form2" class="radio-title">16,5 x 21,5(IN4)</label>
                                         </section>
                                     </div>
+                                    <div class="col-lg-4 col-md-12">
+                                        <section>
+                                            <input type="radio" name="ord_form" value="IN6" id="form10"
+                                                class="accent" {{ $order->ord_form == 'IN6' ? 'checked' : '' }}>
+                                            <label for="form10" class="radio-title">IN6</label>
+                                        </section>
+                                    </div>
                                     <div class="col-lg-4 col-md-4 ">
                                         <section>
                                             <input type="radio" name="ord_form" value="IN12" id="form3"
