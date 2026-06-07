@@ -96,6 +96,8 @@ final class OrderBuilder extends Builder
                 'order_surcharge',
                 'car_ktv_name_1',
                 'car_ktv_name_2',
+                'driver_assistance',
+                'work_over_250',
                 'ord_start_day',
                 'ord_end_day',
                 'order_child',

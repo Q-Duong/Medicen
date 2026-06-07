@@ -20,48 +20,30 @@
                         <form role="form" action="{{ route('order.store') }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
-                            <div class="form-group @error('customer_name') has-error @enderror">
-                                <label for="exampleInputEmail1">Họ tên khách hàng</label>
-                                <input type="text" name="customer_name" class="input-control"
-                                    placeholder="Điền họ tên khách hàng" value="{{ old('customer_name') }}">
-                                @error('customer_name')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group @error('customer_phone') has-error @enderror">
-                                <label for="exampleInputEmail1">Số điện thoại</label>
-                                <input type="text" name="customer_phone" class="input-control"
-                                    placeholder="Điền số điện thoại" value="{{ old('customer_phone') }}">
-                                @error('customer_phone')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-                                @enderror
-                            </div>
-                            {{-- <div class="form-group {{ $errors->has('customer_address') ? 'has-error' : ''}}" id="table_field">
-                            <label for="exampleInputEmail1">Địa chỉ</label>
-                            <div class="row input_address">
-                                <div class="col-lg-12 centered">
-                                    <input type="text" name="customer_address[]" class="form-control" placeholder="Enter email" value="{{old('customer_address')}}">
-                                    <div class="bg_add" id="add"> 
-                                        <i class="fa fa-plus add_address"  aria-hidden="true"></i>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group @error('customer_name') has-error @enderror">
+                                        <label for="exampleInputEmail1">Họ tên khách hàng</label>
+                                        <input type="text" name="customer_name" class="input-control"
+                                            placeholder="Điền họ tên khách hàng" value="{{ old('customer_name') }}">
+                                        @error('customer_name')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                                {{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    {!! $errors->first('ord_start_day', '<div class="alert-error"><i class="fas fa-exclamation-circle"></i> :message</div>') !!}
                                 </div>
-                            </div>
-                        </div> --}}
-                            <div class="form-group @error('customer_address') has-error @enderror">
-                                <label for="exampleInputPassword1">Địa chỉ chụp</label>
-                                <input type="text" name="customer_address" class="input-control"
-                                    placeholder="Điền địa chỉ chụp" value="{{ old('customer_address') }}">
-                                @error('customer_address')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-                                @enderror
-                            </div>
 
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Thêm địa chỉ khác(Nếu có)</label>
-                                <textarea type="text" name="customer_note" class="textarea-control" placeholder="Điền địa chỉ khác"
-                                    value="{{ old('customer_note') }}" rows="4" cols="50"></textarea>
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group @error('customer_phone') has-error @enderror">
+                                        <label for="exampleInputEmail1">Số điện thoại</label>
+                                        <input type="text" name="customer_phone" class="input-control"
+                                            placeholder="Điền số điện thoại" value="{{ old('customer_phone') }}">
+                                        @error('customer_phone')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                                {{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -69,7 +51,8 @@
                                 <select name="unit_id" class="select-2 unit-id">
                                     @foreach ($getAllUnit as $key => $unit)
                                         <option value="{{ $unit->id }}"
-                                            {{ old('unit_id') == $unit->id ? 'selected' : '' }}>{{ $unit->unit_abbreviation }}
+                                            {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->unit_abbreviation }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -88,10 +71,44 @@
                                 @enderror
                             </div>
 
-                            <div class="form-group ">
-                                <label for="exampleInputPassword1">Ngày chụp</label>
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-6 centered">
+                            <div class="form-group @error('customer_address') has-error @enderror">
+                                <label for="exampleInputPassword1">Địa chỉ chụp</label>
+                                <input type="text" name="customer_address" class="input-control"
+                                    placeholder="Điền địa chỉ chụp" value="{{ old('customer_address') }}">
+                                @error('customer_address')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Số Km</label>
+                                        <input type="text" name="accountant_distance" class="input-control"
+                                            placeholder="Số Km" value="{{ old('accountant_distance') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Ở lại đêm</label>
+                                        <select name="overnight" class="input-control">
+                                            <option selected value="0" {{ old('overnight') == 0 ? 'selected' : '' }}>
+                                                Không
+                                            </option>
+                                            <option value="1" {{ old('overnight') == 1 ? 'selected' : '' }}>
+                                                Có
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group ">
+                                        <label for="exampleInputPassword1">Ngày chụp</label>
                                         <div class="checkout__input @error('ord_start_day') has-error @enderror">
                                             <input type="date" class="input-control" name="ord_start_day"
                                                 value="{{ old('ord_start_day') }}"
@@ -103,16 +120,52 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group @error('ord_time') has-error @enderror">
+                                        <label for="exampleInputPassword1">Giờ chụp</label>
+                                        <input type="text" name="ord_time" class="input-control"
+                                            placeholder="Điền giờ chụp" value="{{ old('ord_time') }}">
+                                        @error('ord_time')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="form-group @error('ord_time') has-error @enderror">
-                                <label for="exampleInputPassword1">Giờ khám</label>
-                                <input type="text" name="ord_time" class="input-control" placeholder="Điền giờ khám"
-                                    value="{{ old('ord_time') }}">
-                                @error('ord_time')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Ghi chú</label>
+                                <textarea type="text" name="ord_note" class="textarea-control" value="{{ old('ord_note') }}" rows="4"
+                                    cols="50" placeholder="Điền ghi chú"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Danh sách chụp</label>
+                            </div>
+                            <input type="file" name="ord_list_file[]" class="filepond" multiple>
+
+                            <div class="form-group @error('ord_deliver_results') has-error @enderror">
+                                <label for="exampleInputPassword1">Địa chỉ & sđt giao kết quả</label>
+                                <input type="text" name="ord_deliver_results" class="input-control"
+                                    placeholder="Điền địa chỉ & sđt giao kết quả"
+                                    value="{{ old('ord_deliver_results') }}">
+                                @error('ord_deliver_results')
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                        {{ $message }}
                                     </div>
                                 @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label>Địa chỉ email khách hàng</label>
+                                <input type="text" name="ord_email" class="input-control"
+                                    placeholder="Điền địa chỉ email khách hàng" value="{{ old('ord_email') }}">
+                                {!! $errors->first(
+                                    'ord_email',
+                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
+                                ) !!}
                             </div>
 
                             <div class="form-group">
@@ -125,16 +178,20 @@
                                         {{ old('ord_select') == 'Phổi (2 Tư thế)' ? 'selected' : '' }}>Phổi (2 Tư thế)
                                     </option>
                                     <option value="Cột sống thắt lưng (1 Tư thế)"
-                                        {{ old('ord_select') == 'Cột sống thắt lưng (1 Tư thế)' ? 'selected' : '' }}>Cột
+                                        {{ old('ord_select') == 'Cột sống thắt lưng (1 Tư thế)' ? 'selected' : '' }}>
+                                        Cột
                                         sống thắt lưng (1 Tư thế)</option>
                                     <option value="Cột sống thắt lưng (2 Tư thế)"
-                                        {{ old('ord_select') == 'Cột sống thắt lưng (2 Tư thế)' ? 'selected' : '' }}>Cột
+                                        {{ old('ord_select') == 'Cột sống thắt lưng (2 Tư thế)' ? 'selected' : '' }}>
+                                        Cột
                                         sống thắt lưng (2 Tư thế)</option>
                                     <option value="Cột sống cổ (1 Tư thế)"
-                                        {{ old('ord_select') == 'Cột sống cổ (1 Tư thế)' ? 'selected' : '' }}>Cột sống cổ
+                                        {{ old('ord_select') == 'Cột sống cổ (1 Tư thế)' ? 'selected' : '' }}>Cột sống
+                                        cổ
                                         (1 Tư thế)</option>
                                     <option value="Cột sống cổ (2 Tư thế)"
-                                        {{ old('ord_select') == 'Cột sống cổ (2 Tư thế)' ? 'selected' : '' }}>Cột sống cổ
+                                        {{ old('ord_select') == 'Cột sống cổ (2 Tư thế)' ? 'selected' : '' }}>Cột sống
+                                        cổ
                                         (2 Tư thế)</option>
                                     <option value="Vai (1 Tư thế)"
                                         {{ old('ord_select') == 'Vai (1 Tư thế)' ? 'selected' : '' }}>Vai (1 Tư thế)
@@ -154,13 +211,14 @@
                                     <option value="Siêu âm Tim"
                                         {{ old('ord_select') == 'Siêu âm Tim' ? 'selected' : '' }}>Siêu âm Tim</option>
                                     <option value="Siêu âm ĐMC, Mạch Máu Chi Dưới"
-                                        {{ old('ord_select') == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>Siêu
+                                        {{ old('ord_select') == 'Siêu âm ĐMC, Mạch Máu Chi Dưới' ? 'selected' : '' }}>
+                                        Siêu
                                         âm ĐMC, Mạch Máu Chi Dưới</option>
                                     <option value="Đo loãng xương"
                                         {{ old('ord_select') == 'Đo loãng xương' ? 'selected' : '' }}>Đo loãng xương
                                     </option>
-                                    <option value="Nhũ Ảnh"
-                                        {{ old('ord_select') == 'Nhũ Ảnh' ? 'selected' : '' }}>Nhũ Ảnh
+                                    <option value="Nhũ Ảnh" {{ old('ord_select') == 'Nhũ Ảnh' ? 'selected' : '' }}>Nhũ
+                                        Ảnh
                                     </option>
                                     <option value="Khác" {{ old('ord_select') == 'Khác' ? 'selected' : '' }}>Khác
                                     </option>
@@ -189,7 +247,7 @@
                                         <section>
                                             <input type="radio" name="ord_doctor_read" value="Không" id="doctor3"
                                                 class="accent"
-                                                {{ old('ord_ord_doctor_readfilm') == 'Không' ? 'checked' : '' }}>
+                                                {{ old('ord_doctor_read') == 'Không' ? 'checked' : '' }}>
                                             <label for="doctor3" class="radio-title">Không</label>
                                         </section>
                                     </div>
@@ -442,12 +500,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Ghi chú</label>
-                                <textarea type="text" name="ord_note" class="textarea-control" value="{{ old('ord_note') }}" rows="4"
-                                    cols="50" placeholder="Điền ghi chú"></textarea>
-                            </div>
-
                             <div class="radio-group">
                                 <label for="exampleInputPassword1">Cảnh báo đơn hàng</label>
                                 <div class="row">
@@ -481,65 +533,40 @@
                                 </div>
                             @endif
 
-                            <div class="form-group @error('ord_deliver_results') has-error @enderror">
-                                <label for="exampleInputPassword1">Địa chỉ & sđt giao kết quả</label>
-                                <input type="text" name="ord_deliver_results" class="input-control"
-                                    placeholder="Điền địa chỉ & sđt giao kết quả"
-                                    value="{{ old('ord_deliver_results') }}">
-                                @error('ord_deliver_results')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Đơn phụ thu</label>
+                                        <select name="order_surcharge" class="input-control">
+                                            <option selected value="0"
+                                                {{ old('order_surcharge') == 0 ? 'selected' : '' }}>
+                                                Không
+                                            </option>
+                                            <option value="1" {{ old('order_surcharge') == 1 ? 'selected' : '' }}>
+                                                Có
+                                            </option>
+                                        </select>
                                     </div>
-                                @enderror
-                            </div>
+                                </div>
 
-                            <div class="form-group">
-                                <label>Địa chỉ email khách hàng</label>
-                                <input type="text" name="ord_email" class="input-control"
-                                    placeholder="Điền địa chỉ email khách hàng" value="{{ old('ord_email') }}">
-                                {!! $errors->first(
-                                    'ord_email',
-                                    '<div class="alert-error"><i class="fa fa-exclamation-circle"></i> :message</div>',
-                                ) !!}
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Danh sách chụp</label>
-                            </div>
-                            <input type="file" name="ord_list_file[]" class="filepond" multiple>
-
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Số Km đi</label>
-                                <input type="text" name="accountant_distance" class="input-control" placeholder="Số Km đi"
-                                    value="{{ old('accountant_distance') }}">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">VAT</label>
-                                <input type="text" name="order_vat" class="input-control" placeholder="Điền VAT"
-                                    value="{{ old('order_vat') }}">
-                            </div>
-
-                            <div class="radio-group">
-                                <label for="exampleInputPassword1">Đơn phụ thu</label>
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_surcharge" value="0" id="surcharge0"
-                                                class="accent" checked {{ old('order_surcharge') == 0 ? 'checked' : '' }}>
-                                            <label for="surcharge0" class="radio-title">Không</label>
-                                        </section>
-                                    </div>
-                                    <div class="col-lg-6 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_surcharge" value="1" id="surcharge1"
-                                                class="accent" {{ old('order_surcharge') == 1 ? 'checked' : '' }}>
-                                            <label for="surcharge1" class="radio-title">Có</label>
-                                        </section>
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Trọn gói</label>
+                                        <select name="order_all_in_one" class="input-control order_all_in_one">
+                                            <option selected value="0"
+                                                {{ old('order_all_in_one') == 0 ? 'selected' : '' }}>
+                                                Không
+                                            </option>
+                                            <option value="1" {{ old('order_all_in_one') == 1 ? 'selected' : '' }}>
+                                                Có
+                                            </option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="radio-group">
+                            {{-- <div class="radio-group">
                                 <label for="exampleInputPassword1">Trọn gói</label>
                                 <div class="row">
                                     <div class="col-lg-6 col-md-12 centered">
@@ -559,32 +586,47 @@
                                         </section>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="form-group @error('order_quantity') has-error @enderror">
                                 <label for="exampleInputPassword1">Số lượng</label>
                                 <input type="text" name="order_quantity" class="input-control order_quantity"
                                     placeholder="Điền số lượng" value="{{ old('order_quantity') }}">
                                 @error('order_quantity')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                        {{ $message }}
                                     </div>
                                 @enderror
                             </div>
 
-                            <div class="form-group block-order-cost">
+                            <div class="form-group block-order-cost {{ old('order_all_in_one') == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ old('order_cost') }}" placeholder="Điền đơn giá">
                             </div>
 
-                            <div class="form-group @error('order_percent_discount') has-error @enderror">
-                                <label for="exampleInputPassword1">Phần trăm chiết khấu</label>
-                                <input type="text" name="order_percent_discount" class="input-control"
-                                    value="{{ old('order_percent_discount') }}" placeholder="Điền phần trăm chiết khấu">
-                                @error('order_percent_discount')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">VAT</label>
+                                        <input type="text" name="order_vat" class="input-control"
+                                            placeholder="Điền VAT" value="{{ old('order_vat') }}">
                                     </div>
-                                @enderror
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group @error('order_percent_discount') has-error @enderror">
+                                        <label for="exampleInputPassword1">Phần trăm chiết khấu</label>
+                                        <input type="text" name="order_percent_discount" class="input-control"
+                                            value="{{ old('order_percent_discount') }}"
+                                            placeholder="Điền phần trăm chiết khấu">
+                                        @error('order_percent_discount')
+                                            <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group @error('order_price') has-error @enderror">
@@ -592,7 +634,8 @@
                                 <input type="text" name="order_price" class="input-control order_price"
                                     placeholder="Điền tổng tiền" value="{{ old('order_price') }}">
                                 @error('order_price')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
+                                        {{ $message }}
                                     </div>
                                 @enderror
                             </div>

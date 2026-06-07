@@ -239,23 +239,25 @@ class ScheduleResultsController extends Controller
 		$accountant->accountant_note = $data['accountant_note'];
 		$accountant->save();
 
-		if ($orderUpdatedBeforeUpdate == 0) {
-			$performance = app(StatisticsController::class)->performanceFunction(3, $orderDetail->ord_deadline, $request->ord_delivery_date);
-			$performanceAnalysis = new PerformanceAnalysis();
-			$performanceAnalysis->order_id = $request->id;
-			$performanceAnalysis->user_id = Auth::user()->id;
-			$performanceAnalysis->part = 3;
-			$performanceAnalysis->performance = $performance['score'];
-			$performanceAnalysis->description = $performance['description'];
-			$performanceAnalysis->first_edit_time = $order->updated_at;
-			$performanceAnalysis->status = $performance['status'];
-			$performanceAnalysis->save();
-		}
+		if (Auth::user()->role != 0) {
+			if ($orderUpdatedBeforeUpdate == 0) {
+				$performance = app(StatisticsController::class)->performanceFunction(3, $orderDetail->ord_deadline, $request->ord_delivery_date);
+				$performanceAnalysis = new PerformanceAnalysis();
+				$performanceAnalysis->order_id = $request->id;
+				$performanceAnalysis->user_id = Auth::user()->id;
+				$performanceAnalysis->part = 3;
+				$performanceAnalysis->performance = $performance['score'];
+				$performanceAnalysis->description = $performance['description'];
+				$performanceAnalysis->first_edit_time = $order->updated_at;
+				$performanceAnalysis->status = $performance['status'];
+				$performanceAnalysis->save();
+			}
 
-		$history = new HistoryEdit();
-		$history->order_id = $request->id;
-		$history->user_name = Auth::user()->email;
-		$history->history_action = 'Chỉnh sửa lịch chi tiết';
-		$history->save();
+			$history = new HistoryEdit();
+			$history->order_id = $request->id;
+			$history->user_name = Auth::user()->email;
+			$history->history_action = 'Chỉnh sửa lịch chi tiết';
+			$history->save();
+		}
 	}
 }

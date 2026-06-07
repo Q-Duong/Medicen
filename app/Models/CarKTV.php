@@ -22,7 +22,9 @@ class CarKTV extends Model
         'car_ktv_name_1',
         'car_ktv_phone_1',
         'car_ktv_name_2',
-        'car_ktv_phone_2'
+        'car_ktv_phone_2',
+        'driver_assistance',
+        'work_over_250'
     ];
     
     public function order()

@@ -55,7 +55,9 @@ function renewDataTechnicianSelect(data) {
     const $select = $(".select-technicians");
 
     $select.empty();
-    $select.append('<option value="all" class="define-technicians" selected>Tất cả</option>');
+    $select.append(
+        '<option value="all" class="define-technicians" selected>Tất cả</option>',
+    );
 
     $.each(data, function (index, name) {
         $select.append(
@@ -267,7 +269,7 @@ function schedule(day) {
                             : rawJson;
             } catch (e) {}
             var data = Array.isArray(parsedData) ? parsedData[0] : parsedData;
-
+            
             // 2. HEADER
             var fullKtv1 = data.car_ktv_name_1;
             var fullKtv2 = data.car_ktv_name_2;
@@ -353,24 +355,39 @@ function schedule(day) {
                 mb.find(".event-list-file").html("Không có danh sách");
             }
 
+            //Driver Assistance Select
+            var driverAssistanceMap = {
+                0: ".driver-assistance-0",
+                1: ".driver-assistance-1",
+            };
+            var dASelector = driverAssistanceMap[data.driver_assistance];
+
+            // Reset select về mặc định trước khi chọn
+            mb.find(".driver-assistance option").prop("selected", false);
+            mb.find(dASelector).prop("selected", true);
+
+            //Work_over_250 Select
+            var workOver250Map = {
+                0: ".work-over-250-0",
+                1: ".work-over-250-1",
+            };
+            var WOSelector = workOver250Map[data.work_over_250];
+
+            // Reset select về mặc định trước khi chọn
+            mb.find(".work-over-250 option").prop("selected", false);
+            mb.find(WOSelector).prop("selected", true);
+
             // Locking Logic
             var quantity_draft = parseInt(data.order_quantity_draft || 0);
             var technologist_note = data.order_note_ktv || "";
             var hasData = quantity_draft !== 0 || technologist_note !== "";
-            var htmlContent = hasData
-                ? ""
-                : `<button type="button" class="form-button button-submit rs-lookup-submit submit-quantity-technologist">Cập nhật</button>`;
+            var htmlContent = `<button type="button" class="form-button button-submit rs-lookup-submit submit-quantity-technologist">Cập nhật</button>`;
 
             mb.find(".order-quantity-ktv")
                 .val(hasData ? quantity_draft : "")
                 .toggleClass("form-textbox-entered", hasData);
 
             mb.find(".order-note-ktv").val(technologist_note);
-            mb.find(".order-quantity-ktv, .order-note-ktv").prop(
-                "disabled",
-                hasData,
-            );
-
             mb.find(".rs-overlay-change").html(htmlContent);
 
             // 4. ANIMATION
@@ -821,6 +838,9 @@ $(document).on("click", ".submit-quantity-technologist", function () {
     var id = $(".event-info").find(".event-order-id").text();
     var order_quantity_draft = $(".order-quantity-ktv").val();
     var order_note_ktv = $(".order-note-ktv").val();
+    var driver_assistance = $(".driver-assistance").val();
+    var work_over_250 = $(".work-over-250").val();
+    console.log(driver_assistance);
     $(".loader-over").fadeIn();
     $.ajax({
         url: url_update_technologist,
@@ -830,6 +850,8 @@ $(document).on("click", ".submit-quantity-technologist", function () {
             id: id,
             order_quantity_draft: order_quantity_draft,
             order_note_ktv: order_note_ktv,
+            driver_assistance: driver_assistance,
+            work_over_250: work_over_250
         },
         success: function () {
             $(".event-modal").fadeOut();

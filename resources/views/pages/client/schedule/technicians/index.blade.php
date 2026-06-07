@@ -122,7 +122,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -153,7 +153,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -216,7 +216,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -247,7 +247,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -310,7 +310,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -341,7 +341,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -404,7 +404,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -435,7 +435,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -498,7 +498,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -529,7 +529,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -592,7 +592,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -623,7 +623,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -686,7 +686,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -717,7 +717,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -780,7 +780,7 @@
                                                                 <i class="fa fa-exclamation-triangle"></i>
                                                             </div>
                                                         @endif
-                                                        @if ($firstOrder->order_updated == 1)
+                                                        @if ($firstOrder->order_quantity_draft != 0)
                                                             <div class="order-status">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
@@ -811,7 +811,7 @@
                                                         <i class="fa fa-exclamation-triangle"></i>
                                                     </div>
                                                 @endif
-                                                @if ($firstOrder->order_updated == 1)
+                                                @if ($firstOrder->order_quantity_draft != 0)
                                                     <div class="order-status">
                                                         <i class="fas fa-check-circle"></i>
                                                     </div>
@@ -941,6 +941,24 @@
                                 <input type="text" class="form-textbox-input order-quantity-ktv"
                                     name="order_quantity_draft" autocapitalize="off" autocomplete="off">
                                 <span class="form-textbox-label">Số Cas KTV chụp</span>
+                            </div>
+                            <div class="form-dropdown">
+                                <select class="form-dropdown-select driver-assistance" name="driver_assistance">
+                                    <option class="driver-assistance-0" value="0">Không</option>
+                                    <option class="driver-assistance-1" value="1">Có</option>
+                                </select>
+                                <span class="form-dropdown-chevron" aria-hidden="true"><i
+                                        class="fa-solid fa-angle-down"></i></span>
+                                <span class="form-dropdown-label" aria-hidden="true">Tài xế phụ</span>
+                            </div>
+                            <div class="form-dropdown">
+                                <select class="form-dropdown-select work-over-250" name="work_over_250">
+                                    <option class="work-over-250-0" value="0">Không</option>
+                                    <option class="work-over-250-1" value="1">Có</option>
+                                </select>
+                                <span class="form-dropdown-chevron" aria-hidden="true"><i
+                                        class="fa-solid fa-angle-down"></i></span>
+                                <span class="form-dropdown-label" aria-hidden="true">Công tác trên 250km</span>
                             </div>
                             <legend class="rs-form-label">
                                 <h3 class="rs-form-label-header typography-body">Ghi chú KTV

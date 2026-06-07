@@ -36,7 +36,8 @@ class Order extends Model
         'order_child',
         'order_surcharge',
         'order_updated',
-        'order_send_result'
+        'order_send_result',
+        'overnight',
     ];
 
     public function getEditUrlAttribute()
