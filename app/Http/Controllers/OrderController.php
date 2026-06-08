@@ -225,15 +225,18 @@ class OrderController extends Controller
 
 	public function store(OrderRequestForm $request)
 	{
+		
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			
 			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
+			
 			$customer = new Customer();
+			
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
 			$customer->customer_address = $data['customer_address'];
-			$customer->customer_note = $data['customer_note'];
 			$customer->save();
 
 			$orderDetail = new OrderDetail();
@@ -294,6 +297,7 @@ class OrderController extends Controller
 			$order->accountant_updated = 0;
 			$order->order_warning = $data['order_warning'];
 			$order->order_surcharge = $data['order_surcharge'];
+			$order->overnight = $data['overnight'];
 			$order->save();
 
 			$monthFormat = explode("-", $data['ord_start_day']);
@@ -323,7 +327,7 @@ class OrderController extends Controller
 			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công');
 		} catch (\Exception $e) {
 			DB::rollback();
-			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
+			return Redirect()->back()->with('errorMessage', 'Thêm đơn hàng thất bại');
 		}
 	}
 
@@ -350,6 +354,7 @@ class OrderController extends Controller
 		$order->order_vat = $data['order_vat'];
 		$order->order_warning = $data['order_warning'];
 		$order->order_surcharge = $data['order_surcharge'];
+		$order->overnight = $data['overnight'];
 		$order->save();
 
 		$monthFormat = explode("-", $data['ord_start_day']);
@@ -375,7 +380,6 @@ class OrderController extends Controller
 		$customer->customer_name = $data['customer_name'];
 		$customer->customer_phone = $data['customer_phone'];
 		$customer->customer_address = $data['customer_address'];
-		$customer->customer_note = $data['customer_note'];
 		$customer->save();
 
 		$orderDetail = OrderDetail::findOrFail($order_detail_id);
@@ -442,7 +446,6 @@ class OrderController extends Controller
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
 			$customer->customer_address = $data['customer_address'];
-			$customer->customer_note = $data['customer_note'];
 			$customer->save();
 
 			$orderDetail = new OrderDetail();
@@ -503,7 +506,7 @@ class OrderController extends Controller
 			$order->accountant_updated = 0;
 			$order->order_warning = $data['order_warning'];
 			$order->order_surcharge = $data['order_surcharge'];
-
+			$order->overnight = $data['overnight'];
 			$order->save();
 
 			$monthFormat = explode("-", $data['ord_start_day']);

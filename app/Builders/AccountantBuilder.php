@@ -62,6 +62,7 @@ final class AccountantBuilder extends Builder
         $accountant = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->leftJoin('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
             ->where('accountants.order_id', $order_id)
             ->select(
                 'accountants.order_id',
@@ -71,6 +72,8 @@ final class AccountantBuilder extends Builder
                 'order_cost',
                 'order_percent_discount',
                 'order_price',
+                'overnight',
+                'driver_assistance',
                 'unit_code',
                 'unit_name',
                 'ord_cty_name',

@@ -18,91 +18,154 @@
                         <form role="form" action="{{ route('accountant.order.store', $accountant->order_id) }}"
                             method="post">
                             @csrf
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Mã đơn hàng</label>
-                                <input type="text" class="input-control" value="{{ $accountant->order_id }}" disabled>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Mã đơn hàng</label>
+                                        <input type="text" class="input-control" value="{{ $accountant->order_id }}" disabled>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Mã đơn vị</label>
+                                        <input type="text" class="input-control" value="{{ $accountant->unit_code }}" disabled>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Mã đơn vị</label>
-                                <input type="text" class="input-control" value="{{ $accountant->unit_code }}" disabled>
-                            </div>
+
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Đơn vị hợp tác</label>
                                 <input type="text" class="input-control" value="{{ $accountant->unit_name }}" disabled>
                             </div>
+
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Tên Cty</label>
                                 <input type="text" name="ord_cty_name" class="input-control"
                                     value="{{ $accountant->ord_cty_name }}">
                             </div>
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Ngày chụp</label>
-                                <input type="text" class="input-control"
-                                    value="{{ date('d/m/Y', strtotime($accountant->ord_start_day)) }}" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Bộ phận chụp</label>
-                                <input type="text" class="input-control" value="{{ $accountant->ord_select }}" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Số Km đi</label>
-                                <input type="text" class="input-control" name="accountant_distance"
-                                    value="{{ $accountant->accountant_distance }}" disabled>
-                            </div>
-                            <div class="radio-group">
-                                <label for="exampleInputPassword1">Trọn gói</label>
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_all_in_one" value="0" id="all0"
-                                                class="accent order_all_in_one"
-                                                {{ $accountant->order_all_in_one == 0 ? 'checked' : '' }}>
-                                            <label for="all0" class="radio-title">Không</label>
-                                        </section>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Ngày chụp</label>
+                                        <input type="text" class="input-control"
+                                            value="{{ date('d/m/Y', strtotime($accountant->ord_start_day)) }}" disabled>
                                     </div>
-                                    <div class="col-lg-6 col-md-12 centered">
-                                        <section>
-                                            <input type="radio" name="order_all_in_one" value="1" id="all1"
-                                                class="accent order_all_in_one"
-                                                {{ $accountant->order_all_in_one == 1 ? 'checked' : '' }}>
-                                            <label for="all1" class="radio-title">Có</label>
-                                        </section>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Bộ phận chụp</label>
+                                        <input type="text" class="input-control" value="{{ $accountant->ord_select }}" disabled>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Số lượng</label>
-                                @if (in_array($accountant->ord_select, $ultraSound))
-                                    <input type="text" name="order_quantity" class="input-control order_quantity"
-                                        value="{{ $accountant->order_quantity }}">
-                                @else
-                                    <input type="text" class="input-control order_quantity"
-                                        value="{{ $accountant->order_quantity }}" disabled>
-                                @endif
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Số Km đi</label>
+                                        <input type="text" name="accountant_distance" class="input-control"
+                                            placeholder="Số Km đi" value="{{ $accountant->accountant_distance }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Ở lại đêm</label>
+                                        <select name="overnight" class="input-control">
+                                            <option value="0" {{ $accountant->overnight == 0 ? 'selected' : '' }}>
+                                                Không
+                                            </option>
+                                            <option value="1" {{ $accountant->overnight == 1 ? 'selected' : '' }}>
+                                                Có
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="form-group">
-                                <label for="exampleInputPassword1">VAT</label>
-                                <input type="text" name="order_vat" class="input-control"
-                                    value="{{ $accountant->order_vat }}" placeholder="Điền VAT">
+                                <label for="exampleInputEmail1">Ghi chú</label>
+                                <textarea type="text" name="accountant_note" class="textarea-control" placeholder="Điền ghi chú" rows="4"
+                                    cols="50" disabled>{{ $accountant->accountant_note }}</textarea>
                             </div>
+
+                            <div class="form-group">
+                                <label>Tài xế phụ</label>
+                                <select name="driver_assistance" class="input-control">
+                                    <option value="0" {{ $accountant->driver_assistance == 0 ? 'selected' : '' }}>
+                                        Không
+                                    </option>
+                                    <option value="1" {{ $accountant->driver_assistance == 1 ? 'selected' : '' }}>
+                                        Có
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Trọn gói</label>
+                                        <select name="order_all_in_one" class="input-control order_all_in_one">
+                                            <option value="0" {{ $accountant->order_all_in_one == 0 ? 'selected' : '' }}>
+                                                Không
+                                            </option>
+                                            <option value="1" {{ $accountant->order_all_in_one == 1 ? 'selected' : '' }}>
+                                                Có
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Số lượng</label>
+                                        @if (in_array($accountant->ord_select, $ultraSound))
+                                            <input type="text" name="order_quantity" class="input-control order_quantity"
+                                                value="{{ $accountant->order_quantity }}">
+                                        @else
+                                            <input type="text" class="input-control order_quantity"
+                                                value="{{ $accountant->order_quantity }}" disabled>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+ 
                             <div class="form-group block-order-cost {{ $accountant->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
                                     value="{{ number_format($accountant->order_cost, 0, ',', '.') }}"
                                     placeholder="Điền đơn giá" >
                             </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">% Chiết khấu</label>
-                                <input type="text" name="order_percent_discount" class="input-control"
-                                    placeholder="Điền % Chiết khấu" value="{{ $accountant->order_percent_discount }}">
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">VAT</label>
+                                        <input type="text" name="order_vat" class="input-control"
+                                            value="{{ $accountant->order_vat }}" placeholder="Điền VAT">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">% Chiết khấu</label>
+                                        <input type="text" name="order_percent_discount" class="input-control"
+                                            placeholder="Điền % Chiết khấu" value="{{ $accountant->order_percent_discount }}">
+                                    </div>
+                                </div>
                             </div>
+                            
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Tổng tiền</label>
                                 <input type="text" name="order_price" class="input-control order_price"
                                     placeholder="Điền tổng tiền"
                                     value="{{ number_format($accountant->order_price, 0, ',', '.') }}">
                             </div>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label for="exampleInputEmail1">Bác sĩ đọc kết quả</label>
                                 <input type="text" class="input-control" placeholder="Điền bác sĩ đọc kết quả"
                                     value="{{ $accountant->accountant_doctor_read }}" disabled>
@@ -136,12 +199,8 @@
                                 <label for="exampleInputEmail1">Bao phim</label>
                                 <input type="text" class="input-control ac_order_film_bag" placeholder="Điền bao phim"
                                     value="{{ $accountant->accountant_film_bag }}" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label for="exampleInputEmail1">Ghi chú</label>
-                                <textarea type="text" name="accountant_note" class="textarea-control" placeholder="Điền ghi chú" rows="4"
-                                    cols="50" disabled>{{ $accountant->accountant_note }}</textarea>
-                            </div>
+                            </div> --}}
+                            
 
                             @if (Auth::user()->role == 0)
                                 <button type="submit" class="primary-btn-submit">

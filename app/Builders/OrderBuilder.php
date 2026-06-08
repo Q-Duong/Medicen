@@ -75,6 +75,7 @@ final class OrderBuilder extends Builder
                 'order_cost',
                 'order_percent_discount',
                 'order_price',
+                'overnight',
                 'status_id'
             )
             ->first();

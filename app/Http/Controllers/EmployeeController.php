@@ -90,7 +90,7 @@ class EmployeeController extends Controller
 
     public function export(Request $request)
     {
-        // 1. Tối ưu xử lý ngày tháng với Carbon (Xóa bỏ if/else và fix lỗi tháng 9)
+        // 1. Tối ưu xử lý ngày tháng với Carbon
         $date = Carbon::parse($request->month . ' ' . $request->year);
         $startDate = $date->copy()->startOfMonth()->toDateString();
         $endDate = $date->copy()->endOfMonth()->toDateString();
@@ -128,7 +128,7 @@ class EmployeeController extends Controller
             if (!isset($summary[$name])) {
                 $summary[$name] = [
                     'nhan_vien'         => $name,
-                    'is_driver'         => false, // Mặc định là false
+                    'is_driver'         => false, 
                     'tong_so_ca'        => 0,
                     'so_ca_ktv'         => 0,
                     'so_ca_tx_phu_ktv'  => 0,
@@ -136,7 +136,6 @@ class EmployeeController extends Controller
                     'cong_tac_tren_250' => 0,
                 ];
             }
-            // Nếu bất kỳ lần nào người này xuất hiện với vai trò tài xế, gán cờ true
             if ($isDriver) {
                 $summary[$name]['is_driver'] = true;
             }
@@ -160,27 +159,31 @@ class EmployeeController extends Controller
                 }
 
                 if ($multiplier > 0) {
-                    // Áp dụng tính toán hệ số tư thế
                     $soCaTinhToan = $order->order_quantity * $multiplier;
                 }
             }
 
-            // A. Xử lý cho Tài xế (Được gán cờ is_driver = true)
+            // A. Xử lý cho Tài xế
             if (!empty($driver)) {
                 $initEmployee($driver, true);
 
-                // Tổng số ca (đã nhân hệ số) gán cho Tài xế
                 $summary[$driver]['tong_so_ca'] += $soCaTinhToan;
 
-                // Số ca phụ KTV
+                // --- RULE MỚI TẠI ĐÂY ---
                 if ($order->driver_assistance == 1) {
-                    $summary[$driver]['so_ca_tx_phu_ktv'] += $quantityDraft;
+                    // Nếu order_quantity_draft trống hoặc bằng 0, lấy order_quantity
+                    $soCaTxPhu = !empty($order->order_quantity_draft) 
+                                 ? $quantityDraft 
+                                 : (float) $order->order_quantity;
+                                 
+                    $summary[$driver]['so_ca_tx_phu_ktv'] += $soCaTxPhu;
                 }
+                
                 $summary[$driver]['o_lai_dem']         += (float) $order->overnight;
                 $summary[$driver]['cong_tac_tren_250'] += (float) $order->work_over_250;
             }
 
-            // B. Xử lý cho Kỹ thuật viên 1 (Không phải tài xế -> is_driver = false)
+            // B. Xử lý cho Kỹ thuật viên 1
             if (!empty($ktv1)) {
                 $initEmployee($ktv1, false);
                 $summary[$ktv1]['so_ca_ktv']         += $quantityDraft;
@@ -199,11 +202,9 @@ class EmployeeController extends Controller
 
         // 4. Sắp xếp: Tài xế nằm đầu, sau đó xếp theo tên
         $finalData = collect($summary)->sort(function ($a, $b) {
-            // Nếu một người là TX, một người là KTV -> Đưa TX lên trước (-1)
             if ($a['is_driver'] !== $b['is_driver']) {
                 return $a['is_driver'] ? -1 : 1;
             }
-            // Nếu cùng là TX hoặc cùng là KTV -> Xếp theo tên
             return strnatcmp($a['nhan_vien'], $b['nhan_vien']);
         })->values();
 

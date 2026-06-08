@@ -520,6 +520,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             @if (Auth::user()->role == 0)
                                 <div class="form-group @error('ord_deadline') has-error @enderror">
                                     <label for="exampleInputPassword1">Thời hạn giao kết quả</label>
@@ -532,7 +533,6 @@
                                     @enderror
                                 </div>
                             @endif
-
 
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">

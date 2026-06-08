@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\Statistic;
 use App\Models\Accountant;
+use App\Models\CarKTV;
 use App\Models\HistoryEdit;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
@@ -556,6 +557,10 @@ class AccountantController extends Controller
 	{
 		$order = Order::findOrFail($order_id);
 		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
+		$carKTV = CarKTV::firstWhere('order_id', $order_id);
+		$carKTV->driver_assistance =  $request->driver_assistance;
+		$carKTV->save();
+
 		if ($order->order_status == 4) {
 			// if (Carbon::parse($orderDetail->ord_start_day)->month == 4) {
 			// 	$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
@@ -568,6 +573,7 @@ class AccountantController extends Controller
 			$order->order_vat =  $request->order_vat;
 			$order->order_price = formatPrice($request->order_price);
 			$order->order_quantity =  empty($request->order_quantity) ? $order->order_quantity : $request->order_quantity;
+			$order->overnight =  $request->overnight;
 			$order->save();
 			// if (Carbon::parse($orderDetail->ord_start_day)->month == 4) {
 			// 	$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
@@ -577,7 +583,7 @@ class AccountantController extends Controller
 			// $orderDetail->save();
 			$accountant = Accountant::where('order_id', $order_id)->first();
 			$accountant->accountant_owe = $order->order_price;
-			// $accountant->accountant_distance = $request->accountant_distance;
+			$accountant->accountant_distance = $request->accountant_distance;
 			$accountant->save();
 		}
 
