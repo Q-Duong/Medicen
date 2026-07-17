@@ -322,6 +322,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::prefix('accountant-sales')->group(function () {
             Route::get('/', [AccountantController::class, 'indexSales'])->name('accountant_sales.index');
             Route::post('get-accountant', [AccountantController::class, 'getAccountantSales'])->name('accountant_sales.get');
+            Route::patch('update', [AccountantController::class, 'updateRowSales'])->name('accountant_sales.update');
             Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant_sales.filter_options');
         });
     });

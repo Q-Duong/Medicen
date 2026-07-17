@@ -563,16 +563,11 @@ class AccountantController extends Controller
 
 		if ($order->order_status == 4) {
 			// if (Carbon::parse($orderDetail->ord_start_day)->month == 4) {
-			// 	$orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
-			// 	$orderDetail->save();
+				// $orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
+				// $orderDetail->save();
 			// }
 		} else {
-			$order->order_cost = $request->order_all_in_one == 0 ? formatPrice($request->order_cost) : 0;
 			$order->order_all_in_one = $request->order_all_in_one;
-			$order->order_percent_discount =  $request->order_percent_discount;
-			$order->order_vat =  $request->order_vat;
-			$order->order_price = formatPrice($request->order_price);
-			$order->order_quantity =  empty($request->order_quantity) ? $order->order_quantity : $request->order_quantity;
 			$order->overnight =  $request->overnight;
 			$order->save();
 			// if (Carbon::parse($orderDetail->ord_start_day)->month == 4) {
@@ -582,7 +577,6 @@ class AccountantController extends Controller
 			// $orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
 			// $orderDetail->save();
 			$accountant = Accountant::where('order_id', $order_id)->first();
-			$accountant->accountant_owe = $order->order_price;
 			$accountant->accountant_distance = $request->accountant_distance;
 			$accountant->save();
 		}
@@ -659,6 +653,7 @@ class AccountantController extends Controller
 				'accountant_note',
 				'accountant_status',
 				'ord_type',
+				'ord_select',
 				'ord_start_day',
 				'ord_form',
 				'ord_note',
@@ -698,6 +693,151 @@ class AccountantController extends Controller
 			];
 		}
 		return response()->json($response);
+	}
+
+	public function updateRowSales(Request $request)
+	{
+		$id = $request->id;
+		$formData = $request->row_data;
+
+		$accountant = Accountant::findOrFail($id);
+		if (!$accountant) {
+			return response()->json(['success' => false, 'message' => 'Không tìm thấy dữ liệu!']);
+		}
+
+		$order = $accountant->order;
+		if ($order && $order->status_id == 3) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Đơn hàng này đã chốt, không thể chỉnh sửa!'
+			]);
+		}
+
+		$moneyFields = [
+			'order_price',
+			'order_cost',
+			'order_quantity',
+			'order_discount',
+			'accountant_amount_paid',
+			'accountant_owe',
+			'order_profit',
+		];
+
+		$dateFields = [
+			'accountant_date',
+			'accountant_day_payment',
+			'accountant_discount_day',
+			'accountant_doctor_date_payment'
+		];
+
+		// 3. Chuẩn bị các thùng chứa dữ liệu riêng biệt
+		$dataForAccountant = [];
+		$dataForOrder      = [];
+
+		$fillableAccountant = $accountant->getFillable();
+		$fillableOrder      = $order ? $order->getFillable() : [];
+
+		// 4. Xử lý dữ liệu
+		if ($formData && is_array($formData)) {
+			foreach ($formData as $item) {
+				$column = $item['name'];
+				$value  = $item['value'];
+
+				if ($column == '_token') continue;
+
+				// --- CLEAN DATA (Giữ nguyên logic cũ) ---
+				if (in_array($column, $moneyFields)) {
+					$value = preg_replace('/[^0-9]/', '', $value);
+					if ($value === '') $value = 0;
+				}
+
+				if (in_array($column, $dateFields)) {
+					if ($value && preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $value)) {
+						try {
+							$value = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+						} catch (\Exception $e) {
+							$value = null;
+						}
+					}
+				}
+
+				// --- PHÂN LOẠI DỮ LIỆU (THE "SORTING HAT") ---
+				if (in_array($column, $fillableAccountant)) {
+					$dataForAccountant[$column] = $value;
+				}
+				if ($order && in_array($column, $fillableOrder)) {
+					$dataForOrder[$column] = $value;
+				}
+			}
+		}
+
+		DB::beginTransaction();
+		try {
+			if (!empty($dataForAccountant)) {
+				$accountant->update($dataForAccountant);
+			}
+
+			if ($order) {
+				if (!empty($dataForOrder)) {
+					$order->update($dataForOrder);
+				}
+				if ($order->status_id != 3) {
+					$order->save();
+				}
+			}
+
+			$response = [
+				'success'       => true,
+			];
+
+			$filters = [];
+			if ($request->has('filter_data') && is_array($request->filter_data)) {
+				foreach ($request->filter_data as $item) {
+					$filters[$item['name']] = $item['value'];
+				}
+			}
+
+			$baseQuery = Accountant::getAccountantByFilter($filters);
+
+			$totals = $baseQuery->selectRaw('
+				COUNT(*) as total_rows,
+				SUM(orders.order_price) as total_price,
+				SUM(accountants.accountant_owe) as total_owe,
+				SUM(accountants.accountant_amount_paid) as total_amount_paid,
+				SUM(orders.order_quantity) as total_quantity,
+				SUM(orders.order_discount) as total_discount,
+				SUM(accountants.accountant_35X43) as total_35,
+				SUM(accountants.accountant_polime) as total_polime,
+				SUM(accountants.accountant_8X10) as total_8,
+				SUM(accountants.accountant_10X12) as total_10,
+				SUM(accountants.accountant_film_bag) as total_pack
+				')->first();
+
+			if ($totals) {
+				$response['totals'] = [
+					'totalPrice'      => $totals->total_price ?? 0,
+					'totalOwe'        => $totals->total_owe ?? 0,
+					'totalAmountPaid' => $totals->total_amount_paid ?? 0,
+					'totalQuantity'   => $totals->total_quantity ?? 0,
+					'totalDiscount'   => $totals->total_discount ?? 0,
+					'total35'         => $totals->total_35 ?? 0,
+					'totalPolime'     => $totals->total_polime ?? 0,
+					'total8'          => $totals->total_8 ?? 0,
+					'total10'         => $totals->total_10 ?? 0,
+					'totalPack'       => $totals->total_pack ?? 0,
+				];
+			}
+
+			DB::commit();
+
+			return response()->json($response);
+		} catch (\Exception $e) {
+			DB::rollBack();
+			return response()->json([
+				'success' => false,
+				'message' => 'Lỗi lưu dữ liệu: ' . $e->getMessage()
+			]);
+		}
 	}
 
 	//Result

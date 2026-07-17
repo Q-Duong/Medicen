@@ -252,6 +252,7 @@
     <script type="">
     var url_get_accountant = "{{ route('accountant_sales.get') }}";
     var url_filter_options = "{{ route('accountant_sales.filter_options') }}";
+    var url_update_accountant = "{{ route('accountant_sales.update') }}";
 </script>
     <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
     <script src="{{ versionResource('assets/js/tool/accountant.js') }}"></script>

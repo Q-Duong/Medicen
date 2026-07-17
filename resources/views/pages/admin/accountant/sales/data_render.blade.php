@@ -9,9 +9,13 @@
             }
         }
         $isLocked = $accountant->status_id == 3;
+        $hasAccountantData = !empty($accountant->accountant_number) || !empty($accountant->accountant_date);
+        $shouldDisable = $hasAccountantData || $isLocked;
+
+        $ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
     @endphp
-    <tr class="{{ $class }} {{ $accountant->status_id == 3 ? 'row-locked' : '' }}"
-        data-id="{{ $accountant->id }}">
+
+    <tr class="{{ $class }} {{ $accountant->status_id == 3 ? 'row-locked' : '' }}" data-id="{{ $accountant->id }}">
         <td class="sticky-col first-col">{{ (isset($sttStart) ? $sttStart : 0) + $loop->iteration }}</td>
         <td class="sticky-col second-col order_id">{{ $accountant->order_id }}</td>
 
@@ -51,25 +55,31 @@
         <td>
             <input type="text" name="order_vat"
                 class="textbox-accountant width-accountant-price order_vat input-accountant"
-                value="{{ $accountant->order_vat }}" disabled>
+                value="{{ $accountant->order_vat }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_quantity"
-                class="textbox-accountant  width-accountant-quantity order_quantity calc-quantity calc-inputs"
-                value="{{ formatCurrency($accountant->order_quantity) }}" disabled>
+            @if (in_array($accountant->ord_select, $ultraSound))
+                <input type="text" name="order_quantity"
+                    class="textbox-accountant  width-accountant-quantity order_quantity calc-quantity calc-inputs"
+                    value="{{ formatCurrency($accountant->order_quantity) }}" {{ $shouldDisable ? 'disabled' : '' }}>
+            @else
+                <input type="text" name="order_quantity"
+                    class="textbox-accountant  width-accountant-quantity order_quantity calc-quantity calc-inputs"
+                    value="{{ formatCurrency($accountant->order_quantity) }}" disabled>
+            @endif
         </td>
 
         <td>
             <input type="text" name="order_cost"
                 class="textbox-accountant  width-accountant-price order_cost calc-cost calc-inputs"
-                value="{{ formatCurrency($accountant->order_cost) }}" disabled>
+                value="{{ formatCurrency($accountant->order_cost) }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
             <input type="text" name="order_price"
                 class="textbox-accountant width-accountant-price order_price calc-price calc-inputs"
-                value="{{ formatCurrency($accountant->order_price) }}" disabled>
+                value="{{ formatCurrency($accountant->order_price) }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
@@ -110,19 +120,19 @@
         <td>
             <input type="text" name="accountant_owe"
                 class="textbox-accountant  width-accountant-price accountant_owe calc-inputs"
-                value="{{ formatCurrency($accountant->accountant_owe) }}" disabled>
+                value="{{ formatCurrency($accountant->accountant_owe) }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
             <input type="text" name="order_percent_discount"
                 class="textbox-accountant  width-accountant-price order_percent_discount input-accountant"
-                value="{{ $accountant->order_percent_discount }}" disabled>
+                value="{{ $accountant->order_percent_discount }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
             <input type="text" name="order_discount"
                 class="textbox-accountant  width-accountant-price order_discount calc-inputs"
-                value="{{ formatCurrency($accountant->order_discount) }}" disabled>
+                value="{{ formatCurrency($accountant->order_discount) }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
@@ -134,7 +144,7 @@
         <td>
             <input type="text" name="order_profit"
                 class="textbox-accountant  width-accountant-price order_profit calc-inputs"
-                value="{{ formatCurrency($accountant->order_profit) }}" disabled>
+                value="{{ formatCurrency($accountant->order_profit) }}" {{ $shouldDisable ? 'disabled' : '' }}>
         </td>
 
         <td>
