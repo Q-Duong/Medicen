@@ -125,6 +125,10 @@
                                 <button type="button" class="primary-btn-filter btn-export-excel">
                                     <i class="fa-solid fa-file-excel"></i> Export
                                 </button>
+
+                                <button type="button" class="primary-btn-filter btn-export-misa">
+                                    <i class="fa-solid fa-file-export"></i> Misa Export
+                                </button>
                             </div>
                         </div>
                     </div>

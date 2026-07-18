@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Exports\ExcelExport;
+use App\Exports\MisaExport;
 use App\Http\Requests\OrderClientRequestForm;
 use App\Http\Requests\OrderRequestForm;
 use Maatwebsite\Excel\Facades\Excel;
@@ -568,6 +569,13 @@ class OrderController extends Controller
 
 		// return Excel::download(new ExcelExport($date), $date.'.xlsx');
 		return Excel::download(new ExcelExport($filters), 'Accountant.xlsx');
+	}
+
+	public function exportMisa(Request $request)
+	{
+		$filters = $request->all();
+
+		return Excel::download(new MisaExport($filters), 'Misa.xlsx');
 	}
 
 	public function view($order_id)

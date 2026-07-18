@@ -222,6 +222,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Export Excel
     Route::get('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
 
+    //Export Misa
+    Route::get('/export-misa', [OrderController::class, 'exportMisa'])->name('export.misa');
+
 
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
