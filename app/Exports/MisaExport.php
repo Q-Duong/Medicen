@@ -9,6 +9,8 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use DB;
 
 class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithStyles
@@ -23,20 +25,29 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
     public function headings(): array
     {
         return [
-            'Ngày đơn hàng (*)', // A
-            'Số đơn hàng (*)',   // B
-            'Tính giá thành',    // C
-            'Mã khách hàng',     // D
-            'Tên khách hàng',    // E
-            'Địa chỉ',           // F
-            'Mã số thuế',        // G
-            'Mã hàng (*)',       // H
-            'Tên hàng',          // I
-            'Là dòng ghi chú',   // J
-            'ĐVT',               // K
-            'Số lượng',          // L
-            'Đơn giá',           // M
-            'Thành tiền'         // N
+            ['FILE MẪU ĐƠN ĐẶT HÀNG ĐỂ NHẬP VÀO PHẦN MỀM AMIS ACCOUNTING'], // 1
+            ['Hướng dẫn:'], // 2
+            ['- Điền dữ liệu vào các cột tương ứng trên file này'], // 3
+            ['- Các cột có dấu (*) là những cột bắt buộc'], // 4
+            ['- Nếu muốn nhập nhiều thông tin hơn người dùng có thể tải mẫu đầy đủ/hoặc tự thêm cột trên mẫu cơ bản'], // 5
+            ['- Các dòng dữ liệu phía dưới chỉ là ví dụ minh họa'], // 6
+            ['', '', '', '', '', '', '', 'Chi tiết hàng tiền'], // 7
+            [
+                'Ngày đơn hàng (*)', // A
+                'Số đơn hàng (*)',   // B
+                'Tính giá thành',    // C
+                'Mã khách hàng',     // D
+                'Tên khách hàng',    // E
+                'Địa chỉ',           // F
+                'Mã số thuế',        // G
+                'Mã hàng (*)',       // H
+                'Tên hàng',          // I
+                'Là dòng ghi chú',   // J
+                'ĐVT',               // K
+                'Số lượng',          // L
+                'Đơn giá',           // M
+                'Thành tiền'         // N
+            ] // 8
         ];
     }
 
@@ -183,8 +194,83 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
 
     public function styles(Worksheet $sheet)
     {
+        // Đổi font chữ mặc định sang Times New Roman và kích thước mặc định là 12
+        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Times New Roman');
+        $sheet->getParent()->getDefaultStyle()->getFont()->setSize(12);
+
+        // Gộp ô cho chữ "Chi tiết hàng tiền"
+        $sheet->mergeCells('H7:N7');
+        
+        // Gộp ô tiêu đề từ A1 đến D1 (Cho khớp với vùng tô màu)
+        $sheet->mergeCells('A1:D1'); 
+        
+        // Định nghĩa style border chung cho bảng tiêu đề
+        $borderStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'], // Màu đen
+                ],
+            ],
+        ];
+
+        // Mã màu cam đậm
+        $mauCamDam = 'FFFFCC99'; 
+
         return [
-            1 => ['font' => ['bold' => true]],
+            // Dòng 1: Tiêu đề to (Size 16, In đậm)
+            'A1:D1' => [
+                'font' => ['bold' => true, 'size' => 16], // Đổi từ 14 thành 16
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => $mauCamDam] 
+                ]
+            ],
+            
+            // Dòng 2: Hướng dẫn (Chữ đỏ)
+            'A2:D2' => [
+                'font' => ['bold' => true, 'color' => ['argb' => 'FFFF0000']],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => $mauCamDam]
+                ]
+            ],
+
+            // Dòng 3,4,5,6: Nội dung hướng dẫn
+            'A3:D6' => [
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => $mauCamDam]
+                ]
+            ],
+            
+            // Dòng 7: Cột H->N (Kẻ viền, Nền Xanh lá nhạt, In đậm, Căn giữa)
+            'H7:N7' => array_merge([
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFCCFFCC']
+                ]
+            ], $borderStyle),
+            
+            // Dòng 8: Tiêu đề A->G (Kẻ viền, Nền Xanh dương)
+            'A8:G8' => array_merge([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFCCFFFF'] 
+                ]
+            ], $borderStyle),
+
+            // Dòng 8: Tiêu đề H->N (Kẻ viền, Nền Xanh lá)
+            'H8:N8' => array_merge([
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFCCFFCC']
+                ]
+            ], $borderStyle),
         ];
     }
 }
