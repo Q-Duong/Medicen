@@ -68,6 +68,7 @@
                             <span>Quản lý hợp đồng (Sales)</span>
                         </a>
                     </li>
+                    
                 @elseif (Auth::user()->name == 'Sale')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
@@ -118,6 +119,13 @@
                             href="{{ route('accountant.index') }}">
                             <i class="fas fa-file-invoice-dollar"></i>
                             <span>Quản lý công nợ</span>
+                        </a>
+                    </li>
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('reports.index') ? 'active' : '' }}"
+                            href="{{ route('reports.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Báo cáo thu chi</span>
                         </a>
                     </li>
                     <li class="sub-menu">

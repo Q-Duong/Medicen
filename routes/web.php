@@ -28,6 +28,7 @@ use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ZaloController;
 use App\Http\Controllers\QrController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -318,6 +319,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::patch('update', [AccountantController::class, 'updateRow'])->name('accountant.update');
             Route::patch('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
             Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant.filter_options');
+        });
+
+        //Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::put('/{id}', [ReportController::class, 'update'])->name('update');
         });
     });
 

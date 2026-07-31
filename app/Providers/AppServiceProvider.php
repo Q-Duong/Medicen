@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Service;
 use App\Models\BlogCategory;
+use App\Repositories\ReportRepositoryInterface;
+use App\Repositories\ReportRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
 		    $getAllService = Service::orderBy('id','ASC')->get();
             $view->with(compact('getAllBlogCategory','getAllService'));
         });
+
+        $this->app->bind(
+            ReportRepositoryInterface::class, 
+            ReportRepository::class
+        );
     }
 
     /**
