@@ -86,7 +86,7 @@
                                             - Tổng nợ X-Quang</td>
                                         <td colspan="3"
                                             style="font-style: italic; font-size: 14px; text-align: center; font-weight: bold; color: #3498db;">
-                                            {{ number_format($accStats->total_owe ?? 0, 0, ',', '.') }}</td>
+                                            {{ number_format($accStats->total_price ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                     <tr>
                                         <td style="font-style: italic; font-size: 14px; font-weight: bold; color: #e67e22;">

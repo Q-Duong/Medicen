@@ -162,7 +162,7 @@ class ReportRepository implements ReportRepositoryInterface
         // }
 
         return $baseQuery->selectRaw('
-            SUM(accountants.accountant_owe) as total_owe,
+            SUM(orders.order_price) as total_price,
             
             SUM(CASE 
                 WHEN accountants.accountant_number IS NOT NULL AND accountants.accountant_number != "" 
