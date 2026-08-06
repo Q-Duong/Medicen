@@ -324,7 +324,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         //Reports
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::post('/{id}/seed-default', [ReportController::class, 'seedDefault'])
+                ->name('seed_default');
             Route::put('/{id}', [ReportController::class, 'update'])->name('update');
+            Route::post('/update-order', [ReportController::class, 'updateOrder'])->name('update_order');
         });
     });
 

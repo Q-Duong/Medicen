@@ -354,4 +354,58 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     calculateFormulas();
+
+    var tbody = document.getElementById('sortable-table-body');
+    
+    if(tbody) {
+        new Sortable(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+
+            onMove: function (evt) {
+                var draggedRow = evt.dragged;
+                var targetRow = evt.related;
+
+                if (!targetRow.classList.contains('item-row')) {
+                    return false; 
+                }
+
+                var draggedGroup = draggedRow.getAttribute('data-group');
+                var targetGroup = targetRow.getAttribute('data-group');
+                
+                var draggedMain = draggedRow.getAttribute('data-main-group');
+                var targetMain = targetRow.getAttribute('data-main-group');
+                
+                var draggedType = draggedRow.getAttribute('data-type');
+                var targetType = targetRow.getAttribute('data-type');
+
+                if (draggedGroup !== targetGroup || draggedMain !== targetMain || draggedType !== targetType) {
+                    return false; 
+                }
+            },
+
+            onEnd: function (evt) {
+                let orderedIds = [];
+                tbody.querySelectorAll('.item-row').forEach(function(row) {
+                    orderedIds.push(row.getAttribute('data-id'));
+                });
+
+                fetch(url_reports_update_order, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                            "content",
+                        ),
+                    },
+                    body: JSON.stringify({ orders: orderedIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    
+                      
+                });
+            }
+        });
+    }
 });

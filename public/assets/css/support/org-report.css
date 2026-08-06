@@ -278,6 +278,12 @@ input[type="date"].date-input {
     border-radius: 20px;
 }
 
+.btn-seed-default {
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: none;
+}
+
 .select-filter {
     padding: 8px 10px;
     border-radius: 10px;

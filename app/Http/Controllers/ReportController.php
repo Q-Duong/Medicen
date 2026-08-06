@@ -6,6 +6,7 @@ use App\Repositories\ReportRepositoryInterface;
 use App\Http\Requests\UpdateReportRequest;
 use App\Mail\ReportUpdatedMail;
 use App\Models\Report;
+use App\Models\ReportItem;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
@@ -24,18 +25,21 @@ class ReportController extends Controller
         $year = $request->input('year', date('Y'));
 
         if ($month === 'all') {
-            $reports = Report::with('items')->where('year', $year)->get();
+            $reports = Report::with(['items' => function ($query) {
+                $query->orderBy('sort_order', 'asc');
+            }])->where('year', $year)->get();
+
             $allItems = collect();
             foreach ($reports as $r) {
                 $allItems = $allItems->merge($r->items);
             }
-            
+
             $report = new Report();
             $report->id = 0;
             $report->month = 'all';
             $report->year = $year;
             $report->setRelation('items', $allItems);
-            
+
             $isYearly = true;
         } else {
             $report = $this->reportRepo->getReportByPeriod($month, $year);
@@ -47,24 +51,46 @@ class ReportController extends Controller
         return view('pages.admin.reports.index', compact('report', 'month', 'year', 'accStats', 'isYearly'));
     }
 
+    public function seedDefault($id) 
+    {
+        $report = Report::findOrFail($id);
+
+        $this->reportRepo->seedDefaultItems($report);
+
+        return redirect()->back()->with('success', 'Đã tạo khung báo cáo mẫu thành công!');
+    }
+
     public function update(UpdateReportRequest $request, $id)
     {
         $report = $this->reportRepo->updateReportItems($id, $request->validated('items'));
 
         if ($request->boolean('send_mail')) {
-            $updatedItem = $request->input('items.0'); 
-            
+            $updatedItem = $request->input('items.0');
+
             Mail::to('quocduong081000@gmail.com')->send(new ReportUpdatedMail($report, $updatedItem));
         }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
-                'status'  => 'success', 
+                'status'  => 'success',
                 'message' => 'Đã cập nhật dòng thành công!',
-                'items'   => $report->items 
+                'items'   => $report->items
             ]);
         }
 
         return redirect()->back()->with('success', 'Lưu báo cáo thành công!');
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $orders = $request->input('orders');
+
+        if ($orders && is_array($orders)) {
+            foreach ($orders as $index => $id) {
+                ReportItem::where('id', $id)->update(['sort_order' => $index]);
+            }
+        }
+
+        return response()->json(['success' => true]);
     }
 }

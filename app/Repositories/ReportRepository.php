@@ -14,13 +14,13 @@ class ReportRepository implements ReportRepositoryInterface
         $report = Report::firstOrCreate(
             ['month' => $month, 'year' => $year]
         );
+        // if ($report->wasRecentlyCreated || $report->items()->count() === 0) {
+        //     $this->seedDefaultItems($report);
+        // }
 
-        // Nếu là tháng mới chưa có dữ liệu chi tiết, tự động sinh khung chuẩn
-        if ($report->wasRecentlyCreated || $report->items()->count() === 0) {
-            $this->seedDefaultItems($report);
-        }
-
-        return $report->load('items');
+        return $report->load(['items' => function ($query) {
+            $query->orderBy('sort_order', 'asc');
+        }]);
     }
 
     public function updateReportItems(int $reportId, array $itemsData)
@@ -70,7 +70,7 @@ class ReportRepository implements ReportRepositoryInterface
     }
 
     // Tự động tạo khung các mục và gán Ngày Dự Kiến + Số Tiền cố định
-    private function seedDefaultItems(Report $report)
+    public function seedDefaultItems(Report $report)
     {
         $year = $report->year;
         $month = $report->month;
@@ -157,9 +157,9 @@ class ReportRepository implements ReportRepositoryInterface
         
         $baseQuery = Accountant::getAccountantByFilter($params);
 
-        if ($month !== 'all') {
-            $baseQuery->where('accountants.accountant_month', $month);
-        }
+        // if ($month !== 'all') {
+        //     $baseQuery->where('accountants.accountant_month', $month);
+        // }
 
         return $baseQuery->selectRaw('
             SUM(accountants.accountant_owe) as total_owe,

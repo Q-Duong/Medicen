@@ -16,6 +16,7 @@ class ReportItem extends Model
         'type',
         'summary_group',
         'name',
+        'sort_order',
         'expected_date',
         'estimated_amount',
         'actual_amount',
@@ -26,7 +27,7 @@ class ReportItem extends Model
     protected $casts = [
         'estimated_amount' => 'decimal:0',
         'actual_amount'    => 'decimal:0',
-        'actual_date'      => 'date',
+        'actual_date'      => 'datetime',
         'expected_date'    => 'date',
     ];
 
