@@ -162,19 +162,19 @@ class ReportRepository implements ReportRepositoryInterface
         // }
 
         return $baseQuery->selectRaw('
-            SUM(orders.order_price) as total_price,
+            SUM(accountants.accountant_owe) as total_price,
             
             SUM(CASE 
                 WHEN accountants.accountant_number IS NOT NULL AND accountants.accountant_number != "" 
                  AND accountants.accountant_date IS NOT NULL AND accountants.accountant_date != "" 
-                THEN orders.order_price 
+                THEN accountants.accountant_owe 
                 ELSE 0 
             END) as total_da_xuat_hd,
             
             SUM(CASE 
                 WHEN accountants.accountant_number IS NULL OR accountants.accountant_number = "" 
                   OR accountants.accountant_date IS NULL OR accountants.accountant_date = "" 
-                THEN orders.order_price 
+                THEN accountants.accountant_owe 
                 ELSE 0 
             END) as total_chua_xuat_hd
         ')->first();
