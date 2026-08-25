@@ -104,6 +104,24 @@ if (!function_exists('carRenameFunction')) {
     }
 }
 
+if (!function_exists('statusRenameFunction')) {
+    function statusRenameFunction($status_id)
+    {
+        if ($status_id == 0) {
+            $status = 'Đơn hàng mới';
+        } elseif ($status_id == 1) {
+            $status = 'Đang xử lý';
+        } elseif ($status_id == 2) {
+            $status = 'Đã cập nhật số Cas thực tế';
+        } elseif ($status_id == 3) {
+            $status = 'Đã xử lý';
+        } elseif ($status_id == 4) {
+            $status = 'Đã cập nhật doanh thu';
+        }
+        return $status;
+    }
+}
+
 if (!function_exists('colorKPI')) {
     function colorKPI($kpi)
     {

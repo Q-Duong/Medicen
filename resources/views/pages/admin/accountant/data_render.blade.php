@@ -1,17 +1,25 @@
 @foreach ($accountantData as $key => $accountant)
     @php
-        $class = '';
-        if ($accountant->accountant_status == 0) {
-            if ($accountant->ord_start_day && now()->diffInDays($accountant->ord_start_day) >= 60) {
-                $class = 'debt-overrated';
-            } elseif ($accountant->ord_start_day && now()->diffInDays($accountant->ord_start_day) >= 45) {
-                $class = 'debt-warning';
+        $currentClass = '';
+        $debtClass = '';
+
+        if ($accountant->ord_start_day) {
+            $days = now()->diffInDays($accountant->ord_start_day);
+            if ($days >= 60) {
+                $debtClass = 'debt-overrated';
+            } elseif ($days >= 45) {
+                $debtClass = 'debt-warning';
             }
         }
+
+        if ($accountant->accountant_status == 0) {
+            $currentClass = $debtClass;
+        }
+
         $isLocked = $accountant->status_id == 3;
     @endphp
-    <tr class="{{ $class }} {{ $accountant->status_id == 3 ? 'row-locked' : '' }}"
-        data-id="{{ $accountant->id }}">
+    <tr class="{{ $currentClass }}" data-debt-class="{{ $debtClass }}"
+        {{ $accountant->status_id == 3 ? 'row-locked' : '' }} data-id="{{ $accountant->id }}">
         <td class="sticky-col first-col">{{ (isset($sttStart) ? $sttStart : 0) + $loop->iteration }}</td>
         <td class="sticky-col second-col order_id">{{ $accountant->order_id }}</td>
 
@@ -25,8 +33,8 @@
         <td class="sticky-col six-col">
             {{ $accountant->accountant_distance }}
         </td>
-        <td title="{{ $accountant->unit_name }}" class="sticky-col seven-col">
-            {{ $accountant->unit_name }}</td>
+        <td title="{{ $accountant->unit_abbreviation }}" class="sticky-col seven-col">
+            {{ $accountant->unit_abbreviation }}</td>
         <td title="{{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}" class="sticky-col eighth-col">
             {{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}</td>
 
@@ -90,7 +98,8 @@
         </td>
 
         <td>
-            <select class="selectbox-accountant select-update accountant_method" name="accountant_method" {{ $isLocked ? 'disabled' : '' }}>
+            <select class="selectbox-accountant select-update accountant_method" name="accountant_method"
+                {{ $isLocked ? 'disabled' : '' }}>
                 <option value="" {{ $accountant->accountant_method == null ? 'selected' : '' }}>
                 </option>
                 <option value="HDB" {{ $accountant->accountant_method == 'HDB' ? 'selected' : '' }}>HDB</option>
@@ -165,6 +174,26 @@
 
         <td>
             {{ $accountant->accountant_10X12 }}
+        </td>
+
+        <td>
+            {{ $accountant->car_ktv_name_1 }}
+        </td>
+
+        <td>
+            {{ $accountant->car_ktv_name_2 }}
+        </td>
+
+        <td>
+            {{ $accountant->order_quantity_draft }}
+        </td>
+
+        <td>
+            {{ $accountant->car_driver_name }}
+        </td>
+
+        <td>
+            {{ $accountant->driver_assistance == 1 ? $accountant->order_quantity_draft : 0 }}
         </td>
 
         <td>

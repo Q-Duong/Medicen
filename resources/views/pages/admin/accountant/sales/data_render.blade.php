@@ -29,8 +29,8 @@
         <td class="sticky-col six-col">
             {{ $accountant->accountant_distance }}
         </td>
-        <td title="{{ $accountant->unit_name }}" class="sticky-col seven-col">
-            {{ $accountant->unit_name }}</td>
+        <td title="{{ $accountant->unit_abbreviation }}" class="sticky-col seven-col">
+            {{ $accountant->unit_abbreviation }}</td>
         <td title="{{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}" class="sticky-col eighth-col">
             {{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}</td>
 
@@ -175,6 +175,26 @@
 
         <td>
             {{ $accountant->accountant_10X12 }}
+        </td>
+        
+        <td>
+            {{ $accountant->car_ktv_name_1 }}
+        </td>
+
+        <td>
+            {{ $accountant->car_ktv_name_2 }}
+        </td>
+
+        <td>
+            {{ $accountant->order_quantity_draft }}
+        </td>
+
+        <td>
+            {{ $accountant->car_driver_name }}
+        </td>
+
+        <td>
+            {{ $accountant->driver_assistance == 1 ? $accountant->order_quantity_draft : 0 }}
         </td>
 
         <td>

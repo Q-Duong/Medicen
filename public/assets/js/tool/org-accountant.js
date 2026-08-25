@@ -1060,7 +1060,7 @@ $(document).ready(function () {
                 console.log("Lỗi update:", xhr.responseText);
             },
         });
-    }, 800);
+    }, 100);
 
     // --- SỰ KIỆN CHÍNH ---
     $(document).on(
@@ -1081,6 +1081,30 @@ $(document).ready(function () {
                 if (!isNaN(parts[parts.length - 1])) {
                     parts.pop();
                     sourceName = parts.join("_");
+                }
+            }
+
+            if (['accountant_day_payment', 'accountant_method', 'accountant_status'].includes(sourceName)) {
+            
+                let dayPayment = (row.find('.accountant_day_payment').val() || "").trim();
+                let method = (row.find('.accountant_method').val() || "").trim();
+                let statusSelect = row.find('.accountant_status');
+    
+                if (dayPayment !== '' && method !== '') {
+                    if (statusSelect.val() !== '1') {
+                        statusSelect.val('1').removeClass('acc-status-unpaid').addClass('acc-status-paid');
+                    }
+                    
+                    row.removeClass('debt-overrated debt-warning');
+                } else {
+                    if (statusSelect.val() !== '0') {
+                        statusSelect.val('0').removeClass('acc-status-paid').addClass('acc-status-unpaid');
+
+                        let originalDebtClass = row.attr('data-debt-class');
+                        if (originalDebtClass) {
+                            row.addClass(originalDebtClass);
+                        }
+                    }
                 }
             }
 
@@ -1239,10 +1263,13 @@ function getListAccountant(isAppend = false) {
 }
 
 function updateTotalsUI(data) {
+    $("#total-rows").text(formatCurrency(data.totalRows));
     $("#total-price").text(formatCurrency(data.totalPrice));
     $("#total-owe").text(formatCurrency(data.totalOwe));
     $("#total-amount-paid").text(formatCurrency(data.totalAmountPaid));
     $("#total-quantity").text(formatCurrency(data.totalQuantity));
+    $("#total-quantity-draft").text(formatCurrency(data.totalQuantityDraft));
+    $("#total-driver-assistance").text(formatCurrency(data.totalDriverAssistance));
     $("#total-discount").text(formatCurrency(data.totalDiscount));
     $("#total-35").text(data.total35);
     $("#total-polime").text(data.totalPolime);

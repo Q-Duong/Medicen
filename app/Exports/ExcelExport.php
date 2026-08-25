@@ -31,19 +31,16 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             'Loại',
             'Xe',
             'Km',
-            'Mã đơn vị',
-            'Đơn vị hợp tác',
+            'Đơn vị',
             'Tên Cty',
             'THCN',
-            'Số HH',
+            'Số HĐ',
             'Ngày HĐ',
             'VAT',
             'Số lượng',
             'Đơn giá',
-            'Phụ thu',
             'Thành tiền',
-            'Thời hạn thanh toán',
-            'Số ngày',
+            'Trạng thái thanh toán',
             'Ngày TT',
             'Hình thức',
             'Số tiền đã thanh toán',
@@ -59,15 +56,19 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             'Polime',
             '8 X 10',
             '10 X 12',
-            'Bao phim',
+            'KTV',
+            'KTV 2',
+            'Số cas KTV',
+            'Tài xế',
+            'Số cas TX phụ',
             'Ghi chú',
-            'Trạng thái',
+            'Trạng thái đơn hàng',
         ];
     }
 
     public function query()
     {
-		$query = Accountant::getAccountantByFilter($this->filters);
+        $query = Accountant::getAccountantByFilter($this->filters);
 
         return $query->select(
             'accountants.id',
@@ -99,6 +100,7 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             'ord_cty_name',
             'order_vat',
             'order_quantity',
+            'order_quantity_draft',
             'order_cost',
             'order_price',
             'order_percent_discount',
@@ -106,7 +108,12 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             'order_profit',
             'orders.status_id',
             'car_name',
-            'unit_name'
+            'car_ktv_name_1',
+            'car_ktv_name_2',
+            'car_driver_name',
+            'driver_assistance',
+            'unit_name',
+            'unit_abbreviation'
         )->orderBy('ord_start_day', 'ASC');
     }
 
@@ -119,8 +126,7 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             $accountant->ord_type == 1 ? "X-Quang" : "Siêu Âm",
             carRenameFunction($accountant->car_name),
             $accountant->accountant_distance,
-            $accountant->unit_code,
-            $accountant->unit_name,
+            $accountant->unit_abbreviation,
             capitalizeWordsExceptAbbreviations($accountant->ord_cty_name),
             $accountant->accountant_deadline,
             $accountant->accountant_number,
@@ -128,10 +134,8 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             $accountant->order_vat,
             $accountant->order_quantity,
             $accountant->order_cost,
-            $accountant->order_surcharge,
             $accountant->order_price,
-            $accountant->accountant_payment != null ? date('d/m/Y', strtotime($accountant->accountant_payment)) : '',
-            $accountant->accountant_day,
+            $accountant->accountant_status == 1 ? 'Đã thanh toán' : 'Chưa thanh toán',
             $accountant->accountant_day_payment != null ? date('d/m/Y', strtotime($accountant->accountant_day_payment)) : '',
             $accountant->accountant_method,
             $accountant->accountant_amount_paid,
@@ -147,9 +151,13 @@ class ExcelExport implements WithHeadings, FromQuery, WithMapping, ShouldAutoSiz
             $accountant->accountant_polime,
             $accountant->accountant_8X10,
             $accountant->accountant_10X12,
-            $accountant->accountant_film_bag,
+            $accountant->car_ktv_name_1,
+            $accountant->car_ktv_name_2,
+            $accountant->order_quantity_draft,
+            $accountant->car_driver_name,
+            $accountant->driver_assistance == 1 ? $accountant->order_quantity_draft : 0,
             $accountant->accountant_note,
-            $accountant->status_name,
+            statusRenameFunction($accountant->status_id),
         ];
     }
     public function styles(Worksheet $sheet)

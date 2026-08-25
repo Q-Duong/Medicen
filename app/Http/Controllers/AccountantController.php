@@ -66,12 +66,15 @@ class AccountantController extends Controller
 			SUM(accountants.accountant_owe) as total_owe,
 			SUM(accountants.accountant_amount_paid) as total_amount_paid,
 			SUM(orders.order_quantity) as total_quantity,
+			SUM(orders.order_quantity_draft) as total_quantity_draft,
 			SUM(orders.order_discount) as total_discount,
 			SUM(accountants.accountant_35X43) as total_35,
 			SUM(accountants.accountant_polime) as total_polime,
 			SUM(accountants.accountant_8X10) as total_8,
 			SUM(accountants.accountant_10X12) as total_10,
-			SUM(accountants.accountant_film_bag) as total_pack
+			SUM(accountants.accountant_film_bag) as total_pack,
+			SUM(CASE WHEN car_ktvs.driver_assistance = 1 THEN orders.order_quantity_draft ELSE 0 END) as total_driver_assistance
+			
 		')->first();
 
 		$perPage = 30;
@@ -107,6 +110,7 @@ class AccountantController extends Controller
 				'ord_cty_name',
 				'order_vat',
 				'order_quantity',
+				'order_quantity_draft',
 				'order_cost',
 				'order_price',
 				'order_percent_discount',
@@ -114,7 +118,12 @@ class AccountantController extends Controller
 				'order_profit',
 				'orders.status_id',
 				'car_name',
-				'unit_name'
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_driver_name',
+				'driver_assistance',
+				'unit_name',
+				'unit_abbreviation'
 			)
 			->cursorPaginate($perPage);
 		$sttStart = $request->input('current_count', 0);
@@ -127,16 +136,19 @@ class AccountantController extends Controller
 
 		if ($totals) {
 			$response['totals'] = [
-				'totalPrice'      => $totals->total_price ?? 0,
-				'totalOwe'        => $totals->total_owe ?? 0,
-				'totalAmountPaid' => $totals->total_amount_paid ?? 0,
-				'totalQuantity'   => $totals->total_quantity ?? 0,
-				'totalDiscount'   => $totals->total_discount ?? 0,
-				'total35'         => $totals->total_35 ?? 0,
-				'totalPolime'     => $totals->total_polime ?? 0,
-				'total8'          => $totals->total_8 ?? 0,
-				'total10'         => $totals->total_10 ?? 0,
-				'totalPack'       => $totals->total_pack ?? 0,
+				'totalRows'             => $totals->total_rows ?? 0,
+				'totalPrice'      		=> $totals->total_price ?? 0,
+				'totalOwe'        		=> $totals->total_owe ?? 0,
+				'totalAmountPaid' 		=> $totals->total_amount_paid ?? 0,
+				'totalQuantity'   		=> $totals->total_quantity ?? 0,
+				'totalQuantityDraft'    => $totals->total_quantity_draft ?? 0,
+				'totalDriverAssistance' => $totals->total_driver_assistance ?? 0,
+				'totalDiscount'   		=> $totals->total_discount ?? 0,
+				'total35'         		=> $totals->total_35 ?? 0,
+				'totalPolime'     		=> $totals->total_polime ?? 0,
+				'total8'          		=> $totals->total_8 ?? 0,
+				'total10'         		=> $totals->total_10 ?? 0,
+				'totalPack'       		=> $totals->total_pack ?? 0,
 			];
 		}
 		return response()->json($response);
@@ -162,7 +174,11 @@ class AccountantController extends Controller
 			'order_id'                          => 'accountants.order_id',
 			'status_id'                         => 'orders.status_id',
 			'car_name'                          => 'car_name',
-			'unit_name'                         => 'unit_name',
+			'car_ktv_name_1'                    => 'car_ktv_name_1',
+			'car_ktv_name_2'                    => 'car_ktv_name_2',
+			'car_driver_name'                   => 'car_driver_name',
+			'driver_assistance'                 => 'driver_assistance',
+			'unit_abbreviation'                 => 'unit_abbreviation',
 			'accountant_month'                  => 'accountants.accountant_month',
 			'accountant_distance'               => 'accountant_distance',
 			'accountant_deadline'               => 'accountant_deadline',
@@ -190,6 +206,7 @@ class AccountantController extends Controller
 			'ord_cty_name'                      => 'ord_cty_name',
 			'order_vat' 						=> 'order_vat',
 			'order_quantity'                    => 'order_quantity',
+			'order_quantity_draft'				=> 'order_quantity_draft',
 			'order_cost'                        => 'order_cost',
 			'order_price'                       => 'order_price',
 			'order_percent_discount'            => 'order_percent_discount',
@@ -563,8 +580,8 @@ class AccountantController extends Controller
 
 		if ($order->order_status == 4) {
 			// if (Carbon::parse($orderDetail->ord_start_day)->month == 4) {
-				// $orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
-				// $orderDetail->save();
+			// $orderDetail->ord_cty_name = empty($request->ord_cty_name) ? $orderDetail->ord_cty_name : $request->ord_cty_name;
+			// $orderDetail->save();
 			// }
 		} else {
 			$order->order_all_in_one = $request->order_all_in_one;
@@ -618,12 +635,15 @@ class AccountantController extends Controller
 			SUM(accountants.accountant_owe) as total_owe,
 			SUM(accountants.accountant_amount_paid) as total_amount_paid,
 			SUM(orders.order_quantity) as total_quantity,
+			SUM(orders.order_quantity_draft) as total_quantity_draft,
 			SUM(orders.order_discount) as total_discount,
 			SUM(accountants.accountant_35X43) as total_35,
 			SUM(accountants.accountant_polime) as total_polime,
 			SUM(accountants.accountant_8X10) as total_8,
 			SUM(accountants.accountant_10X12) as total_10,
-			SUM(accountants.accountant_film_bag) as total_pack
+			SUM(accountants.accountant_film_bag) as total_pack,
+			SUM(CASE WHEN car_ktvs.driver_assistance = 1 THEN orders.order_quantity_draft ELSE 0 END) as total_driver_assistance
+			
 		')->first();
 
 		$perPage = 30;
@@ -653,13 +673,13 @@ class AccountantController extends Controller
 				'accountant_note',
 				'accountant_status',
 				'ord_type',
-				'ord_select',
 				'ord_start_day',
 				'ord_form',
 				'ord_note',
 				'ord_cty_name',
 				'order_vat',
 				'order_quantity',
+				'order_quantity_draft',
 				'order_cost',
 				'order_price',
 				'order_percent_discount',
@@ -667,7 +687,12 @@ class AccountantController extends Controller
 				'order_profit',
 				'orders.status_id',
 				'car_name',
-				'unit_name'
+				'car_ktv_name_1',
+				'car_ktv_name_2',
+				'car_driver_name',
+				'driver_assistance',
+				'unit_name',
+				'unit_abbreviation'
 			)
 			->cursorPaginate($perPage);
 		$sttStart = $request->input('current_count', 0);
@@ -680,16 +705,19 @@ class AccountantController extends Controller
 
 		if ($totals) {
 			$response['totals'] = [
-				'totalPrice'      => $totals->total_price ?? 0,
-				'totalOwe'        => $totals->total_owe ?? 0,
-				'totalAmountPaid' => $totals->total_amount_paid ?? 0,
-				'totalQuantity'   => $totals->total_quantity ?? 0,
-				'totalDiscount'   => $totals->total_discount ?? 0,
-				'total35'         => $totals->total_35 ?? 0,
-				'totalPolime'     => $totals->total_polime ?? 0,
-				'total8'          => $totals->total_8 ?? 0,
-				'total10'         => $totals->total_10 ?? 0,
-				'totalPack'       => $totals->total_pack ?? 0,
+				'totalRows'             => $totals->total_rows ?? 0,
+				'totalPrice'      		=> $totals->total_price ?? 0,
+				'totalOwe'        		=> $totals->total_owe ?? 0,
+				'totalAmountPaid' 		=> $totals->total_amount_paid ?? 0,
+				'totalQuantity'   		=> $totals->total_quantity ?? 0,
+				'totalQuantityDraft'    => $totals->total_quantity_draft ?? 0,
+				'totalDriverAssistance' => $totals->total_driver_assistance ?? 0,
+				'totalDiscount'   		=> $totals->total_discount ?? 0,
+				'total35'         		=> $totals->total_35 ?? 0,
+				'totalPolime'     		=> $totals->total_polime ?? 0,
+				'total8'          		=> $totals->total_8 ?? 0,
+				'total10'         		=> $totals->total_10 ?? 0,
+				'totalPack'       		=> $totals->total_pack ?? 0,
 			];
 		}
 		return response()->json($response);

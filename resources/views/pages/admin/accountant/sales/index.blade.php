@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-4 col-sm-6">
+                <div class="col-lg-3 col-md-4 col-sm-6">
                     <div class="filter-tiles">
                         <div class="filter-title">
                             <p class="filter-title-text">Doanh thu</p>
@@ -81,7 +81,36 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-4 col-sm-6">
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="filter-tiles">
+                        <div class="filter-title">
+                            <p class="filter-title-text">Số Lượng</p>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="tile-content-wrapper">
+                            <ul class="filter-content">
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Số cas :</div>
+                                    <div class="filter-content-details" id="total-quantity"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Số cas KTV :</div>
+                                    <div class="filter-content-details" id="total-quantity-draft"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Số cas TX phụ :</div>
+                                    <div class="filter-content-details" id="total-driver-assistance"></div>
+                                </li>
+                                <li class="filter-content-block">
+                                    <div class="filter-content-title">•&nbsp;Tổng số đơn :</div>
+                                    <div class="filter-content-details" id="total-rows"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <div class="filter-tiles">
                         <div class="filter-title">
                             <p class="filter-title-text">Phim</p>
@@ -89,10 +118,6 @@
                         </div>
                         <div class="tile-content-wrapper">
                             <ul class="filter-content">
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Số Cas :</div>
-                                    <div class="filter-content-details" id="total-quantity"></div>
-                                </li>
                                 <li class="filter-content-block">
                                     <div class="filter-content-title">•&nbsp;35 X 43 :</div>
                                     <div class="filter-content-details" id="total-35"></div>
@@ -131,12 +156,11 @@
                                 </button>
                             </div>
                         </div>
-                        
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="table-responsive table-content">
             <div id="table-scroll" class="table-scroll">
                 <table class="table">
@@ -161,7 +185,7 @@
                                 <x-excel-filter field="accountant_distance" label="Km" />
                             </th>
                             <th class="sticky-col seven-col">
-                                <x-excel-filter field="unit_name" label="Đơn vị" />
+                                <x-excel-filter field="unit_abbreviation" label="Đơn vị" />
                             </th>
                             <th class="sticky-col eighth-col">
                                 <x-excel-filter field="ord_cty_name" label="Công ty" />
@@ -236,6 +260,21 @@
                                 <x-excel-filter field="accountant_10X12" label="10x12" />
                             </th>
                             <th>
+                                <x-excel-filter field="car_ktv_name_1" label="KTV" />
+                            </th>
+                            <th>
+                                <x-excel-filter field="car_ktv_name_2" label="KTV 2" />
+                            </th>
+                            <th>
+                                <x-excel-filter field="order_quantity_draft" label="Số cas KTV" />
+                            </th>
+                            <th>
+                                <x-excel-filter field="car_driver_name" label="Tài xế" />
+                            </th>
+                            <th>
+                                Số cas TX phụ
+                            </th>
+                            <th>
                                 <x-excel-filter field="accountant_note" label="Ghi chú" />
                             </th>
                             <th>
@@ -244,6 +283,7 @@
                             <th>
                                 <x-excel-filter field="status_id" label="Trạng thái ĐH" />
                             </th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody class="tbody-content">
