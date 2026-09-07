@@ -246,8 +246,7 @@
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_doctor_read" value="Không" id="doctor3"
-                                                class="accent"
-                                                {{ old('ord_doctor_read') == 'Không' ? 'checked' : '' }}>
+                                                class="accent" {{ old('ord_doctor_read') == 'Không' ? 'checked' : '' }}>
                                             <label for="doctor3" class="radio-title">Không</label>
                                         </section>
                                     </div>
@@ -640,8 +639,18 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="primary-btn-submit button-submit">Thêm đơn hàng
-                            </button>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <button type="submit" name="complete" value="0" class="primary-btn-submit button-submit">
+                                        Thêm đơn chưa hoàn thành
+                                    </button>
+                                </div>
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <button type="submit" name="complete" value="1" class="primary-btn-submit button-submit">
+                                        Thêm đơn hàng
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>

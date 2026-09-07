@@ -299,6 +299,7 @@ class OrderController extends Controller
 			$order->order_warning = $data['order_warning'];
 			$order->order_surcharge = $data['order_surcharge'];
 			$order->overnight = $data['overnight'];
+			$order->complete = $data['complete'];
 			$order->save();
 
 			$monthFormat = explode("-", $data['ord_start_day']);
@@ -356,6 +357,7 @@ class OrderController extends Controller
 		$order->order_warning = $data['order_warning'];
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->overnight = $data['overnight'];
+		$order->complete = $data['complete'];
 		$order->save();
 
 		$monthFormat = explode("-", $data['ord_start_day']);
@@ -508,6 +510,7 @@ class OrderController extends Controller
 			$order->order_warning = $data['order_warning'];
 			$order->order_surcharge = $data['order_surcharge'];
 			$order->overnight = $data['overnight'];
+			$order->complete = $data['complete'];
 			$order->save();
 
 			$monthFormat = explode("-", $data['ord_start_day']);

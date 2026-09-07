@@ -625,9 +625,20 @@
                                 @enderror
                             </div>
                             @if (Auth::user()->role == 0)
-                                <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin đơn
-                                    hàng
-                                </button>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 centered">
+                                        <button type="submit" name="complete" value="0"
+                                            class="primary-btn-submit button-submit">
+                                            Cập nhật chưa hoàn thành
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 centered">
+                                        <button type="submit" name="complete" value="1"
+                                            class="primary-btn-submit button-submit">
+                                            Cập nhật
+                                        </button>
+                                    </div>
+                                </div>
                             @else
                                 @php
                                     $now = Carbon\Carbon::now()->setTime(0, 0, 0);
@@ -635,10 +646,20 @@
                                 @endphp
                                 @if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual))
                                     @if ($order->status_id == 0 || $order->status_id == 1)
-                                        <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin
-                                            đơn
-                                            hàng
-                                        </button>
+                                        <div class="row">
+                                            <div class="col-lg-6 col-md-6 centered">
+                                                <button type="submit" name="complete" value="0"
+                                                    class="primary-btn-submit button-submit">
+                                                    Cập nhật chưa hoàn thành
+                                                </button>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 centered">
+                                                <button type="submit" name="complete" value="1"
+                                                    class="primary-btn-submit button-submit">
+                                                    Cập nhật
+                                                </button>
+                                            </div>
+                                        </div>
                                     @endif
                                 @endif
                             @endif

@@ -38,6 +38,7 @@ class Order extends Model
         'order_updated',
         'order_send_result',
         'overnight',
+        'complete'
     ];
 
     public function getEditUrlAttribute()

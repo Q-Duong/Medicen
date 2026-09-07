@@ -23,13 +23,13 @@
                             <th>Tổng tiền</th>
                             <th>Bộ phận chụp</th>
                             <th>Trạng thái</th>
-                            <th>Quản lý</th>
+                            <th>Hành động</th>
                             <th>Quản lý lịch</th>
                         </tr>
                     </thead>
                     <tbody class="tbody-content">
                         @foreach ($getAll as $key => $order)
-                            <tr>
+                            <tr class="{{ $order->complete == 0 ? 'uncomplete-order' : ''}}">
                                 <td>{{ \Carbon\Carbon::parse($order->created_at)->format('H:i:s d/m/Y') }}</td>
                                 <td>{{ $order->id }}</td>
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
@@ -39,19 +39,19 @@
                                 <td>{{ $order->order_quantity }}</td>
                                 <td>{{ number_format($order->order_price, 0, ',', '.') }}₫</td>
                                 <td>{{ $order->ord_select }}</td>
-                                <td>
+                                <td class="status-label-container">
                                     @if ($order->status_id == 0)
-                                        <span style="color: #27c24c;">Đơn hàng mới</span>
+                                        <span class="status-label" style="border: 2px solid #27c24c; color: #27c24c; background-color: #27C24C0F;">Đơn hàng mới</span>
                                     @elseif($order->status_id == 1)
-                                        <span style="color: #FCB322;">Đang xử lý</span>
+                                        <span class="status-label" style="border: 2px solid #FCB322; color: #FCB322; background-color: #FCB3220F;">Đang xử lý</span>
                                     @elseif($order->status_id == 2)
-                                        <span style="color: #c037df;">Đã cập nhật số Cas thực tế</span>
+                                        <span class="status-label" style="border: 2px solid #c037df; color: #c037df; background-color: #C037DF0F;">Đã cập nhật số Cas thực tế</span>
                                     @elseif($order->status_id == 3)
-                                        <span style="color: #0071e3;">Đã xử lý</span>
+                                        <span class="status-label" style="border: 2px solid #0071e3; color: #0071e3; background-color: #0071E30F;">Đã xử lý</span>
                                     @elseif($order->status_id == 4)
-                                        <span style="color: #00d0e3;">Đã cập nhật doanh thu</span>
+                                        <span class="status-label" style="border: 2px solid #00d0e3; color: #00d0e3; background-color: #00D0E30F;">Đã cập nhật doanh thu</span>
                                     @else
-                                        <span style="color: #e53637;">Hủy đơn hàng</span>
+                                        <span class="status-label" style="border: 2px solid #e53637; color: #e53637;">Hủy đơn hàng</span>
                                     @endif
                                 </td>
                                 @if (Auth::user()->role == 0)
@@ -76,13 +76,13 @@
                                     </td>
                                     <td class="management-lite">
                                         @if ($order->schedule_status == 0)
-                                            <a href="{{ route('schedule.create', $order->id) }}" class="management-btn">
-                                                <i class="fa fa-calendar-plus"></i>
+                                            <a href="{{ route('schedule.create', $order->id) }}" class="create-schedule-btn">
+                                                Thêm Lịch
                                             </a>
                                         @else
-                                            <a href="{{ route('schedule.edit', $order->id) }}" class="management-btn">
-                                                <i class="fas fa-calendar-week"></i>
-                                            </a>
+                                            <a href="{{ route('schedule.edit', $order->id) }}" class="edit-schedule-btn">
+                                                Sửa Lịch
+                                            </a>    
                                         @endif
                                     </td>
                                 @else

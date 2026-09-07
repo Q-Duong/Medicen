@@ -308,6 +308,16 @@
     background-color: #f8ecae;
 }
 
+.table>tbody>tr.uncomplete-order>td {
+    background-color:#F59E0B;
+    color: #fff !important;
+}
+
+.uncomplete-order span {
+    color: #FFFFFF !important;
+    border: 2px solid #FFFFFF!important;
+}
+
 .white-col {
     background-color: #ffffff !important;
 }

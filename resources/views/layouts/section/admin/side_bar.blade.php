@@ -55,8 +55,8 @@
                         </ul>
                     </li>
                     <li class="sub-menu">
-                        <a class="{{ request()->routeIs('accountant_sales.index') ? 'active' : '' }}"
-                            href="{{ route('accountant_sales.index') }}">
+                        <a class="{{ request()->routeIs('accountant_result.index') ? 'active' : '' }}"
+                            href="{{ route('accountant_result.index') }}">
                             <i class="fas fa-file-invoice-dollar"></i>
                             <span>Quản lý công nợ (Sales)</span>
                         </a>
@@ -91,6 +91,20 @@
                             </li>
 
                         </ul>
+                    </li>
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('schedules.sales.index') ? 'active' : '' }}"
+                            href="{{ route('schedules.sales.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Lịch Xe (Sales)</span>
+                        </a>
+                    </li>
+                    <li class="sub-menu">
+                        <a class="{{ request()->routeIs('schedules.technicians.index') ? 'active' : '' }}"
+                            href="{{ route('schedules.technicians.index') }}">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Lịch Xe (KTV)</span>
+                        </a>
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant_sales.index') ? 'active' : '' }}"

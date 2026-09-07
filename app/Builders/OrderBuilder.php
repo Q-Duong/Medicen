@@ -14,6 +14,7 @@ final class OrderBuilder extends Builder
             ->select(
                 'orders.id',
                 'orders.created_at',
+                'orders.complete',
                 'order_quantity',
                 'order_price',
                 'status_id',

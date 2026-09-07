@@ -603,10 +603,18 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="primary-btn-filter button-submit">Cập nhật thông tin
-                                đơn
-                                hàng
-                            </button>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <button type="submit" name="complete" value="0" class="primary-btn-submit button-submit">
+                                        Thêm đơn chưa hoàn thành
+                                    </button>
+                                </div>
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <button type="submit" name="complete" value="1" class="primary-btn-submit button-submit">
+                                        Thêm đơn hàng
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
