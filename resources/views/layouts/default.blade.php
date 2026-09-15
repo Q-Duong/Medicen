@@ -25,16 +25,11 @@
     <meta property="og:description" content="@yield('seo_description', 'Medicen (Nam Khánh Linh) chuyên cho thuê xe X-quang khám sức khỏe lưu động, cung cấp phần mềm đo loãng xương và trang thiết bị y tế chuyên nghiệp.')">
     <meta property="og:image" content="@yield('seo_image', asset('assets/images/medicen-logo.png'))">
 
-    <!-- Css Styles -->
-    {{-- 
-
-    <link rel="stylesheet" href="{{ versionResource('frontend/css/style.css') }}" type="text/css" as="style"> --}}
-
-
+    <link rel="stylesheet" href="{{ versionResource('frontend/css/style.css') }}" type="text/css" as="style">
     <link rel="stylesheet" href="{{ versionResource('assets/css/bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/bootstrap-icons.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/home.css') }}" type="text/css">
-    {{-- <link rel="stylesheet" href="{{ versionResource('assets/css/built/site.built.css') }}" type="text/css"> --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/built/site.built.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet'>
     @stack('css')
 </head>

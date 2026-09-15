@@ -6,13 +6,13 @@
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/file.css') }}" type="text/css" as="style" />
 @endpush
 @section('content')
-@section('title', 'Lịch xe chi tiết KTV - ')
+@section('title', 'Lịch xe chi tiết KTV - Medicen')
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__text">
-                    <h4>LỊCH XE CHI TIẾT KTV</h4>
+                    <h4>Lịch xe chi tiết KTV</h4>
                     <div class="breadcrumb__links">
                         <a href="{{ route('home.index') }}">Trang chủ</a>
                         <span>Lịch xe chi tiết KTV</span>
@@ -133,7 +133,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -165,7 +165,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -227,7 +227,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -259,7 +259,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -321,7 +321,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -353,7 +353,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -415,7 +415,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -447,7 +447,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -509,7 +509,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -541,7 +541,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -603,7 +603,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -635,7 +635,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -697,7 +697,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -729,7 +729,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -791,7 +791,7 @@
                                                             <span class="sub-title-date"><b>Ngày:</b>
                                                                 {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                             </span>
-                                                            <p class="line">-</p>
+                                                            <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
                                                                 {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                             </span>
@@ -823,7 +823,7 @@
                                                         <span class="sub-title-date"><b>Ngày:</b>
                                                             {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
                                                         </span>
-                                                        <p class="line">-</p>
+                                                        <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
                                                             {{ getShortName($firstOrder->car_ktv_name_1) }}{{ $firstOrder->car_ktv_name_2 ? ', ' . getShortName($firstOrder->car_ktv_name_2) : '' }}
                                                         </span>
@@ -873,7 +873,7 @@
                             <span class="sub-title-date"><b>Ngày:</b>
                                 <span class="event-date"></span>
                             </span>
-                            <p class="line">-</p>
+                            <span class="line">-</span>
                             <span class="sub-title-technician"><b>KTV:</b>
                                 <span class="event-technician"></span>
                             </span>

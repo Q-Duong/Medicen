@@ -490,6 +490,8 @@ Main Components
 
 .cd-schedule .event-unit {
 	font-size: 20px;
+	color: #000000;
+	letter-spacing: 0;
 	margin-bottom: 0 !important;
 }
 
@@ -508,7 +510,7 @@ Main Components
 	}
 
 	.cd-schedule  h2.event-unit {
-		margin-top: 10px;
+		margin-top: 13px;
 		font-size: 20px;
 	}
 }
@@ -963,7 +965,7 @@ Main Components
 .cd-schedule .event-modal {
 	position: fixed;
 	z-index: 100;
-	top: 52px;
+	top: 75px;
 	right: 0;
 	height: 100%;
 	width: 100%;
@@ -1016,7 +1018,7 @@ Main Components
 
 @media only screen and (max-width: 799px) {
 	.cd-schedule .event-modal .event-info {
-		padding: 15px 15px 100px 15px;
+		padding: 15px 15px 123px 15px;
 	}
 }
 

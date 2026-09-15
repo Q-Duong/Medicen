@@ -5350,34 +5350,6 @@ a.delete_withlist {
 	color: #aaa;
 }
 
-.slider {
-	width: 100%;
-	border-radius: 10px;
-	overflow: hidden;
-	position: relative;
-	height: 550px;
-}
-
-.slides {
-	width: 500%;
-	height: auto;
-	display: flex;
-}
-
-.slides input {
-	display: none;
-}
-
-.slide {
-	width: 20%;
-	transition: 2s;
-}
-
-.slide img {
-	width: 100%;
-	height: auto;
-}
-
 /*css for manual slide navigation*/
 
 
@@ -5649,7 +5621,7 @@ a.delete_withlist {
 
 .account-header-title h3 {
 	font-weight: 700 !important;
-	border-bottom: 2px solid #d1d1d1;
+	/* border-bottom: 2px solid #d1d1d1; */
 }
 
 .account-content {
