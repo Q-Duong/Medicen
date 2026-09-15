@@ -1,5 +1,3 @@
-"use strict";
-
 (function ($) {
     /*------------------
         Preloader
@@ -32,33 +30,6 @@
         e.preventDefault();
         $("html, body").animate({ scrollTop: 0 }, "200");
     });
-
-
-    /*------------------
-		Navigation
-	--------------------*/
-    $(".mobile-menu-nav").slicknav({
-        prependTo: "#mobile-menu-wrap",
-        allowParentLinks: true,
-    });
-
-    //Search Switch
-    $(".globalnav-search").on("click", function () {
-        $(this).addClass("globalnav-item-flyout-open");
-        // $(".search-model").fadeIn(400);
-    });
-
-    // $(".search-close-switch").on("click", function () {
-    //     $(".search-model").fadeOut(400, function () {
-    //         $("#search-input").val("");
-    //     });
-    // });
-
-    // $(".overlay").on("click", function () {
-    //     $(".search-model").fadeOut(400, function () {
-    //         $("#search-input").val("");
-    //     });
-    // });
 
     //Globalnav Menu
     $(".globalnav-menutrigger-button").on("click", function () {
@@ -108,64 +79,5 @@
                     .removeClass("ac-gf-directory-column-expanded");
             }
         });
-    });
-    /*------------------
-        Accordin Active
-    --------------------*/
-    $(".collapse").on("shown.bs.collapse", function () {
-        $(this).prev().addClass("active");
-    });
-
-    $(".collapse").on("hidden.bs.collapse", function () {
-        $(this).prev().removeClass("active");
-    });
-
-    //Canvas Menu
-    $(".canvas__open").on("click", function () {
-        $(".offcanvas-menu-wrapper").addClass("active");
-        $(".offcanvas-menu-overlay").addClass("active");
-    });
-
-    $(".offcanvas-menu-overlay").on("click", function () {
-        $(".offcanvas-menu-wrapper").removeClass("active");
-        $(".offcanvas-menu-overlay").removeClass("active");
-    });
-
-
-
-
-    /*------------------
-        Search Handle
-    --------------------*/
-    $(".search-switch").on("click", function () {
-        $("input[name=keywords_submit]").focus();
-    });
-
-    $("#keywords").keyup(function () {
-        var query = $(this).val();
-
-        if (query != "") {
-            var _token = $('input[name="_token"]').val();
-
-            $.ajax({
-                url: "{{ url('/autocomplete-ajax') }}",
-                method: "POST",
-                data: {
-                    query: query,
-                    _token: _token,
-                },
-                success: function (data) {
-                    $("#search_ajax").fadeIn();
-                    $("#search_ajax").html(data);
-                },
-            });
-        } else {
-            $("#search_ajax").fadeOut();
-        }
-    });
-
-    $(document).on("click", ".li_search_ajax", function () {
-        $("#keywords").val($(this).text());
-        $("#search_ajax").fadeOut();
     });
 })(jQuery);

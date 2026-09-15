@@ -48,36 +48,26 @@ use Illuminate\Support\Facades\Hash;
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::post('/search', [HomeController::class, 'search']);
 Route::post('/autocomplete-ajax', [HomeController::class, 'autocomplete_ajax']);
-//News
-// Route::prefix('tin-tuc')->group(function () {
-//     Route::get('/', [PostController::class, 'showPostCategories'])->name('blog.category');
-//     Route::get('/{post_category_slug}', [PostController::class, 'showPostCategoriesSlug'])->name('blog.category_slug');
-//     Route::get('/{post_category_slug}/{post_slug}', [PostController::class, 'showPostInCategories'])->name('blog.post_in_category');
-// });
-//Blog
-Route::prefix('blog')->group(function () {
-    Route::get('/', [BlogController::class, 'index'])->name('blog.index');
-    Route::get('{blog_category_slug}', [BlogCategoryController::class, 'index'])->name('blog_category.index');
-    Route::get('{blog_category_slug}/{blog_slug}', [BlogController::class, 'detail'])->name('blog.detail');
-});
-//Service
-Route::get('/dich-vu/{service_slug}', [ServiceController::class, 'show'])->name('service.details');
-//About
-Route::prefix('gioi-thieu')->group(function () {
-    Route::get('/', [AboutController::class, 'index'])->name('about.index');
-    Route::get('/{about_slug}', [AboutController::class, 'showBySlug'])->name('about.show_by_slug');
-});
-//Contact
-Route::get('lien-he', [ContactController::class, 'show'])->name('contact.index');
-//Order
-Route::get('dang-ky', [OrderController::class, 'createOrderClient'])->name('order.clients.create');
-Route::post('save-order-client', [OrderController::class, 'storeOrderClient'])->name('order.clients.store');
-Route::get('dang-ky/chi-tiet', [OrderController::class, 'createOrderDetailsClient'])->name('order.clients.create_details');
-Route::post('save-order-details-client', [OrderController::class, 'storeOrderDetailsClient'])->name('order.clients.store_details');
-Route::get('successful-medical-registration', [OrderController::class, 'successfulRegistration'])->name('order.clients.alert');
 
-//QR Code
-Route::get('create-qr-code', [QrController::class, 'index'])->name('qr.index');
+//Blog
+Route::prefix('blogs')->group(function () {
+    Route::get('/', [BlogController::class, 'index'])->name('blogs.index');
+    Route::get('{blog_slug}', [BlogController::class, 'details'])->name('blogs.details');
+});
+
+//Service
+Route::get('services', [ServiceController::class, 'index'])->name('services.index');
+
+//About
+Route::prefix('about')->group(function () {
+    Route::get('/', [AboutController::class, 'index'])->name('about.index');
+});
+
+//Contact
+Route::prefix('contact')->group(function () {
+    Route::get('/', [ContactController::class, 'index'])->name('contact.index');
+    Route::post('/submit', [ContactController::class, 'submit'])->name('contact.submit');
+});
 
 Route::get('hash-password', function () {
     dd(Hash::make('Medicen@2025'));
@@ -183,10 +173,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
     });
-    Route::prefix('contact')->group(function () {
-        Route::get('edit', [ContactController::class, 'edit'])->name('contact.edit');
-        Route::patch('update', [ContactController::class, 'update'])->name('contact.update');
-    });
+    // Route::prefix('contact')->group(function () {
+    //     Route::get('edit', [ContactController::class, 'edit'])->name('contact.edit');
+    //     Route::patch('update', [ContactController::class, 'update'])->name('contact.update');
+    // });
     //403
     Route::get('/403', function () {
         return view('403');
@@ -238,15 +228,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::patch('update/{id}', [ServiceController::class, 'update'])->name('service.update');
             Route::delete('delete/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
         });
-        //About
-        Route::prefix('about')->group(function () {
-            Route::get('/', [AboutController::class, 'index'])->name('about.index');
-            Route::get('create', [AboutController::class, 'create'])->name('about.create');
-            Route::post('save', [AboutController::class, 'store'])->name('about.store');
-            Route::get('edit/{id}', [AboutController::class, 'edit'])->name('about.edit');
-            Route::patch('update/{id}', [AboutController::class, 'update'])->name('about.update');
-            Route::delete('delete/{id}', [AboutController::class, 'destroy'])->name('about.destroy');
-        });
+
         //Post
         Route::prefix('post')->group(function () {
             Route::get('/', [PostController::class, 'index'])->name('post.index');

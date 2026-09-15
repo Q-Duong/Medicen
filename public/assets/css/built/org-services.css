@@ -1,0 +1,81 @@
+.hero-banner-bg {
+    background-size: cover;
+    background-position: center;
+    min-height: 450px;
+}
+
+.hero-gradient-overlay {
+    background: linear-gradient(45deg, #346fdb 1%, #9beaff);
+}
+
+.hero-content-wrapper {
+    z-index: 2;
+    padding-top: 80px;
+}
+
+.hero-desc-text {
+    max-width: 700px;
+}
+
+.service-tag{
+    border-end-start-radius: 1rem;
+}
+
+.service-right-tag{
+    border-end-end-radius: 1rem;
+}
+
+.badge{
+    background: #346fdb;
+    color: #ffffff;
+}
+
+.service-img-featured {
+    object-fit: contain;
+    height: 288px;
+}
+
+.service-img-featured-top {
+    object-fit: contain;
+    height: 266px;
+    object-position: top;
+}
+
+.service-desc-text {
+    line-height: 1.8;
+}
+
+.section-bg-light {
+    background-color: #fbfbfd;
+}
+
+.process-section {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+.process-step-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.transition-hover {
+    transition: all 0.3s ease-in-out;
+}
+
+.transition-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.1) !important;
+}
+
+.cta-section {
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.cta-desc-text {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
