@@ -18,13 +18,6 @@
                             <span>Tính lợi nhuận X-Quang</span>
                         </a>
                     </li>
-                    <li>
-                        <a class="{{ request()->routeIs('contact.edit') ? 'active' : '' }}"
-                            href="{{ route('contact.edit') }}">
-                            <i class="fa fa-info-circle"></i>
-                            <span>Thông tin Web NKL</span>
-                        </a>
-                    </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="javascript:;">
@@ -68,14 +61,7 @@
                             </li>
                         </ul>
                     </li>
-                    {{-- <li class="sub-menu">
-                    <a class="{{ request()->routeIs('customer.index') ? 'active' : '' }}"
-                        href="{{ route('customer.index') }}">
-                        <i class="fas fa-users"></i>
-                        <span>Quản lý khách hàng</span>
-                    </a>
-                </li> --}}
-
+                    
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('staff.index') || request()->routeIs('staff.create') || request()->routeIs('staff.edit') ? 'active' : '' }}"
                             href="javascript:;">
@@ -98,72 +84,7 @@
                         </ul>
                     </li>
 
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('service.index') || request()->routeIs('service.create') || request()->routeIs('service.edit') ? 'active' : '' }}"
-                            href="javascript:;">
-                            <i class="fas fa-server"></i>
-                            <span>Quản lý dịch vụ</span>
-                        </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('service.create') ? 'active' : '' }}"
-                                    href="{{ route('service.create') }}">
-                                    <i class="fas fa-user-plus"></i> Thêm dịch vụ
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('service.index') ? 'active' : '' }}"
-                                    href="{{ route('service.index') }}">
-                                    <i class="fas fa-list-ol"></i> Danh sách dịch vụ
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('about.index') || request()->routeIs('about.create') || request()->routeIs('about.edit') ? 'active' : '' }}"
-                            href="javascript:;">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Quản lý giới thiệu</span>
-                        </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('about.create') ? 'active' : '' }}"
-                                    href="{{ route('about.create') }}">
-                                    <i class="fas fa-user-plus"></i> Thêm giới thiệu
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('about.index') ? 'active' : '' }}"
-                                    href="{{ route('about.index') }}">
-                                    <i class="fas fa-list-ol"></i> Danh sách giới thiệu
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('post_category.index') || request()->routeIs('post_category.create') || request()->routeIs('post_category.edit') ? 'active' : '' }}"
-                            href="javascript:;">
-                            <i class="fas fa-th"></i>
-                            <span>Quản lý danh mục bài viết</span>
-                        </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('post_category.create') ? 'active' : '' }}"
-                                    href="{{ route('post_category.create') }}">
-                                    <i class="far fa-plus-square"></i> Thêm danh mục bài viết
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('post_category.index') ? 'active' : '' }}"
-                                    href="{{ route('post_category.index') }}">
-                                    <i class="far fa-list-alt"></i> Danh mục bài viết
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="sub-menu">
+                    {{-- <li class="sub-menu">
                         <a class="{{ request()->routeIs('post.index') || request()->routeIs('post.create') || request()->routeIs('post.edit') ? 'active' : '' }}"
                             href="javascript:;">
                             <i class="fab fa-blogger-b"></i>
@@ -183,28 +104,8 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('slider.index') || request()->routeIs('slider.create') || request()->routeIs('slider.edit') ? 'active' : '' }}"
-                            href="javascript:;">
-                            <i class="fa fa-picture-o"></i>
-                            <span>Slider</span>
-                        </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('slider.create') ? 'active' : '' }}"
-                                    href="{{ route('slider.create') }}">
-                                    <i class="far fa-plus-square"></i> Thêm slider
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('slider.index') ? 'active' : '' }}"
-                                    href="{{ route('slider.index') }}">
-                                    <i class="far fa-list-alt"></i> Quản lý slider
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    </li> --}}
+
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
                             href="{{ route('accountant.index') }}">

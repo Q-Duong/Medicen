@@ -2,10 +2,23 @@
 <html lang="{{ App::getLocale() == 'vn' ? 'vi-VN' : 'en-US' }}" class="enhanced">
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    {{-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL54RPCH92"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LL54RPCH92');
+    </script> --}}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="google-site-verification" content="aPcMw-PBphViCDbTq79T4-WeqSUzk3H1C7M5qjDTBMY" />
 
     <title>@yield('title', 'Medicen | Cho Thuê Xe X-Quang & Phần Mềm Đo Loãng Xương')</title>
 
@@ -55,6 +68,15 @@
     <script src="{{ versionResource('assets/js/built/custom.js') }}"></script>
     <script src="https://kit.fontawesome.com/4b68e3663c.js" crossorigin="anonymous" defer></script>
     <script src="{{ versionResource('frontend/js/main.js') }}"></script>
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Medicen",
+          "alternateName": "Công Ty TNHH Đầu Tư Trang Thiết Bị Y Tế Nam Khánh Linh Medicen",
+          "url": "https://www.medicen.tech/"
+        }
+        </script>
     @stack('js')
 </body>
 
