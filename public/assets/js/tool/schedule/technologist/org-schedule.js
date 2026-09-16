@@ -733,7 +733,7 @@ function openMultiModal(element) {
                         <span class="sub-title-date"><b>Ngày:</b>
                             ${formatDate(order.ord_start_day)}
                         </span>
-                        <p class="line">-</p>
+                        <span class="line">-</span>
                         <span class="sub-title-technician"><b>KTV:</b>
                             ${displayName}
                         </span>
