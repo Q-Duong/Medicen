@@ -151,6 +151,24 @@ class ScheduleController extends Controller
 				$stats['statistic_8']   += $statistic->accountant_8X10;
 				$stats['statistic_10']  += $statistic->accountant_10X12;
 
+				switch ($statistic->accountant_doctor_read) {
+						case 'Nhân':
+							$stats['statistic_N'] += $statistic->order_quantity;
+							break;
+						case 'Trung':
+							$stats['statistic_T'] += $statistic->order_quantity;
+							break;
+						case 'Giang':
+							$stats['statistic_G'] += $statistic->order_quantity;
+							break;
+						case 'Ân':
+							$stats['statistic_A'] += $statistic->order_quantity;
+							break;
+						default:
+							$stats['statistic_K'] += $statistic->order_quantity;
+							break;
+					}
+
 				$multiplier = 0;
 				if (in_array($statistic->ord_select, $xray1Position)) {
 					$multiplier = 1;
@@ -161,24 +179,6 @@ class ScheduleController extends Controller
 				if ($multiplier > 0) {
 					$quantityToAdd = $statistic->order_quantity * $multiplier;
 					$stats['statistic_complete'] += $quantityToAdd;
-
-					switch ($statistic->accountant_doctor_read) {
-						case 'Nhân':
-							$stats['statistic_N'] += $quantityToAdd;
-							break;
-						case 'Trung':
-							$stats['statistic_T'] += $quantityToAdd;
-							break;
-						case 'Giang':
-							$stats['statistic_G'] += $quantityToAdd;
-							break;
-						case 'Ân':
-							$stats['statistic_A'] += $quantityToAdd;
-							break;
-						default:
-							$stats['statistic_K'] += $quantityToAdd;
-							break;
-					}
 				}
 			}
 

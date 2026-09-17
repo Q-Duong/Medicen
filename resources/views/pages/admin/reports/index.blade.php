@@ -13,7 +13,9 @@
 
         <div class="table-content">
             <div id="reportContainer">
-
+                <a href="{{ route('reports.export_pdf', $report->id) }}" class="btn btn-danger" style="margin-bottom: 15px;">
+                    <i class="fas fa-file-pdf"></i> Xuất file PDF
+                </a>
                 <div class="sticky-summary-section">
                     <div class="filter-section">
                         <div class="filter-group">

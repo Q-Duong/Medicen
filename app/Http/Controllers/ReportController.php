@@ -9,6 +9,7 @@ use App\Models\Report;
 use App\Models\ReportItem;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -51,7 +52,7 @@ class ReportController extends Controller
         return view('pages.admin.reports.index', compact('report', 'month', 'year', 'accStats', 'isYearly'));
     }
 
-    public function seedDefault($id) 
+    public function seedDefault($id)
     {
         $report = Report::findOrFail($id);
 
@@ -92,5 +93,40 @@ class ReportController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function exportPdf($id)
+    {
+        // 1. Tìm cuốn báo cáo và load items kèm theo
+        $report = Report::with(['items' => function ($query) {
+            $query->orderBy('sort_order', 'asc');
+        }])->findOrFail($id);
+
+        $month = $report->month;
+        $year = $report->year;
+
+        // Lấy thống kê từ Accountant (giống như ở hàm index)
+        $accStats = $this->reportRepo->getAccountantStats($month, $year);
+
+        // 2. Tính toán các tổng số (Thay thế cho Javascript trên web)
+        $totalThuEst = $report->items->where('type', 'thu')->sum('estimated_amount');
+        $totalThuAct = $report->items->where('type', 'thu')->sum('actual_amount');
+
+        $totalChiEst = $report->items->where('type', 'chi')->sum('estimated_amount');
+        $totalChiAct = $report->items->where('type', 'chi')->sum('actual_amount');
+
+        $balanceEst = $totalThuEst - $totalChiEst;
+
+        // 3. Truyền toàn bộ biến ra View PDF
+        $pdf = Pdf::loadView('pages.admin.reports.pdf_template', compact(
+            'report', 'month', 'year', 'accStats',
+            'totalThuEst', 'totalThuAct',
+            'totalChiEst', 'totalChiAct',
+            'balanceEst'
+        ));
+
+        // 4. Cấu hình khổ giấy A4 nằm ngang và xuất file
+        $pdf->setPaper('A4', 'landscape');
+        return $pdf->download("Bao_Cao_Thu_Chi_Thang_{$month}_{$year}.pdf");
     }
 }

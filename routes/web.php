@@ -186,16 +186,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         return view('403');
     })->name('403');
 
-    //Category Post
-    Route::prefix('post-category')->group(function () {
-        Route::get('/', [PostCategoryController::class, 'index'])->name('post_category.index');
-        Route::get('create', [PostCategoryController::class, 'create'])->name('post_category.create');
-        Route::post('save', [PostCategoryController::class, 'store'])->name('post_category.store');
-        Route::get('edit/{id}', [PostCategoryController::class, 'edit'])->name('post_category.edit');
-        Route::patch('update/{id}', [PostCategoryController::class, 'update'])->name('post_category.update');
-        Route::delete('delete/{id}', [PostCategoryController::class, 'destroy'])->name('post_category.destroy');
-    });
-
     //Unit
     Route::prefix('unit')->group(function () {
         Route::get('/', [UnitController::class, 'index'])->name('unit.index');
@@ -223,16 +213,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
-        //Service
-        Route::prefix('service')->group(function () {
-            Route::get('/', [ServiceController::class, 'index'])->name('service.index');
-            Route::get('create', [ServiceController::class, 'create'])->name('service.create');
-            Route::post('save', [ServiceController::class, 'store'])->name('service.store');
-            Route::get('edit/{id}', [ServiceController::class, 'edit'])->name('service.edit');
-            Route::patch('update/{id}', [ServiceController::class, 'update'])->name('service.update');
-            Route::delete('delete/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
-        });
-
         //Post
         Route::prefix('post')->group(function () {
             Route::get('/', [PostController::class, 'index'])->name('post.index');
@@ -263,15 +243,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('edit/{id}', [ScheduleSalesController::class, 'edit'])->name('schedule.edit');
             Route::patch('update/{id}', [ScheduleSalesController::class, 'update'])->name('schedule.update');
             Route::post('cancel', [ScheduleSalesController::class, 'cancel'])->name('schedule.cancel');
-        });
-        //Slider
-        Route::prefix('slider')->group(function () {
-            Route::get('/', [SliderController::class, 'index'])->name('slider.index');
-            Route::get('create', [SliderController::class, 'create'])->name('slider.create');
-            Route::post('save', [SliderController::class, 'insert'])->name('slider.insert');
-            Route::get('edit/{id}', [SliderController::class, 'edit'])->name('slider.edit');
-            Route::patch('update/{id}', [SliderController::class, 'update'])->name('slider.update');
-            Route::delete('delete/{id}', [SliderController::class, 'destroy'])->name('slider.destroy');
         });
     });
 
@@ -314,6 +285,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
                 ->name('seed_default');
             Route::put('/{id}', [ReportController::class, 'update'])->name('update');
             Route::post('/update-order', [ReportController::class, 'updateOrder'])->name('update_order');
+            Route::get('/{id}/export-pdf', [ReportController::class, 'exportPdf'])
+                ->name('export_pdf');
         });
     });
 
