@@ -205,6 +205,15 @@
                                     <option value="Gối (2 Tư thế)"
                                         {{ old('ord_select') == 'Gối (2 Tư thế)' ? 'selected' : '' }}>Gối (2 Tư thế)
                                     </option>
+                                    <option value="Cổ tay (2 Tư thế)"
+                                        {{ old('ord_select') == 'Cổ tay (2 Tư thế)' ? 'selected' : '' }}>Cổ tay (2 Tư thế)
+                                    </option>
+                                    <option value="Khuỷu tay (2 Tư thế)"
+                                        {{ old('ord_select') == 'Khuỷu tay (2 Tư thế)' ? 'selected' : '' }}>Khuỷu tay (2 Tư thế)
+                                    </option>
+                                    <option value="Bàn tay (2 Tư thế)"
+                                        {{ old('ord_select') == 'Bàn tay (2 Tư thế)' ? 'selected' : '' }}>Bàn tay (2 Tư thế)
+                                    </option>
                                     <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
                                         {{ old('ord_select') == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>
                                         Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng</option>
@@ -641,12 +650,14 @@
 
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
-                                    <button type="submit" name="complete" value="0" class="primary-btn-submit button-submit">
+                                    <button type="submit" name="complete" value="0"
+                                        class="primary-btn-submit button-submit">
                                         Thêm đơn chưa hoàn thành
                                     </button>
                                 </div>
                                 <div class="col-lg-6 col-md-6 centered">
-                                    <button type="submit" name="complete" value="1" class="primary-btn-submit button-submit">
+                                    <button type="submit" name="complete" value="1"
+                                        class="primary-btn-submit button-submit">
                                         Thêm đơn hàng
                                     </button>
                                 </div>

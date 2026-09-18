@@ -222,6 +222,18 @@
                                     <option
                                         value="Gối (2 Tư thế)"{{ $order->ord_select == 'Gối (2 Tư thế)' ? 'selected' : '' }}>
                                         Gối (2 Tư thế)</option>
+                                    <option value="Cổ tay (2 Tư thế)"
+                                        {{ $order->ord_select == 'Cổ tay (2 Tư thế)' ? 'selected' : '' }}>Cổ tay (2 Tư thế)
+                                    </option>
+                                    <option value="Khuỷu tay (2 Tư thế)"
+                                        {{ $order->ord_select == 'Khuỷu tay (2 Tư thế)' ? 'selected' : '' }}>Khuỷu tay (2
+                                        Tư
+                                        thế)
+                                    </option>
+                                    <option value="Bàn tay (2 Tư thế)"
+                                        {{ $order->ord_select == 'Bàn tay (2 Tư thế)' ? 'selected' : '' }}>Bàn tay (2 Tư
+                                        thế)
+                                    </option>
                                     <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
                                         {{ $order->ord_select == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>
                                         Siêu âm Bụng, Giáp, Vú, Tử

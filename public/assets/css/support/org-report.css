@@ -29,11 +29,21 @@ h2 {
     gap: 10px;
 }
 
-/* @media (max-width: 768px) {
+@media (max-width: 768px) {
     .filter-group {
-      flex-direction: column;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        width: 100%;
     }
-  } */
+
+    .filter-group select,
+    .filter-group button,
+    .filter-group a {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
 
 select, input[type="date"] {
     padding: 8px 12px;
@@ -69,7 +79,7 @@ select, input[type="date"] {
     background: #27ae60;
 }
 
-.summary-wrapper{
+.summary-wrapper {
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -85,13 +95,13 @@ select, input[type="date"] {
 
 @media (max-width: 768px) {
     .summary-wrapper {
-      flex-direction: column;
+        flex-direction: column;
     }
-  
+
     .summary-box {
-      width: 100%;
+        width: 100%;
     }
-  }
+}
 
 .balance-wrapper {
     margin-top: 15px;
@@ -196,7 +206,7 @@ input[type="date"].date-input {
     border-radius: 15px;
 }
 
-.detail-table-wrapper h2{
+.detail-table-wrapper h2 {
     margin: 5px 0;
 
 }

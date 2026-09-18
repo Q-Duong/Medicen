@@ -197,6 +197,18 @@
                                     <option
                                         value="Gối (2 Tư thế)"{{ $order->ord_select == 'Gối (2 Tư thế)' ? 'selected' : '' }}>
                                         Gối (2 Tư thế)</option>
+                                    <option value="Cổ tay (2 Tư thế)"
+                                        {{ $order->ord_select == 'Cổ tay (2 Tư thế)' ? 'selected' : '' }}>Cổ tay (2 Tư thế)
+                                    </option>
+                                    <option value="Khuỷu tay (2 Tư thế)"
+                                        {{ $order->ord_select == 'Khuỷu tay (2 Tư thế)' ? 'selected' : '' }}>Khuỷu tay (2
+                                        Tư
+                                        thế)
+                                    </option>
+                                    <option value="Bàn tay (2 Tư thế)"
+                                        {{ $order->ord_select == 'Bàn tay (2 Tư thế)' ? 'selected' : '' }}>Bàn tay (2 Tư
+                                        thế)
+                                    </option>
                                     <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
                                         {{ $order->ord_select == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>
                                         Siêu âm Bụng, Giáp, Vú, Tử
@@ -565,7 +577,7 @@
                                     </div>
                                 @enderror
                             </div>
-                        
+
                             <div class="form-group block-order-cost {{ $order->order_all_in_one == 0 ? '' : 'hidden' }}">
                                 <label for="exampleInputPassword1">Đơn giá</label>
                                 <input type="text" name="order_cost" class="input-control order_cost"
@@ -577,8 +589,8 @@
                                 <div class="col-lg-6 col-md-6 centered">
                                     <div class="form-group">
                                         <label for="exampleInputPassword1">VAT</label>
-                                        <input type="text" name="order_vat" class="input-control" placeholder="Điền VAT"
-                                            value="{{ $order->order_vat }}">
+                                        <input type="text" name="order_vat" class="input-control"
+                                            placeholder="Điền VAT" value="{{ $order->order_vat }}">
                                     </div>
                                 </div>
 
@@ -605,12 +617,14 @@
 
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
-                                    <button type="submit" name="complete" value="0" class="primary-btn-submit button-submit">
+                                    <button type="submit" name="complete" value="0"
+                                        class="primary-btn-submit button-submit">
                                         Thêm đơn chưa hoàn thành
                                     </button>
                                 </div>
                                 <div class="col-lg-6 col-md-6 centered">
-                                    <button type="submit" name="complete" value="1" class="primary-btn-submit button-submit">
+                                    <button type="submit" name="complete" value="1"
+                                        class="primary-btn-submit button-submit">
                                         Thêm đơn hàng
                                     </button>
                                 </div>

@@ -13,9 +13,7 @@
 
         <div class="table-content">
             <div id="reportContainer">
-                <a href="{{ route('reports.export_pdf', $report->id) }}" class="btn btn-danger" style="margin-bottom: 15px;">
-                    <i class="fas fa-file-pdf"></i> Xuất file PDF
-                </a>
+
                 <div class="sticky-summary-section">
                     <div class="filter-section">
                         <div class="filter-group">
@@ -37,6 +35,11 @@
 
                             <button type="button" class="btn btn-primary btn-filter"
                                 onclick="window.location.href='?month='+document.getElementById('selectMonth').value+'&year='+document.getElementById('selectYear').value">Lọc</button>
+
+                            <a href="{{ route('reports.export_pdf', $report->id) }}" class="btn btn-danger"
+                                style="border-radius: 10px;">
+                                <i class="fas fa-file-pdf"></i> Xuất file PDF
+                            </a>
                         </div>
                     </div>
 
