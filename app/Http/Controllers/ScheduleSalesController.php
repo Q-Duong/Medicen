@@ -35,6 +35,11 @@ class ScheduleSalesController extends Controller
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
@@ -102,16 +107,37 @@ class ScheduleSalesController extends Controller
 		$rawOrders = Order::getScheduleDetails($firstDayOfThisMonth, $lastDayOfThisMonth);
 		$statistics = Accountant::getStatistics($firstDayOfThisMonth, $lastDayOfThisMonth);
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
+
+		$driverData = $filteredOrders
+			->flatMap(function ($order) {
+				return [$order->car_driver_name];
+			})
+			->filter()
+			->unique()
+			->values();
+
+		$technicianData = $filteredOrders
+			->flatMap(function ($order) {
+				return [$order->car_ktv_name_1, $order->car_ktv_name_2];
+			})
+			->filter()
+			->unique()
+			->values();
 
 		$statsArray = app(ScheduleController::class)->calculateStatistics($statistics);
 		extract($statsArray);
@@ -137,7 +163,7 @@ class ScheduleSalesController extends Controller
 			'statistic_K'
 		))->render();
 
-		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
+		return response()->json(array('success' => true, 'html' => $view, 'driverData' => $driverData, 'technicianData' => $technicianData, 'day' => $dayInMonth));
 	}
 
 	public function selectDriver(Request $request)
@@ -157,15 +183,19 @@ class ScheduleSalesController extends Controller
 			$rawOrders = Order::getScheduleDriverSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
 		}
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
@@ -197,15 +227,19 @@ class ScheduleSalesController extends Controller
 			$rawOrders = Order::getScheduleTechnicianSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
 		}
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 

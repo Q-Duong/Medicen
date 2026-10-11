@@ -547,6 +547,7 @@ Main Components
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 	z-index: 99;
 }
 
@@ -564,12 +565,33 @@ Main Components
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 	z-index: 99;
 }
 
 .order-warning i {
 	color: #FFC107;
 	font-size: 15px;
+}
+
+.numerical-order {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	background: #ffffff;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	z-index: 99;
+	border: 2px solid #757272;
+}
+
+.numerical-order span{
+	color: #757272;
+	font-size: 13px;
+	font-weight: 800;
 }
 
 .multi-event-wrapper {
@@ -620,7 +642,7 @@ Main Components
 }
 
 .more-badge {
-	background: #e74c3c;
+	background: #ffffff;
 	height: 20px;
 	min-width: 20px;
 	padding: 0 5px;
@@ -630,10 +652,11 @@ Main Components
 	border-radius: 15px;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 	z-index: 10;
+	border: 2px solid #757272;
 }
 
 .more-badge span {
-	color: #fff;
+	color: #757272;
 	font-weight: 800;
 	font-size: 13px;
 }
@@ -929,7 +952,7 @@ Main Components
 
 .cd-schedule .bg-blue,
 .cd-schedule [data-event="event-1"] .header-bg {
-	background-color: #74b9ff;
+	background-color: #93C5FD;
 	border-left: 5px solid #0984e3;
 	transition: all 0.2s ease;
 }

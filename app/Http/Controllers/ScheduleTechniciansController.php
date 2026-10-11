@@ -33,6 +33,11 @@ class ScheduleTechniciansController extends Controller
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
@@ -82,6 +87,11 @@ class ScheduleTechniciansController extends Controller
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
@@ -92,6 +102,7 @@ class ScheduleTechniciansController extends Controller
 			->filter()
 			->unique()
 			->values();
+			
 		$view = view('pages.client.schedule.technicians.render', compact(
 			'scheduleData',
 			'currentMonth',
@@ -120,15 +131,19 @@ class ScheduleTechniciansController extends Controller
 			$rawOrders = Order::getScheduleTechnicianSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
 		}
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 

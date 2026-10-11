@@ -311,6 +311,7 @@ final class OrderBuilder extends Builder
                 'status_id',
                 'car_ktvs.order_id',
                 'car_ktvs.id',
+                'car_driver_name',
                 'car_ktv_name_1',
                 'car_ktv_name_2',
                 'car_active',

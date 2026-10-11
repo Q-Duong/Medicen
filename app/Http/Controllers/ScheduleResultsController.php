@@ -44,12 +44,12 @@ class ScheduleResultsController extends Controller
 
 		// --- 3. XỬ LÝ GOM NHÓM DỮ LIỆU CHO BLADE (QUAN TRỌNG) ---
 		// Cấu trúc đích: $scheduleData[ID_XE][NGÀY_Y-m-d] = Collection các đơn
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
@@ -60,12 +60,6 @@ class ScheduleResultsController extends Controller
 					});
 				});
 			});
-
-			// ->map(function ($ordersByCar) {
-			// 	return $ordersByCar->groupBy(function ($item) {
-			// 		return Carbon::parse($item->ord_start_day)->format('Y-m-d');
-			// 	});
-			// });
 
 		// --- 4. TÍNH TOÁN THỐNG KÊ ---
 		$statsArray = app(ScheduleController::class)->calculateStatistics($statistics);
@@ -140,15 +134,19 @@ class ScheduleResultsController extends Controller
 
 		$rawOrders = Order::getScheduleDetailsForSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
@@ -178,15 +176,19 @@ class ScheduleResultsController extends Controller
 		$rawOrders = Order::getScheduleDetails($firstDayOfThisMonth, $lastDayOfThisMonth);
 		$statistics = Accountant::getStatistics($firstDayOfThisMonth, $lastDayOfThisMonth);
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 

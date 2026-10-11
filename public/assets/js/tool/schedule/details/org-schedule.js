@@ -124,8 +124,8 @@
     }
     
     /*------------------
-                           Function Schedule
-                        --------------------*/
+                               Function Schedule
+                            --------------------*/
     function schedule(day) {
         jQuery(document).ready(function ($) {
             var transitionEnd =
@@ -142,7 +142,7 @@
                 this.timelineItems = this.timeline.find("li");
                 this.timelineItemsNumber = this.timelineItems.length;
                 this.timelineStart = getScheduleTimestamp(
-                    this.timelineItems.eq(0).text()
+                    this.timelineItems.eq(0).text(),
                 );
                 //need to store delta (in our case half hour) timestamp
                 this.timelineUnitDuration =
@@ -334,8 +334,9 @@
                     .find(".event-date")
                     .html(formatDate(data.ord_start_day));
                 this.modalHeader
-                    .find(".event-technician")
-                    .html(displayName);
+                    .find(".event-driver")
+                    .html(getShortName(data.car_driver_name));
+                this.modalHeader.find(".event-technician").html(displayName);
                 this.modalHeader
                     .find(".event-order-id")
                     .html("<b>Mã đơn hàng:</b> " + data.order_id);
@@ -368,7 +369,7 @@
                     (data.customer_name || "") +
                         " (" +
                         (data.customer_phone || "") +
-                        ")"
+                        ")",
                 );
                 setText(".event-time").html(data.ord_time);
                 setText(".event-quantity").html(data.order_quantity);
@@ -385,7 +386,7 @@
                 setText(".event-deliver-results").html(data.ord_deliver_results);
                 setText(".event-email").html(data.ord_email);
                 setText(".event-draft").html(
-                    (data.order_quantity_draft || 0) + " Cas"
+                    (data.order_quantity_draft || 0) + " Cas",
                 );
                 setText(".event-noteKtv").html(data.order_note_ktv);
     
@@ -426,7 +427,7 @@
                             '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
                     });
                     mb.find(".event-list-file").html(
-                        '<div class="section-file">' + result + "</div>"
+                        '<div class="section-file">' + result + "</div>",
                     );
                 } else {
                     mb.find(".event-list-file").html("Không có danh sách");
@@ -484,7 +485,7 @@
                 var isLocked = data.status_id == 3;
     
                 mb.find(
-                    ".order-quantity, .accountant-doctor-read, .accountant-35X43, .accountant-polime, .accountant-8X10, .accountant-10X12, .accountant-note, .ord-delivery-date, .order-send-result, .submit-quantity-details"
+                    ".order-quantity, .accountant-doctor-read, .accountant-35X43, .accountant-polime, .accountant-8X10, .accountant-10X12, .accountant-note, .ord-delivery-date, .order-send-result, .submit-quantity-details",
                 ).attr("disabled", isLocked);
                 if (isLocked)
                     mb.find(".submit-quantity-details").addClass("hidden");
@@ -503,20 +504,20 @@
                         ? ""
                         : `<button class="delete-file del-total-file" type="button"><i class="fas fa-times"></i></button>`;
                     var fileHtml = `
-                                <div class="section-file">
-                                    <input type="hidden" name="path" value="${totalHref}">
-                                    <input type="hidden" name="file" value="${totalName}">
-                                    <input type="hidden" name="id" value="${detailId}">
-                                    <div class="main-file">
-                                        <div class="file-content">
-                                            <div class="file-name">${totalName}</div>
-                                            <div class="file-action">
-                                                <a href="https://drive.google.com/file/d/${totalHref}/view" target="_blank" class="download-file"><i class="far fa-eye"></i></a>
-                                                ${deleteBtn}
+                                    <div class="section-file">
+                                        <input type="hidden" name="path" value="${totalHref}">
+                                        <input type="hidden" name="file" value="${totalName}">
+                                        <input type="hidden" name="id" value="${detailId}">
+                                        <div class="main-file">
+                                            <div class="file-content">
+                                                <div class="file-name">${totalName}</div>
+                                                <div class="file-action">
+                                                    <a href="https://drive.google.com/file/d/${totalHref}/view" target="_blank" class="download-file"><i class="far fa-eye"></i></a>
+                                                    ${deleteBtn}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>`;
+                                    </div>`;
                     $previewBlock.html(fileHtml);
                 } else {
                     if (isLocked) $uploadBlock.addClass("hidden");
@@ -554,10 +555,10 @@
                                 : windowHeight * 0.8;
     
                     var modalTranslateX = parseInt(
-                            (windowWidth - modalWidth) / 2 - eventLeft
+                            (windowWidth - modalWidth) / 2 - eventLeft,
                         ),
                         modalTranslateY = parseInt(
-                            (windowHeight - modalHeight) / 2 - eventTop
+                            (windowHeight - modalHeight) / 2 - eventTop,
                         );
     
                     //change modal height/width and translate it
@@ -573,7 +574,7 @@
                             modalTranslateY +
                             "px) translateX(" +
                             modalTranslateX +
-                            "px)"
+                            "px)",
                     );
     
                     self.modalHeaderBg.one(transitionEnd, function () {
@@ -616,7 +617,7 @@
     
                     var modalTop = Number(self.modal.css("top").replace("px", "")),
                         modalLeft = Number(
-                            self.modal.css("left").replace("px", "")
+                            self.modal.css("left").replace("px", ""),
                         );
     
                     var modalTranslateX = modalLeft,
@@ -635,7 +636,7 @@
                             modalTranslateX +
                             "px) translateY(" +
                             modalTranslateY +
-                            "px)"
+                            "px)",
                     );
     
                     //scale down modalBodyBg element
@@ -702,8 +703,8 @@
                     self.element.addClass("animation-completed");
                     var event = self.eventsGroup.find(".selected-event");
     
-                    (eventHeight = event.innerHeight()),
-                        (eventWidth = event.innerWidth());
+                    ((eventHeight = event.innerHeight()),
+                        (eventWidth = event.innerWidth()));
     
                     var windowWidth = $(window).width(),
                         windowHeight = $(window).height();
@@ -778,7 +779,7 @@
                 if (event.keyCode == 27) {
                     objSchedulesPlan.forEach(function (element) {
                         element.closeModal(
-                            element.eventsGroup.find(".selected-event")
+                            element.eventsGroup.find(".selected-event"),
                         );
                     });
                 }
@@ -848,38 +849,47 @@
             var displayName = name1 + (name2 ? ", " + name2 : "");
     
             div.innerHTML = `
-                <div class="notification-icon-block">
-                    ${
-                        order.order_warning == "Có"
-                            ? `<div class="order-warning"><i class="fa fa-exclamation-triangle"></i></div>`
-                            : ""
-                    }
-                    ${
-                        order.order_updated == 1
-                            ? `<div class="order-status"><i class="fas fa-check-circle"></i></div>`
-                            : ""
-                    }
-                </div>
-                <a href="javascript:;" style="padding: 10px; display: block;">
-                    <div class="event-title">
-                        <div class="sub-title">
-                            <span class="sub-title-date"><b>Ngày:</b>
-                                ${formatDate(order.ord_start_day)}
-                            </span>
-                            <span class="line">-</span>
-                            <span class="sub-title-technician"><b>KTV:</b>
-                                ${displayName}
-                            </span>
+                    <div class="notification-icon-block">
+                        ${
+                            order.order_warning == "Có"
+                                ? `<div class="order-warning"><i class="fa fa-exclamation-triangle"></i></div>`
+                                : ""
+                        }
+                        <div class="numerical-order">
+                            <span>${order.stt}</span>
                         </div>
-                        <span class="event-name-unit">
-                            <b>Mã đơn hàng:</b> ${order.order_id}
-                        </span>
-                        <p class="event-name-unit">
-                            <b>Đơn vị:</b> ${order.unit_abbreviation}
-                        </p>
+                        ${
+                            order.order_updated == 1
+                                ? `<div class="order-status"><i class="fas fa-check-circle"></i></div>`
+                                : ""
+                        }
                     </div>
-                </a>
-            `;
+                    <a href="javascript:;" style="padding: 10px; display: block;">
+                        <div class="event-title">
+                            <div class="sub-title-date">
+                                <span class="sub-title-item-date">
+                                    <b>Ngày:</b> ${formatDate(order.ord_start_day)}
+                                </span>
+                                <span class="line">-</span>
+                                <span class="sub-title-item-order"><b>Mã đơn hàng:</b>
+                                    ${order.order_id}
+                                </span>
+                            </div>
+                            <div class="sub-title">
+                                <span class="sub-title-technician"><b>TX:</b>
+                                    ${getShortName(order.car_driver_name)}
+                                </span>
+                                <span class="line">-</span>
+                                <span class="sub-title-technician"><b>KTV:</b>
+                                    ${displayName}
+                                </span>
+                            </div>
+                            <p class="event-name-unit">
+                                <b>Đơn vị:</b> ${order.unit_abbreviation}
+                            </p>
+                        </div>
+                    </a>
+                `;
     
             modalBody.appendChild(div);
         });
@@ -897,14 +907,14 @@
         }
     };
     /*------------------
-                           Select Month Schedule
-                        --------------------*/
+                               Select Month Schedule
+                            --------------------*/
     $(document).on("change", ".select-month", function () {
         var month = $(this).val();
         var year = $(".select-year").val();
         $(".schedule-search").removeClass("search-show").val("");
         $(".btn-search").html(
-            '<button class="btn-schedule-search"><i class="fas fa-search"></i></button>'
+            '<button class="btn-schedule-search"><i class="fas fa-search"></i></button>',
         );
         $(".search-results").removeClass("search-results-show").html("");
         $(".loader-over").fadeIn();
@@ -931,13 +941,13 @@
         });
     });
     /*------------------
-                        Schedule Search
-                        --------------------*/
+                            Schedule Search
+                            --------------------*/
     $(document).on("click", ".btn-schedule-search", function () {
         $("input[name=search-keywords]").focus();
         $(".schedule-search").addClass("search-show");
         $(".btn-search").html(
-            '<button class="btn-close-search"><i class="fas fa-times"></i></button>'
+            '<button class="btn-close-search"><i class="fas fa-times"></i></button>',
         );
         $(".search-results").addClass("search-results-show");
     });
@@ -947,7 +957,7 @@
         var year = $(".select-year").val();
         $(".schedule-search").removeClass("search-show").val("");
         $(".btn-search").html(
-            '<button class="btn-schedule-search"><i class="fas fa-search"></i></button>'
+            '<button class="btn-schedule-search"><i class="fas fa-search"></i></button>',
         );
         $(".search-results").removeClass("search-results-show").html("");
         $(".loader-over").fadeIn();
@@ -1030,14 +1040,14 @@
         });
     });
     /*------------------
-                            Set month when year change
-                            --------------------*/
+                                Set month when year change
+                                --------------------*/
     $(document).on("change", ".select-year", function () {
         $(".define-month").prop("selected", true);
     });
     /*------------------
-                           Handle Schedule
-                        --------------------*/
+                               Handle Schedule
+                            --------------------*/
     $(document).on("click", ".submit-quantity-details", function () {
         var data = getValues();
         data.push(
@@ -1048,7 +1058,7 @@
             {
                 name: "_token",
                 value: $('meta[name="csrf-token"]').attr("content"),
-            }
+            },
         );
         $(".loader-over").fadeIn();
         $.ajax({

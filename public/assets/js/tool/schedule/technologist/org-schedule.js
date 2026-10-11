@@ -68,6 +68,24 @@ function renewDataTechnicianSelect(data) {
         );
     });
 }
+
+function renewDataDriverSelect(data) {
+    const $select = $(".select-drivers");
+
+    $select.empty();
+    $select.append(
+        '<option value="all" class="define-drivers" selected>Tất cả</option>',
+    );
+
+    $.each(data, function (index, name) {
+        $select.append(
+            $("<option>", {
+                value: name,
+                text: name,
+            }),
+        );
+    });
+}
 /*------------------
                        Function Schedule
                     --------------------*/
@@ -724,6 +742,9 @@ function openMultiModal(element) {
                         ? `<div class="order-warning"><i class="fa fa-exclamation-triangle"></i></div>`
                         : ""
                 }
+                <div class="numerical-order">
+                    <span>${order.stt}</span>
+                </div>
                 ${
                     order.order_updated == 1
                         ? `<div class="order-status"><i class="fas fa-check-circle"></i></div>`
@@ -792,6 +813,7 @@ $(".select-month").on("change", function () {
         success: function (data) {
             schedule(data.day);
             $(".schedule").html(data.html);
+            renewDataDriverSelect(data.driverData);
             renewDataTechnicianSelect(data.technicianData);
             $(".loader-over").fadeOut();
         },

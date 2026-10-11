@@ -67,6 +67,11 @@ class ScheduleController extends Controller
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
@@ -108,17 +113,30 @@ class ScheduleController extends Controller
 
 		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
+
+		$driverData = $filteredOrders
+			->flatMap(function ($order) {
+				return [$order->car_driver_name];
+			})
+			->filter()
+			->unique()
+			->values();
+
 		$view = view('pages.client.schedule.drivers.render', compact(
 			'scheduleData',
 			'currentMonth',
@@ -127,7 +145,7 @@ class ScheduleController extends Controller
 			'dayInMonth',
 		))->render();
 
-		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
+		return response()->json(array('success' => true, 'html' => $view, 'driverData' => $driverData, 'day' => $dayInMonth));
 	}
 
 	public function selectDriver(Request $request)
@@ -147,15 +165,19 @@ class ScheduleController extends Controller
 			$rawOrders = Order::getScheduleDriverSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
 		}
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
 
