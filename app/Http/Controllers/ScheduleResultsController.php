@@ -53,8 +53,19 @@ class ScheduleResultsController extends Controller
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				})->map(function ($ordersByDate) {
+					return $ordersByDate->values()->map(function ($order, $index) {
+						$order->stt = $index + 1;
+						return $order;
+					});
 				});
 			});
+
+			// ->map(function ($ordersByCar) {
+			// 	return $ordersByCar->groupBy(function ($item) {
+			// 		return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+			// 	});
+			// });
 
 		// --- 4. TÍNH TOÁN THỐNG KÊ ---
 		$statsArray = app(ScheduleController::class)->calculateStatistics($statistics);

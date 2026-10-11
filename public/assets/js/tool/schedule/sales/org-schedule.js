@@ -70,7 +70,7 @@ function schedule(day) {
             this.timelineItems = this.timeline.find("li");
             this.timelineItemsNumber = this.timelineItems.length;
             this.timelineStart = getScheduleTimestamp(
-                this.timelineItems.eq(0).text()
+                this.timelineItems.eq(0).text(),
             );
             //need to store delta (in our case half hour) timestamp
             this.timelineUnitDuration =
@@ -261,6 +261,9 @@ function schedule(day) {
             this.modalHeader
                 .find(".event-date")
                 .html(formatDate(data.ord_start_day));
+            this.modalHeader
+                .find(".event-driver")
+                .html(getShortName(data.car_driver_name));
             this.modalHeader.find(".event-technician").html(displayName);
             this.modalHeader
                 .find(".event-order-id")
@@ -294,7 +297,7 @@ function schedule(day) {
                 (data.customer_name || "") +
                     " (" +
                     (data.customer_phone || "") +
-                    ")"
+                    ")",
             );
             setText(".event-time").html(data.ord_time);
             setText(".event-quantity").html(data.order_quantity);
@@ -311,11 +314,11 @@ function schedule(day) {
             setText(".event-deliver-results").html(data.ord_deliver_results);
             setText(".event-email").html(data.ord_email);
             setText(".event-draft").html(
-                (data.order_quantity_draft || 0) + " Cas"
+                (data.order_quantity_draft || 0) + " Cas",
             );
             setText(".event-noteKtv").html(data.order_note_ktv);
             setText(".event-accountant-doctor-read").html(
-                data.accountant_doctor_read
+                data.accountant_doctor_read,
             );
             setText(".event-accountant-35X43").html(data.accountant_35X43);
             setText(".event-accountant-polime").html(data.accountant_polime);
@@ -323,7 +326,7 @@ function schedule(day) {
             setText(".event-accountant-10X12").html(data.accountant_10X12);
             setText(".event-accountant-note").html(data.accountant_note);
             setText(".event-ord-delivery-date").html(
-                formatDate(data.ord_delivery_date)
+                formatDate(data.ord_delivery_date),
             );
             setText(".event-order-send-result").html(data.order_send_result);
 
@@ -364,7 +367,7 @@ function schedule(day) {
                         '/view"target="_blank" class="download-file"><i class="far fa-eye"></i></a></div></div></div>';
                 });
                 mb.find(".event-list-file").html(
-                    '<div class="section-file">' + result + "</div>"
+                    '<div class="section-file">' + result + "</div>",
                 );
             } else {
                 mb.find(".event-list-file").html("Không có danh sách");
@@ -402,7 +405,7 @@ function schedule(day) {
             const now = new Date();
             now.setHours(0, 0, 0, 0);
             const start_date = new Date(data.ord_start_day);
-            
+
             var htmlContent =
                 start_date.getTime() >= now.getTime()
                     ? `<a href="${data.edit_url}" target="_blank" class="form-button button-submit rs-lookup-submit">Chỉnh sửa</a>`
@@ -439,10 +442,10 @@ function schedule(day) {
                             : windowHeight * 0.8;
 
                 var modalTranslateX = parseInt(
-                        (windowWidth - modalWidth) / 2 - eventLeft
+                        (windowWidth - modalWidth) / 2 - eventLeft,
                     ),
                     modalTranslateY = parseInt(
-                        (windowHeight - modalHeight) / 2 - eventTop
+                        (windowHeight - modalHeight) / 2 - eventTop,
                     );
 
                 //change modal height/width and translate it
@@ -458,7 +461,7 @@ function schedule(day) {
                         modalTranslateY +
                         "px) translateX(" +
                         modalTranslateX +
-                        "px)"
+                        "px)",
                 );
 
                 self.modalHeaderBg.one(transitionEnd, function () {
@@ -479,7 +482,7 @@ function schedule(day) {
             var mq = self.mq();
 
             this.animating = true;
-            self.modalBody.find(".rs-overlay-change").html('');
+            self.modalBody.find(".rs-overlay-change").html("");
             $("body").removeAttr("style");
 
             //HIỆN LẠI POPUP DANH SÁCH (NẾU CẦN)
@@ -502,7 +505,7 @@ function schedule(day) {
 
                 var modalTop = Number(self.modal.css("top").replace("px", "")),
                     modalLeft = Number(
-                        self.modal.css("left").replace("px", "")
+                        self.modal.css("left").replace("px", ""),
                     );
 
                 var modalTranslateX = modalLeft,
@@ -521,7 +524,7 @@ function schedule(day) {
                         modalTranslateX +
                         "px) translateY(" +
                         modalTranslateY +
-                        "px)"
+                        "px)",
                 );
 
                 //scale down modalBodyBg element
@@ -588,8 +591,8 @@ function schedule(day) {
                 self.element.addClass("animation-completed");
                 var event = self.eventsGroup.find(".selected-event");
 
-                (eventHeight = event.innerHeight()),
-                    (eventWidth = event.innerWidth());
+                ((eventHeight = event.innerHeight()),
+                    (eventWidth = event.innerWidth()));
 
                 var windowWidth = $(window).width(),
                     windowHeight = $(window).height();
@@ -664,7 +667,7 @@ function schedule(day) {
             if (event.keyCode == 27) {
                 objSchedulesPlan.forEach(function (element) {
                     element.closeModal(
-                        element.eventsGroup.find(".selected-event")
+                        element.eventsGroup.find(".selected-event"),
                     );
                 });
             }
@@ -748,18 +751,24 @@ function openMultiModal(element) {
             </div>
             <a href="javascript:;" style="padding: 10px; display: block;">
                 <div class="event-title">
+                    <div class="sub-title-date">
+                        <span class="sub-title-item-date">
+                            <b>Ngày:</b> ${formatDate(order.ord_start_day)}
+                        </span>
+                        <span class="line">-</span>
+                        <span class="sub-title-item-order"><b>Mã đơn hàng:</b>
+                            ${order.order_id}
+                        </span>
+                    </div>
                     <div class="sub-title">
-                        <span class="sub-title-date"><b>Ngày:</b>
-                            ${formatDate(order.ord_start_day)}
+                        <span class="sub-title-technician"><b>TX:</b>
+                            ${getShortName(order.car_driver_name)}
                         </span>
                         <span class="line">-</span>
                         <span class="sub-title-technician"><b>KTV:</b>
                             ${displayName}
                         </span>
                     </div>
-                    <span class="event-name-unit">
-                        <b>Mã đơn hàng:</b> ${order.order_id}
-                    </span>
                     <p class="event-name-unit">
                         <b>Đơn vị:</b> ${order.unit_abbreviation}
                     </p>
@@ -815,4 +824,68 @@ $(".select-month").on("change", function () {
             --------------------*/
 $(".select-year").on("change", function () {
     $(".define-month").prop("selected", true);
+});
+
+/*------------------
+                                                    Select Technicians Schedule
+                                                    --------------------*/
+$(".select-technicians").on("change", function () {
+    $(".define-drivers").prop("selected", true);
+    var year = $(".select-year").val();
+    var month = $(".select-month").val();
+    var param = $(this).val();
+    $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_select_technician_sales,
+        method: "POST",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr("content"),
+            year: year,
+            month: month,
+            param: param,
+        },
+        success: function (data) {
+            schedule(data.day);
+            $(".schedule").html(data.html);
+            $(".loader-over").fadeOut();
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
+        },
+        complete: function () {
+            $(".loader-over").fadeOut();
+        },
+    });
+});
+
+/*------------------
+                                                                                                        Select Drivers Schedule
+                                                                                                        --------------------*/
+$(".select-drivers").on("change", function () {
+    $(".define-technicians").prop("selected", true);
+    var year = $(".select-year").val();
+    var month = $(".select-month").val();
+    var param = $(this).val();
+    $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_select_driver_sales,
+        method: "POST",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr("content"),
+            year: year,
+            month: month,
+            param: param,
+        },
+        success: function (data) {
+            schedule(data.day);
+            $(".schedule").html(data.html);
+            $(".loader-over").fadeOut();
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
+        },
+        complete: function () {
+            $(".loader-over").fadeOut();
+        },
+    });
 });

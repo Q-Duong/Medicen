@@ -27,7 +27,7 @@
         <div class="container">
             <div class="schedule-support">
                 <div class="row justify-content-center">
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-4 col-6">
                         <div class="form-dropdown">
                             <select class="form-dropdown-select select-year">
                                 @for ($i = 0; $i <= 10; $i++)
@@ -41,7 +41,7 @@
                             <span class="form-dropdown-label" aria-hidden="true">Năm</span>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-4 col-6">
                         <div class="form-dropdown">
                             <select class="form-dropdown-select select-month">
                                 <option disabled class="define-month">Chọn tháng</option>
@@ -54,6 +54,20 @@
                             <span class="form-dropdown-chevron" aria-hidden="true"><i
                                     class="fa-solid fa-angle-down"></i></span>
                             <span class="form-dropdown-label" aria-hidden="true">Tháng</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-12">
+                        <div class="form-dropdown">
+                            <select class="form-dropdown-select select-drivers">
+                                <option value="all" class="define-drivers" selected>Tất cả</option>
+                                @foreach ($driverData as $driver)
+                                    <option value="{{ $driver }}">
+                                        {{ $driver }}</option>
+                                @endforeach
+                            </select>
+                            <span class="form-dropdown-chevron" aria-hidden="true"><i
+                                    class="fa-solid fa-angle-down"></i></span>
+                            <span class="form-dropdown-label" aria-hidden="true">Chọn TX</span>
                         </div>
                     </div>
                 </div>
@@ -114,9 +128,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -146,9 +163,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -208,9 +228,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -240,9 +263,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -302,9 +328,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -334,9 +363,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -396,9 +428,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -428,9 +463,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -490,9 +528,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -522,9 +563,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -584,9 +628,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -616,9 +663,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -678,9 +728,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -710,9 +763,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -772,9 +828,12 @@
                                                         @endif
                                                     </div>
                                                     <div class="event-title">
+                                                        <div class="sub-title-date"><b>Ngày:</b>
+                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        </div>
                                                         <div class="sub-title">
-                                                            <span class="sub-title-date"><b>Ngày:</b>
-                                                                {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                            <span class="sub-title-technician"><b>TX:</b>
+                                                                {{ getShortName($firstOrder->car_driver_name) }}
                                                             </span>
                                                             <span class="line">-</span>
                                                             <span class="sub-title-technician"><b>KTV:</b>
@@ -804,9 +863,12 @@
                                             </div>
                                             <a href="javascript:;">
                                                 <div class="event-title">
+                                                    <div class="sub-title-date"><b>Ngày:</b>
+                                                        {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                    </div>
                                                     <div class="sub-title">
-                                                        <span class="sub-title-date"><b>Ngày:</b>
-                                                            {{ Carbon\Carbon::parse($firstOrder->ord_start_day)->format('d/m/Y') }}
+                                                        <span class="sub-title-technician"><b>TX:</b>
+                                                            {{ getShortName($firstOrder->car_driver_name) }}
                                                         </span>
                                                         <span class="line">-</span>
                                                         <span class="sub-title-technician"><b>KTV:</b>
@@ -858,6 +920,10 @@
                                 <span class="event-date"></span>
                             </span>
                             <span class="line">-</span>
+                            <span class="sub-title-technician"><b>TX:</b>
+                                <span class="event-driver"></span>
+                            </span>
+                            <span class="line">-</span>
                             <span class="sub-title-technician"><b>KTV:</b>
                                 <span class="event-technician"></span>
                             </span>
@@ -887,10 +953,10 @@
                             <span class="item-title">Địa chỉ: </span>
                             <span class="event-address"></span>
                         </p>
-                        <p class="event-item event-note">
+                        {{-- <p class="event-item event-note">
                             <span class="item-title">Địa chỉ khác: </span>
                             <span class="event-note-content"></span>
-                        </p>
+                        </p> --}}
                         <p class="event-item">
                             <span class="item-title">Thông tin người liên hệ: </span>
                             <span class="event-info-contact"></span>
@@ -933,6 +999,7 @@
 <script type="text/javascript">
     var day = {{ $dayInMonth }};
     var url_select_technologist = "{{ route('schedules.drivers.select') }}";
+    var url_select_driver_technologist = "{{ route('schedules.drivers.select_driver') }}";
 </script>
 <script src="{{ asset('assets/js/support/essential.js') }}"></script>
 <script src="{{ asset('assets/js/tool/schedule/technologist/schedule.js') }}"></script>

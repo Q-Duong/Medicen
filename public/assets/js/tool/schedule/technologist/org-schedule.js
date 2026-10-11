@@ -269,7 +269,7 @@ function schedule(day) {
                             : rawJson;
             } catch (e) {}
             var data = Array.isArray(parsedData) ? parsedData[0] : parsedData;
-            
+
             // 2. HEADER
             var fullKtv1 = data.car_ktv_name_1;
             var fullKtv2 = data.car_ktv_name_2;
@@ -280,6 +280,9 @@ function schedule(day) {
             this.modalHeader
                 .find(".event-date")
                 .html(formatDate(data.ord_start_day));
+            this.modalHeader
+                .find(".event-driver")
+                .html(getShortName(data.car_driver_name));
             this.modalHeader.find(".event-technician").html(displayName);
             this.modalHeader
                 .find(".event-order-id")
@@ -729,18 +732,24 @@ function openMultiModal(element) {
             </div>
             <a href="javascript:;" style="padding: 10px; display: block;">
                 <div class="event-title">
+                    <div class="sub-title-date">
+                        <span class="sub-title-item-date">
+                            <b>Ngày:</b> ${formatDate(order.ord_start_day)}
+                        </span>
+                        <span class="line">-</span>
+                        <span class="sub-title-item-order"><b>Mã đơn hàng:</b>
+                            ${order.order_id}
+                        </span>
+                    </div>
                     <div class="sub-title">
-                        <span class="sub-title-date"><b>Ngày:</b>
-                            ${formatDate(order.ord_start_day)}
+                        <span class="sub-title-technician"><b>TX:</b>
+                            ${getShortName(order.car_driver_name)}
                         </span>
                         <span class="line">-</span>
                         <span class="sub-title-technician"><b>KTV:</b>
                             ${displayName}
                         </span>
                     </div>
-                    <span class="event-name-unit">
-                        <b>Mã đơn hàng:</b> ${order.order_id}
-                    </span>
                     <p class="event-name-unit">
                         <b>Đơn vị:</b> ${order.unit_abbreviation}
                     </p>
@@ -831,6 +840,37 @@ $(".select-technicians").on("change", function () {
         },
     });
 });
+
+/*------------------
+                                                    Select Drivers Schedule
+                                                    --------------------*/
+$(".select-drivers").on("change", function () {
+    var year = $(".select-year").val();
+    var month = $(".select-month").val();
+    var param = $(this).val();
+    $(".loader-over").fadeIn();
+    $.ajax({
+        url: url_select_driver_technologist,
+        method: "POST",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr("content"),
+            year: year,
+            month: month,
+            param: param,
+        },
+        success: function (data) {
+            schedule(data.day);
+            $(".schedule").html(data.html);
+            $(".loader-over").fadeOut();
+        },
+        error: function (textStatus) {
+            popupNotificationSessionExpired();
+        },
+        complete: function () {
+            $(".loader-over").fadeOut();
+        },
+    });
+});
 /*------------------
                                                    Handle Schedule
                                                 --------------------*/
@@ -851,7 +891,7 @@ $(document).on("click", ".submit-quantity-technologist", function () {
             order_quantity_draft: order_quantity_draft,
             order_note_ktv: order_note_ktv,
             driver_assistance: driver_assistance,
-            work_over_250: work_over_250
+            work_over_250: work_over_250,
         },
         success: function () {
             $(".event-modal").fadeOut();

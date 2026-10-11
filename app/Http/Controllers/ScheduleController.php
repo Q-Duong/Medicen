@@ -59,17 +59,24 @@ class ScheduleController extends Controller
 
 		$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
 
-		$scheduleData = $rawOrders
-			->filter(function ($order) {
-				return $order->status_id != 0
-					&& $order->order_surcharge == 0;
-			})
-			->groupBy('car_name')
+		$filteredOrders = $rawOrders->filter(function ($order) {
+			return $order->status_id != 0 && $order->order_surcharge == 0;
+		});
+
+		$scheduleData = $filteredOrders->groupBy('car_name')
 			->map(function ($ordersByCar) {
 				return $ordersByCar->groupBy(function ($item) {
 					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
 				});
 			});
+
+		$driverData = $filteredOrders
+			->flatMap(function ($order) {
+				return [$order->car_driver_name];
+			})
+			->filter()
+			->unique()
+			->values();
 
 		$months = [];
 		for ($m = 1; $m <= 12; $m++) {
@@ -78,6 +85,7 @@ class ScheduleController extends Controller
 
 		return view('pages.client.schedule.drivers.index', compact(
 			'scheduleData',
+			'driverData',
 			'months',
 			'currentMonth',
 			'currentMonthNum',
@@ -122,6 +130,46 @@ class ScheduleController extends Controller
 		return response()->json(array('success' => true, 'html' => $view, 'day' => $dayInMonth));
 	}
 
+	public function selectDriver(Request $request)
+	{
+		$monthNum = Carbon::parse('1 ' . $request->month)->month;
+		$date = Carbon::createFromDate($request->year, $monthNum, 1);
+		$currentYear     = $date->year;
+		$currentMonth    = $date->format('F');
+		$currentMonthNum = $date->month;
+		$dayInMonth      = $date->daysInMonth;
+
+		$firstDayOfThisMonth = $date->copy()->startOfMonth()->toDateString();
+		$lastDayOfThisMonth  = $date->copy()->endOfMonth()->toDateString();
+		if ($request->param == 'all') {
+			$rawOrders = Order::getScheduleTechnologist($firstDayOfThisMonth, $lastDayOfThisMonth);
+		} else {
+			$rawOrders = Order::getScheduleDriverSearch($firstDayOfThisMonth, $lastDayOfThisMonth, $request->param);
+		}
+
+		$scheduleData = $rawOrders
+			->filter(function ($order) {
+				return $order->status_id != 0
+					&& $order->order_surcharge == 0;
+			})
+			->groupBy('car_name')
+			->map(function ($ordersByCar) {
+				return $ordersByCar->groupBy(function ($item) {
+					return Carbon::parse($item->ord_start_day)->format('Y-m-d');
+				});
+			});
+
+		$html = view('pages.client.schedule.drivers.render', compact(
+			'scheduleData',
+			'currentMonth',
+			'currentMonthNum',
+			'currentYear',
+			'dayInMonth',
+		))->render();
+
+		return response()->json(array('success' => true, 'html' => $html, 'day' => $dayInMonth));
+	}
+
 	public function calculateStatistics($statistics)
 	{
 		$stats = [
@@ -152,22 +200,22 @@ class ScheduleController extends Controller
 				$stats['statistic_10']  += $statistic->accountant_10X12;
 
 				switch ($statistic->accountant_doctor_read) {
-						case 'Nhân':
-							$stats['statistic_N'] += $statistic->order_quantity;
-							break;
-						case 'Trung':
-							$stats['statistic_T'] += $statistic->order_quantity;
-							break;
-						case 'Giang':
-							$stats['statistic_G'] += $statistic->order_quantity;
-							break;
-						case 'Ân':
-							$stats['statistic_A'] += $statistic->order_quantity;
-							break;
-						default:
-							$stats['statistic_K'] += $statistic->order_quantity;
-							break;
-					}
+					case 'Nhân':
+						$stats['statistic_N'] += $statistic->order_quantity;
+						break;
+					case 'Trung':
+						$stats['statistic_T'] += $statistic->order_quantity;
+						break;
+					case 'Giang':
+						$stats['statistic_G'] += $statistic->order_quantity;
+						break;
+					case 'Ân':
+						$stats['statistic_A'] += $statistic->order_quantity;
+						break;
+					default:
+						$stats['statistic_K'] += $statistic->order_quantity;
+						break;
+				}
 
 				$multiplier = 0;
 				if (in_array($statistic->ord_select, $xray1Position)) {

@@ -496,11 +496,11 @@ Main Components
 }
 
 .event-item .event-order-id,
-.event-item .event-unit{
+.event-item .event-unit {
 	font-size: 15px;
 }
 
-@media only screen and (min-width: 800px) {	
+@media only screen and (min-width: 800px) {
 	.cd-schedule .event-order-id {
 		font-size: 15px;
 	}
@@ -509,7 +509,7 @@ Main Components
 		font-size: 15px;
 	}
 
-	.cd-schedule  h2.event-unit {
+	.cd-schedule h2.event-unit {
 		margin-top: 13px;
 		font-size: 20px;
 	}
@@ -694,7 +694,8 @@ Main Components
 
 @media only screen and (max-width: 799px) {
 	.modal-content {
-		max-width: 100%;;
+		max-width: 100%;
+		;
 	}
 }
 
@@ -835,15 +836,20 @@ Main Components
 .sub-title {
 	display: flex;
 	align-items: center;
-	gap: 5px
+	gap: 5px;
+	margin-top: 2px;
+}
+
+.multi-event-wrapper .sub-title {
+	margin-top: -2px;
 }
 
 @media only screen and (max-width: 799px) {
-	.sub-title {
+	.sub-title, .multi-event-wrapper .sub-title {
 		flex-direction: column;
 		align-items: start;
-		gap: 8px;
-		margin-bottom: 5px;
+		gap: 5px;
+		margin-top: 5px;
 	}
 
 	.line {
@@ -851,13 +857,39 @@ Main Components
 	}
 }
 
-.cd-schedule .sub-title-date,
+.cd-schedule .sub-title-date {
+	font-size: 14px;
+	line-height: 1.2;
+	display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+@media only screen and (max-width: 799px) {
+	
+
+	.cd-schedule .sub-title-date .line {
+		display: block;
+	}
+}
+
+.multi-event-wrapper .sub-title-date {
+	margin-top: -7px;
+}
+
 .cd-schedule .sub-title-technician {
 	font-size: 14px;
 	line-height: 1.2;
 }
 
-.cd-schedule .content .sub-title-date,
+.cd-schedule .content .sub-title-date {
+	font-size: 16px;
+	line-height: 1.2;
+	display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .cd-schedule .content .sub-title-technician {
 	font-size: 16px;
 	line-height: 1.2;
@@ -865,7 +897,11 @@ Main Components
 
 @media only screen and (max-width: 799px) {
 
-	.cd-schedule .sub-title-date,
+	.cd-schedule .sub-title-date {
+		font-size: 15px;
+		margin-top: 0;
+	}
+
 	.cd-schedule .sub-title-technician {
 		font-size: 15px;
 	}
@@ -873,14 +909,20 @@ Main Components
 
 .cd-schedule .event-name-unit {
 	font-size: 16px;
-	margin: -1px 0;
+	margin: -1px 0 ;
+}
+
+.multi-event-wrapper .event-name-unit {
+	font-size: 16px;
+	margin: -5px 0 -4px ;
 }
 
 @media only screen and (max-width: 799px) {
 
 	.cd-schedule .event-name-unit {
 		font-size: 18px;
-		margin: -1px 0;
+		margin: 4px 0 0;
+        line-height: 1.3rem;
 	}
 }
 
@@ -995,7 +1037,7 @@ Main Components
 
 @media only screen and (max-width: 800px) {
 	.cd-schedule .event-modal .header .content {
-		width: 77%;
+		width: 100%;
 	}
 }
 

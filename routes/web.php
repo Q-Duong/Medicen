@@ -9,7 +9,6 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
-use App\Http\Controllers\SliderController;
 use App\Http\Controllers\AccountantController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ContactController;
@@ -86,6 +85,7 @@ Route::prefix('schedules')->group(function () {
     Route::prefix('drivers')->group(function () {
         Route::get('/', [ScheduleController::class, 'index'])->name('schedules.drivers.index');
         Route::post('select', [ScheduleController::class, 'select'])->name('schedules.drivers.select');
+        Route::post('select-driver', [ScheduleController::class, 'selectDriver'])->name('schedules.drivers.select_driver');
     });
 
     Route::group(['middleware' => 'schedules.login'], function () {
@@ -94,18 +94,20 @@ Route::prefix('schedules')->group(function () {
             Route::prefix('sales')->group(function () {
                 Route::get('/', [ScheduleSalesController::class, 'index'])->name('schedules.sales.index');
                 Route::post('select', [ScheduleSalesController::class, 'select'])->name('schedules.sales.select');
+                Route::post('select-driver', [ScheduleController::class, 'selectDriver'])->name('schedules.sales.select_driver');
+                Route::post('select-technician', [ScheduleTechniciansController::class, 'selectTechnician'])->name('schedules.sales.select_technician');
             });
         });
 
         //Technicians
-        Route::group(['middleware' => 'schedules.role.technicians'], function () {
+        // Route::group(['middleware' => 'schedules.role.technicians'], function () {
             Route::prefix('technicians')->group(function () {
                 Route::get('/', [ScheduleTechniciansController::class, 'index'])->name('schedules.technicians.index');
                 Route::post('select', [ScheduleTechniciansController::class, 'select'])->name('schedules.technicians.select');
                 Route::post('select-technician', [ScheduleTechniciansController::class, 'selectTechnician'])->name('schedules.technicians.select_technician');
                 Route::post('update', [ScheduleTechniciansController::class, 'update'])->name('schedules.technicians.update');
             });
-        });
+        // });
 
         //Results
         Route::group(['middleware' => 'schedules.role.results'], function () {
