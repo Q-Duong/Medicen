@@ -31,7 +31,7 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
             ['- Các cột có dấu (*) là những cột bắt buộc'], // 4
             ['- Nếu muốn nhập nhiều thông tin hơn người dùng có thể tải mẫu đầy đủ/hoặc tự thêm cột trên mẫu cơ bản'], // 5
             ['- Các dòng dữ liệu phía dưới chỉ là ví dụ minh họa'], // 6
-            ['', '', '', '', '', '', '', 'Chi tiết hàng tiền'], // 7
+            ['', '', '', '', '', '', '', '', 'Chi tiết hàng tiền'], // 7
             [
                 'Ngày đơn hàng (*)', // A
                 'Số đơn hàng (*)',   // B
@@ -40,13 +40,17 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
                 'Tên khách hàng',    // E
                 'Địa chỉ',           // F
                 'Mã số thuế',        // G
-                'Mã hàng (*)',       // H
-                'Tên hàng',          // I
-                'Là dòng ghi chú',   // J
-                'ĐVT',               // K
-                'Số lượng',          // L
-                'Đơn giá',           // M
-                'Thành tiền'         // N
+                'Mô tả',             // H
+                'Mã hàng (*)',       // I
+                'Tên hàng',          // J
+                'Là dòng ghi chú',   // K
+                'ĐVT',               // L
+                'Số lượng',          // M
+                'Đơn giá',           // N
+                'Thành tiền',        // O
+                'Số Hoá đơn',        // P
+                'Ngày Hoá đơn',      // Q
+                'Số tiền còn nợ'     // R
             ] // 8
         ];
     }
@@ -94,7 +98,7 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
             'orders.status_id',
             'order_all_in_one',
             'car_name',
-            'unit_code', 
+            'unit_code',
             'unit_name',
             'unit_tax_code'
         )->orderBy('ord_start_day', 'ASC')->get();
@@ -102,14 +106,14 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
         $exportData = collect();
 
         if ($accountants->count() > 0) {
-            
+
             $firstItem = $accountants->first();
-            
-            $ngayExport = date('d/m/Y'); 
-            
+
+            $ngayExport = date('d/m/Y');
+
             $soDonHangChung = $firstItem->order_id;
-            
-            $tenGhiChuChung = $firstItem->ord_type == 1 
+
+            $tenGhiChuChung = $firstItem->ord_type == 1
                 ? 'Dịch vụ cho thuê thiết bị y tế - Máy chụp Xquang (không kèm theo hoạt động khám chữa bệnh)'
                 : 'Dịch vụ cho thuê thiết bị y tế - Máy Siêu Âm (không kèm theo hoạt động khám chữa bệnh)';
 
@@ -117,52 +121,56 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
             // DÒNG GHI CHÚ CHUNG DUY NHẤT (MASTER)
             // ==========================================
             $exportData->push([
-                $ngayExport,           // A
-                $soDonHangChung,       // B
-                'Không',               // C
-                $firstItem->unit_code, // D
-                '',                    // E
-                '',                    // F
-                $firstItem->unit_tax_code,// G
-                '',                    // H
-                $tenGhiChuChung,       // I
-                'Có',                  // J
-                '',                    // K
-                '',                    // L
-                '',                    // M
-                ''                     // N
+                $ngayExport,                                // A
+                $soDonHangChung,                            // B
+                'Không',                                    // C
+                $firstItem->unit_code,                      // D
+                '',                                         // E
+                '',                                         // F
+                $firstItem->unit_tax_code,                  // G
+                '',                                         // H
+                '',                                         // I
+                $tenGhiChuChung,                            // J
+                'Có',                                       // K
+                '',                                         // L
+                '',                                         // M
+                '',                                         // N
+                '',                                         // O
+                '',                                         // P
+                '',                                         // Q
+                '',                                         // R
             ]);
 
             // ==========================================
             // CÁC DÒNG CHI TIẾT (DETAIL)
             // ==========================================
             foreach ($accountants as $item) {
-                
+
                 $ctyName = $item->ord_cty_name;
                 $tenHangFormat = capitalizeWordsExceptAbbreviations($ctyName);
 
                 if (stripos($ctyName, 'in thêm film') !== false) {
                     $maHang = 'ITP';
-                } 
+                }
                 // Ưu tiên 2: Nếu là Phụ thu
                 elseif ($item->order_surcharge == 1) {
                     $maHang = 'PHUTHU';
-                } 
+                }
                 // Mặc định: X-Quang hoặc Siêu âm
                 else {
                     $maHang = $item->ord_type == 1 ? 'DVXQ' : 'DVSA';
                 }
-                
+
                 // Xử lý logic Đơn vị tính (ĐVT)
                 $donViTinh = $item->order_all_in_one == 0 ? 'Ca' : 'Gói';
-                
+
                 if ($item->order_surcharge == 1) {
-                    $donViTinhExport = ''; 
+                    $donViTinhExport = '';
                     $soLuong = '';
                     $donGia = '';
                 } elseif ($donViTinh == 'Gói') {
-                    $donViTinhExport = 'Gói'; 
-                    $soLuong = '';
+                    $donViTinhExport = 'Gói';
+                    $soLuong = $item->order_quantity;
                     $donGia = '';
                 } else {
                     $donViTinhExport = 'Ca';
@@ -171,20 +179,24 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
                 }
 
                 $exportData->push([
-                    $ngayExport,                 // A
-                    $soDonHangChung,             // B
-                    'Không',                     // C
-                    $item->unit_code,            // D
-                    '',                          // E
-                    '',                          // F
-                    $item->unit_tax_code,        // G
-                    $maHang,                     // H: Mã hàng 
-                    $tenHangFormat,              // I: Tên hàng
-                    'Không',                     // J
-                    $donViTinhExport,            // K: ĐVT
-                    $soLuong,                    // L: Số lượng
-                    $donGia,                     // M: Đơn giá
-                    $item->order_price           // N
+                    $ngayExport,                                                                                    // A
+                    $soDonHangChung,                                                                                // B
+                    'Không',                                                                                        // C
+                    $item->unit_code,                                                                               // D
+                    '',                                                                                             // E
+                    '',                                                                                             // F
+                    $item->unit_tax_code,                                                                           // G
+                    Carbon::parse($item->ord_start_day)->format('d/m/Y'),                                           // H
+                    $maHang,                                                                                        // I: Mã hàng 
+                    $tenHangFormat,                                                                                 // J: Tên hàng
+                    'Không',                                                                                        // K
+                    $donViTinhExport,                                                                               // L: ĐVT
+                    $soLuong,                                                                                       // M: Số lượng
+                    $donGia,                                                                                        // N: Đơn giá
+                    $item->order_price,                                                                             // O
+                    $item->accountant_number,                                                                       // P
+                    $item->accountant_date != '' ? Carbon::parse($item->accountant_date)->format('d/m/Y') : '',     // Q
+                    $item->accountant_owe                                                                           // R
                 ]);
             }
         }
@@ -199,11 +211,11 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
         $sheet->getParent()->getDefaultStyle()->getFont()->setSize(12);
 
         // Gộp ô cho chữ "Chi tiết hàng tiền"
-        $sheet->mergeCells('H7:N7');
-        
+        $sheet->mergeCells('I7:O7');
+
         // Gộp ô tiêu đề từ A1 đến D1 (Cho khớp với vùng tô màu)
-        $sheet->mergeCells('A1:D1'); 
-        
+        $sheet->mergeCells('A1:D1');
+
         // Định nghĩa style border chung cho bảng tiêu đề
         $borderStyle = [
             'borders' => [
@@ -215,7 +227,7 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
         ];
 
         // Mã màu cam đậm
-        $mauCamDam = 'FFFFCC99'; 
+        $mauCamDam = 'FFFFCC99';
 
         return [
             // Dòng 1: Tiêu đề to (Size 16, In đậm)
@@ -223,10 +235,10 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
                 'font' => ['bold' => true, 'size' => 16], // Đổi từ 14 thành 16
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['argb' => $mauCamDam] 
+                    'startColor' => ['argb' => $mauCamDam]
                 ]
             ],
-            
+
             // Dòng 2: Hướng dẫn (Chữ đỏ)
             'A2:D2' => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFF0000']],
@@ -243,9 +255,9 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
                     'startColor' => ['argb' => $mauCamDam]
                 ]
             ],
-            
-            // Dòng 7: Cột H->N (Kẻ viền, Nền Xanh lá nhạt, In đậm, Căn giữa)
-            'H7:N7' => array_merge([
+
+            // Dòng 7: Cột I->O (Kẻ viền, Nền Xanh lá nhạt, In đậm, Căn giữa)
+            'I7:O7' => array_merge([
                 'font' => ['bold' => true],
                 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
                 'fill' => [
@@ -253,19 +265,32 @@ class MisaExport implements WithHeadings, FromCollection, ShouldAutoSize, WithSt
                     'startColor' => ['argb' => 'FFCCFFCC']
                 ]
             ], $borderStyle),
-            
-            // Dòng 8: Tiêu đề A->G (Kẻ viền, Nền Xanh dương)
-            'A8:G8' => array_merge([
+
+            // Dòng 8: Tiêu đề A->H (Kẻ viền, Nền Xanh dương)
+            'A8:H8' => array_merge([
                 'font' => ['bold' => true],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['argb' => 'FFCCFFFF'] 
+                    'startColor' => ['argb' => 'FFCCFFFF']
                 ]
             ], $borderStyle),
 
-            // Dòng 8: Tiêu đề H->N (Kẻ viền, Nền Xanh lá)
-            'H8:N8' => array_merge([
+            // Dòng 8: Tiêu đề I->O (Kẻ viền, Nền Xanh lá)
+            'I8:O8' => array_merge([
                 'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFCCFFCC']
+                ]
+            ], $borderStyle),
+
+            'H8' => array_merge([
+                'font' => ['bold' => true, 'color' => ['argb' => 'FFFF0000']],
+            ]),
+
+            // Dòng 8: Tiêu đề P->R (Kẻ viền, Nền Xanh lá)
+            'P8:R8' => array_merge([
+                'font' => ['bold' => true, 'color' => ['argb' => 'FFFF0000']],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['argb' => 'FFCCFFCC']
