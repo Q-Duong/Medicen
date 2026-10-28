@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Unit extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'units';
 
     public $timestamps = true;
@@ -17,16 +18,21 @@ class Unit extends Model
         'unit_code',
         'unit_abbreviation',
         'unit_name',
-        'unit_tax_code'
+        'unit_tax_code',
     ];
-    
-    public function order()
+
+    public function order(): HasMany
     {
-        $this->hasMany(Order::class);
+        return $this->hasMany(Order::class);
     }
 
-    public function profitReport()
+    public function profitReport(): HasMany
     {
-        $this->hasMany(ProfitReport::class);
+        return $this->hasMany(ProfitReport::class);
+    }
+
+    public function excelUploads(): HasMany
+    {
+        return $this->hasMany(ExcelUpload::class);
     }
 }

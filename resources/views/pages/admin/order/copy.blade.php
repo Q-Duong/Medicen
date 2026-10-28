@@ -258,6 +258,11 @@
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
+                                        <section>
+                                            <input type="radio" name="ord_doctor_read" value="Tại chỗ" id="doctor4"
+                                                class="accent" {{ $order->ord_doctor_read == 'Tại chỗ' ? 'checked' : '' }}>
+                                            <label for="doctor4" class="radio-title">Tại chỗ</label>
+                                        </section>
                                     </div>
                                 </div>
                             </div>

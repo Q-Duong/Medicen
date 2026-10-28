@@ -7,6 +7,7 @@
 @section('admin_content')
     <div class="row">
         <div class="col-lg-12">
+            @include('pages.admin.order._import_notice')
             <section class="panel">
                 <header class="panel-heading">
                     Thêm đơn hàng
@@ -20,6 +21,9 @@
                         <form role="form" action="{{ route('order.store') }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
+                            @if (old('excel_upload_id'))
+                                <input type="hidden" name="excel_upload_id" value="{{ old('excel_upload_id') }}">
+                            @endif
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
                                     <div class="form-group @error('customer_name') has-error @enderror">
@@ -137,8 +141,8 @@
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Ghi chú</label>
-                                <textarea type="text" name="ord_note" class="textarea-control" value="{{ old('ord_note') }}" rows="4"
-                                    cols="50" placeholder="Điền ghi chú"></textarea>
+                                <textarea name="ord_note" class="textarea-control" rows="4"
+                                    cols="50" placeholder="Điền ghi chú">{{ old('ord_note') }}</textarea>
                             </div>
 
                             <div class="form-group">
@@ -260,6 +264,11 @@
                                         </section>
                                     </div>
                                     <div class="col-lg-3 col-md-12 centered">
+                                        <section>
+                                            <input type="radio" name="ord_doctor_read" value="Tại chỗ" id="doctor4"
+                                                class="accent" {{ old('ord_doctor_read') == 'Tại chỗ' ? 'checked' : '' }}>
+                                            <label for="doctor4" class="radio-title">Tại chỗ</label>
+                                        </section>
                                     </div>
                                 </div>
                             </div>

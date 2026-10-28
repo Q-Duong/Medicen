@@ -17,6 +17,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ExcelUploadController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProfitController;
@@ -73,7 +74,7 @@ Route::prefix('contact')->group(function () {
 });
 
 Route::get('hash-password', function () {
-    dd(Hash::make('Medicen@2025'));
+    dd(Hash::make('giang2905'));
 });
 
 //Schedule
@@ -101,12 +102,12 @@ Route::prefix('schedules')->group(function () {
 
         //Technicians
         // Route::group(['middleware' => 'schedules.role.technicians'], function () {
-            Route::prefix('technicians')->group(function () {
-                Route::get('/', [ScheduleTechniciansController::class, 'index'])->name('schedules.technicians.index');
-                Route::post('select', [ScheduleTechniciansController::class, 'select'])->name('schedules.technicians.select');
-                Route::post('select-technician', [ScheduleTechniciansController::class, 'selectTechnician'])->name('schedules.technicians.select_technician');
-                Route::post('update', [ScheduleTechniciansController::class, 'update'])->name('schedules.technicians.update');
-            });
+        Route::prefix('technicians')->group(function () {
+            Route::get('/', [ScheduleTechniciansController::class, 'index'])->name('schedules.technicians.index');
+            Route::post('select', [ScheduleTechniciansController::class, 'select'])->name('schedules.technicians.select');
+            Route::post('select-technician', [ScheduleTechniciansController::class, 'selectTechnician'])->name('schedules.technicians.select_technician');
+            Route::post('update', [ScheduleTechniciansController::class, 'update'])->name('schedules.technicians.update');
+        });
         // });
 
         //Results
@@ -318,6 +319,25 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::post('filter', [ContractController::class, 'filterViewOnly'])->name('contract.view_only.filter');
         });
     });
+
+    Route::prefix('excel-uploads')->name('excel-uploads.')->group(function () {
+        Route::get('template', [ExcelUploadController::class, 'template'])->name('template');
+        Route::get('{excel_upload}/to-order', [ExcelUploadController::class, 'toOrder'])->name('to-order');
+        Route::get('{excel_upload}/download', [ExcelUploadController::class, 'download'])->name('download');
+        Route::patch('{excel_upload}/status', [ExcelUploadController::class, 'updateStatus'])->name('status');
+    });
+
+    Route::resource('excel-uploads', ExcelUploadController::class);
+    /*
+ * Route::resource tạo sẵn:
+ *  GET    /excel-uploads                       index    excel-uploads.index
+ *  GET    /excel-uploads/create                create   excel-uploads.create
+ *  POST   /excel-uploads                       store    excel-uploads.store
+ *  GET    /excel-uploads/{excel_upload}        show     excel-uploads.show
+ *  GET    /excel-uploads/{excel_upload}/edit   edit     excel-uploads.edit
+ *  PUT    /excel-uploads/{excel_upload}        update   excel-uploads.update
+ *  DELETE /excel-uploads/{excel_upload}        destroy  excel-uploads.destroy
+ */
 });
 
 //Zalo

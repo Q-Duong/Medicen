@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Customer;
 use App\Models\Accountant;
+use App\Models\ExcelUpload;
 use App\Models\HistoryEdit;
 use App\Models\TempFile;
 use Carbon\Carbon;
@@ -226,15 +227,15 @@ class OrderController extends Controller
 
 	public function store(OrderRequestForm $request)
 	{
-		
+
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
-			
+
 			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
-			
+
 			$customer = new Customer();
-			
+
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
 			$customer->customer_address = $data['customer_address'];
@@ -302,6 +303,13 @@ class OrderController extends Controller
 			$order->complete = $data['complete'];
 			$order->save();
 
+			if ($request->filled('excel_upload_id')) {
+				$upload = ExcelUpload::find($request->excel_upload_id);
+				if ($upload && ! $upload->order_id) {
+					$upload->syncWithOrder($order->id, (bool) $order->complete);
+				}
+			}
+
 			$monthFormat = explode("-", $data['ord_start_day']);
 			$accountant = new Accountant();
 			$accountant->order_id = $order->id;
@@ -329,7 +337,7 @@ class OrderController extends Controller
 			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công');
 		} catch (\Exception $e) {
 			DB::rollback();
-			return Redirect()->back()->with('errorMessage', 'Thêm đơn hàng thất bại');
+			return Redirect()->back()->withInput()->with('errorMessage', 'Thêm đơn hàng thất bại');
 		}
 	}
 
@@ -359,6 +367,9 @@ class OrderController extends Controller
 		$order->overnight = $data['overnight'];
 		$order->complete = $data['complete'];
 		$order->save();
+
+		ExcelUpload::where('order_id', $order->id)->first()
+			?->syncWithOrder($order->id, (bool) $order->complete);
 
 		$monthFormat = explode("-", $data['ord_start_day']);
 		$accountant = Accountant::where('order_id', $order_id)->first();

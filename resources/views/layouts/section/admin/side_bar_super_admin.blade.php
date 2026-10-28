@@ -18,6 +18,13 @@
                             <span>Tính lợi nhuận X-Quang</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="{{ request()->routeIs('excel-uploads.index') ? 'active' : '' }}"
+                            href="{{ route('excel-uploads.index') }}">
+                            <i class="far fa-chart-bar"></i>
+                            <span>Phiếu đặt lịch</span>
+                        </a>
+                    </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="javascript:;">
