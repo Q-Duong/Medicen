@@ -83,6 +83,12 @@
                                 @enderror
                             </div>
 
+                            <div class="form-group">
+                                <label>Toạ độ</label>
+                                <input type="text" name="customer_location" class="input-control"
+                                    placeholder="Điền toạ độ" value="{{ $order->customer_location }}">
+                            </div>
+
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
                                     <div class="form-group">
@@ -108,7 +114,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-lg-6 col-md-6 centered">
+                                <div class="col-lg-4 col-md-4 centered">
                                     <div class="form-group">
                                         <label for="exampleInputPassword1">Ngày chụp</label>
                                         <div class="checkout__input @error('ord_start_day') has-error @enderror">
@@ -123,7 +129,25 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 col-md-6 centered">
+                                <div class="col-lg-4 col-md-4 centered">
+                                    <div class="form-group">
+                                        <label>Ca chụp</label>
+                                        <select name="ord_session" class="input-control">
+                                            <option value="Cả ngày"
+                                                {{ $order->ord_session == 'Cả ngày' ? 'selected' : '' }}>
+                                                Cả ngày
+                                            </option>
+                                            <option value="Sáng" {{ $order->ord_session == 'Sáng' ? 'selected' : '' }}>
+                                                Sáng
+                                            </option>
+                                            <option value="Chiều" {{ $order->ord_session == 'Chiều' ? 'selected' : '' }}>
+                                                Chiều
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4 centered">
                                     <div class="form-group @error('ord_time') has-error @enderror">
                                         <label for="exampleInputPassword1">Giờ chụp</label>
                                         <input type="text" name="ord_time" class="input-control"
@@ -282,7 +306,8 @@
                                     <div class="col-lg-3 col-md-12 centered">
                                         <section>
                                             <input type="radio" name="ord_doctor_read" value="Tại chỗ" id="doctor4"
-                                                class="accent" {{ $order->ord_doctor_read == 'Tại chỗ' ? 'checked' : '' }}>
+                                                class="accent"
+                                                {{ $order->ord_doctor_read == 'Tại chỗ' ? 'checked' : '' }}>
                                             <label for="doctor4" class="radio-title">Tại chỗ</label>
                                         </section>
                                     </div>
@@ -662,7 +687,7 @@
                                     $dateEqual = Carbon\Carbon::parse($order->ord_start_day);
                                 @endphp
                                 @if ($now->isBefore($dateEqual) || $now->equalTo($dateEqual))
-                                    @if ($order->status_id == 0 || $order->status_id == 1)
+                                    @if ($order->status_id == 0 || $order->status_id == 5 || $order->status_id == 1)
                                         <div class="row">
                                             <div class="col-lg-6 col-md-6 centered">
                                                 <button type="submit" name="complete" value="0"

@@ -85,6 +85,12 @@
                                 @enderror
                             </div>
 
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Toạ độ</label>
+                                <input type="text" name="customer_location" class="input-control"
+                                    placeholder="Điền toạ độ" value="{{ old('customer_location') }}">
+                            </div>
+
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
                                     <div class="form-group">
@@ -110,7 +116,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-lg-6 col-md-6 centered">
+                                <div class="col-lg-4 col-md-4 centered">
                                     <div class="form-group ">
                                         <label for="exampleInputPassword1">Ngày chụp</label>
                                         <div class="checkout__input @error('ord_start_day') has-error @enderror">
@@ -125,7 +131,25 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 col-md-6 centered">
+                                <div class="col-lg-4 col-md-4 centered">
+                                    <div class="form-group @error('ord_session') has-error @enderror">
+                                        <label>Ca chụp</label>
+                                        <select name="ord_session" class="input-control">
+                                            <option selected value="Cả ngày"
+                                                {{ old('ord_session') == 'Cả ngày' ? 'selected' : '' }}>
+                                                Cả ngày
+                                            </option>
+                                            <option value="Sáng" {{ old('ord_session') == 'Sáng' ? 'selected' : '' }}>
+                                                Sáng
+                                            </option>
+                                            <option value="Chiều" {{ old('ord_session') == 'Chiều' ? 'selected' : '' }}>
+                                                Chiều
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4 centered">
                                     <div class="form-group @error('ord_time') has-error @enderror">
                                         <label for="exampleInputPassword1">Giờ chụp</label>
                                         <input type="text" name="ord_time" class="input-control"
@@ -141,8 +165,7 @@
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Ghi chú</label>
-                                <textarea name="ord_note" class="textarea-control" rows="4"
-                                    cols="50" placeholder="Điền ghi chú">{{ old('ord_note') }}</textarea>
+                                <textarea name="ord_note" class="textarea-control" rows="4" cols="50" placeholder="Điền ghi chú">{{ old('ord_note') }}</textarea>
                             </div>
 
                             <div class="form-group">
@@ -213,10 +236,12 @@
                                         {{ old('ord_select') == 'Cổ tay (2 Tư thế)' ? 'selected' : '' }}>Cổ tay (2 Tư thế)
                                     </option>
                                     <option value="Khuỷu tay (2 Tư thế)"
-                                        {{ old('ord_select') == 'Khuỷu tay (2 Tư thế)' ? 'selected' : '' }}>Khuỷu tay (2 Tư thế)
+                                        {{ old('ord_select') == 'Khuỷu tay (2 Tư thế)' ? 'selected' : '' }}>Khuỷu tay (2 Tư
+                                        thế)
                                     </option>
                                     <option value="Bàn tay (2 Tư thế)"
-                                        {{ old('ord_select') == 'Bàn tay (2 Tư thế)' ? 'selected' : '' }}>Bàn tay (2 Tư thế)
+                                        {{ old('ord_select') == 'Bàn tay (2 Tư thế)' ? 'selected' : '' }}>Bàn tay (2 Tư
+                                        thế)
                                     </option>
                                     <option value="Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng"
                                         {{ old('ord_select') == 'Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng' ? 'selected' : '' }}>

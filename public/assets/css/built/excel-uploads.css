@@ -377,20 +377,24 @@ a {
     background: #6C8AA0;
 }
 
-.strip__seg--pending::before {
+.strip__seg--processing::before {
     background: #F0B048;
 }
 
-.strip__seg--received::before {
-    background: #6FA8EC;
+.strip__seg--scheduled::before {
+    background: #6f7071;
 }
 
-.strip__seg--processing::before {
-    background: #AE8BEA;
+.strip__seg--updated::before {
+    background: #c037df;
+}
+
+.strip__seg--revenue-updated::before {
+    background: #00d0e3;
 }
 
 .strip__seg--done::before {
-    background: #5FCB8C;
+    background: #0071e3;
 }
 
 .strip__seg--rejected::before {
@@ -626,6 +630,7 @@ input:focus, select:focus, textarea:focus {
     padding: 12px 16px;
     border-bottom: 1px solid var(--line-2);
     vertical-align: middle;
+    text-wrap: nowrap;
 }
 
 .table-import tbody tr:last-child td {
@@ -650,6 +655,11 @@ input:focus, select:focus, textarea:focus {
 
 .row-actions form:first-child {
     margin-right: 6px;
+}
+
+.table-import .uncomplete-order>td {
+    background-color: #f59e0b;
+    color: #fff !important;
 }
 
 .file-link {

@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class OrderBuilder extends Builder
 {
-    public function  getAll()
+    public function getAll($request = null)
     {
-        $getAllOrder = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+        // Khởi tạo query builder với các lệnh join và select như cũ
+        $query = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->select(
                 'orders.id',
@@ -27,11 +28,57 @@ final class OrderBuilder extends Builder
                 'ord_cty_name',
                 'ord_type',
                 'schedule_status'
-            )
-            ->orderBy('ord_start_day', 'DESC')
+            );
+
+        // Xử lý nối thêm các điều kiện lọc (nếu có Request truyền vào)
+        if ($request) {
+            if ($request->filled('unit_abbreviation')) {
+                $query->where('units.unit_abbreviation', $request->unit_abbreviation);
+            }
+
+            if ($request->filled('from_date')) {
+                $query->whereDate('ord_start_day', '>=', $request->from_date);
+            }
+
+            if ($request->filled('to_date')) {
+                $query->whereDate('ord_start_day', '<=', $request->to_date);
+            }
+
+            if ($request->filled('status_id')) {
+                if ($request->status_id === 'processing') {
+                    $query->whereIn('orders.status_id', [1, 2]); // Đang xử lý
+                } elseif ($request->status_id === 'completed') {
+                    $query->whereIn('orders.status_id', [3, 4]); // Hoàn thành
+                } else {
+                    $query->where('orders.status_id', $request->status_id);
+                }
+            }
+
+            if ($request->filled('schedule_status')) {
+                if ($request->schedule_status === '0') {
+                    // Chưa lên lịch
+                    $query->where('orders.schedule_status', 0);
+                } elseif ($request->schedule_status === '1') {
+                    // Đã lên lịch (schedule_status != 0)
+                    $query->where('orders.schedule_status', '!=', 0);
+                }
+            }
+
+            if ($request->filled('keyword')) {
+                $keyword = $request->keyword;
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('orders.id', 'LIKE', "%{$keyword}%")
+                        ->orWhere('order_details.ord_cty_name', 'LIKE', "%{$keyword}%")
+                        ->orWhere('units.unit_name', 'LIKE', "%{$keyword}%");
+                });
+            }
+        }
+
+        // Cuối cùng mới sắp xếp và phân trang
+        return $query->orderBy('ord_start_day', 'DESC')
             ->orderBy('orders.created_at', 'DESC')
-            ->paginate(20);
-        return $getAllOrder;
+            ->paginate(10)
+            ->withQueryString(); // withQueryString giúp giữ tham số lọc trên URL khi bấm sang trang 2, 3...
     }
 
     public function getOneOrder($order_id)
@@ -47,10 +94,12 @@ final class OrderBuilder extends Builder
                 'customer_name',
                 'customer_phone',
                 'customer_address',
+                'customer_location',
                 'customer_note',
                 'orders.unit_id',
                 'ord_cty_name',
                 'ord_start_day',
+                'ord_session',
                 'ord_time',
                 'ord_select',
                 'ord_doctor_read',
@@ -140,7 +189,7 @@ final class OrderBuilder extends Builder
             ->where('car_ktvs.car_active', 1)
             ->where(function ($query) use ($target) {
                 $query->where('car_ktvs.car_ktv_name_1', $target)
-                      ->orWhere('car_ktvs.car_ktv_name_2', $target);
+                    ->orWhere('car_ktvs.car_ktv_name_2', $target);
             })
             ->select(
                 'car_name',

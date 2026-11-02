@@ -213,10 +213,44 @@ class OrderController extends Controller
 
 	//Admin
 
-	public function index()
+	public function index(Request $request)
 	{
-		$getAll = Order::getAll();
-		return view('pages.admin.order.index', compact('getAll'));
+		$baseQuery = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->join('units', 'units.id', '=', 'orders.unit_id');
+
+		if ($request->filled('unit_abbreviation')) {
+			$baseQuery->where('units.unit_abbreviation', $request->unit_abbreviation);
+		}
+		if ($request->filled('from_date')) {
+			$baseQuery->whereDate('ord_start_day', '>=', $request->from_date);
+		}
+		if ($request->filled('to_date')) {
+			$baseQuery->whereDate('ord_start_day', '<=', $request->to_date);
+		}
+		if ($request->filled('keyword')) {
+			$keyword = $request->keyword;
+			$baseQuery->where(function ($q) use ($keyword) {
+				$q->where('orders.id', 'LIKE', "%{$keyword}%")
+					->orWhere('order_details.ord_cty_name', 'LIKE', "%{$keyword}%")
+					->orWhere('units.unit_name', 'LIKE', "%{$keyword}%");
+			});
+		}
+
+		// 2. Clone Query gốc để đếm động cho thẻ thống kê
+		$summary = [
+			'all' => (clone $baseQuery)->count(),
+			'new' => (clone $baseQuery)->where('orders.status_id', 0)->count(),
+			'processing' => (clone $baseQuery)->where('orders.status_id', 1)->count(),
+			'schedule' => (clone $baseQuery)->where('orders.status_id', 5)->count(),
+			'updated' => (clone $baseQuery)->where('orders.status_id', 2)->count(),
+			'revenue_updated' => (clone $baseQuery)->where('orders.status_id', 4)->count(),
+			'completed' => (clone $baseQuery)->where('orders.status_id', 3)->count(),
+		];
+
+		$getAll = Order::getAll($request);
+
+		$units = DB::table('units')->select('unit_abbreviation')->whereNotNull('unit_abbreviation')->distinct()->get();
+		return view('pages.admin.order.index', compact('getAll', 'summary', 'units'));
 	}
 
 	public function create()
@@ -239,11 +273,13 @@ class OrderController extends Controller
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
 			$customer->customer_address = $data['customer_address'];
+			$customer->customer_location = $data['customer_location'];
 			$customer->save();
 
 			$orderDetail = new OrderDetail();
 			$orderDetail->ord_start_day = $data['ord_start_day'];
 			$orderDetail->ord_end_day = $data['ord_start_day'];
+			$orderDetail->ord_session = $data['ord_session'];
 			$orderDetail->ord_select = $data['ord_select'];
 			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
 			$orderDetail->ord_film = $data['ord_film'];
@@ -286,7 +322,7 @@ class OrderController extends Controller
 			$order->customer_id = $customer->id;
 			$order->order_detail_id = $orderDetail->id;
 			$order->unit_id = $data['unit_id'];
-			$order->status_id = 1;
+			$order->status_id = 5;
 			$order->order_quantity = $data['order_quantity'];
 			$order->order_price = formatPrice($data['order_price']);
 			$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
@@ -355,7 +391,7 @@ class OrderController extends Controller
 		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 		$order = Order::findOrFail($order_id);
 		$order->unit_id = $data['unit_id'];
-		$order->status_id == 0 ? $order->status_id = 1 : '';
+		$order->status_id == 5 ? '' : $order->status_id = 1;
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
 		$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
@@ -394,11 +430,13 @@ class OrderController extends Controller
 		$customer->customer_name = $data['customer_name'];
 		$customer->customer_phone = $data['customer_phone'];
 		$customer->customer_address = $data['customer_address'];
+		$customer->customer_location = $data['customer_location'];
 		$customer->save();
 
 		$orderDetail = OrderDetail::findOrFail($order_detail_id);
 		$orderDetail->ord_start_day = $data['ord_start_day'];
 		$orderDetail->ord_end_day = $data['ord_start_day'];
+		$orderDetail->ord_session = $data['ord_session'];
 		$orderDetail->ord_select = $data['ord_select'];
 		$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
 		$orderDetail->ord_film = $data['ord_film'];
@@ -460,11 +498,13 @@ class OrderController extends Controller
 			$customer->customer_name = $data['customer_name'];
 			$customer->customer_phone = $data['customer_phone'];
 			$customer->customer_address = $data['customer_address'];
+			$customer->customer_location = $data['customer_location'];
 			$customer->save();
 
 			$orderDetail = new OrderDetail();
 			$orderDetail->ord_start_day = $data['ord_start_day'];
 			$orderDetail->ord_end_day = $data['ord_start_day'];
+			$orderDetail->ord_session = $data['ord_session'];
 			$orderDetail->ord_select = $data['ord_select'];
 			$orderDetail->ord_doctor_read = $data['ord_doctor_read'];
 			$orderDetail->ord_film = $data['ord_film'];
@@ -507,7 +547,7 @@ class OrderController extends Controller
 			$order->customer_id = $customer->id;
 			$order->order_detail_id = $orderDetail->id;
 			$order->unit_id = $data['unit_id'];
-			$order->status_id = 1;
+			$order->status_id = 5;
 			$order->order_quantity = $data['order_quantity'];
 			$order->order_price = formatPrice($data['order_price']);
 			$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
@@ -590,205 +630,6 @@ class OrderController extends Controller
 		$filters = $request->all();
 
 		return Excel::download(new MisaExport($filters), 'Misa.xlsx');
-	}
-
-	public function view($order_id)
-	{
-		$order = Order::find($order_id);
-		$customer = Customer::find($order->customer_id);
-		$order_detail = OrderDetail::find($order->order_detail_id);
-		return view('admin.Order.view_order')->with(compact('order', 'customer', 'order_detail'));
-	}
-
-	public function print_order($id)
-	{
-		// $pdf = \App::make('dompdf.wrapper');
-		// $pdf->loadHTML($this->print_order_convert($id));
-
-		// return $pdf->stream();
-
-		$order = Order::find($id);
-		$customer = Customer::find($order->customer_id);
-		$order_detail = OrderDetail::find($order->order_detail_id);
-		$now = Carbon::now('Asia/Ho_Chi_Minh')->format('d/m/Y H:i');
-		$pdf = PDF::loadView('admin.Order.print_order_convert',  compact('order', 'customer', 'order_detail', 'now'))->setOptions(['defaultFont' => 'sans-serif']);
-		return $pdf->stream();
-	}
-
-	public function print_order_convert($id)
-	{
-		$order = Order::find($id);
-		$customer = Customer::find($order->customer_id);
-		$order_detail = OrderDetail::find($order->order_detail_id);
-		// foreach($order as $key => $ord){
-		// 	$customer_id = $ord->customer_id;
-		// 	$order_detail_id = $ord-> order_detail_id;
-
-		// }
-		// $all_order = Order::orderBy('order_id','DESC')->get();
-		// $customer = Customer::where('customer_id',$customer_id)->first();
-		// $shipping = Shipping::where('shipping_id',$shipping_id)->first();
-
-		// $order_details = OrderDetails::where('order_code', $checkout_code)->get();
-
-		$now = Carbon::now('Asia/Ho_Chi_Minh')->format('d/m/Y H:i:s');
-
-		$output = '';
-
-		$output .= '<style>body{
-			font-family: DejaVu Sans;
-			width: 100%;
-		}
-		.table-styling{
-			width: 100%;
-			border:1px solid #000;
-			border-collapse: collapse;
-			font-weight: 200;
-		}
-		
-		.table-styling thead tr th{
-			border:1px solid #000;
-		}
-		.table-styling tbody tr th{
-			font-weight: 300;
-			border:1px solid #000;
-		}
-		p{
-			font-weight: 600;
-		}
-		.title{
-			width:100%;
-			height: 50px;
-			margin-bottom:-30px;
-		}
-		.title h4{
-			width:30%;
-			float:left;
-			font-size: 30px;
-		}
-		.title h5{
-			width:40%;
-			float: left;
-			text-align: center;
-			margin-top:5px;
-			font-weight:400;
-			font-size: 15px;
-		}
-		.title p{
-			width:30%;
-			float: right;
-			text-align: center;
-			font-size: 13px;
-			margin-top:5px;
-			font-weight:400;
-		}
-		.title_a{
-			clear: both;
-		}
-		.title_a h2{
-			text-align: center;
-		}
-		.title_a h5{
-			margin-top:-26px;
-			text-align: center;
-			font-weight:400;
-		}
-		.content{
-			width:100%;
-			font-weight:200;
-		}
-		.content_left{
-			float: left;
-			width:55%;
-			font-weight:200;
-		}
-		.content_right{
-			float: right;
-			width:45%;
-			font-weight:200;
-		}
-		span{
-			font-weight:200;
-		}
-		.signal{
-			width:100%;
-			margin-top:80px;
-		}
-		.signal p{
-			font-weight:200;
-		}
-
-		</style>
-		<div class="title">
-			<h4>CTY TNHH ĐẦU TƯ TRANG THIẾT BỊ NAM KHÁNH LINH</h4>
-			<h5>Hóa đơn </h5>
-			<p>' . $now . '<br>59 Đường số 9, KDC Nam Sài Gòn - Thế Kỷ 21, Xã Bình Hưng, Huyện Bình Chánh, TP.Hồ Chí Minh</p>
-		</div>
-		<div class="title_a">
-			<h2>HOÁ ĐƠN</h2>
-		</div>
-		<div class="content">
-			<div class="content_left">
-				<h5>Tên khách hàng: ' . $customer->customer_name . '</h5>
-				<h5>Số điện thoại: ' . $customer->customer_phone . '</h5>
-				<h5>Địa chỉ: ' . $customer->customer_address . '</h5>
-			</div>
-			<div class="content_right">
-			<h5>Ngày lập hóa đơn: ' . $now . '</h5>
-			<h5>Mã hóa đơn: ' . $id . '</h5>
-			<h5>Loại tiền: VNĐ</h5>
-			</div>
-		</div>
-		
-		<p>Thông tin đơn hàng:</p>				
-			<table class="table-styling">
-				<thead>
-					<tr>
-						<th>Stt</th>
-						<th>Bộ phận chụp</th>
-						<th>Số lượng</th>
-						<th>Thành tiền</th>
-					</tr>
-				</thead>
-				<tbody>';
-
-		$output .= '		
-					<tr>
-						<th>1</th>
-						<th>' . $order->orderdetail->ord_select . '</th>
-						<th>' . $order->order_quantity . '</th>
-						<th>' . number_format($order->order_price, 0, ',', '.') . '₫' . '</th>				
-					</tr>';
-
-		$output .= '<tr>
-			<th colspan="6">
-				
-			</th>
-		</tr>
-		<tr>
-				
-		</tr>';
-		$output .= '				
-				</tbody>
-			
-		</table>
-		<p></p>
-		<table>
-			<thead>
-				<tr>
-					<th width="500px">Người lập phiếu</th>
-					<th width="200px">Người nhận</th>
-				</tr>
-			</thead>
-			<tbody>	
-			</tbody>
-		</table>
-		<div class="signal">
-				<p>Huỳnh Quốc Dương</p>
-		</div>';
-
-
-		return $output;
 	}
 
 

@@ -27,26 +27,13 @@
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
-                            href="javascript:;">
+                            href="{{ route('order.index') }}">
                             <i class="fas fa-file-alt"></i>
                             <span>Quản lý đơn hàng</span>
                         </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('order.create') ? 'active' : '' }}"
-                                    href="{{ route('order.create') }}">
-                                    <i class="fas fa-user-plus"></i> Thêm đơn hàng
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('order.index') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
-                                    href="{{ route('order.index') }}">
-                                    <i class="fas fa-list-ol"></i> Danh sách đơn hàng
-                                </a>
-                            </li>
-
-                        </ul>
+                        
                     </li>
+                
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('unit.index') || request()->routeIs('unit.create') || request()->routeIs('unit.edit') ? 'active' : '' }}"
                             href="javascript:;">

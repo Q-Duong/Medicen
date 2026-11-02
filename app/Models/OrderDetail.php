@@ -27,6 +27,7 @@ class OrderDetail extends Model
         'ord_note',
         'ord_start_day',
         'ord_end_day',
+        'ord_session',
         'ord_cty_name',
         'ord_time', 
         'ord_select',
