@@ -2996,3 +2996,43 @@ function successMsg(msg) {
         else chip.insertBefore("#table-scroll");
     });
 })(jQuery);
+
+/**
+ * Thanh cuộn tự ẩn (giống macOS) cho bảng công nợ: CSS ẩn thanh cuộn, chỉ hiện khi phần tử có .sb-on.
+ * - Đang cuộn (bánh xe, kéo, phím) → hiện, ngừng cuộn 1 giây thì ẩn.
+ * - Rê chuột tới sát mép phải / mép dưới vùng cuộn (chỗ thanh cuộn) → hiện để kéo được bằng chuột (Windows).
+ */
+(function () {
+    var timers = new WeakMap();
+    var EDGE = 14;
+
+    function show(el, ms) {
+        el.classList.add("sb-on");
+        clearTimeout(timers.get(el));
+        timers.set(el, setTimeout(function () {
+            if (!el.matches(":active")) el.classList.remove("sb-on");
+        }, ms));
+    }
+
+    function inTable(el) {
+        return el && el.nodeType === 1 && el.closest && el.closest(".table-scroll");
+    }
+
+    document.addEventListener("scroll", function (e) {
+        if (inTable(e.target)) show(e.target, 1000);
+    }, true);
+
+    document.addEventListener("mousemove", function (e) {
+        var el = e.target;
+        while (el && el.nodeType === 1 && inTable(el)) {
+            var r = el.getBoundingClientRect();
+            var canX = el.scrollWidth > el.clientWidth, canY = el.scrollHeight > el.clientHeight;
+            if ((canY && e.clientX > r.right - EDGE && e.clientX <= r.right) || (canX && e.clientY > r.bottom - EDGE && e.clientY <= r.bottom)) {
+                show(el, 1200);
+                break;
+            }
+            if (el.classList.contains("table-scroll")) break;
+            el = el.parentElement;
+        }
+    }, { passive: true });
+})();
