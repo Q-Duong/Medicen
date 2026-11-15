@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\ReportItem;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class SendReportReminders extends Command
@@ -25,12 +26,20 @@ class SendReportReminders extends Command
             ->get();
 
         if ($items->count() > 0) {
-            Mail::send('emails.report_reminder', ['items' => $items, 'today' => $today], function ($message) {
-                $message->to('locvietnam9@gmail.com')
+            // Người nhận đặt trong .env: REPORT_REMIND_TO (xem config/reports.php)
+            $to = config('reports.remind_to');
+            if (!$to) {
+                Log::warning('reports:remind: chưa cấu hình REPORT_REMIND_TO trong .env, không gửi email', ['items' => $items->count()]);
+                $this->warn('Chưa cấu hình REPORT_REMIND_TO trong .env, không gửi email (' . $items->count() . ' mục cần nhắc).');
+
+                return;
+            }
+            Mail::send('emails.report_reminder', ['items' => $items, 'today' => $today], function ($message) use ($to) {
+                $message->to($to)
                     ->subject('⏳ Cảnh báo Thu/Chi cần xử lý hôm nay!');
             });
 
-            $this->info("Đã gửi email nhắc nhở " . $items->count() . " mục.");
+            $this->info("Đã gửi email nhắc nhở " . $items->count() . " mục tới " . implode(', ', $to) . ".");
         } else {
             $this->info("Không có mục nào cần nhắc nhở hôm nay.");
         }

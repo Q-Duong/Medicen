@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateReportRequest;
 use App\Mail\ReportUpdatedMail;
 use App\Models\Report;
 use App\Models\ReportItem;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -68,7 +69,12 @@ class ReportController extends Controller
         if ($request->boolean('send_mail')) {
             $updatedItem = $request->input('items.0');
 
-            Mail::to('quocduong081000@gmail.com')->send(new ReportUpdatedMail($report, $updatedItem));
+            // Người nhận đặt trong .env: REPORT_UPDATED_TO (xem config/reports.php)
+            if ($to = config('reports.updated_to')) {
+                Mail::to($to)->send(new ReportUpdatedMail($report, $updatedItem));
+            } else {
+                Log::warning('Báo cáo thu chi: chưa cấu hình REPORT_UPDATED_TO trong .env, không gửi email', ['report' => $id]);
+            }
         }
 
         if ($request->ajax() || $request->wantsJson()) {

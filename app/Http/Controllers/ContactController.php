@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AppointmentMail;
 
@@ -30,8 +31,18 @@ class ContactController extends Controller
         ]);
 
         try {
-            $adminEmail = 'medicen.company@gmail.com';
-            Mail::to($adminEmail)->cc('quocduong081000@gmail.com')->send(new AppointmentMail($validatedData));
+            // Người nhận đặt trong .env: CONTACT_MAIL_TO, CONTACT_MAIL_CC (xem config/contact.php)
+            $to = config('contact.to');
+            if ($to) {
+                $mail = Mail::to($to);
+                if ($cc = config('contact.cc')) {
+                    $mail->cc($cc);
+                }
+                $mail->send(new AppointmentMail($validatedData));
+            } else {
+                // Chưa cấu hình email nhận: ghi lại đăng ký vào log để không mất khách
+                Log::warning('Form liên hệ: chưa cấu hình CONTACT_MAIL_TO trong .env, không gửi email', $validatedData);
+            }
 
             // Trả về JSON nếu gọi bằng AJAX
             if ($request->wantsJson()) {
