@@ -296,15 +296,21 @@ class DispatchController extends Controller
                     $car = $editing
                         ? CarKTV::where('order_id', $order->id)->where('car_active', 1)->firstOrFail()
                         : CarKTV::firstOrNew(['order_id' => $order->id]);
+                    // SĐT theo Quản lý nhân viên; người đã bị xóa (giữ lại khi sửa lịch) thì giữ SĐT cũ trên lịch
+                    $phone = fn ($name) => $phones[$name] ?? collect([
+                        $car->car_driver_name => $car->car_driver_phone,
+                        $car->car_ktv_name_1 => $car->car_ktv_phone_1,
+                        $car->car_ktv_name_2 => $car->car_ktv_phone_2,
+                    ])->filter(fn ($v, $k) => $k !== '')->get($name);
                     $car->fill([
                         'car_name' => $plan['car'],
                         'car_active' => 1,
                         'car_driver_name' => $plan['driver'],
-                        'car_driver_phone' => $phones[$plan['driver']] ?? null,
+                        'car_driver_phone' => $phone($plan['driver']),
                         'car_ktv_name_1' => $plan['ktv1'],
-                        'car_ktv_phone_1' => $plan['ktv1'] ? ($phones[$plan['ktv1']] ?? null) : null,
+                        'car_ktv_phone_1' => $plan['ktv1'] ? $phone($plan['ktv1']) : null,
                         'car_ktv_name_2' => $plan['ktv2'] ?: null,
-                        'car_ktv_phone_2' => $plan['ktv2'] ? ($phones[$plan['ktv2']] ?? null) : null,
+                        'car_ktv_phone_2' => $plan['ktv2'] ? $phone($plan['ktv2']) : null,
                     ])->save();
 
                     if (!$editing) {

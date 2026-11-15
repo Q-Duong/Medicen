@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssistantConversation;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -127,7 +128,16 @@ class AccountController extends Controller
         if ((int) $user->role === 0 && User::where('role', 0)->count() <= 1) {
             return Redirect::route('accounts.index')->with('error', 'Phải còn ít nhất một tài khoản Admin.');
         }
+        // KPI (performance_analysis) ràng buộc RESTRICT với users: xóa sẽ lỗi DB, và cũng không nên mất số liệu KPI
+        $kpiRows = DB::table('performance_analysis')->where('user_id', $user->id)->count();
+        if ($kpiRows > 0) {
+            return Redirect::route('accounts.index')->with('error', "Tài khoản {$user->name} ({$user->email}) có {$kpiRows} dòng KPI nên không xóa được, để giữ số liệu KPI. Muốn chặn người này đăng nhập thì đổi mật khẩu tài khoản.");
+        }
+
         $label = "{$user->name} ({$user->email})";
+        // Cuộc trò chuyện Chat AI của người này: xóa luôn (cả session trên Claude), không để lại cuộc trò chuyện "Không rõ" người tạo
+        AssistantConversation::where('user_id', $user->id)->get()->each->purge();
+
         DB::transaction(function () use ($user) {
             $profileId = $user->profile_id;
             $user->delete();

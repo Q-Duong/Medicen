@@ -212,7 +212,10 @@ class ScheduleSuggester
             $errors[] = ScheduleBoard::carLabel($car) . ' đã có lịch đơn vị khác: ' . implode(', ', $c);
         }
 
-        if (!$driver || ($staff[$driver]->staff_role ?? null) !== 'TX') {
+        // Sửa lịch: người đang xếp mà đã bị xóa khỏi Quản lý nhân viên thì vẫn được giữ (không bắt chọn lại)
+        $kept = self::retiredOnOrder($order, $staff);
+
+        if (!$driver || (($staff[$driver]->staff_role ?? null) !== 'TX' && ($kept['driver'] ?? null) !== $driver)) {
             $errors[] = 'Tài xế không có trong danh sách TX';
         } elseif ($c = $board->staffConflicts($driver, $order->halves, $order->unit_id, $reservedStaff)) {
             $errors[] = "{$driver} không trống: " . implode(', ', $c);
@@ -222,7 +225,7 @@ class ScheduleSuggester
             $errors[] = 'KTV 1 và KTV 2 trùng người';
         }
         foreach ($ktvs as $ktv) {
-            if (($staff[$ktv]->staff_role ?? null) !== 'KTV') {
+            if (($staff[$ktv]->staff_role ?? null) !== 'KTV' && !in_array($ktv, $kept['ktv'] ?? [], true)) {
                 $errors[] = "{$ktv} không có trong danh sách KTV";
             } elseif ($c = $board->staffConflicts($ktv, $order->halves, $order->unit_id, $reservedStaff)) {
                 $errors[] = "{$ktv} không trống: " . implode(', ', $c);
@@ -426,7 +429,33 @@ class ScheduleSuggester
             return $list;
         };
 
-        return ['car' => $cars, 'driver' => $people('TX', config('schedule.hired_driver')), 'ktv' => $people('KTV', config('schedule.hired_ktv'))];
+        $driver = $people('TX', config('schedule.hired_driver'));
+        $ktv = $people('KTV', config('schedule.hired_ktv'));
+        // Sửa lịch: người đang xếp đã bị xóa khỏi Quản lý nhân viên vẫn hiện (đã nghỉ) để ô chọn không tự nhảy sang người khác
+        $kept = self::retiredOnOrder($order, $board->staff()->keyBy('staff_name'));
+        $retired = fn ($name) => ['value' => $name, 'label' => $name . ' (đã nghỉ)', 'cases' => null, 'cchn' => false, 'state' => 'free', 'note' => 'đã xóa khỏi Quản lý nhân viên'];
+        if (!empty($kept['driver'])) {
+            array_unshift($driver, $retired($kept['driver']));
+        }
+        foreach (array_reverse($kept['ktv'] ?? []) as $name) {
+            array_unshift($ktv, $retired($name));
+        }
+
+        return ['car' => $cars, 'driver' => $driver, 'ktv' => $ktv];
+    }
+
+    /**
+     * Người đang xếp trên lịch của đơn (chỉ có khi sửa lịch) mà không còn trong Quản lý nhân viên.
+     *
+     * @return array{driver?: string, ktv?: array<int,string>}
+     */
+    private static function retiredOnOrder(object $order, $staffByName): array
+    {
+        $missing = fn ($name) => $name && !ScheduleBoard::isHiredPerson($name) && !isset($staffByName[$name]);
+        $driver = $order->car_driver_name ?? null;
+        $ktvs = array_values(array_filter([$order->car_ktv_name_1 ?? null, $order->car_ktv_name_2 ?? null], $missing));
+
+        return array_filter(['driver' => $missing($driver) ? $driver : null, 'ktv' => $ktvs]);
     }
 
     private function allCars(): array
