@@ -226,6 +226,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::prefix('assistant')->name('assistant.')->middleware('assistant.access')->group(function () {
         Route::get('{department}', [AssistantController::class, 'show'])->name('show');
         Route::post('{department}/ask', [AssistantController::class, 'ask'])->name('ask')->middleware('throttle:20,1');
+        // Hỏi lại câu trả lời của lượt đang chờ (trình duyệt gọi mỗi ~1,5 giây)
+        Route::post('{department}/conversations/{conversation}/poll', [AssistantController::class, 'poll'])->name('poll')->whereNumber('conversation')->middleware('throttle:120,1');
         Route::get('{department}/conversations', [AssistantController::class, 'conversations'])->name('conversations');
         Route::get('{department}/conversations/{conversation}', [AssistantController::class, 'messages'])->name('messages')->whereNumber('conversation');
         Route::patch('{department}/conversations/{conversation}', [AssistantController::class, 'rename'])->name('rename')->whereNumber('conversation');

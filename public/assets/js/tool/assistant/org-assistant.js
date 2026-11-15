@@ -388,6 +388,52 @@
         return data;
     }
 
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    /*
+     * Chờ câu trả lời của lượt đang hỏi: gọi poll mỗi ~1,5 giây. Mỗi lần poll server còn chạy các tool trợ lý cần
+     * (tra cứu DB), nên phải poll tiếp kể cả khi người dùng đã chuyển sang cuộc trò chuyện khác.
+     * Lỗi mạng chốc lát thì thử lại; lỗi do server trả về (có message) thì dừng và báo.
+     */
+    async function waitReply(id) {
+        const started = Date.now();
+        let fails = 0;
+        for (;;) {
+            await sleep(1500);
+            let data;
+            try {
+                data = await api('POST', convUrl(id) + '/poll');
+                fails = 0;
+            } catch (e) {
+                if ((e.data && e.data.message) || ++fails >= 5) throw e;
+                continue;
+            }
+            if (data.done) return data;
+            if (Date.now() - started > 330000) throw new Error('Trợ lý trả lời quá lâu. Vui lòng tải lại trang để xem lại.');
+        }
+    }
+
+    // Mở lại cuộc trò chuyện mà câu cuối còn đang chờ trả lời (vd. tải lại trang giữa chừng)
+    async function resumePending(id) {
+        const typing = addTyping();
+        const seq = viewSeq;
+        setBusy(true);
+        try {
+            const data = await waitReply(id);
+            typing.remove();
+            if (seq !== viewSeq) return;
+            if (data.reply == null) { openConversation(id); return; }
+            addBot(data.reply, data.tools);
+            loadList();
+        } catch (e) {
+            typing.remove();
+            if (seq === viewSeq) addNote(e.message, 'msg--error');
+        } finally {
+            setBusy(false);
+            updateSend();
+        }
+    }
+
     function setBusy(busy) {
         send.disabled = busy;
         send.classList.toggle('is-loading', busy);
@@ -402,9 +448,15 @@
         const stillHere = () => seq === viewSeq;
         setBusy(true);
         try {
-            const data = await api('POST', askUrl, { message: text, mode, conversation_id: conversationId });
+            let data = await api('POST', askUrl, { message: text, mode, conversation_id: conversationId });
+            if (data.pending) {
+                // Server chỉ nhận câu hỏi rồi trả về ngay; hỏi lại tới khi trợ lý trả lời xong
+                if (stillHere()) setConversation(data.conversation);
+                data = await waitReply(data.conversation.id);
+            }
             typing.remove();
             if (!stillHere()) { loadList(); return true; }
+            if (data.reply == null) { openConversation(data.conversation.id); return true; }
             addBot(data.reply, data.tools);
             setConversation(data.conversation);
             return true;
@@ -580,6 +632,7 @@
             log.style.scrollBehavior = 'auto';
             scrollDown();
             log.style.scrollBehavior = '';
+            if (data.conversation.pending && !data.conversation.readonly && !send.disabled) resumePending(conversationId);
         } catch (e) {
             newConversation();
             addNote(e.message.includes('404') || e.message.includes('No query') ? 'Không tìm thấy cuộc trò chuyện này (có thể đã bị xóa).' : e.message, 'msg--error');

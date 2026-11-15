@@ -131,6 +131,129 @@ class DepartmentAgentRunner
         return ['reply' => $reply !== '' ? $reply : '(Trợ lý không trả lời.)', 'tools' => $toolLog];
     }
 
+    /*
+     * ---- Chế độ "gửi rồi hỏi lại" cho trang web ----
+     * Hosting dùng chung (LiteSpeed) cắt các request giữ kết nối lâu, nên trang chat không chờ stream như ask():
+     * begin() chỉ gửi câu hỏi rồi trả về ngay; trình duyệt gọi poll() mỗi 1–2 giây. Mỗi lần poll đọc các event mới
+     * của session (không stream), chạy tool agent đang chờ, và báo xong khi agent kết thúc lượt.
+     */
+
+    /**
+     * Gửi câu hỏi, không chờ trả lời.
+     *
+     * @return array{event_id: ?string, sent_at: int, started_at: int, handled: array<int,string>, tools: array}
+     *         trạng thái lượt hỏi, lưu lại (cache) và truyền cho poll()
+     */
+    public function begin(string $sessionId, string $text, ?string $modeNote = null): array
+    {
+        $sentAt = time();
+        $today = now()->locale('vi')->isoFormat('dddd, DD/MM/YYYY');
+        $sent = $this->client->beta->sessions->events->send($sessionId, events: [
+            ManagedAgentsUserMessageEventParams::with(content: [
+                ['type' => 'text', 'text' => "[Hôm nay: {$today}]" . ($modeNote ? "\n[Chức năng đang chọn: {$modeNote}]" : '') . "\n\n{$text}"],
+            ]),
+        ]);
+
+        $first = $sent->data[0] ?? null;
+        $eventId = is_array($first) ? ($first['id'] ?? null) : ($first->id ?? null);
+
+        return ['event_id' => $eventId, 'sent_at' => $sentAt, 'started_at' => $sentAt, 'handled' => [], 'tools' => []];
+    }
+
+    /**
+     * Một nhịp hỏi lại. $state là trạng thái từ begin() (được cập nhật: tool đã chạy).
+     *
+     * @return array{done: bool, reply?: string, error?: string}
+     */
+    public function poll(string $department, string $sessionId, array &$state, ?User $user = null): array
+    {
+        /** @var DepartmentTools $tools */
+        $tools = app(config("claude.departments.{$department}.tools"));
+
+        if (time() - $state['started_at'] > config('claude.reply_timeout', 240)) {
+            try {
+                $this->client->beta->sessions->events->send($sessionId, events: [['type' => 'user.interrupt']]);
+            } catch (Throwable) {
+                // đã quá giờ, bỏ qua lỗi khi dừng
+            }
+
+            return ['done' => true, 'error' => 'Trợ lý trả lời quá lâu, đã dừng. Vui lòng hỏi lại ngắn gọn hơn.'];
+        }
+
+        // Lấy event từ trước lúc gửi một chút (lệch đồng hồ server ↔ Claude), rồi bỏ qua tới đúng câu hỏi của lượt này
+        $since = new \DateTimeImmutable('@' . ($state['sent_at'] - 120));
+        $events = [];
+        $page = null;
+        do {
+            $res = $this->client->beta->sessions->events->list($sessionId, createdAtGte: $since, limit: 100, order: 'asc', page: $page);
+            foreach ($res->getItems() as $e) {
+                $events[] = $e;
+            }
+            $page = $res->nextPage ?? null;
+        } while ($page && count($events) < 2000);
+
+        $started = $state['event_id'] === null;
+        $replyParts = [];
+
+        foreach ($events as $event) {
+            if (!$started) {
+                // Chưa thấy câu hỏi của lượt này trong danh sách: các event trước đó thuộc lượt cũ
+                $started = $event->type === 'user.message' && $event->id === $state['event_id'];
+                continue;
+            }
+
+            switch ($event->type) {
+                case 'agent.message':
+                    $parts = [];
+                    foreach ($event->content as $block) {
+                        if ($block->type === 'text') {
+                            $parts[] = $block->text;
+                        }
+                    }
+                    if ($parts) {
+                        $replyParts[] = implode('', $parts);
+                    }
+                    break;
+
+                case 'agent.custom_tool_use':
+                    if (!in_array($event->id, $state['handled'], true)) {
+                        $state['handled'][] = $event->id;
+                        $state['tools'][] = $this->runTool($tools, $sessionId, $event->id, $event->name, (array) $event->input, $user);
+                    }
+                    break;
+
+                case 'agent.tool_use':
+                case 'agent.mcp_tool_use':
+                    if (($event->evaluatedPermission ?? null) === 'ask' && !in_array($event->id, $state['handled'], true)) {
+                        $state['handled'][] = $event->id;
+                        $this->client->beta->sessions->events->send($sessionId, events: [
+                            ManagedAgentsUserToolConfirmationEventParams::with(result: 'deny', toolUseID: $event->id),
+                        ]);
+                    }
+                    break;
+
+                case 'session.status_idle':
+                    // requires_action = đang chờ kết quả tool → chưa xong
+                    if ($event->stopReason->type !== 'requires_action') {
+                        $reply = trim((string) end($replyParts));
+
+                        return ['done' => true, 'reply' => $reply !== '' ? $reply : '(Trợ lý không trả lời.)'];
+                    }
+                    break;
+
+                case 'session.status_terminated':
+                    $reply = trim((string) end($replyParts));
+
+                    return ['done' => true, 'reply' => $reply !== '' ? $reply : '(Trợ lý không trả lời.)'];
+
+                case 'session.error':
+                    return ['done' => true, 'error' => 'Agent báo lỗi: ' . ($event->error->message ?? 'không rõ')];
+            }
+        }
+
+        return ['done' => false];
+    }
+
     private function runTool(DepartmentTools $tools, string $sessionId, string $toolUseId, string $name, array $input, ?User $user): array
     {
         try {

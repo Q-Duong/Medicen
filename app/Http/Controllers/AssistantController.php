@@ -10,6 +10,7 @@ use App\Services\Claude\SalesSuggestions;
 use App\Services\ProfitCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -73,11 +74,13 @@ class AssistantController extends Controller
         $mode = $modes[$modeKey] ?? null;
         $modeNote = $mode && $mode['instruction'] ? "{$mode['label']}. {$mode['instruction']}" : null;
 
+        // Câu trước còn đang trả lời: không gửi chồng (session chỉ xử lý từng lượt)
+        if (Cache::has(self::turnKey($conversation))) {
+            return response()->json(['message' => 'Trợ lý đang trả lời câu trước, vui lòng chờ.', 'conversation' => $this->summary($conversation)], 409);
+        }
+
         $conversation->messages()->create(['role' => 'user', 'content' => $data['message'], 'mode' => $modeKey]);
         $conversation->update(['last_message_at' => now()]);
-
-        // Agent có thể cần vài chục giây khi phải tra cứu nhiều lần
-        set_time_limit((int) config('claude.reply_timeout', 240) + 30);
 
         try {
             if (!$conversation->claude_session_id) {
@@ -88,24 +91,92 @@ class AssistantController extends Controller
                 )]);
             }
 
-            $result = $this->runner->ask($department, $conversation->claude_session_id, $data['message'], $user, $modeNote);
+            // Chỉ gửi câu hỏi rồi trả về ngay; trình duyệt gọi poll() tới khi có câu trả lời
+            // (hosting cắt request giữ kết nối lâu, nên không chờ trả lời trong cùng request)
+            $state = $this->runner->begin($conversation->claude_session_id, $data['message'], $modeNote);
         } catch (Throwable $e) {
-            Log::error('Assistant ask failed', ['department' => $department, 'conversation' => $conversation->id, 'error' => $e->getMessage()]);
-            $message = 'Trợ lý đang gặp lỗi: ' . $e->getMessage();
-            $conversation->messages()->create(['role' => 'error', 'content' => $message]);
-
-            return response()->json(['message' => $message, 'conversation' => $this->summary($conversation)], 502);
+            return $this->failTurn($department, $conversation, $e->getMessage());
         }
 
-        $tools = collect($result['tools'])->pluck('name')->unique()->values()->all();
-        $conversation->messages()->create(['role' => 'assistant', 'content' => $result['reply'], 'tools' => $tools]);
-        $conversation->update(['last_message_at' => now()]);
+        Cache::put(self::turnKey($conversation), $state, now()->addSeconds((int) config('claude.reply_timeout', 240) + 300));
 
-        return response()->json([
-            'reply' => $result['reply'],
-            'tools' => $tools,
-            'conversation' => $this->summary($conversation),
-        ]);
+        return response()->json(['pending' => true, 'conversation' => $this->summary($conversation)], 202);
+    }
+
+    /**
+     * Trình duyệt hỏi lại câu trả lời của lượt đang chờ (1–2 giây / lần). Mỗi lần đọc event mới trên Claude,
+     * chạy tool agent đang chờ (tra cứu DB). Xong thì lưu câu trả lời và trả về như ask() cũ.
+     */
+    public function poll(string $department, int $conversation)
+    {
+        $this->department($department);
+        $user = Auth::user();
+        $conversation = $this->find($department, $conversation);
+        abort_unless($conversation->isOwnedBy($user), 403);
+
+        $key = self::turnKey($conversation);
+        // Hai lần poll chồng nhau (mạng chậm) không được chạy tool 2 lần
+        $lock = Cache::lock($key . ':lock', 60);
+        if (!$lock->get()) {
+            return response()->json(['pending' => true]);
+        }
+
+        try {
+            $state = Cache::get($key);
+            if (!$state) {
+                // Không còn lượt nào đang chờ (đã xong ở lần poll khác / hết hạn): trình duyệt tải lại tin nhắn
+                return response()->json(['done' => true, 'reply' => null, 'conversation' => $this->summary($conversation)]);
+            }
+
+            set_time_limit(90);
+            try {
+                $result = $this->runner->poll($department, $conversation->claude_session_id, $state, $user);
+            } catch (Throwable $e) {
+                // Lỗi mạng tạm thời: giữ lượt, lần poll sau thử lại (quá giờ thì runner tự dừng)
+                Log::warning('Assistant poll failed', ['conversation' => $conversation->id, 'error' => $e->getMessage()]);
+                Cache::put($key, $state, now()->addSeconds((int) config('claude.reply_timeout', 240) + 300));
+
+                return response()->json(['pending' => true]);
+            }
+
+            if (!$result['done']) {
+                Cache::put($key, $state, now()->addSeconds((int) config('claude.reply_timeout', 240) + 300));
+
+                return response()->json(['pending' => true]);
+            }
+
+            Cache::forget($key);
+            if (isset($result['error'])) {
+                return $this->failTurn($department, $conversation, $result['error']);
+            }
+
+            $tools = collect($state['tools'])->pluck('name')->unique()->values()->all();
+            $conversation->messages()->create(['role' => 'assistant', 'content' => $result['reply'], 'tools' => $tools]);
+            $conversation->update(['last_message_at' => now()]);
+
+            return response()->json([
+                'done' => true,
+                'reply' => $result['reply'],
+                'tools' => $tools,
+                'conversation' => $this->summary($conversation),
+            ]);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function failTurn(string $department, AssistantConversation $conversation, string $error)
+    {
+        Log::error('Assistant ask failed', ['department' => $department, 'conversation' => $conversation->id, 'error' => $error]);
+        $message = 'Trợ lý đang gặp lỗi: ' . $error;
+        $conversation->messages()->create(['role' => 'error', 'content' => $message]);
+
+        return response()->json(['message' => $message, 'conversation' => $this->summary($conversation)], 502);
+    }
+
+    private static function turnKey(AssistantConversation $c): string
+    {
+        return "assistant:turn:{$c->id}";
     }
 
     /** Danh sách cuộc trò chuyện gần đây. scope=all chỉ dành cho Admin. */
@@ -147,6 +218,8 @@ class AssistantController extends Controller
             'conversation' => $this->summary($conversation) + [
                 'user_name' => $conversation->user?->display_name ?? 'Không rõ',
                 'readonly' => !$conversation->isOwnedBy($user),
+                // Câu hỏi cuối còn đang chờ trả lời (tải lại trang giữa chừng): trình duyệt hỏi lại tiếp
+                'pending' => $conversation->isOwnedBy($user) && Cache::has(self::turnKey($conversation)),
             ],
             'messages' => $conversation->messages->map(fn ($m) => [
                 'role' => $m->role,
