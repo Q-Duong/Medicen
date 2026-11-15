@@ -44,6 +44,9 @@
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/home.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/site.built.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet'>
+    {{-- Font Awesome 6.7.2 Free (trước đây nạp qua kit fontawesome.com, kit chỉ cho phép localhost nên production mất icon) --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     @stack('css')
 </head>
 
@@ -66,7 +69,6 @@
     <script src="{{ versionResource('assets/js/built/sticky.js') }}"></script>
     <script src="{{ versionResource('assets/js/built/counter.js') }}"></script>
     <script src="{{ versionResource('assets/js/built/custom.js') }}"></script>
-    <script src="https://kit.fontawesome.com/4b68e3663c.js" crossorigin="anonymous" defer></script>
     <script src="{{ versionResource('frontend/js/main.js') }}"></script>
     <script type="application/ld+json">
         {

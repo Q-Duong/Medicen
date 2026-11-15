@@ -42,6 +42,9 @@
     <!-- //font-awesome icons -->
     <link rel="stylesheet" href="{{ versionResource('backend/fontawesome-free-5.15.4-web/css/all.css') }}"
         as="style" />
+    {{-- Font Awesome 6.7.2 Free (trước đây nạp qua kit fontawesome.com, kit chỉ cho phép localhost nên production mất icon) --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- //select2 -->
     <link href="{{ versionResource('backend/css/select2.min.css') }}" rel="stylesheet" as="style" />
     {{-- Khung trang (header + sidebar) theo giao diện mới: assets/css/support/org-shell.css --}}
@@ -78,7 +81,6 @@
     <script src="{{ versionResource('backend/js/ux-ui/jquery.slimscroll.min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/ux-ui/jquery.nicescroll.min.js') }}" defer></script>
     <script src="{{ versionResource('backend/js/ux-ui/left-side.min.js') }}" defer></script>
-    <script src="https://kit.fontawesome.com/4b68e3663c.js" crossorigin="anonymous" defer></script>
     <script src="{{ versionResource('backend/js/ux-ui/jquery-ui.min.js') }}"></script>
     {{-- <script src="{{ versionResource('backend/js/responsive.jqueryui.min.js') }}"></script> --}}
     <script src="{{ versionResource('backend/js/tool/select2.min.js') }}"></script>
