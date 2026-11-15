@@ -263,14 +263,32 @@ final class AccountantBuilder extends Builder
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+            // Nhóm đơn đi chung (mã nhóm, vd PKQT-251126)
+            ->leftJoin('order_groups', 'order_groups.id', '=', 'orders.order_group_id')
             ->where('car_active', 1);
 
-        if (isset($params['year']) && $params['year'] != 'all') {
+        // Mở từ chuông thông báo (?todo=...): lọc đúng nhóm việc, không theo năm đang chọn
+        // (công nợ quá hạn có thể rơi vào năm trước)
+        $todo = $params['todo'] ?? null;
+        if ($todo === 'wait_revenue') {
+            $query->where('orders.status_id', 2);
+        } elseif ($todo === 'overdue') {
+            $query->where('accountants.accountant_status', 0)
+                ->where('orders.order_price', '>', 0)
+                ->whereBetween('order_details.ord_start_day', [now()->subYear()->toDateString(), now()->subDays(45)->toDateString()]);
+        }
+
+        if (!$todo && isset($params['year']) && $params['year'] != 'all') {
             $query->whereYear('ord_start_day', $params['year']);
         }
 
         if (isset($params['type']) && $params['type'] != 'all') {
             $query->where('ord_type', $params['type']);
+        }
+
+        // Chỉ đơn có số ca đổi sau khi cập nhật doanh thu (chờ kế toán xử lý)
+        if (!empty($params['qty_changed'])) {
+            $query->whereNotNull('orders.qty_changed_from')->where('orders.status_id', 4);
         }
 
         $filterMap = [
@@ -283,6 +301,7 @@ final class AccountantBuilder extends Builder
             'driver_assistance'                 => 'driver_assistance',
             'unit_name'                         => 'unit_name',
             'unit_abbreviation'                 => 'unit_abbreviation',
+            'order_group'                       => 'order_groups.code',
             'accountant_month'                  => 'accountants.accountant_month',
             'accountant_distance'               => 'accountant_distance',
             'accountant_deadline'               => 'accountant_deadline',

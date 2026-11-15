@@ -47,6 +47,19 @@ class User extends Authenticatable
         return $this->belongsTo(Profile::class);
     }
 
+    /**
+     * Tên hiển thị: họ tên ở bảng profiles (vd "Nguyễn Thị Thảo Quyên"), chưa có thì tên tài khoản (vd "Sale").
+     * Dữ liệu đang lưu: profile_firstname = họ + tên đệm ("Nguyễn Thị Thảo"), profile_lastname = tên ("Quyên").
+     * Dùng ở giao diện (trang chat AI…); phân quyền vẫn theo tên tài khoản ($user->name).
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $p = $this->relationLoaded('profile') ? $this->profile : ($this->profile_id ? $this->profile()->first() : null);
+        $full = trim(preg_replace('/\s+/u', ' ', trim(($p->profile_firstname ?? '') . ' ' . ($p->profile_lastname ?? ''))));
+
+        return $full !== '' ? $full : (string) $this->name;
+    }
+
     public function task(){
         return $this->hasMany(Task::class);
     }

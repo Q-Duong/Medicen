@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Services\Schedule\Timekeeping;
 use App\Exports\TechnicianWorkloadExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
@@ -88,127 +89,12 @@ class EmployeeController extends Controller
     //     return Excel::download(new TechnicianWorkloadExport($finalData), $fileName);
     // }
 
-    public function export(Request $request)
+    public function export(Request $request, Timekeeping $timekeeping)
     {
-        // 1. Tối ưu xử lý ngày tháng với Carbon
+        // Cách tính nằm ở App\Services\Schedule\Timekeeping (trang Xếp lịch xe dùng chung)
         $date = Carbon::parse($request->month . ' ' . $request->year);
-        $startDate = $date->copy()->startOfMonth()->toDateString();
-        $endDate = $date->copy()->endOfMonth()->toDateString();
+        $finalData = $timekeeping->month($date);
 
-        // 2. Lấy dữ liệu thô từ Database
-        $orders = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
-            ->whereBetween('order_details.ord_start_day', [$startDate, $endDate])
-            ->where('car_ktvs.car_active', 1)
-            ->where('orders.order_surcharge', 0)
-            ->select(
-                'car_ktvs.car_name',
-                'car_ktvs.car_ktv_name_1',
-                'car_ktvs.car_ktv_name_2',
-                'car_ktvs.car_driver_name',
-                'car_ktvs.driver_assistance',
-                'car_ktvs.work_over_250',
-                'orders.overnight',
-                'orders.order_quantity_draft',
-                'orders.status_id',
-                'orders.order_quantity',
-                'order_details.ord_select',
-            )
-            ->get();
-
-        // 3. Xử lý logic gộp và tính toán
-        $xray1Position = ['Phổi (1 Tư thế)', 'Cột sống thắt lưng (1 Tư thế)', 'Cột sống cổ (1 Tư thế)', 'Vai (1 Tư thế)', 'Gối (1 Tư thế)', 'Nhũ Ảnh', 'Khác'];
-        $xray2Position = ['Phổi (2 Tư thế)', 'Cột sống thắt lưng (2 Tư thế)', 'Cột sống cổ (2 Tư thế)', 'Vai (2 Tư thế)', 'Gối (2 Tư thế)'];
-        $ultraSound    = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
-
-        $summary = [];
-
-        // Hàm khởi tạo nhân viên kèm cờ nhận diện Tài Xế
-        $initEmployee = function ($name, $isDriver = false) use (&$summary) {
-            if (!isset($summary[$name])) {
-                $summary[$name] = [
-                    'nhan_vien'         => $name,
-                    'is_driver'         => false, 
-                    'tong_so_ca'        => 0,
-                    'so_ca_ktv'         => 0,
-                    'so_ca_tx_phu_ktv'  => 0,
-                    'o_lai_dem'         => 0,
-                    'cong_tac_tren_250' => 0,
-                ];
-            }
-            if ($isDriver) {
-                $summary[$name]['is_driver'] = true;
-            }
-        };
-
-        foreach ($orders as $order) {
-            $driver  = trim($order->car_driver_name ?? '');
-            $ktv1    = trim($order->car_ktv_name_1 ?? '');
-            $ktv2    = trim($order->car_ktv_name_2 ?? '');
-
-            $quantityDraft = (float) $order->order_quantity_draft;
-
-            // --- BƯỚC TÍNH TỔNG SỐ CA DỰA TRÊN RULE ---
-            $soCaTinhToan = 0;
-            if (in_array($order->status_id, [2, 3, 4]) && !in_array($order->ord_select, $ultraSound)) {
-                $multiplier = 0;
-                if (in_array($order->ord_select, $xray1Position)) {
-                    $multiplier = 1;
-                } elseif (in_array($order->ord_select, $xray2Position)) {
-                    $multiplier = 2;
-                }
-
-                if ($multiplier > 0) {
-                    $soCaTinhToan = $order->order_quantity * $multiplier;
-                }
-            }
-
-            // A. Xử lý cho Tài xế
-            if (!empty($driver)) {
-                $initEmployee($driver, true);
-
-                $summary[$driver]['tong_so_ca'] += $soCaTinhToan;
-
-                // --- RULE MỚI TẠI ĐÂY ---
-                if ($order->driver_assistance == 1) {
-                    // Nếu order_quantity_draft trống hoặc bằng 0, lấy order_quantity
-                    $soCaTxPhu = !empty($order->order_quantity_draft) 
-                                 ? $quantityDraft 
-                                 : (float) $order->order_quantity;
-                                 
-                    $summary[$driver]['so_ca_tx_phu_ktv'] += $soCaTxPhu;
-                }
-                
-                $summary[$driver]['o_lai_dem']         += (float) $order->overnight;
-                $summary[$driver]['cong_tac_tren_250'] += (float) $order->work_over_250;
-            }
-
-            // B. Xử lý cho Kỹ thuật viên 1
-            if (!empty($ktv1)) {
-                $initEmployee($ktv1, false);
-                $summary[$ktv1]['so_ca_ktv']         += $quantityDraft;
-                $summary[$ktv1]['o_lai_dem']         += (float) $order->overnight;
-                $summary[$ktv1]['cong_tac_tren_250'] += (float) $order->work_over_250;
-            }
-
-            // C. Xử lý cho Kỹ thuật viên 2
-            if (!empty($ktv2)) {
-                $initEmployee($ktv2, false);
-                $summary[$ktv2]['so_ca_ktv']         += $quantityDraft;
-                $summary[$ktv2]['o_lai_dem']         += (float) $order->overnight;
-                $summary[$ktv2]['cong_tac_tren_250'] += (float) $order->work_over_250;
-            }
-        }
-
-        // 4. Sắp xếp: Tài xế nằm đầu, sau đó xếp theo tên
-        $finalData = collect($summary)->sort(function ($a, $b) {
-            if ($a['is_driver'] !== $b['is_driver']) {
-                return $a['is_driver'] ? -1 : 1;
-            }
-            return strnatcmp($a['nhan_vien'], $b['nhan_vien']);
-        })->values();
-
-        // 5. Xuất File
         $fileName = "Bao_cao_nhan_vien.xlsx";
         return Excel::download(new TechnicianWorkloadExport($finalData), $fileName);
     }

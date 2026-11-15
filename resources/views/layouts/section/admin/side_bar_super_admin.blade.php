@@ -6,76 +6,44 @@
                 <li>
                     <a class="{{ request()->routeIs('dashboard.index') ? 'active' : '' }}"
                         href="{{ route('dashboard.index') }}">
-                        <i class="far fa-chart-bar"></i>
+                        <i class="fas fa-chart-line"></i>
                         <span>Thống kê doanh thu</span>
                     </a>
                 </li>
+                @include('layouts.section.admin.assistant_menu')
                 @if (Auth::user()->name == 'Admin')
                     <li>
                         <a class="{{ request()->routeIs('profit.index') ? 'active' : '' }}"
                             href="{{ route('profit.index') }}">
-                            <i class="far fa-chart-bar"></i>
+                            <i class="fas fa-calculator"></i>
                             <span>Tính lợi nhuận X-Quang</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="{{ request()->routeIs('excel-uploads.index') ? 'active' : '' }}"
-                            href="{{ route('excel-uploads.index') }}">
-                            <i class="far fa-chart-bar"></i>
-                            <span>Phiếu đặt lịch</span>
                         </a>
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="{{ route('order.index') }}">
-                            <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-clipboard-list"></i>
                             <span>Quản lý đơn hàng</span>
                         </a>
                         
                     </li>
                 
+                    {{-- Bấm thẳng vào danh sách đơn vị; thêm / sửa / xóa ngay trong trang --}}
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('unit.index') || request()->routeIs('unit.create') || request()->routeIs('unit.edit') ? 'active' : '' }}"
-                            href="javascript:;">
-                            <i class="fas fa-file-alt"></i>
+                            href="{{ route('unit.index') }}">
+                            <i class="fas fa-building"></i>
                             <span>Quản lý đơn vị</span>
                         </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('unit.create') ? 'active' : '' }}"
-                                    href="{{ route('unit.create') }}">
-                                    <i class="fas fa-user-plus"></i> Thêm đơn vị
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('unit.index') ? 'active' : '' }}"
-                                    href="{{ route('unit.index') }}">
-                                    <i class="fas fa-list-ol"></i> Danh sách đơn vị
-                                </a>
-                            </li>
-                        </ul>
                     </li>
                     
+                    {{-- Bấm thẳng vào danh sách nhân viên (giống Quản lý đơn hàng); thêm / sửa / xóa ngay trong trang --}}
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('staff.index') || request()->routeIs('staff.create') || request()->routeIs('staff.edit') ? 'active' : '' }}"
-                            href="javascript:;">
-                            <i class="fas fa-user"></i>
+                            href="{{ route('staff.index') }}">
+                            <i class="fas fa-id-badge"></i>
                             <span>Quản lý nhân viên</span>
                         </a>
-                        <ul class="sub">
-                            <li>
-                                <a class="{{ request()->routeIs('staff.create') ? 'active' : '' }}"
-                                    href="{{ route('staff.create') }}">
-                                    <i class="fas fa-user-plus"></i> Thêm nhân viên
-                                </a>
-                            </li>
-                            <li>
-                                <a class="{{ request()->routeIs('staff.index') ? 'active' : '' }}"
-                                    href="{{ route('staff.index') }}">
-                                    <i class="fas fa-list-ol"></i> Danh sách nhân viên
-                                </a>
-                            </li>
-                        </ul>
                     </li>
 
                     {{-- <li class="sub-menu">
@@ -103,35 +71,28 @@
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
                             href="{{ route('accountant.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-wallet"></i>
                             <span>Quản lý công nợ</span>
                         </a>
                     </li>
-                    <li class="sub-menu">
+                    {{-- <li class="sub-menu">
                         <a class="{{ request()->routeIs('contract.index') ? 'active' : '' }}"
                             href="{{ route('contract.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-file-contract"></i>
                             <span>Quản lý hợp đồng</span>
                         </a>
-                    </li>
+                    </li> --}}
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('statistics.index') ? 'active' : '' }}"
                             href="{{ route('statistics.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-bullseye"></i>
                             <span>Tính KPI</span>
-                        </a>
-                    </li>
-                    <li class="sub-menu">
-                        <a class="{{ request()->routeIs('employee_timekeeping.index') ? 'active' : '' }}"
-                            href="{{ route('employee_timekeeping.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>Chấm công</span>
                         </a>
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('reports.index') ? 'active' : '' }}"
                             href="{{ route('reports.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-receipt"></i>
                             <span>Báo cáo thu chi</span>
                         </a>
                     </li>
@@ -139,21 +100,21 @@
                         <a class="{{ request()->routeIs('history.index') ? 'active' : '' }}"
                             href="{{ route('history.index') }}">
                             <i class="fas fa-history"></i>
-                            <span>Quản lý chỉnh sửa đơn hàng</span>
+                            <span>Lịch sử chỉnh sửa</span>
                         </a>
                     </li>
                 @elseif (Auth::user()->name == 'SubAdmin')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
                             href="{{ route('accountant.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-wallet"></i>
                             <span>Quản lý công nợ</span>
                         </a>
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('reports.index') ? 'active' : '' }}"
                             href="{{ route('reports.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-receipt"></i>
                             <span>Báo cáo thu chi</span>
                         </a>
                     </li>

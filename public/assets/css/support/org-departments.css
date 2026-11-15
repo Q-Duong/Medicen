@@ -1,0 +1,301 @@
+/*
+ * Trang Phân quyền phòng ban: cùng kiểu với Đơn hàng / Công nợ / Xếp lịch
+ * (nền trắng bo tròn có lề, thẻ đầu trang vạch cam, thẻ tóm tắt, bảng trong thẻ).
+ * File nguồn (dễ đọc). Bản nạp lên trang là departments.css (rút gọn từ file này).
+ */
+.ud {
+    --ud-ink: #1f1e1d;
+    --ud-muted: #73716c;
+    --ud-faint: #a3a19b;
+    --ud-line: #e2ded3;
+    --ud-soft: #faf9f5;
+    --ud-accent: #c96442;
+    padding: 15px;
+    background: #fff;
+    border-radius: 15px;
+    color: var(--ud-ink);
+}
+
+/* Đầu trang */
+.ud-head {
+    margin-bottom: 14px;
+    padding: 14px 22px;
+    border: 1px solid var(--ud-line);
+    border-radius: 18px;
+    background: #fff;
+}
+
+.ud-head__title {
+    position: relative;
+    padding-left: 16px;
+}
+
+.ud-head__title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 3px;
+    width: 4px;
+    height: 26px;
+    border-radius: 4px;
+    background: var(--ud-accent);
+}
+
+.ud-head h1 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 650;
+    line-height: 32px;
+    letter-spacing: -.1px;
+}
+
+.ud-head p {
+    margin: 2px 0 0;
+    color: var(--ud-muted);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+/* Thẻ tóm tắt: trợ lý nào dành cho phòng ban nào */
+.ud-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.ud-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--ud-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.ud-card__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #fbefe9;
+    color: var(--ud-accent);
+    font-size: 15px;
+}
+
+.ud-card h2 {
+    margin: 0 0 3px;
+    font-size: 14.5px;
+    font-weight: 650;
+}
+
+.ud-card p {
+    margin: 0;
+    color: var(--ud-muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.ud-card--stat {
+    background: var(--ud-soft);
+}
+
+.ud-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border: 1px solid #f3c7c2;
+    border-radius: 12px;
+    background: #fdecea;
+    color: #a12622;
+    font-size: 13.5px;
+}
+
+/* Bảng */
+.ud-table {
+    overflow-x: auto;
+    border: 1px solid var(--ud-line);
+    border-radius: 18px;
+    background: #fff;
+}
+
+.ud-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.ud-table th {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ud-line);
+    background: var(--ud-soft);
+    color: var(--ud-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.ud-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #efece5;
+    vertical-align: middle;
+}
+
+.ud-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.ud-table tbody tr:hover td {
+    background: #fdfcf9;
+}
+
+.ud-email {
+    color: var(--ud-muted);
+}
+
+.ud-muted {
+    color: var(--ud-faint);
+    font-size: 12.5px;
+}
+
+.ud-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #f3f2ef;
+    color: #4a4945;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ud-tag--admin {
+    background: #ebf3fd;
+    color: #0b4f9c;
+}
+
+.ud-chip {
+    display: inline-block;
+    margin: 2px 4px 2px 0;
+    padding: 2px 9px;
+    border: 1px solid #f0d9cc;
+    border-radius: 999px;
+    background: #fbf3ee;
+    color: #8a3a1f;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ud-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0;
+}
+
+.ud-form select {
+    height: 36px;
+    min-width: 200px;
+    padding: 0 30px 0 10px;
+    border: 1px solid #d9d5ca;
+    border-radius: 10px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2373716c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center;
+    color: var(--ud-ink);
+    font-size: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.ud-form select.is-empty {
+    color: var(--ud-faint);
+}
+
+.ud-form select:focus {
+    border-color: var(--ud-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(201, 100, 66, .14);
+}
+
+.ud-form button {
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--ud-accent);
+    border-radius: 10px;
+    background: var(--ud-accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ud-form button:hover {
+    border-color: #b4573a;
+    background: #b4573a;
+    box-shadow: 0 4px 14px rgba(201, 100, 66, .28);
+}
+
+/* Điện thoại: mỗi tài khoản một thẻ */
+@media (max-width: 768px) {
+    .ud {
+        padding: 10px;
+    }
+
+    .ud-head {
+        padding: 12px 16px;
+    }
+
+    .ud-table {
+        border: 0;
+        background: none;
+    }
+
+    .ud-table table,
+    .ud-table tbody,
+    .ud-table tr,
+    .ud-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .ud-table thead {
+        display: none;
+    }
+
+    .ud-table tr {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border: 1px solid var(--ud-line);
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .ud-table td {
+        padding: 6px 0;
+        border: 0;
+    }
+
+    .ud-table td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 2px;
+        color: var(--ud-faint);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .ud-form select {
+        flex: 1;
+        min-width: 0;
+    }
+}

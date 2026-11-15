@@ -1499,3 +1499,7 @@ xcarbonads
 .event-list-file .file-action {
 	width: 30px;
 }
+/* Lịch TX / KTV: địa chỉ có toạ độ thì bấm được, mở bản đồ ở tab mới */
+.event-address a.event-map-link{color:#c96442;font-weight:600;text-decoration:underline;text-underline-offset:2px;word-break:break-word}
+.event-address a.event-map-link:hover{color:#b4573a}
+.event-address a.event-map-link i{margin-right:2px}

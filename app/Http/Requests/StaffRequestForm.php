@@ -28,6 +28,8 @@ class StaffRequestForm extends FormRequest
             'staff_gender' => 'required',
             'staff_birthday' => 'required',
             'staff_role' => 'required',
+            'staff_certificate' => 'nullable|boolean',
+            'staff_certificate_note' => 'nullable|string|max:255',
         ];
     }
 

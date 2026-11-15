@@ -14,6 +14,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('reports:remind')->dailyAt('10:00');
+        $schedule->command('assistant:prune')->dailyAt('02:00');
+        // Nhắc người xếp lịch: đơn sắp chạy chưa xếp xe, giữ chỗ chưa lên đơn
+        $schedule->command('schedule:remind')->dailyAt(config('schedule.remind_at', '16:00'));
     }
 
     /**

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ProfitReport;
 use App\Models\Unit;
 use App\Models\HistoryEdit;
+use App\Services\ProfitCalculator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\App;
 
@@ -30,27 +31,31 @@ class ProfitController extends Controller
         $this->locale = App::getLocale();
     }
 
-    public function index()
+    public function index(ProfitCalculator $calculator)
     {
         $getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
         $reports = ProfitReport::with('unit')->orderBy('created_at', 'desc')->get();
-        return view('pages.admin.calculation.profit_calculation', compact('reports', 'getAllUnit'));
+        $profitDefaults = $calculator->defaults();
+        return view('pages.admin.calculation.profit_calculation', compact('reports', 'getAllUnit', 'profitDefaults'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ProfitCalculator $calculator)
     {
         $request->validate([
-            'total_revenue' => 'required|numeric',
+            'unit_id' => 'required|exists:units,id',
             'input_data' => 'required|array',
         ]);
+
+        // Tính lại ở server bằng cùng công thức với trang (không dùng số tổng trình duyệt gửi lên)
+        $result = $calculator->calculate($request->input_data);
 
         $report = ProfitReport::create([
             'unit_id' => $request->unit_id,
             'comments' => $request->comments,
-            'total_revenue' => $request->total_revenue,
-            'total_cost' => $request->total_cost,
-            'net_profit' => $request->net_profit,
-            'profit_margin' => $request->profit_margin,
+            'total_revenue' => $result['total_revenue'],
+            'total_cost' => $result['total_cost'],
+            'net_profit' => $result['net_profit'],
+            'profit_margin' => $result['profit_margin'],
             'input_data' => $request->input_data // Laravel tự convert array sang JSON
         ]);
 

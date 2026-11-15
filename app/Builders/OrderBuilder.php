@@ -12,8 +12,11 @@ final class OrderBuilder extends Builder
         // Khởi tạo query builder với các lệnh join và select như cũ
         $query = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
+            ->leftJoin('order_groups', 'order_groups.id', '=', 'orders.order_group_id')
             ->select(
                 'orders.id',
+                'order_groups.code as group_code',
+                'orders.order_surcharge',
                 'orders.created_at',
                 'orders.complete',
                 'order_quantity',
@@ -30,48 +33,9 @@ final class OrderBuilder extends Builder
                 'schedule_status'
             );
 
-        // Xử lý nối thêm các điều kiện lọc (nếu có Request truyền vào)
+        // Lọc: dùng chung App\Services\OrderFilters (cùng với thẻ đếm trạng thái và gợi ý các ô lọc)
         if ($request) {
-            if ($request->filled('unit_abbreviation')) {
-                $query->where('units.unit_abbreviation', $request->unit_abbreviation);
-            }
-
-            if ($request->filled('from_date')) {
-                $query->whereDate('ord_start_day', '>=', $request->from_date);
-            }
-
-            if ($request->filled('to_date')) {
-                $query->whereDate('ord_start_day', '<=', $request->to_date);
-            }
-
-            if ($request->filled('status_id')) {
-                if ($request->status_id === 'processing') {
-                    $query->whereIn('orders.status_id', [1, 2]); // Đang xử lý
-                } elseif ($request->status_id === 'completed') {
-                    $query->whereIn('orders.status_id', [3, 4]); // Hoàn thành
-                } else {
-                    $query->where('orders.status_id', $request->status_id);
-                }
-            }
-
-            if ($request->filled('schedule_status')) {
-                if ($request->schedule_status === '0') {
-                    // Chưa lên lịch
-                    $query->where('orders.schedule_status', 0);
-                } elseif ($request->schedule_status === '1') {
-                    // Đã lên lịch (schedule_status != 0)
-                    $query->where('orders.schedule_status', '!=', 0);
-                }
-            }
-
-            if ($request->filled('keyword')) {
-                $keyword = $request->keyword;
-                $query->where(function ($q) use ($keyword) {
-                    $q->where('orders.id', 'LIKE', "%{$keyword}%")
-                        ->orWhere('order_details.ord_cty_name', 'LIKE', "%{$keyword}%")
-                        ->orWhere('units.unit_name', 'LIKE', "%{$keyword}%");
-                });
-            }
+            \App\Services\OrderFilters::apply($query, $request);
         }
 
         // Cuối cùng mới sắp xếp và phân trang
@@ -125,6 +89,10 @@ final class OrderBuilder extends Builder
                 'order_cost',
                 'order_percent_discount',
                 'order_price',
+                'order_discount',
+                'order_profit',
+                'accountant_amount_paid',
+                'accountant_owe',
                 'overnight',
                 'status_id'
             )
@@ -161,6 +129,7 @@ final class OrderBuilder extends Builder
                 'ord_select',
                 'ord_cty_name',
                 'customer_address',
+                'customer_location', // toạ độ / link bản đồ: địa chỉ trên lịch TX, KTV bấm được
                 'customer_note',
                 'ord_note',
                 'ord_list_file',
@@ -210,6 +179,7 @@ final class OrderBuilder extends Builder
                 'ord_select',
                 'ord_cty_name',
                 'customer_address',
+                'customer_location', // toạ độ / link bản đồ: địa chỉ trên lịch TX, KTV bấm được
                 'customer_note',
                 'ord_note',
                 'ord_list_file',
@@ -258,6 +228,7 @@ final class OrderBuilder extends Builder
                 'ord_select',
                 'ord_cty_name',
                 'customer_address',
+                'customer_location', // toạ độ / link bản đồ: địa chỉ trên lịch TX, KTV bấm được
                 'customer_note',
                 'ord_note',
                 'ord_list_file',

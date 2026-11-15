@@ -9,6 +9,7 @@ use App\Models\HistoryEdit;
 use App\Models\OrderDetail;
 use App\Models\PerformanceAnalysis;
 use App\Models\TempFile;
+use App\Services\Accountant\OrderMoney;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -223,12 +224,18 @@ class ScheduleResultsController extends Controller
 	{
 		$data = $request->all();
 		$order = Order::findOrFail($request->id);
+		// Đơn đã hoàn thành: không lưu gì nữa (trang Kết quả cũng đã khóa ô)
+		if ($order->isClosed()) {
+			return response()->json(['success' => false, 'message' => Order::closedMessage($order->id)], 422);
+		}
 		$orderUpdatedBeforeUpdate = $order->order_updated;
-		$order->order_quantity = $request->order_quantity_details;
+		$accountant = Accountant::where('order_id', $request->id)->first();
+		// Số ca thực tế đổi thì tính lại Thành tiền, Thành tiền CK, Lợi nhuận, Còn nợ theo quy tắc Công nợ,
+		// để Sale không phải vào sửa giá. Đơn đã cập nhật doanh thu / đã chốt thì giữ nguyên tiền.
+		$money = OrderMoney::applyActualQuantity($order, $accountant, $request->order_quantity_details, Auth::user()->email);
 		$order->order_send_result = $request->order_send_result;
-		if ($order->status_id == 4) {
-			$order->status_id = 4;
-		} else {
+		// Đã chốt (3) / đã cập nhật doanh thu (4) thì giữ trạng thái, còn lại = Đã cập nhật số Cas
+		if (!in_array((int) $order->status_id, [3, 4], true)) {
 			$order->status_id = 2;
 		}
 		$order->order_updated = 1;
@@ -243,7 +250,6 @@ class ScheduleResultsController extends Controller
 		}
 		$orderDetail->save();
 
-		$accountant = Accountant::where('order_id', $request->id)->first();
 		$accountant->accountant_doctor_read = $data['accountant_doctor_read'];
 		$accountant->accountant_35X43 = $data['accountant_35X43'];
 		$accountant->accountant_polime = $data['accountant_polime'];
@@ -270,6 +276,24 @@ class ScheduleResultsController extends Controller
 			$history->order_id = $request->id;
 			$history->user_name = Auth::user()->email;
 			$history->history_action = 'Chỉnh sửa lịch chi tiết';
+			$history->save();
+		}
+
+		if (!empty($money['flag'])) {
+			// Đơn đã cập nhật doanh thu: tiền giữ nguyên, trang Công nợ báo kế toán
+			$history = new HistoryEdit();
+			$history->order_id = $request->id;
+			$history->user_name = Auth::user()->email;
+			$history->history_action = mb_substr('Số ca thực tế ' . $money['flag']['from'] . ' → ' . $money['flag']['to'] . ' sau khi cập nhật doanh thu (tiền giữ nguyên, chờ kế toán)', 0, 100);
+			$history->save();
+		}
+
+		if ($money['price_before'] !== $money['price_after']) {
+			$fmt = fn ($n) => number_format($n, 0, ',', '.');
+			$history = new HistoryEdit();
+			$history->order_id = $request->id;
+			$history->user_name = Auth::user()->email;
+			$history->history_action = mb_substr('Cập nhật số ca thực tế ' . $order->order_quantity . ' cas: thành tiền ' . $fmt($money['price_before']) . ' → ' . $fmt($money['price_after']), 0, 100);
 			$history->save();
 		}
 	}

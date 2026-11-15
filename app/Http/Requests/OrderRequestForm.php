@@ -33,7 +33,6 @@ class OrderRequestForm extends FormRequest
                 'ord_deliver_results' => 'required',
                 'order_quantity' => 'required',
                 'order_price' => 'required',
-                'excel_upload_id' => ['nullable', 'integer', 'exists:excel_uploads,id'],
             ];
         } elseif ($this->isMethod('put') || $this->isMethod('patch')) {
             return [

@@ -1,0 +1,502 @@
+/*
+ * Tính lợi nhuận X-Quang: cùng kiểu các trang quản lý (nền trắng có lề, thẻ đầu trang vạch cam, thẻ trắng viền be).
+ * Giữ nguyên các class / id mà assets/js/tool/calculation.js dùng (table-input, calc-trigger, text-money, …).
+ * File nguồn (dễ đọc). Bản nạp lên trang là profit.css (rút gọn từ file này).
+ */
+.pf {
+    --pf-ink: #1f1e1d;
+    --pf-muted: #73716c;
+    --pf-faint: #a3a19b;
+    --pf-line: #e2ded3;
+    --pf-soft: #faf9f5;
+    --pf-accent: #c96442;
+    --pf-ok: #18794e;
+    --pf-bad: #b42318;
+    padding: 15px;
+    background: #fff;
+    border-radius: 15px;
+    color: var(--pf-ink);
+}
+
+/* Đầu trang */
+.pf-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 14px 22px;
+    border: 1px solid var(--pf-line);
+    border-radius: 18px;
+}
+
+.pf-head__title {
+    position: relative;
+    padding-left: 16px;
+}
+
+.pf-head__title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 3px;
+    width: 4px;
+    height: 26px;
+    border-radius: 4px;
+    background: var(--pf-accent);
+}
+
+.pf-head h1 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 650;
+    line-height: 32px;
+}
+
+.pf-head p {
+    margin: 0;
+    color: var(--pf-muted);
+    font-size: 13.5px;
+}
+
+/* Nút */
+.pf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #d9d5ca;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--pf-ink);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pf-btn:hover {
+    border-color: var(--pf-accent);
+    color: var(--pf-accent);
+    text-decoration: none;
+}
+
+.pf-btn--sm {
+    height: 32px;
+    padding: 0 11px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+.pf-btn--lg {
+    height: 46px;
+    padding: 0 28px;
+    font-size: 15px;
+}
+
+.pf-btn--primary {
+    border-color: var(--pf-accent);
+    background: var(--pf-accent);
+    color: #fff;
+}
+
+.pf-btn--primary:hover {
+    border-color: #b4573a;
+    background: #b4573a;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(201, 100, 66, .28);
+}
+
+.pf-btn--ok {
+    border-color: #b7dfc7;
+    color: var(--pf-ok);
+}
+
+.pf-btn--ok:hover {
+    border-color: var(--pf-ok);
+    background: var(--pf-ok);
+    color: #fff;
+}
+
+.pf-btn--danger {
+    border-color: #f1c4bf;
+    color: var(--pf-bad);
+}
+
+.pf-btn--danger:hover {
+    border-color: var(--pf-bad);
+    background: var(--pf-bad);
+    color: #fff;
+}
+
+/* Đang xem lại bản ghi */
+.pf-viewmode {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border: 1px solid #f0d9a8;
+    border-left: 4px solid #e09a1f;
+    border-radius: 12px;
+    background: #fdf5e6;
+    color: #6b4a0d;
+    font-size: 14px;
+}
+
+#viewModeTitle {
+    color: var(--pf-accent);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Thẻ */
+.pf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.pf-card {
+    padding: 14px 18px;
+    border: 1px solid var(--pf-line);
+    border-radius: 18px;
+    background: #fff;
+}
+
+.pf-card__title {
+    margin: 0 0 10px;
+    color: var(--pf-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.pf-fields {
+    display: grid;
+    gap: 10px;
+}
+
+.pf-trip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.pf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0;
+    font-weight: 400;
+}
+
+.pf-field > span {
+    color: var(--pf-muted);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.pf-field input,
+.pf-field select,
+.pf-field textarea {
+    width: 100%;
+    min-height: 38px;
+    padding: 7px 12px;
+    border: 1px solid #d9d5ca;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--pf-ink);
+    font-size: 14px;
+}
+
+.pf-trip input {
+    font-size: 17px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.pf-field input:focus,
+.pf-field select:focus,
+.pf-field textarea:focus,
+.pf .table-input:focus,
+.pf .form-control:focus {
+    border-color: var(--pf-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(201, 100, 66, .14);
+}
+
+/* Bảng tính */
+.pf-calc {
+    padding: 0;
+    overflow: hidden;
+}
+
+.pf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.pf-table th {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--pf-line);
+    background: var(--pf-soft);
+    color: var(--pf-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.pf-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #f0ede6;
+    vertical-align: middle;
+}
+
+.pf-table tbody tr:hover td {
+    background: #fdfcf9;
+}
+
+/* Các class sẵn có trong bảng (calculation.js dùng / Blade cũ) */
+.pf .section-header td {
+    padding: 10px 12px;
+    background: #f4f1ea;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .05em;
+}
+
+.pf .section-header.text-success td { color: var(--pf-ok); }
+.pf .section-header.text-danger td { color: var(--pf-bad); }
+
+.pf .bg-light {
+    background: var(--pf-soft) !important;
+}
+
+.pf .ps-3 { padding-left: 16px !important; }
+.pf .ps-4 { padding-left: 28px !important; }
+.pf .fw-bold { font-weight: 700; }
+.pf .text-secondary { color: var(--pf-muted); }
+.pf .text-success { color: var(--pf-ok) !important; }
+.pf .text-danger { color: var(--pf-bad) !important; }
+.pf .text-primary { color: #2f6fd1; }
+.pf .text-dark { color: var(--pf-ink); }
+.pf .text-end,
+.pf .text-money { text-align: right; }
+.pf .text-center { text-align: center; }
+.pf .fs-5 { font-size: 17px; }
+.pf .fs-4 { font-size: 19px; }
+.pf .fs-3 { font-size: 23px; }
+.pf .align-middle { vertical-align: middle; }
+
+.pf .fw-bold-num {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.pf .sub-label {
+    color: var(--pf-faint);
+    font-size: 12.5px;
+}
+
+.pf .table-input,
+.pf .form-control {
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #ddd8cc;
+    border-radius: 9px;
+    background: #fff;
+    color: var(--pf-ink);
+    font-size: 14px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.pf .table-input[readonly],
+.pf .form-control[readonly] {
+    border-color: #ebe8e1;
+    background: #f6f5f1;
+    color: var(--pf-muted);
+}
+
+/* Ô số ca (nhập chính) nổi bật */
+.pf .bg-warning-subtle {
+    border-color: #f0c36d !important;
+    background: #fff8e8 !important;
+}
+
+.pf .row.g-1 {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+}
+
+.pf .row.g-1 > .col-6 {
+    flex: 1;
+    padding: 0;
+}
+
+.pf .input-group {
+    display: flex;
+}
+
+.pf .input-group-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    border: 1px solid #ddd8cc;
+    border-right: 0;
+    border-radius: 9px 0 0 9px;
+    background: var(--pf-soft);
+    color: var(--pf-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pf .input-group .form-control {
+    border-radius: 0 9px 9px 0;
+}
+
+.pf .table-success td {
+    border-top: 1px solid #cfe9d9;
+    background: #effaf3;
+}
+
+.pf .table-danger td {
+    border-top: 1px solid #f3cfca;
+    background: #fdf1ef;
+    color: var(--pf-bad);
+}
+
+.pf-table tfoot td {
+    padding: 14px 12px;
+    border-top: 2px solid var(--pf-line);
+    border-bottom: 0;
+    background: #fbf3ee;
+}
+
+/* Lưu */
+.pf-save {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0 18px;
+}
+
+.pf-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, .5);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pf-spin .7s linear infinite;
+}
+
+@keyframes pf-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Lịch sử tính */
+.pf-history {
+    padding: 0;
+    overflow: hidden;
+}
+
+.pf-history__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 4px;
+}
+
+.pf-pill {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #fbefe9;
+    color: #8a3a1f;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pf-table-wrap {
+    overflow-x: auto;
+}
+
+.pf-table--list td {
+    padding: 10px 12px;
+}
+
+.pf-muted {
+    color: var(--pf-muted);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.pf-actions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.pf-actions .pf-btn {
+    margin-left: 4px;
+}
+
+.pf-empty {
+    padding: 28px 12px !important;
+    color: var(--pf-muted);
+    text-align: center;
+}
+
+.pf .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pf .badge.bg-success { background: #e6f5ec; color: var(--pf-ok); }
+.pf .badge.bg-warning { background: #fdf3e2; color: #8a5a0b; }
+.pf .badge.bg-danger { background: #fdecea; color: var(--pf-bad); }
+
+/* Ẩn mũi tên ô số */
+.pf input::-webkit-outer-spin-button,
+.pf input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+@media (max-width: 1100px) {
+    .pf-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .pf {
+        padding: 10px;
+    }
+
+    .pf-trip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pf-calc {
+        overflow-x: auto;
+    }
+
+    .pf-calc .pf-table {
+        min-width: 720px;
+    }
+}

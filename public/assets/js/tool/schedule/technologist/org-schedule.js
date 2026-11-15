@@ -1,3 +1,30 @@
+// Link bản đồ từ toạ độ đơn (customers.customer_location): link http(s) (vd https://maps.app.goo.gl/…) dùng thẳng;
+// dạng "10.77, 106.69" thì mở Google Maps tại toạ độ đó; còn lại (trống / sai) thì không có link.
+function mapLinkFrom(location) {
+    var v = String(location || "").trim();
+    if (!v) return null;
+    if (/^https?:\/\/\S+$/i.test(v)) return v;
+    var m = v.match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
+    if (m && Math.abs(+m[1]) <= 90 && Math.abs(+m[2]) <= 180) {
+        return "https://www.google.com/maps?q=" + m[1] + "," + m[2];
+    }
+    return null;
+}
+
+function setAddress($el, address, location) {
+    var text = address !== null && address !== undefined ? String(address) : "";
+    var url = mapLinkFrom(location);
+    $el.empty();
+    if (url) {
+        $("<a>", { href: url, target: "_blank", rel: "noopener noreferrer", class: "event-map-link", title: "Mở bản đồ" })
+            .append($('<i class="fas fa-map-marker-alt"></i>'))
+            .append(document.createTextNode(" " + (text || "Xem bản đồ")))
+            .appendTo($el);
+    } else {
+        $el.text(text);
+    }
+}
+
 schedule(day);
 // --- Helper Functions ---
 
@@ -327,7 +354,8 @@ function schedule(day) {
             setText(".event-order-id").text(data.order_id);
             setText(".event-unit").text(data.unit_abbreviation);
             setText(".event-cty-name").text(data.ord_cty_name);
-            setText(".event-address").text(data.customer_address);
+            // Địa chỉ: có toạ độ (customer_location) thì bấm được, mở bản đồ ở tab mới; không có thì chỉ hiện chữ
+            setAddress(mb.find(".event-address"), data.customer_address, data.customer_location);
             setText(".event-other-address").text(data.customer_note);
             setText(".event-select").text(data.ord_select);
             setText(".event-info-contact").html(

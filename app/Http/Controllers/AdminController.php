@@ -53,33 +53,70 @@ class AdminController extends Controller
         return Redirect::to('login');
     }
 
-    public function information(){
-    	return view('admin.AdminInfomation.view_infomation');
+    /**
+     * Trang "Tài khoản của tôi": xem + sửa thông tin cá nhân (bảng profiles) và đổi mật khẩu của chính mình.
+     * Trước đây 2 trang "Thông tin" / "Cài đặt" trỏ tới view không còn (admin.AdminInfomation.*) và form lưu gọi
+     * hàm không có (store_information) nên đều lỗi; gộp lại thành một trang.
+     */
+    public function information()
+    {
+        $user = Auth::user();
+        $profile = $user->profile_id ? Profile::find($user->profile_id) : null;
+
+        return view('pages.admin.setting.account', compact('user', 'profile'));
     }
 
-    public function settings(){
-    	return view('admin.AdminInfomation.edit_infomation');
+    public function settings()
+    {
+        return Redirect::route('information');
     }
 
-    public function save_information(Request $request){
-        $data=$request->all();
-        $profile= Profile::find(Auth::user()->profile_id);
-        $profile->profile_firstname=$data['profile_firstname'];
-        $profile->profile_lastname=$data['profile_lastname'];
-        $profile->profile_phone=$data['profile_phone'];
-        $profile->profile_email=$data['profile_email'];
-        $profile->profile_gender=$data['profile_gender'];
-        $profile->day_of_birth=$data['day_of_birth'];
-        $profile->save();
-        if($data['admin_password']!=null){
-            $user=User::find(Auth::id());
-            $user->password=bcrypt($data['admin_password']);
-            $user->save();
+    public function store_information(Request $request)
+    {
+        $user = Auth::user();
+        $data = $request->validate([
+            'profile_firstname' => ['nullable', 'string', 'max:70'],
+            'profile_lastname' => ['nullable', 'string', 'max:70'],
+            'profile_phone' => ['nullable', 'regex:/^0\d{9}$/'],
+            'profile_gender' => ['nullable', 'in:0,1'],
+            'day_of_birth' => ['nullable', 'date'],
+            'current_password' => ['nullable', 'required_with:password', 'string'],
+            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+        ], [
+            'profile_phone.regex' => 'Số điện thoại 10 số, bắt đầu bằng 0.',
+            'current_password.required_with' => 'Nhập mật khẩu hiện tại để đổi mật khẩu.',
+            'password.min' => 'Mật khẩu mới tối thiểu 6 ký tự.',
+            'password.confirmed' => 'Nhập lại mật khẩu mới chưa khớp.',
+        ]);
+
+        // Đổi mật khẩu: phải đúng mật khẩu hiện tại
+        if (!empty($data['password']) && !\Illuminate\Support\Facades\Hash::check((string) $data['current_password'], $user->password)) {
+            return back()->withInput()->withErrors(['current_password' => 'Mật khẩu hiện tại chưa đúng.']);
         }
-        return Redirect::to('/admin/information')->with('success','Cập nhật thông tin thành công');
-       
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $data) {
+            $profile = $user->profile_id ? Profile::find($user->profile_id) : null;
+            $profile ??= new Profile();
+            $profile->forceFill([
+                'profile_firstname' => (string) ($data['profile_firstname'] ?? ''),
+                'profile_lastname' => (string) ($data['profile_lastname'] ?? ''),
+                'profile_phone' => (string) ($data['profile_phone'] ?? ''),
+                'profile_email' => $user->email,
+                'profile_gender' => (int) ($data['profile_gender'] ?? 0),
+                'day_of_birth' => ($data['day_of_birth'] ?? null) ?: null,
+            ])->save();
+            $user->profile_id = $profile->id;
+            if (!empty($data['password'])) {
+                $user->password = \Illuminate\Support\Facades\Hash::make($data['password']);
+                // Các máy đang "ghi nhớ đăng nhập" phải đăng nhập lại; phiên đang dùng vẫn giữ
+                $user->setRememberToken(null);
+            }
+            $user->save();
+        });
+
+        return Redirect::route('information')->with('success', 'Đã cập nhật thông tin' . (!empty($data['password']) ? ' và đổi mật khẩu' : '') . '.');
     }
-    
+
     public function revenue_statistics_by_date(Request $request){
         $data = $request->all();
         $from_date = $data['from_date'];

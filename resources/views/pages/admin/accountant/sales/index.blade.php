@@ -5,7 +5,7 @@
 @section('admin_content')
     <div class="table-agile-info">
         <div class="panel-heading">
-            Quản Lý Công Nợ
+            Quản Lý Công Nợ <span class="acc-readonly-tag" title="Trang Sales chỉ xem và lọc, Kế toán nhập ở trang công nợ Kế toán">Chỉ xem</span>
         </div>
         <div class="alert alert-success" style="display:none"></div>
         <div class="filter-section accountant">
@@ -298,6 +298,7 @@
     var url_get_accountant = "{{ route('accountant_sales.get') }}";
     var url_filter_options = "{{ route('accountant_sales.filter_options') }}";
     var url_update_accountant = "{{ route('accountant_sales.update') }}";
+    var url_csrf_token = "{{ route('csrf.token') }}";
 </script>
     <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
     <script src="{{ versionResource('assets/js/tool/accountant.js') }}"></script>

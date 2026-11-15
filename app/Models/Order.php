@@ -18,6 +18,7 @@ class Order extends Model
     protected $fillable = [
         'customer_id',
         'order_detail_id',
+        'order_group_id',
         'unit_id',
         'status_id',
         'order_vat',
@@ -40,6 +41,30 @@ class Order extends Model
         'overnight',
         'complete'
     ];
+
+    /** Đơn đã hoàn thành (kế toán đã chốt): khóa hết, không sửa đơn / lịch / chấm công / kết quả / công nợ nữa */
+    public const STATUS_CLOSED = 3;
+
+    /** Đã có số ca thực tế (2) / đã cập nhật doanh thu (4): form đơn khóa số lượng + hình thức in phim */
+    public const QTY_LOCKED_STATUSES = [2, 4];
+
+    /** Các ô (order_details) khóa cùng số lượng khi đã có số ca thực tế (cùng order_warning ở orders) */
+    public const PRINT_LOCKED_FIELDS = ['ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet'];
+
+    public function isClosed(): bool
+    {
+        return (int) $this->status_id === self::STATUS_CLOSED;
+    }
+
+    /** Thông báo khi đơn đã hoàn thành (null nếu đơn còn sửa được) */
+    public static function closedMessage($orderId): ?string
+    {
+        $status = static::whereKey($orderId)->value('status_id');
+
+        return (int) $status === self::STATUS_CLOSED
+            ? 'Đơn #' . $orderId . ' đã hoàn thành (kế toán đã chốt), không còn chỉnh sửa được.'
+            : null;
+    }
 
     public function getEditUrlAttribute()
     {
@@ -68,6 +93,11 @@ class Order extends Model
     public function status()
     {
         return $this->belongsTo(Status::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(OrderGroup::class, 'order_group_id');
     }
 
     public function carKTV()

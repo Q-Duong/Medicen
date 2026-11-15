@@ -27,7 +27,11 @@ class StatisticsController extends Controller
             foreach ($getStatistics as $key => $val) {
                 $total += $val->sales;
                 $total_orders += $val->total_order;
+                // Lợi nhuận, số ca: trang Thống kê hiện thêm (trước đây ô Lợi nhuận hiện nhầm doanh thu)
+                $total_profit = ($total_profit ?? 0) + (int) $val->total_profit;
+                $total_quantity = ($total_quantity ?? 0) + (int) $val->quantity;
                 $chart_data[] = array(
+                    'profit' => (int) $val->total_profit,
                     'period' =>  date('d/m/Y', strtotime($val->order_date)),
                     'order' => $val->total_order,
                     'sales' => $val->sales,
@@ -35,7 +39,7 @@ class StatisticsController extends Controller
                 );
             }
             $chart = $chart_data;
-            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => $total_orders, 'from_date' => $from_date_format, 'to_date' => $to_date_format));
+            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => $total_orders, 'total_profit' => $total_profit ?? 0, 'total_quantity' => $total_quantity ?? 0, 'from_date' => $from_date_format, 'to_date' => $to_date_format));
         } else {
             return response()->json(array('success' => false));
         }
@@ -50,7 +54,11 @@ class StatisticsController extends Controller
         if (count($getStatistics) > 0) {
             foreach ($getStatistics as $key => $val) {
                 $total += $val->order_price;
+                $total_profit = ($total_profit ?? 0) + (int) $val->order_profit;
+                $total_quantity = ($total_quantity ?? 0) + (int) $val->order_quantity;
                 $chart_data[] = array(
+                    'profit' => (int) $val->order_profit,
+                    'order' => 1,
                     'period' => $val->created_at->format('d/m/Y'),
                     'quantity' => $val->order_quantity,
                     'sales' => $val->order_price,
@@ -58,7 +66,7 @@ class StatisticsController extends Controller
                 );
             }
             $chart = $chart_data;
-            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => count($getStatistics)));
+            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => count($getStatistics), 'total_profit' => $total_profit ?? 0, 'total_quantity' => $total_quantity ?? 0));
         } else {
             return response()->json(array('success' => false));
         }
@@ -94,7 +102,11 @@ class StatisticsController extends Controller
             foreach ($getStatistics as $key => $val) {
                 $total += $val->sales;
                 $total_orders += $val->total_order;
+                // Lợi nhuận, số ca: trang Thống kê hiện thêm (trước đây ô Lợi nhuận hiện nhầm doanh thu)
+                $total_profit = ($total_profit ?? 0) + (int) $val->total_profit;
+                $total_quantity = ($total_quantity ?? 0) + (int) $val->quantity;
                 $chart_data[] = array(
+                    'profit' => (int) $val->total_profit,
                     'period' =>  date('d/m/Y', strtotime($val->order_date)),
                     'order' => $val->total_order,
                     'sales' => $val->sales,
@@ -102,7 +114,7 @@ class StatisticsController extends Controller
                 );
             }
             $chart = $chart_data;
-            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => $total_orders, 'option' => $option));
+            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => $total_orders, 'total_profit' => $total_profit ?? 0, 'total_quantity' => $total_quantity ?? 0, 'option' => $option));
         } else {
             return response()->json(array('success' => false));
         }
@@ -120,7 +132,11 @@ class StatisticsController extends Controller
             foreach ($getStatistics as $key => $val) {
                 $total += $val->sales;
                 $total_orders += $val->total_order;
+                // Lợi nhuận, số ca: trang Thống kê hiện thêm (trước đây ô Lợi nhuận hiện nhầm doanh thu)
+                $total_profit = ($total_profit ?? 0) + (int) $val->total_profit;
+                $total_quantity = ($total_quantity ?? 0) + (int) $val->quantity;
                 $chart_data[] = array(
+                    'profit' => (int) $val->total_profit,
                     'period' => date('d/m/Y', strtotime($val->order_date)),
                     'order' => $val->total_order,
                     'sales' => $val->sales,
@@ -128,7 +144,7 @@ class StatisticsController extends Controller
                 );
             }
             $chart = $chart_data;
-            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => $total_orders, 'month' => $month));
+            return response()->json(array('success' => true, 'chart' => $chart, 'total' => $total, 'total_orders' => $total_orders, 'total_profit' => $total_profit ?? 0, 'total_quantity' => $total_quantity ?? 0, 'month' => $month));
         } else {
             return response()->json(array('success' => false));
         }
@@ -169,22 +185,12 @@ class StatisticsController extends Controller
 
     public function performanceAnalysis(Request $request)
     {
-        if ($request->month == 'April') {
-            $firstDayOfThisMonth = $request->year . '-04-01';
-            $lastDayOfThisMonth = $request->year . '-04-30';
-        } elseif ($request->month == 'June') {
-            $firstDayOfThisMonth = $request->year . '-06-01';
-            $lastDayOfThisMonth = $request->year . '-06-30';
-        } elseif ($request->month == 'September') {
-            $firstDayOfThisMonth = $request->year . '-09-01';
-            $lastDayOfThisMonth = $request->year . '-00-30';
-        } elseif ($request->month == 'November') {
-            $firstDayOfThisMonth = $request->year . '-11-01';
-            $lastDayOfThisMonth = $request->year . '-11-30';
-        } else {
-            $firstDayOfThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->firstOfMonth()->toDateString();
-            $lastDayOfThisMonth = Carbon::createFromFormat('M Y', $request->month . ' ' . $request->year)->endOfMonth()->toDateString();
-        }
+        // Ngày đầu / cuối tháng chọn. Trước đây tháng 9 bị ghi nhầm ngày cuối "-00-30" (lấy sai dữ liệu), và các tháng
+        // khác dùng createFromFormat('M Y') nên ngày 31 hôm nay có thể nhảy sang tháng sau: tính thẳng theo số tháng.
+        $monthNo = (int) date('n', strtotime('1 ' . $request->month . ' 2000')) ?: (int) now()->month;
+        $start = Carbon::create((int) $request->year ?: now()->year, $monthNo, 1);
+        $firstDayOfThisMonth = $start->toDateString();
+        $lastDayOfThisMonth = $start->copy()->endOfMonth()->toDateString();
         $date = Carbon::parse($firstDayOfThisMonth)->format('m/Y');
         $orders = Order::getScheduleDetails($firstDayOfThisMonth, $lastDayOfThisMonth);
         $getPerformances = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')

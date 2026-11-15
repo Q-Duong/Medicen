@@ -10,7 +10,8 @@
         }
         $isLocked = $accountant->status_id == 3;
         $hasAccountantData = !empty($accountant->accountant_number) || !empty($accountant->accountant_date);
-        $shouldDisable = $hasAccountantData || $isLocked;
+        // Trang công nợ Sales chỉ để xem và lọc: mọi ô đều khóa (Kế toán nhập ở trang công nợ Kế toán)
+        $shouldDisable = true;
 
         $ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
     @endphp

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\CarKTV;
+use App\Services\Schedule\ScheduleCancel;
+use App\Services\Schedule\ScheduleHistory;
 use App\Models\Staff;
 use Carbon\Carbon;
 
@@ -257,6 +259,9 @@ class ScheduleSalesController extends Controller
 	//Admin
 	public function create($order_id)
 	{
+		if ($msg = Order::closedMessage($order_id)) {
+			return Redirect::route('order.index')->with('error', $msg);
+		}
 		$getAllStaff = Staff::orderBy('id', 'ASC')->get();
 		$order = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
 			->where('orders.id', $order_id)
@@ -267,7 +272,10 @@ class ScheduleSalesController extends Controller
 
 	public function store(Request $request)
 	{
-		$message = 'Thêm lịch không gửi Zalo thành công';
+		$message = 'Thêm lịch thành công';
+		if ($msg = Order::closedMessage($request->order_id)) {
+			return Redirect::route('order.index')->with('error', $msg);
+		}
 		// $data = $request->all();
 		// foreach ($request->car_name as $key => $car_name) {
 		// 	$car = new CarKTV();
@@ -299,7 +307,8 @@ class ScheduleSalesController extends Controller
 		$ktv1 = explode("_", $request->car_ktv_name_1);
 		$ktv2 = explode("_", $request->car_ktv_name_2);
 
-		$car = new CarKTV();
+		// Đơn từng bị hủy lịch kiểu cũ có thể còn dòng car_ktvs đã tắt: dùng lại, không tạo trùng
+		$car = CarKTV::firstOrNew(['order_id' => $request->order_id]);
 		$car->order_id = $request->order_id;
 		$car->car_name = $request->car_name;
 		$car->car_active = 1;
@@ -315,44 +324,42 @@ class ScheduleSalesController extends Controller
 		$order->schedule_status = 1;
 		$order->status_id = 1;
 		$order->save();
+		ScheduleHistory::record((int) $request->order_id, 'Xếp lịch', $car, 'trang đơn hàng');
 
-		if (!empty($request->zalo)) {
-
-			if ($car->car_driver_phone) {
-				app(ZaloController::class)->notificationSchedule($car, 'drv');
-			}
-			if ($car->car_ktv_phone_1) {
-				app(ZaloController::class)->notificationSchedule($car, 'kt1');
-			}
-			if ($car->car_ktv_phone_2) {
-				app(ZaloController::class)->notificationSchedule($car, 'kt2');
-			}
-
-			$message = 'Thêm lịch gửi Zalo thành công';
-		}
 		return Redirect::route('order.index')->with('success', $message);
 	}
 
 	public function edit($order_id)
 	{
+		if ($msg = Order::closedMessage($order_id)) {
+			return Redirect::route('order.index')->with('error', $msg);
+		}
 		$order = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
 			->where('orders.id', $order_id)
 			->select(['order_details.ord_start_day'])
 			->first();
 		$getAllStaff = Staff::orderBy('id', 'ASC')->get();
-		$car = CarKTV::firstWhere('order_id', $order_id);
+		$car = CarKTV::where('order_id', $order_id)->first();
+		// Đã hủy lịch (không còn dòng lịch): chuyển sang thêm lịch mới
+		if (!$car) {
+			return Redirect::route('schedule.create', $order_id);
+		}
 		return view('pages.admin.order.schedule.edit', compact('getAllStaff', 'order', 'order_id', 'car'));
 	}
 
 	public function update(Request $request, $order_id)
 	{
-		$message = 'Cập nhật lịch xe không gửi Zalo thành công';
+		if ($msg = Order::closedMessage($order_id)) {
+			return Redirect::route('order.index')->with('error', $msg);
+		}
+		$message = 'Cập nhật lịch xe thành công';
 
 		$driver = explode("_", $request->car_driver_name);
 		$ktv1 = explode("_", $request->car_ktv_name_1);
 		$ktv2 = explode("_", $request->car_ktv_name_2);
 
 		$car = CarKTV::firstWhere('order_id', $order_id);
+		$before = $car->car_active ? ScheduleHistory::describe($car) : null;
 		$car->car_name = $request->car_name;
 		$car->car_active = 1;
 		$car->car_driver_name = array_shift($driver);
@@ -363,42 +370,20 @@ class ScheduleSalesController extends Controller
 		$car->car_ktv_phone_2 = empty($request->car_ktv_name_2) ? null : array_pop($ktv2);
 		$car->save();
 
-		if (!empty($request->zalo)) {
-			if ($car->car_driver_phone) {
-				app(ZaloController::class)->notificationSchedule($car, 'drv');
-			}
-			if ($car->car_ktv_phone_1) {
-				app(ZaloController::class)->notificationSchedule($car, 'kt1');
-			}
-			if ($car->car_ktv_phone_2) {
-				app(ZaloController::class)->notificationSchedule($car, 'kt2');
-			}
-			$message = 'Cập nhật lịch xe gửi Zalo thành công';
-		}
+		Order::whereKey($order_id)->update(['schedule_status' => 1]);
+		ScheduleHistory::record((int) $order_id, $before ? 'Sửa lịch' : 'Xếp lịch', $car, 'trang đơn hàng', $before);
 		return Redirect::route('order.index')->with('success', $message);
 	}
 
+	/** Hủy lịch (nút Huỷ Lịch ở trang sửa lịch): đơn về "Chưa lên lịch", không gửi Zalo */
 	public function cancel(Request $request)
 	{
-		$car = CarKTV::firstWhere('order_id', $request->order_id);
-		if ($car->car_driver_phone) {
-			app(ZaloController::class)->notificationScheduleCancel($car, 'drv');
+		$order = Order::findOrFail($request->order_id);
+		if ($order->isClosed()) {
+			return response()->json(['success' => false, 'message' => Order::closedMessage($order->id)], 422);
 		}
-		if ($car->car_ktv_phone_1) {
-			app(ZaloController::class)->notificationScheduleCancel($car, 'kt1');
-		}
-		if ($car->car_ktv_phone_2) {
-			app(ZaloController::class)->notificationScheduleCancel($car, 'kt2');
-		}
-		$car->car_name = null;
-		$car->car_active = 0;
-		$car->car_driver_name = null;
-		$car->car_driver_phone = null;
-		$car->car_ktv_name_1 = null;
-		$car->car_ktv_phone_1 = null;
-		$car->car_ktv_name_2 = null;
-		$car->car_ktv_phone_2 = null;
-		$car->save();
-		return response()->json(['success' => 'Huỷ lịch thành công.']);
+		app(ScheduleCancel::class)->cancel($order, 'nút Huỷ lịch, trang đơn hàng');
+
+		return response()->json(['success' => 'Huỷ lịch thành công, đơn chuyển về Chưa lên lịch.']);
 	}
 }

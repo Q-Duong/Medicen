@@ -37,45 +37,59 @@
             {{ $accountant->unit_abbreviation }}</td>
         <td title="{{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}" class="sticky-col eighth-col">
             {{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}</td>
+        {{-- Nhóm đơn đi chung (cùng chuyến xe) --}}
+        <td class="acc-group-cell">
+            @if ($accountant->order_group)
+                <span class="acc-group-tag" title="Nhóm đơn đi chung (cùng chuyến xe)">{{ $accountant->order_group }}</span>
+            @endif
+        </td>
 
         <td>
-            <input type="text" name="accountant_deadline"
+            <input autocomplete="off" type="text" name="accountant_deadline"
                 class="textbox-accountant  width-accountant-min accountant_deadline input-accountant"
                 value="{{ $accountant->accountant_deadline }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="accountant_number"
+            <input autocomplete="off" type="text" name="accountant_number"
                 class="textbox-accountant width-accountant-min accountant_number input-accountant"
                 value="{{ $accountant->accountant_number }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="date" name="accountant_date"
+            <input autocomplete="off" type="date" name="accountant_date"
                 class="textbox-accountant  width-accountant-day accountant_date input-accountant force-date-format"
                 value="{{ $accountant->accountant_date }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_vat"
+            <input autocomplete="off" type="text" name="order_vat"
                 class="textbox-accountant width-accountant-price order_vat input-accountant"
                 value="{{ $accountant->order_vat }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_quantity"
+            <input autocomplete="off" type="text" name="order_quantity"
                 class="textbox-accountant  width-accountant-quantity order_quantity calc-quantity calc-inputs"
                 value="{{ formatCurrency($accountant->order_quantity) }}" {{ $isLocked ? 'disabled' : '' }}>
+            {{-- Số ca đổi sau khi cập nhật doanh thu (bộ phận Kết quả nhập sau): kế toán bấm để tính lại tiền / giữ tiền cũ --}}
+            @if ((int) $accountant->status_id === 4 && $accountant->qty_changed_from !== null)
+                <button type="button" class="acc-qtyflag" data-from="{{ (int) $accountant->qty_changed_from }}"
+                    data-to="{{ (int) $accountant->order_quantity }}"
+                    title="Số ca đổi sau khi cập nhật doanh thu: tiền đang tính theo {{ (int) $accountant->qty_changed_from }} ca. Bấm để xử lý.">
+                    <i class="fa-solid fa-triangle-exclamation"></i> {{ (int) $accountant->qty_changed_from }} → {{ (int) $accountant->order_quantity }}
+                </button>
+            @endif
         </td>
 
         <td>
-            <input type="text" name="order_cost"
+            <input autocomplete="off" type="text" name="order_cost"
                 class="textbox-accountant  width-accountant-price order_cost calc-cost calc-inputs"
                 value="{{ formatCurrency($accountant->order_cost) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_price"
+            <input autocomplete="off" type="text" name="order_price"
                 class="textbox-accountant width-accountant-price order_price calc-price calc-inputs"
                 value="{{ formatCurrency($accountant->order_price) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
@@ -92,7 +106,7 @@
         </td>
 
         <td>
-            <input type="text" name="accountant_day_payment"
+            <input autocomplete="off" type="text" name="accountant_day_payment"
                 class="textbox-accountant width-accountant-day accountant_day_payment input-accountant"
                 value="{{ smartFormatDate($accountant->accountant_day_payment) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
@@ -111,37 +125,37 @@
         </td>
 
         <td>
-            <input type="text" name="accountant_amount_paid"
+            <input autocomplete="off" type="text" name="accountant_amount_paid"
                 class="textbox-accountant  width-accountant-price accountant_amount_paid calc-paid calc-inputs"
                 value="{{ formatCurrency($accountant->accountant_amount_paid) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="accountant_owe"
+            <input autocomplete="off" type="text" name="accountant_owe"
                 class="textbox-accountant  width-accountant-price accountant_owe calc-inputs"
                 value="{{ formatCurrency($accountant->accountant_owe) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_percent_discount"
+            <input autocomplete="off" type="text" name="order_percent_discount"
                 class="textbox-accountant  width-accountant-price order_percent_discount input-accountant"
                 value="{{ $accountant->order_percent_discount }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_discount"
+            <input autocomplete="off" type="text" name="order_discount"
                 class="textbox-accountant  width-accountant-price order_discount calc-inputs"
                 value="{{ formatCurrency($accountant->order_discount) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="date" name="accountant_discount_day"
+            <input autocomplete="off" type="date" name="accountant_discount_day"
                 class="textbox-accountant  width-accountant-day accountant_discount_day input-accountant force-date-format"
                 value="{{ $accountant->accountant_discount_day }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
 
         <td>
-            <input type="text" name="order_profit"
+            <input autocomplete="off" type="text" name="order_profit"
                 class="textbox-accountant  width-accountant-price order_profit calc-inputs"
                 value="{{ formatCurrency($accountant->order_profit) }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
@@ -151,7 +165,7 @@
         </td>
 
         <td>
-            <input type="date" name="accountant_doctor_date_payment"
+            <input autocomplete="off" type="date" name="accountant_doctor_date_payment"
                 class="textbox-accountant  width-accountant-day accountant_doctor_date_payment input-accountant force-date-format"
                 value="{{ $accountant->accountant_doctor_date_payment }}" {{ $isLocked ? 'disabled' : '' }}>
         </td>
@@ -197,11 +211,11 @@
         </td>
 
         <td>
-            <input type="text" name="accountant_note" class="textbox-accountant width-accountant-note"
+            <input autocomplete="off" type="text" name="accountant_note" class="textbox-accountant width-accountant-note"
                 value="{{ $accountant->accountant_note }}" disabled>
         </td>
         <td>
-            <input type="text" class="textbox-accountant width-accountant-note" value="{{ $accountant->ord_note }}"
+            <input autocomplete="off" type="text" class="textbox-accountant width-accountant-note" value="{{ $accountant->ord_note }}"
                 disabled>
         </td>
         <td class="status_id_{{ $accountant->order_id }} status-id white-col">

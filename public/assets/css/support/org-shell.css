@@ -1,0 +1,646 @@
+/*
+ * Khung trang quản trị (header + sidebar): cùng tông với các trang (trắng, viền be, nhấn cam).
+ * Nạp sau backend/css/style.css nên chỉ đè phần màu / khoảng cách; giữ nguyên class mà JS gốc dùng
+ * (.sidebar-toggle-box .fa-bars, #sidebar.hide-left-bar, #main-content.merge-left, menu con dcAccordion).
+ * File nguồn (dễ đọc). Bản nạp lên trang là shell.css (rút gọn từ file này).
+ */
+:root {
+    --app-ink: #1f1e1d;
+    --app-muted: #73716c;
+    --app-faint: #a3a19b;
+    --app-line: #e2ded3;
+    --app-soft: #faf9f5;
+    --app-accent: #c96442;
+    --app-accent-soft: #fbefe9;
+    --app-header: 64px;
+}
+
+body {
+    background: #f3f1ec;
+}
+
+/* ---------- Header ---------- */
+.header.app-header {
+    height: var(--app-header);
+    background: rgba(255, 255, 255, .96);
+    border-bottom: 1px solid var(--app-line);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .03), 0 6px 18px rgba(60, 50, 30, .05);
+    /* Không dùng backdrop-filter: nó làm phần logo (position: fixed trên điện thoại) bám theo header */
+}
+
+.app-header .brand {
+    height: var(--app-header);
+    background: none;
+}
+
+.app-header a.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--app-header);
+    margin: 0 0 0 22px;
+    color: var(--app-ink);
+    font-size: 21px;
+    font-weight: 750;
+    letter-spacing: -.2px;
+    text-transform: none;
+}
+
+.app-header a.logo:hover,
+.app-header a.logo:focus {
+    color: var(--app-ink);
+}
+
+.logo-mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #d9774f, #b4573a);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(201, 100, 66, .3);
+}
+
+.app-header .sidebar-toggle-box {
+    top: calc((var(--app-header) - 32px) / 2);
+    margin-top: 0;
+    border: 1px solid var(--app-line);
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+
+.app-header .sidebar-toggle-box .fa-bars {
+    color: var(--app-muted);
+}
+
+.app-header .sidebar-toggle-box:hover {
+    border-color: var(--app-accent);
+    background: #fff;
+}
+
+.app-header .sidebar-toggle-box:hover .fa-bars {
+    color: var(--app-accent);
+}
+
+.app-header .top-nav {
+    margin-top: 0;
+    padding-right: 18px;
+}
+
+.app-header .top-nav ul.top-menu > li {
+    display: flex;
+    align-items: center;
+    height: var(--app-header);
+}
+
+.app-header .top-nav ul.top-menu > li > a.app-user__btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 12px 5px 5px;
+    border: 1px solid var(--app-line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--app-ink);
+}
+
+.app-header .top-nav ul.top-menu > li > a.app-user__btn:hover,
+.app-header .top-nav ul.top-menu > li.open > a.app-user__btn {
+    border-color: var(--app-accent);
+    background: #fff;
+}
+
+.app-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--app-accent-soft);
+    color: #8a3a1f;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.app-avatar--lg {
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
+}
+
+.app-user__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    text-align: left;
+}
+
+.app-header .top-nav .username {
+    color: var(--app-ink);
+    font-size: 13.5px;
+    font-weight: 650;
+}
+
+.app-user__text small {
+    color: var(--app-muted);
+    font-size: 11.5px;
+}
+
+.app-user__caret {
+    color: var(--app-faint);
+    font-size: 11px;
+}
+
+.app-header .top-nav ul.top-menu > li .dropdown-menu.app-user__menu {
+    width: 260px !important;
+    margin-top: 4px;
+    padding: 6px;
+    border: 1px solid var(--app-line);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .14);
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li {
+    padding: 0;
+    border-top: 0;
+}
+
+.app-user__head {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    padding: 10px 10px 12px !important;
+    border-bottom: 1px solid #efece5 !important;
+}
+
+.app-user__head b {
+    display: block;
+    color: var(--app-ink);
+    font-size: 14px;
+}
+
+.app-user__head small {
+    color: var(--app-muted);
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li > a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 9px;
+    color: var(--app-ink);
+    font-size: 13.5px;
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li > a > i {
+    width: 18px;
+    padding: 0;
+    color: var(--app-muted);
+    font-size: 14px;
+    text-align: center;
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li > a:hover {
+    background: var(--app-soft) !important;
+    color: var(--app-accent);
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li > a:hover i {
+    color: var(--app-accent);
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li > a.app-user__logout:hover {
+    background: #fdecea !important;
+    color: #b42318;
+}
+
+.dropdown-menu.extended.logout.app-user__menu > li > a.app-user__logout:hover i {
+    color: #b42318;
+}
+
+/* Nội dung chính: bám theo header mới */
+.wrapper {
+    margin-top: var(--app-header);
+}
+
+/* ---------- Sidebar ---------- */
+#sidebar {
+    height: calc(100vh - var(--app-header) - 24px);
+    margin: calc(var(--app-header) + 12px) 10px 12px;
+    border: 1px solid var(--app-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .03), 0 8px 24px rgba(60, 50, 30, .06);
+}
+
+ul.sidebar-menu {
+    padding: 10px 8px;
+}
+
+ul.sidebar-menu li {
+    border-bottom: 0;
+}
+
+ul.sidebar-menu li a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 2px 0;
+    padding: 10px 12px;
+    border-radius: 11px;
+    color: #3d3c39;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+ul.sidebar-menu li a i {
+    flex: none;
+    width: 20px;
+    padding: 0;
+    color: var(--app-faint);
+    font-size: 15px;
+    text-align: center;
+}
+
+ul.sidebar-menu li a span {
+    min-width: 0;
+}
+
+ul.sidebar-menu li a:hover,
+ul.sidebar-menu li a:focus {
+    background: var(--app-soft);
+    color: var(--app-ink);
+}
+
+ul.sidebar-menu li a:hover i,
+ul.sidebar-menu li a:focus i {
+    color: var(--app-muted);
+}
+
+ul.sidebar-menu li a.active {
+    background: var(--app-accent-soft);
+    color: #8a3a1f;
+    font-weight: 650;
+}
+
+ul.sidebar-menu li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    bottom: 9px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--app-accent);
+}
+
+ul.sidebar-menu li a.active i,
+ul.sidebar-menu li ul.sub li a.active {
+    color: var(--app-accent);
+}
+
+/* Menu con (dcAccordion) */
+#sidebar .sub-menu > .sub li a {
+    margin: 2px 0 2px 26px;
+}
+
+ul.sidebar-menu li ul.sub li a {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    color: var(--app-muted);
+    font-size: 13px;
+}
+
+ul.sidebar-menu li ul.sub li a:hover,
+ul.sidebar-menu li ul.sub li.active a {
+    background: var(--app-soft);
+    color: var(--app-ink);
+}
+
+#sidebar .dcjq-icon {
+    top: 50%;
+    right: 8px;
+    margin-top: -8px;
+    opacity: .5;
+}
+
+/* Thanh cuộn nhỏ của menu (niceScroll) */
+#ascrail2000 div,
+.nicescroll-rails div {
+    background-color: #d9d5ca !important;
+}
+
+/* ---------- Màn hình nhỏ (style-responsive.css đặt cứng 80px) ---------- */
+@media (max-width: 767px) {
+    .app-header .brand {
+        background: #fff;
+        border-bottom: 1px solid var(--app-line);
+    }
+
+    .header.app-header {
+        height: auto;
+        margin-top: var(--app-header) !important;
+    }
+
+    .app-header .top-nav {
+        margin-bottom: 0;
+    }
+
+    .app-header .top-nav ul.top-menu > li {
+        height: 56px;
+    }
+
+    /* Menu ẩn sẵn, bấm nút ☰ mới trượt ra (style-responsive.css: margin-left -240px; .hide-left-bar = hiện) */
+    #sidebar {
+        top: var(--app-header);
+        height: calc(100vh - var(--app-header) - 16px);
+        margin: 8px 10px 12px -270px;
+        z-index: 1004;
+    }
+
+    #sidebar.hide-left-bar {
+        margin-left: 10px !important;
+    }
+
+    .app-user__text small {
+        display: none;
+    }
+}
+
+@media (max-width: 479px) {
+    body {
+        margin-top: var(--app-header) !important;
+    }
+
+    .header.app-header {
+        margin-top: 0 !important;
+    }
+}
+
+/* Chữ logo (style.css gốc tô span trong logo màu đỏ cam) */
+.app-header a.logo span.logo-text {
+    color: var(--app-ink);
+}
+
+.app-header a.logo span.logo-mark {
+    color: #fff;
+}
+
+/* Vạch xanh trang trí của giao diện gốc cạnh ô tài khoản */
+.app-header .bmucDg {
+    display: none;
+}
+
+/* ---------- Chuông "Việc cần làm" ---------- */
+.app-header .top-nav ul.top-menu > li.app-bell {
+    margin-right: 10px;
+}
+
+.app-header .top-nav ul.top-menu > li > a.app-bell__btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--app-line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--app-muted);
+    font-size: 17px;
+}
+
+.app-header .top-nav ul.top-menu > li > a.app-bell__btn:hover,
+.app-header .top-nav ul.top-menu > li.app-bell.open > a.app-bell__btn {
+    border-color: var(--app-accent);
+    background: #fff;
+    color: var(--app-accent);
+}
+
+.app-bell.has-todo .app-bell__btn > i {
+    animation: app-bell-ring 2.4s ease-in-out 1s 2;
+    transform-origin: 50% 10%;
+}
+
+@keyframes app-bell-ring {
+    0%, 60%, 100% { transform: rotate(0); }
+    10%, 30% { transform: rotate(14deg); }
+    20%, 40% { transform: rotate(-12deg); }
+}
+
+.app-bell__badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #e09a1f;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+}
+
+.app-bell__badge.is-urgent {
+    background: #d93025;
+}
+
+.app-bell__badge[hidden] {
+    display: none;
+}
+
+.app-header .top-nav li.dropdown .dropdown-menu.app-bell__menu {
+    width: 380px;
+    max-width: calc(100vw - 20px);
+    margin-top: 4px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--app-line);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .14);
+}
+
+.app-bell__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #efece5;
+    color: var(--app-ink);
+    font-size: 14.5px;
+}
+
+.app-bell__refresh {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--app-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--app-muted);
+    cursor: pointer;
+}
+
+.app-bell__refresh:hover {
+    border-color: var(--app-accent);
+    color: var(--app-accent);
+}
+
+.app-bell.is-loading .app-bell__refresh i {
+    animation: app-spin .8s linear infinite;
+}
+
+@keyframes app-spin {
+    to { transform: rotate(360deg); }
+}
+
+.app-bell__body {
+    max-height: min(460px, calc(100vh - 160px));
+    overflow-y: auto;
+    padding: 6px;
+}
+
+.app-bell__group + .app-bell__group {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #f2efe8;
+}
+
+.app-bell__glabel {
+    padding: 8px 8px 4px;
+    color: var(--app-muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.app-bell__glabel i {
+    width: 16px;
+    color: var(--app-faint);
+}
+
+a.app-bell__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 10px;
+    color: var(--app-ink);
+    text-decoration: none;
+}
+
+a.app-bell__item:hover {
+    background: var(--app-soft);
+    color: var(--app-ink);
+    text-decoration: none;
+}
+
+.app-bell__count {
+    flex: none;
+    min-width: 38px;
+    padding: 3px 6px;
+    border-radius: 8px;
+    background: #fdf3e2;
+    color: #8a5a0b;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+a.app-bell__item.is-urgent .app-bell__count {
+    background: #fdecea;
+    color: #b42318;
+}
+
+.app-bell__text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.app-bell__text b {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.app-bell__text small {
+    color: var(--app-muted);
+    font-size: 11.5px;
+}
+
+.app-bell__go {
+    color: var(--app-faint);
+    font-size: 11px;
+}
+
+.app-bell__empty {
+    padding: 22px 12px;
+    color: var(--app-muted);
+    font-size: 13.5px;
+    text-align: center;
+}
+
+.app-bell__empty i {
+    margin-right: 4px;
+    color: #18794e;
+}
+
+.app-bell__foot {
+    padding: 8px 14px;
+    border-top: 1px solid #efece5;
+    background: var(--app-soft);
+    color: var(--app-faint);
+    font-size: 11.5px;
+}
+
+.app-bell__foot:empty {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .app-header .top-nav li.dropdown .dropdown-menu.app-bell__menu {
+        position: fixed;
+        top: calc(var(--app-header) + 60px);
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+}
+
+/* Nút chuông / tài khoản khi rê chuột: style.css gốc ép nền trong suốt + viền trắng (!important) làm mất màu */
+.app-header .top-nav ul.top-menu > li > a.app-bell__btn:hover,
+.app-header .top-nav ul.top-menu > li > a.app-bell__btn:focus,
+.app-header .top-nav ul.top-menu > li.open > a.app-bell__btn {
+    border: 1px solid var(--app-accent);
+    background: #fff !important;
+    color: var(--app-accent);
+}
+
+.app-header .top-nav ul.top-menu > li > a.app-user__btn:hover,
+.app-header .top-nav ul.top-menu > li > a.app-user__btn:focus,
+.app-header .top-nav ul.top-menu > li.open > a.app-user__btn {
+    border: 1px solid var(--app-accent);
+    border-radius: 999px;
+    background: #fff !important;
+}
+
+.app-header .top-nav ul.top-menu > li > a.app-bell__btn:hover i,
+.app-header .top-nav ul.top-menu > li.open > a.app-bell__btn i {
+    color: var(--app-accent);
+}

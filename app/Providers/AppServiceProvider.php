@@ -23,9 +23,14 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(
-            ReportRepositoryInterface::class, 
+            ReportRepositoryInterface::class,
             ReportRepository::class
         );
+
+        // Claude API (trợ lý AI theo phòng ban). Không có key thì dùng credential mặc định của SDK.
+        $this->app->singleton(\Anthropic\Client::class, fn () => new \Anthropic\Client(
+            apiKey: config('claude.api_key') ?: null,
+        ));
     }
 
     /**

@@ -1,40 +1,24 @@
 @extends('layouts.default_auth')
+@section('title', 'Thêm đơn vị - Medicen')
+@push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/staff.css') }}" type="text/css" as="style" />
+@endpush
 @section('admin_content')
-    <div class="row">
-        <div class="col-lg-12">
-            <section class="panel">
-                <header class="panel-heading">
-                    Thêm đơn vị
-                    <span class="tools pull-right">
-                        <a href="{{ route('unit.index') }}" class="primary-btn-submit">Quản lý</a>
-                        <a class="fa fa-chevron-down" href="javascript:;"></a>
-                    </span>
-                </header>
-                <div class="panel-body">
-                    <div class="position-center">
-                        <form action="{{ route('unit.store') }}" method="post">
-                            @csrf
-                            <div class="form-group @error('unit_code') has-error @enderror">
-                                <label for="exampleInputEmail1">Mã đơn vị</label>
-                                <input type="text" name="unit_code" class="input-control" placeholder="Điền mã đơn vị"
-                                    value="{{ old('unit_code') }}">
-                                @error('unit_code')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group @error('unit_name') has-error @enderror">
-                                <label for="exampleInputEmail1">Tên đơn vị</label>
-                                <input type="text" name="unit_name" class="input-control" placeholder="Điền mã đơn vị"
-                                    value="{{ old('unit_name') }}">
-                                @error('unit_name')
-                                    <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>
-                                @enderror
-                            </div>
-                            <button type="submit" class="primary-btn-submit">Thêm đơn vị</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
+    <div class="sf">
+        <div class="sf-head">
+            <div class="sf-head__title">
+                <h1>Thêm đơn vị</h1>
+                <p>Đơn vị mới chọn được ngay khi lên đơn hàng.</p>
+            </div>
+            <a href="{{ route('unit.index') }}" class="sf-btn sf-btn--ghost"><i class="fas fa-arrow-left"></i> Danh sách đơn vị</a>
         </div>
+        <form action="{{ route('unit.store') }}" method="post" class="sf-card">
+            @csrf
+            @include('pages.admin.unit._form')
+            <div class="sf-form-actions">
+                <a href="{{ route('unit.index') }}" class="sf-btn sf-btn--ghost">Hủy</a>
+                <button type="submit" class="sf-btn sf-btn--primary"><i class="fas fa-check"></i> Thêm đơn vị</button>
+            </div>
+        </form>
     </div>
 @endsection

@@ -1,142 +1,67 @@
 @extends('layouts.default_auth')
+@section('title', 'Tính lợi nhuận X-Quang - Medicen')
 @push('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .table-input {
-            width: 100%;
-            border: 1px solid #ced4da;
-            padding: 4px 8px;
-            text-align: right;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        .table-input:focus {
-            border-color: #86b7fe;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, .25);
-        }
-
-        .table-input[readonly] {
-            background-color: #e9ecef;
-            color: #6c757d;
-        }
-
-        .fw-bold-num {
-            font-weight: 700;
-            font-family: 'Consolas', monospace;
-        }
-
-        .section-header {
-            background-color: #dfe6ed;
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .text-money {
-            text-align: right;
-        }
-
-        .input-group {
-            margin-bottom: 0;
-        }
-
-        /* Ẩn mũi tên input number */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .sub-label {
-            font-size: 0.85em;
-            color: #6c757d;
-            font-style: italic;
-        }
-
-        .alert-warning {
-            display: flex
-        }
-    </style>
+    {{-- Giao diện ở assets/css/support/org-profit.css (bản nạp: profit.css). Bỏ Bootstrap 5 tải riêng (lệch giao diện chung) --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/profit.css') }}" type="text/css" as="style" />
 @endpush
 @section('admin_content')
-    <div>
-        <h3 class="text-center mb-3 text-primary fw-bold text-uppercase">Bảng Tính Hiệu Quả Kinh Doanh</h3>
-
-        <div id="viewModeAlert" class="alert alert-warning shadow-sm justify-content-between align-items-center mb-3"
-            style="display:none; border-left: 5px solid #ffc107;">
-            <div>
-                <i class="bi bi-eye-fill fs-5 me-2"></i>
-                <span class="fw-bold">ĐANG XEM LẠI BẢN GHI:</span>
-                <span id="viewModeTitle" class="ms-2 text-primary fw-bold text-uppercase">...</span>
+    <div class="pf">
+        <div class="pf-head">
+            <div class="pf-head__title">
+                <h1>Tính lợi nhuận X-Quang</h1>
+                <p>Bảng tính hiệu quả kinh doanh một đợt chụp: nhập số ca, ngày công tác, km… để ra doanh thu, chi phí, lợi nhuận.</p>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-dark" id="btnExitViewMode">
-                <i class="bi bi-x-lg"></i> Thoát / Nhập mới
-            </button>
+            <a href="#pf-history" class="pf-btn pf-btn--ghost"><i class="fas fa-history"></i> Lịch sử tính ({{ count($reports) }})</a>
         </div>
 
-        <div class="card mb-3 shadow-sm border-0 border-top border-primary border-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Tên đơn vị / Đối tác:</label>
-                        <div class="form-group">
-                            <select id="unit_id" name="unit_id" class="select-2 unit-id">
-                                @foreach ($getAllUnit as $key => $unit)
-                                    <option value="{{ $unit->id }}">
-                                        {{ $unit->unit_abbreviation }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Ý kiến / Ghi chú:</label>
-                        <textarea id="comments" class="form-control" rows="1" placeholder="Nhập ghi chú"></textarea>
-                    </div>
-                </div>
-            </div>
+        <div id="viewModeAlert" class="pf-viewmode" style="display:none">
+            <div><i class="fas fa-eye"></i> <b>Đang xem lại bản ghi:</b> <span id="viewModeTitle">...</span></div>
+            <button type="button" class="pf-btn pf-btn--ghost pf-btn--sm" id="btnExitViewMode"><i class="fas fa-times"></i> Thoát / Nhập mới</button>
         </div>
 
-        <div class="card mb-3 shadow-sm border-0 border-top border-primary border-4">
-            <div class="card-body py-2">
-                <div class="row g-3 align-items-center justify-content-center text-center">
-                    <div class="col-md-2">
-                        <label class="fw-bold text-secondary d-block">Số ngày công tác</label>
-                        <input type="text" id="inp_so_ngay"
-                            class="form-control text-center header-input calc-trigger number-only" value="">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="fw-bold text-secondary d-block">Số đêm lưu trú</label>
-                        <input type="text" id="inp_so_dem"
-                            class="form-control text-center header-input calc-trigger number-only" value="">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="fw-bold text-secondary d-block">Tổng số Km</label>
-                        <input type="text" id="inp_so_km"
-                            class="form-control text-center header-input text-danger calc-trigger number-only"
-                            value="">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="fw-bold text-secondary d-block">Số nhân sự đi</label>
-                        <input type="text" id="inp_so_nguoi"
-                            class="form-control text-center header-input text-success calc-trigger number-only"
-                            value="">
-                    </div>
+        <div class="pf-grid">
+            <section class="pf-card">
+                <h2 class="pf-card__title">Đơn vị</h2>
+                <div class="pf-fields">
+                    <label class="pf-field">
+                        <span>Tên đơn vị / đối tác</span>
+                        <select id="unit_id" name="unit_id" class="select-2 unit-id">
+                            @foreach ($getAllUnit as $key => $unit)
+                                <option value="{{ $unit->id }}">{{ $unit->unit_abbreviation }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label class="pf-field">
+                        <span>Ý kiến / ghi chú</span>
+                        <textarea id="comments" rows="1" placeholder="Nhập ghi chú"></textarea>
+                    </label>
                 </div>
-            </div>
+            </section>
+            <section class="pf-card">
+                <h2 class="pf-card__title">Thông tin chuyến đi</h2>
+                <div class="pf-trip">
+                    <label class="pf-field"><span>Số ngày công tác</span>
+                        <input type="text" id="inp_so_ngay" class="header-input calc-trigger number-only" value="" inputmode="numeric"></label>
+                    <label class="pf-field"><span>Số đêm lưu trú</span>
+                        <input type="text" id="inp_so_dem" class="header-input calc-trigger number-only" value="" inputmode="numeric"></label>
+                    <label class="pf-field"><span>Tổng số Km</span>
+                        <input type="text" id="inp_so_km" class="header-input calc-trigger number-only" value="" inputmode="numeric"></label>
+                    <label class="pf-field"><span>Số nhân sự đi</span>
+                        <input type="text" id="inp_so_nguoi" class="header-input calc-trigger number-only" value="" inputmode="numeric"></label>
+                </div>
+            </section>
         </div>
 
         <form id="profitForm">
-            <div class="card shadow-sm border-0 overflow-hidden mb-4">
-                <table class="table table-bordered table-hover mb-0 align-middle">
-                    <thead class="table-primary text-center">
+            <div class="pf-card pf-calc">
+                <table class="pf-table">
+                    <thead>
                         <tr>
                             <th style="width: 25%">Nội dung</th>
-                            <th style="width: 15%">Đơn giá (VNĐ)</th>
-                            <th style="width: 10%">Số lượng</th>
-                            <th style="width: 15%">Thành tiền</th>
-                            <th style="width: 35%">Ghi chú / Công thức</th>
+                            <th style="width: 17%">Đơn giá (VNĐ)</th>
+                            <th style="width: 12%">Số lượng</th>
+                            <th style="width: 16%" class="text-money">Thành tiền</th>
+                            <th style="width: 30%">Ghi chú / công thức</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -146,7 +71,7 @@
                         <tr>
                             <td class="fw-bold">XQ Phổi</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="thu_xq_gia"
-                                    value="28000"></td>
+                                    value="{{ $profitDefaults['thu_xq_gia'] }}"></td>
                             <td><input type="text"
                                     class="table-input calc-trigger number-only bg-warning-subtle fw-bold text-dark"
                                     id="thu_xq_sl" value=""></td>
@@ -156,7 +81,7 @@
                         <tr>
                             <td class="fw-bold">CSTL</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="thu_cstl_gia"
-                                    value="80000">
+                                    value="{{ $profitDefaults['thu_cstl_gia'] }}">
                             </td>
                             <td><input type="text"
                                     class="table-input calc-trigger number-only bg-warning-subtle fw-bold text-dark"
@@ -167,7 +92,7 @@
                         <tr>
                             <td>Phụ thu</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="thu_phuthu_gia"
-                                    value="2000000">
+                                    value="{{ $profitDefaults['thu_phuthu_gia'] }}">
                             </td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="thu_phuthu_sl"
                                     value="">
@@ -178,7 +103,7 @@
                         <tr>
                             <td>Thu thêm BS đọc trực tiếp</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="thu_bs_gia"
-                                    value="500000">
+                                    value="{{ $profitDefaults['thu_bs_gia'] }}">
                             </td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="thu_bs_sl"
                                     value="">
@@ -202,7 +127,7 @@
                         <tr>
                             <td class="ps-4">Bao phim</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_baophim_gia"
-                                    value="5500"></td>
+                                    value="{{ $profitDefaults['chi_baophim_gia'] }}"></td>
                             <td><input type="text" class="table-input" id="chi_baophim_sl" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_baophim_total">0</td>
                             <td class="sub-label">= Số ca XQ</td>
@@ -210,7 +135,7 @@
                         <tr>
                             <td class="ps-4">Phim in (16/Canon)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_phim16_gia"
-                                    value="1125"></td>
+                                    value="{{ $profitDefaults['chi_phim16_gia'] }}"></td>
                             <td><input type="text" class="table-input" id="chi_phim16_sl" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_phim16_total">0</td>
                             <td class="sub-label">= Số ca XQ</td>
@@ -218,7 +143,7 @@
                         <tr>
                             <td class="ps-4">Phim 8x10</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_phim810_gia"
-                                    value="7500"></td>
+                                    value="{{ $profitDefaults['chi_phim810_gia'] }}"></td>
                             <td><input type="text" class="table-input" id="chi_phim810_sl" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_phim810_total">0</td>
                             <td class="sub-label">= Số ca CSTL</td>
@@ -226,7 +151,7 @@
                         <tr>
                             <td class="ps-4">Phim 10x12</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_phim1012_gia"
-                                    value="12500"></td>
+                                    value="{{ $profitDefaults['chi_phim1012_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_phim1012_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_phim1012_total">0</td>
@@ -235,7 +160,7 @@
                         <tr>
                             <td class="ps-4 text-primary">Chiết khấu</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_chietkhau_gia"
-                                    value="0"></td>
+                                    value="{{ $profitDefaults['chi_chietkhau_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_chietkhau_sl"
                                     value="1" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_chietkhau_total">0</td>
@@ -248,7 +173,7 @@
                         <tr>
                             <td class="ps-4">BS đọc kết quả (từ xa)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_bsdoc_gia"
-                                    value="1500"></td>
+                                    value="{{ $profitDefaults['chi_bsdoc_gia'] }}"></td>
                             <td><input type="text" class="table-input" id="chi_bsdoc_sl" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_bsdoc_total">0</td>
                             <td class="sub-label">= Unit</td>
@@ -256,7 +181,7 @@
                         <tr>
                             <td class="ps-4">BS đọc trực tiếp</td>
                             <td><input type="text" class="table-input calc-trigger number-only"
-                                    id="chi_bstructiep_gia" value="300000"></td>
+                                    id="chi_bstructiep_gia" value="{{ $profitDefaults['chi_bstructiep_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_bstructiep_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_bstructiep_total">0</td>
@@ -265,7 +190,7 @@
                         <tr>
                             <td class="ps-4">Lương Tài xế (Cty)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_taixe_gia"
-                                    value="342000"></td>
+                                    value="{{ $profitDefaults['chi_taixe_gia'] }}"></td>
                             <td><input type="text" class="table-input" id="chi_taixe_sl" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_taixe_total">0</td>
                             <td class="sub-label">= Ngày</td>
@@ -273,7 +198,7 @@
                         <tr>
                             <td class="ps-4">Thuê Tài xế (Ngoài)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_thue_tx_gia"
-                                    value="800000"></td>
+                                    value="{{ $profitDefaults['chi_thue_tx_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_thue_tx_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_thue_tx_total">0</td>
@@ -285,10 +210,10 @@
                                 <div class="row g-1">
                                     <div class="col-6"><input type="text"
                                             class="table-input calc-trigger number-only" id="chi_ktv_gia_ca"
-                                            value="1500" title="Giá ca"></div>
+                                            value="{{ $profitDefaults['chi_ktv_gia_ca'] }}" title="Giá ca"></div>
                                     <div class="col-6"><input type="text"
                                             class="table-input calc-trigger number-only" id="chi_ktv_gia_ngay"
-                                            value="323000" title="Giá ngày"></div>
+                                            value="{{ $profitDefaults['chi_ktv_gia_ngay'] }}" title="Giá ngày"></div>
                                 </div>
                             </td>
                             <td><input type="text" class="table-input" id="chi_ktv_sl" readonly></td>
@@ -298,7 +223,7 @@
                         <tr>
                             <td class="ps-4">Thuê KTV (Ngoài)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_thue_ktv_gia"
-                                    value="400000"></td>
+                                    value="{{ $profitDefaults['chi_thue_ktv_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_thue_ktv_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_thue_ktv_total">0</td>
@@ -307,7 +232,7 @@
                         <tr>
                             <td class="ps-4">Lương BPKQ</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_bpkq_gia"
-                                    value="650">
+                                    value="{{ $profitDefaults['chi_bpkq_gia'] }}">
                             </td>
                             <td><input type="text" class="table-input" id="chi_bpkq_sl" readonly></td>
                             <td class="text-money fw-bold-num" id="chi_bpkq_total">0</td>
@@ -316,7 +241,7 @@
                         <tr>
                             <td class="ps-4">Phụ cấp TX+KTV >250Km</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_phucap_xa_gia"
-                                    value="150000"></td>
+                                    value="{{ $profitDefaults['chi_phucap_xa_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_phucap_xa_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_phucap_xa_total">0</td>
@@ -329,7 +254,7 @@
                         <tr>
                             <td class="ps-4">Phí quản lý (% Doanh thu)</td>
                             <td><input type="text" class="table-input calc-trigger number-only"
-                                    id="chi_quanly_phantram" value="3.2"></td>
+                                    id="chi_quanly_phantram" value="{{ $profitDefaults['chi_quanly_phantram'] }}"></td>
                             <td class="text-center">%</td>
                             <td class="text-money fw-bold-num" id="chi_quanly_total">0</td>
                             <td class="sub-label"></td>
@@ -337,7 +262,7 @@
                         <tr>
                             <td class="ps-4">Phí cầu đường (BOT)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_cauduong_gia"
-                                    value="3500"></td>
+                                    value="{{ $profitDefaults['chi_cauduong_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_cauduong_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_cauduong_total">0</td>
@@ -346,13 +271,13 @@
                         <tr>
                             <td class="ps-4">Dầu (Diesel)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_dau_gia"
-                                    value="20000">
+                                    value="{{ $profitDefaults['chi_dau_gia'] }}">
                             </td>
                             <td>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-white">ĐM</span>
                                     <input type="text" class="form-control calc-trigger number-only border-start-0"
-                                        id="chi_dau_dinhmuc" value="5">
+                                        id="chi_dau_dinhmuc" value="{{ $profitDefaults['chi_dau_dinhmuc'] }}">
                                 </div>
                             </td>
                             <td class="text-money fw-bold-num" id="chi_dau_total">0</td>
@@ -361,7 +286,7 @@
                         <tr>
                             <td class="ps-4">Dầu di chuyển (Phát sinh)</td>
                             <td><input type="text" class="table-input calc-trigger number-only"
-                                    id="chi_dau_phatsinh_gia" value="20000"></td>
+                                    id="chi_dau_phatsinh_gia" value="{{ $profitDefaults['chi_dau_phatsinh_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only"
                                     id="chi_dau_phatsinh_sl" value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_dau_phatsinh_total">0</td>
@@ -370,7 +295,7 @@
                         <tr>
                             <td class="ps-4">Khách sạn</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_ks_gia"
-                                    value="600000">
+                                    value="{{ $profitDefaults['chi_ks_gia'] }}">
                             </td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_ks_sl"
                                     value="0" readonly>
@@ -381,7 +306,7 @@
                         <tr>
                             <td class="ps-4">Đăng kiểm + Đường bộ</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_dangkiem_gia"
-                                    value="40000"></td>
+                                    value="{{ $profitDefaults['chi_dangkiem_gia'] }}"></td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_dangkiem_sl"
                                     value="0"></td>
                             <td class="text-money fw-bold-num" id="chi_dangkiem_total">0</td>
@@ -390,7 +315,7 @@
                         <tr>
                             <td class="ps-4">Ở lại đêm (Phụ cấp)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_dem_gia"
-                                    value="100000">
+                                    value="{{ $profitDefaults['chi_dem_gia'] }}">
                             </td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_dem_sl"
                                     value="0">
@@ -401,7 +326,7 @@
                         <tr>
                             <td class="ps-4 fw-bold">Thuế VAT (Phải nộp)</td>
                             <td><input type="text" class="table-input calc-trigger number-only" id="chi_vat_phantram"
-                                    value="8"></td>
+                                    value="{{ $profitDefaults['chi_vat_phantram'] }}"></td>
                             <td class="text-center">%</td>
                             <td class="text-money fw-bold-num" id="chi_vat_total">0</td>
                             <td class="sub-label">= Thu / 1.08 * 8%</td>
@@ -424,90 +349,67 @@
             </div>
         </form>
 
-        <div class="d-grid gap-2 col-md-4 mx-auto pb-5">
-            <button type="button" class="btn btn-primary btn-lg shadow" id="btnSave">
-                <span id="btnText">LƯU KẾT QUẢ</span>
-                <div id="btnSpinner" class="spinner-border spinner-border-sm ms-2" role="status" style="display:none;">
-                </div>
+        <div class="pf-save">
+            <button type="button" class="pf-btn pf-btn--primary pf-btn--lg" id="btnSave">
+                <i class="fas fa-save"></i> <span id="btnText">Lưu kết quả</span>
+                <span id="btnSpinner" class="pf-spinner" role="status" style="display:none;"></span>
             </button>
         </div>
 
-
-        <div class="card col-md-12 shadow-sm border-0 mb-3">
-            <div class="card-header bg-secondary text-white fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-clock-history"></i> LỊCH SỬ TÍNH TOÁN</span>
-                <span class="badge bg-primary">{{ count($reports) }} bản ghi</span>
+        <section class="pf-card pf-history" id="pf-history">
+            <div class="pf-history__head">
+                <h2 class="pf-card__title"><i class="fas fa-history"></i> Lịch sử tính toán</h2>
+                <span class="pf-pill">{{ count($reports) }} bản ghi</span>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover mb-0 align-middle">
-                        <thead class="table-primary text-secondary small">
-                            <tr>
-                                <th>Ngày tạo</th>
-                                <th>Đơn vị / Đối tác</th>
-                                <th class="text-end">Doanh thu</th>
-                                <th class="text-end">Chi phí</th>
-                                <th class="text-end">Lợi nhuận</th>
-                                <th class="text-center">% Lãi</th>
-                                <th class="text-center">Trạng thái</th>
-                                <th class="text-end">Hành động</th>
+            <div class="pf-table-wrap">
+                <table class="pf-table pf-table--list">
+                    <thead>
+                        <tr>
+                            <th>Ngày tạo</th>
+                            <th>Đơn vị / đối tác</th>
+                            <th class="text-money">Doanh thu</th>
+                            <th class="text-money">Chi phí</th>
+                            <th class="text-money">Lợi nhuận</th>
+                            <th class="text-center">% Lãi</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-money">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($reports as $item)
+                            <tr id="row-{{ $item->id }}">
+                                <td class="pf-muted">{{ $item->created_at->format('d/m/Y H:i') }}</td>
+                                <td><b>{{ $item->unit->unit_abbreviation ?? '—' }}</b></td>
+                                <td class="text-money">{{ number_format($item->total_revenue, 0, ',', '.') }}</td>
+                                <td class="text-money text-danger">{{ number_format($item->total_cost, 0, ',', '.') }}</td>
+                                <td class="text-money fw-bold {{ $item->net_profit >= 0 ? 'text-success' : 'text-danger' }}">{{ number_format($item->net_profit, 0, ',', '.') }}</td>
+                                <td class="text-center">
+                                    <span class="badge {{ $item->profit_margin >= 30 ? 'bg-success' : ($item->profit_margin > 0 ? 'bg-warning' : 'bg-danger') }}">{{ $item->profit_margin }}%</span>
+                                </td>
+                                <td class="text-center" id="status-cell-{{ $item->id }}">
+                                    @if ($item->status == 1)
+                                        <span class="badge bg-success">Đã duyệt</span>
+                                    @else
+                                        <span class="badge bg-warning">Chờ duyệt</span>
+                                    @endif
+                                </td>
+                                <td class="pf-actions">
+                                    @if (Auth::user()->name == 'Admin' || Auth::user()->name == 'SubAdmin' || Auth::user()->name == 'Accountant')
+                                        @if ($item->status == 0)
+                                            <button class="pf-btn pf-btn--ok pf-btn--sm btn-approve" data-id="{{ $item->id }}" title="Duyệt phiếu này"><i class="fas fa-check"></i> Duyệt</button>
+                                        @endif
+                                    @endif
+                                    <button class="pf-btn pf-btn--ghost pf-btn--sm btn-load-report" data-id="{{ $item->id }}"><i class="far fa-eye"></i> Xem</button>
+                                    <button class="pf-btn pf-btn--danger pf-btn--sm btn-delete-report" data-id="{{ $item->id }}" title="Xóa"><i class="far fa-trash-alt"></i></button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($reports as $item)
-                                <tr id="row-{{ $item->id }}">
-                                    <td class="small text-muted">{{ $item->created_at->format('d/m/Y H:i') }}</td>
-                                    <td class="fw-bold text-primary">{{ $item->unit->unit_abbreviation }}</td>
-                                    <td class="text-end">{{ number_format($item->total_revenue) }}</td>
-                                    <td class="text-end text-danger">{{ number_format($item->total_cost) }}</td>
-                                    <td
-                                        class="text-end fw-bold {{ $item->net_profit >= 0 ? 'text-success' : 'text-danger' }}">
-                                        {{ number_format($item->net_profit) }}
-                                    </td>
-                                    <td class="text-center fw-bold">
-                                        <span
-                                            class="badge {{ $item->profit_margin >= 30 ? 'bg-success' : ($item->profit_margin > 0 ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                            {{ $item->profit_margin }}%
-                                        </span>
-                                    </td>
-                                    <td class="text-center" id="status-cell-{{ $item->id }}">
-                                        @if ($item->status == 1)
-                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã
-                                                duyệt</span>
-                                        @else
-                                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                                        @endif
-                                    </td>
-
-                                    <td class="text-end">
-                                        @if (Auth::user()->name == 'Admin' || Auth::user()->name == 'SubAdmin' || Auth::user()->name == 'Accountant')
-                                            @if ($item->status == 0)
-                                                <button class="btn btn-sm btn-outline-success btn-approve"
-                                                    data-id="{{ $item->id }}" title="Duyệt phiếu này">
-                                                    <i class="bi bi-check-lg"></i> Duyệt
-                                                </button>
-                                            @endif
-                                        @endif
-
-                                        <button class="btn btn-sm btn-outline-primary btn-load-report"
-                                            data-id="{{ $item->id }}">Xem</button>
-                                        <button class="btn btn-sm btn-outline-danger btn-delete-report"
-                                            data-id="{{ $item->id }}">Xóa</button>
-                                    </td>
-                                </tr>
-                            @endforeach
-
-                            @if ($reports->isEmpty())
-                                <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">Chưa có dữ liệu nào được lưu.
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr><td colspan="8" class="pf-empty">Chưa có bản ghi nào được lưu.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        </div>
+        </section>
     </div>
 @endsection
 @push('js')

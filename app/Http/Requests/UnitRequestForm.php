@@ -22,8 +22,10 @@ class UnitRequestForm extends FormRequest
     public function rules(): array
     {
         return [
-            'unit_code' => 'required',
+            'unit_code' => ['required', 'string', 'max:20'],
+            'unit_abbreviation' => ['required', 'string', 'max:255'],
             'unit_name' => 'required',
+            'unit_tax_code' => ['nullable', 'string', 'max:30'],
         ];
     }
     public function messages()
@@ -31,6 +33,9 @@ class UnitRequestForm extends FormRequest
         return [
             'unit_code.required' => 'Vui lòng nhập mã đơn vị.',
             'unit_name.required' => 'Vui lòng nhập tên đơn vị.',
+            'unit_code.max' => 'Mã đơn vị tối đa 20 ký tự.',
+            'unit_abbreviation.required' => 'Vui lòng nhập tên viết tắt (tên hiện trên đơn hàng, lịch xe).',
+            'unit_tax_code.max' => 'Mã số thuế tối đa 30 ký tự.',
         ];
     }
 }

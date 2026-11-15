@@ -1,0 +1,123 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Trợ lý AI theo phòng ban (Claude Managed Agents)
+|--------------------------------------------------------------------------
+|
+| Mỗi phòng ban là một Agent lưu trên Claude (system prompt + skill + tool).
+| Dựng / cập nhật: php artisan claude:setup <phong_ban>
+| ID của agent, skill, environment được ghi vào storage/app/claude/agents.json.
+|
+*/
+
+return [
+    'api_key' => env('ANTHROPIC_API_KEY'),
+
+    'model' => env('CLAUDE_MODEL', 'claude-opus-5-5'),
+
+    // File lưu ID các tài nguyên đã tạo trên Claude
+    'registry_path' => storage_path('app/claude/agents.json'),
+
+    // Thời gian tối đa (giây) chờ agent trả lời một câu hỏi
+    'reply_timeout' => (int) env('CLAUDE_REPLY_TIMEOUT', 240),
+
+    // Số ngày giữ lịch sử chat với trợ lý (lệnh assistant:prune chạy mỗi ngày lúc 02:00)
+    'history_days' => (int) env('CLAUDE_HISTORY_DAYS', 90),
+
+    'departments' => [
+        'sales' => [
+            'name' => 'NKL Sales',
+            'title' => 'Trợ lý Sales',
+            // Phòng ban (users.department) được dùng trợ lý này. Admin (role 0, 1) dùng được tất cả.
+            'user_departments' => ['sales'],
+            'description' => 'Trợ lý nội bộ phòng Sale NKL: báo giá, chốt lịch, công nợ, soạn tin nhắn khách.',
+            'system_prompt' => resource_path('claude/agents/sales.md'),
+            // Thư mục skill (chứa SKILL.md) sẽ được upload lên Claude
+            'skills' => [
+                resource_path('claude/skills/nkl-sale'),
+            ],
+            'tools' => \App\Services\Claude\Tools\SalesTools::class,
+
+            /*
+             * Chức năng chọn trong khung chat. Không giới hạn tool: chỉ gợi ý cho người
+             * dùng và báo trợ lý biết đang làm việc gì ('instruction' gửi kèm câu hỏi).
+             * 'form': hiện form nhập (xem resources/views/pages/admin/assistant/forms).
+             */
+            'modes' => [
+                'auto' => [
+                    'label' => 'Tự động',
+                    'icon' => 'fas fa-magic',
+                    'placeholder' => 'Hỏi gì cũng được: báo giá, lịch xe, công nợ, lợi nhuận…',
+                    'instruction' => null,
+                    'suggestions' => [
+                        'Tuần sau xe nào còn trống?',
+                        'Báo giá 300 cas XQ phổi tại Biên Hòa cho khách mới',
+                        'Kiểm tra công nợ PK Thiên Hà và soạn tin nhắc nợ',
+                    ],
+                ],
+                'bao_gia' => [
+                    'label' => 'Báo giá',
+                    'icon' => 'fas fa-file-invoice-dollar',
+                    'placeholder' => 'Ghi chú thêm cho báo giá (không bắt buộc)…',
+                    'form' => 'quote',
+                    'instruction' => 'Báo giá. Kiểm tra đủ thông tin bắt buộc theo skill (thiếu thì hỏi lại). Tra đơn vị (khách cũ/mới, giá cũ), '
+                        . 'công nợ, lịch xe ngày chụp nếu có ngày, và tính lợi nhuận. Trả lời gồm: đơn giá và thành tiền, phần đã bao gồm, '
+                        . 'kết luận lãi/hòa/lỗ, việc cần xin ý kiến KTT (nếu có), và tin nhắn báo giá soạn sẵn để gửi khách.',
+                    'suggestions' => [
+                        'Khách cũ BV Bình Chánh hỏi giá 250 cas phổi, giá lần trước bao nhiêu?',
+                        'Khách ép giá XQ phổi xuống 20.000/cas cho 300 cas, còn lãi không?',
+                    ],
+                ],
+                'loi_nhuan' => [
+                    'label' => 'Tính lợi nhuận',
+                    'icon' => 'fas fa-calculator',
+                    'placeholder' => 'Giá khác mặc định nếu có, vd: lương TX đợt này 400.000/ngày…',
+                    'form' => 'profit',
+                    'instruction' => 'Tính lợi nhuận bằng tool tinh_loi_nhuan. Trình bày gọn: tổng thu, các khoản chi lớn, tổng chi, lợi nhuận ròng, '
+                        . '% lãi, kết luận theo quy trình và các giả định. Giá nào người dùng báo khác mặc định thì dùng don_gia_khac.',
+                    'suggestions' => [
+                        'Đang áp dụng đơn giá lương TX, KTV, dầu bao nhiêu?',
+                        'Đơn 2 ngày ở Cần Thơ, 340km đi về, 400 cas phổi, ngủ lại 1 đêm, 3 người: lãi bao nhiêu?',
+                    ],
+                ],
+                'lich_xe' => [
+                    'label' => 'Lịch xe / chốt lịch',
+                    'icon' => 'fas fa-shuttle-van',
+                    'placeholder' => 'Ví dụ: ngày 20/11 còn xe nào trống?',
+                    'instruction' => 'Lịch xe. Dùng xem_lich_xe để trả lời xe nào trống, đơn nào chưa xếp xe. Khi chốt lịch, nhắc các bước '
+                        . 'theo skill (lịch nháp, chuyển lịch chính thức trước 1 tuần, thông báo TX/KTV).',
+                    'suggestions' => [
+                        'Tuần sau xe nào còn trống?',
+                        'Liệt kê các đơn tháng này chưa xếp xe',
+                    ],
+                ],
+                'cong_no' => [
+                    'label' => 'Công nợ',
+                    'icon' => 'fas fa-receipt',
+                    'placeholder' => 'Tên đơn vị cần kiểm tra công nợ…',
+                    'instruction' => 'Công nợ. Dùng xem_cong_no. Nêu tổng nợ, phần quá hạn, hóa đơn quá hạn lâu nhất, và bước xử lý theo skill '
+                        . '(nhắn tin, gọi điện, báo KTT, có được nhận đơn mới không). Nếu cần, soạn sẵn tin nhắc nợ.',
+                    'suggestions' => [
+                        'Kiểm tra công nợ PK Thiên Hà',
+                        'Soạn tin nhắc nợ cho BV SG Bình Dương',
+                    ],
+                ],
+                'tin_nhan' => [
+                    'label' => 'Soạn tin nhắn khách',
+                    'icon' => 'far fa-comment-dots',
+                    'placeholder' => 'Ví dụ: tin confirm lịch cho PK Thiên Hà ngày 13/11…',
+                    'instruction' => 'Soạn tin nhắn gửi khách theo mẫu trong skill, lịch sự, đặt trong khối ```tin-nhan để người dùng bấm sao chép. Nếu tin cần số liệu (ngày, số tiền, '
+                        . 'địa điểm) thì tra bằng tool; thiếu thông tin thì để dấu [..] cho người dùng điền.',
+                    'suggestions' => [
+                        'Soạn tin confirm lịch chụp cho khách',
+                        'Soạn tin từ chối lịch khéo léo',
+                        'Soạn tin xin lỗi vì xe đến trễ 30 phút do kẹt xe',
+                    ],
+                ],
+            ],
+        ],
+
+        // 'accountant' => [...], 'technicians' => [...], 'results' => [...]
+    ],
+];

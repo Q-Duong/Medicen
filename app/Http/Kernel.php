@@ -67,6 +67,8 @@ class Kernel extends HttpKernel
         'isAdmin' => \App\Http\Middleware\AdminMiddleWare::class,
         'isSale' => \App\Http\Middleware\SaleMiddleWare::class,
         'isAccountant' => \App\Http\Middleware\AccountantMiddleWare::class,
+        'assistant.access' => \App\Http\Middleware\AssistantAccessMiddleware::class,
+        'department' => \App\Http\Middleware\DepartmentAccess::class,
         'schedules.login' => \App\Http\Middleware\CheckLoginSchedule::class,
         'schedules.role.sales' => \App\Http\Middleware\CheckRoleScheduleSales::class,
         'schedules.role.technicians' => \App\Http\Middleware\CheckRoleScheduleTechnicians::class,

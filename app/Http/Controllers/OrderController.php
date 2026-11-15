@@ -16,6 +16,7 @@ use App\Models\Customer;
 use App\Models\Accountant;
 use App\Models\ExcelUpload;
 use App\Models\HistoryEdit;
+use App\Services\Accountant\OrderMoney;
 use App\Models\TempFile;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -215,26 +216,8 @@ class OrderController extends Controller
 
 	public function index(Request $request)
 	{
-		$baseQuery = Order::join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-			->join('units', 'units.id', '=', 'orders.unit_id');
-
-		if ($request->filled('unit_abbreviation')) {
-			$baseQuery->where('units.unit_abbreviation', $request->unit_abbreviation);
-		}
-		if ($request->filled('from_date')) {
-			$baseQuery->whereDate('ord_start_day', '>=', $request->from_date);
-		}
-		if ($request->filled('to_date')) {
-			$baseQuery->whereDate('ord_start_day', '<=', $request->to_date);
-		}
-		if ($request->filled('keyword')) {
-			$keyword = $request->keyword;
-			$baseQuery->where(function ($q) use ($keyword) {
-				$q->where('orders.id', 'LIKE', "%{$keyword}%")
-					->orWhere('order_details.ord_cty_name', 'LIKE', "%{$keyword}%")
-					->orWhere('units.unit_name', 'LIKE', "%{$keyword}%");
-			});
-		}
+		// Thẻ đếm theo trạng thái: theo các ô lọc đang chọn (trừ chính trạng thái)
+		$baseQuery = \App\Services\OrderFilters::apply(\App\Services\OrderFilters::base(), $request, ['status_id', 'schedule_status']);
 
 		// 2. Clone Query gốc để đếm động cho thẻ thống kê
 		$summary = [
@@ -249,8 +232,15 @@ class OrderController extends Controller
 
 		$getAll = Order::getAll($request);
 
-		$units = DB::table('units')->select('unit_abbreviation')->whereNotNull('unit_abbreviation')->distinct()->get();
-		return view('pages.admin.order.index', compact('getAll', 'summary', 'units'));
+		// Gợi ý các ô lọc (liên kết với nhau: mỗi ô chỉ còn giá trị có đơn theo các ô khác)
+		$filterOptions = \App\Services\OrderFilters::options($request);
+		return view('pages.admin.order.index', compact('getAll', 'summary', 'filterOptions'));
+	}
+
+	/** Gợi ý các ô lọc danh sách đơn theo các ô đang chọn (trang gọi lại mỗi khi đổi một ô lọc) */
+	public function filterOptions(Request $request)
+	{
+		return response()->json(\App\Services\OrderFilters::options($request));
 	}
 
 	public function create()
@@ -265,6 +255,8 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			// Số ca có thể gõ kèm dấu chấm (1.200): chỉ lấy chữ số
+			$data['order_quantity'] = preg_replace('/\D/', '', (string) ($data['order_quantity'] ?? ''));
 
 			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 
@@ -289,7 +281,7 @@ class OrderController extends Controller
 			$orderDetail->ord_print_result = $data['ord_print_result'];
 			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
 			$orderDetail->ord_note = $data['ord_note'];
-			$orderDetail->ord_deadline = $this->deadlineFunction($request->ord_start_day, $request->unit_id, $request->order_quantity);
+			$orderDetail->ord_deadline = $this->deadlineFunction($data['ord_start_day'], $data['unit_id'], $data['order_quantity']);
 			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->ord_time = $data['ord_time'];
@@ -336,7 +328,7 @@ class OrderController extends Controller
 			$order->order_warning = $data['order_warning'];
 			$order->order_surcharge = $data['order_surcharge'];
 			$order->overnight = $data['overnight'];
-			$order->complete = $data['complete'];
+			$order->complete = $data['complete'] ?? ($order->complete ?? 0); // nút Cập nhật / Chưa hoàn thành; thiếu thì giữ giá trị cũ
 			$order->save();
 
 			if ($request->filled('excel_upload_id')) {
@@ -364,16 +356,21 @@ class OrderController extends Controller
 			}
 			$accountant->save();
 
+			// Đơn mới: tính Chiết khấu, Lợi nhuận, Còn nợ ngay (cùng công thức trang Công nợ)
+			OrderMoney::sync($order, $accountant, OrderMoney::MONEY_FIELDS);
+
 			$history = new HistoryEdit();
 			$history->order_id = $order->id;
 			$history->user_name = Auth::user()->email;
 			$history->history_action = 'Thêm đơn hàng';
 			$history->save();
+			// Nhóm đi chung: Sale tích các đơn cùng đơn vị, cùng ngày ở form
+			$group = $request->filled('group_touched') ? app(\App\Services\OrderGroups::class)->sync($order, (array) $request->input('group_with', [])) : null;
 			DB::commit();
-			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công');
+			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công' . ($group ? " · nhóm đi chung {$group->code}" : ''));
 		} catch (\Exception $e) {
 			DB::rollback();
-			return Redirect()->back()->withInput()->with('errorMessage', 'Thêm đơn hàng thất bại');
+			return Redirect()->back()->withInput()->with('error', 'Thêm đơn hàng thất bại');
 		}
 	}
 
@@ -382,16 +379,68 @@ class OrderController extends Controller
 		$order = Order::getOneOrder($order_id);
 		$files = array_combine(explode(',', $order->ord_list_file), explode(',', $order->ord_list_file_path));
 		$getAllUnit = Unit::orderBy('unit_code', 'ASC')->get();
-		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files'));
+		// Lịch xe hiện tại: nếu đổi ngày / buổi chụp thì lịch này sẽ bị hủy (form hỏi xác nhận trước)
+		$schedule = \App\Models\CarKTV::where('order_id', $order_id)->where('car_active', 1)->first();
+		// Đơn đã chụp xong: đổi ngày / buổi vẫn giữ lịch (form không hỏi hủy lịch)
+		$scheduleKept = $schedule && \App\Services\Schedule\ScheduleCancel::keepsScheduleOnReschedule($order->status_id);
+		// Đơn đã hoàn thành: form chỉ xem
+		$orderClosed = (int) $order->status_id === Order::STATUS_CLOSED;
+		// Đã có số ca thực tế (Kết quả đã cập nhật): khóa số lượng + hình thức in phim
+		// Admin (role 0) sửa được mọi ô, trừ đơn đã hoàn thành
+		$isAdmin = (int) Auth::user()->role === 0;
+		$adminOverride = $isAdmin && !$orderClosed && in_array((int) $order->status_id, array_merge(Order::QTY_LOCKED_STATUSES, OrderMoney::LOCKED_STATUSES), true);
+		$qtyLocked = !$isAdmin && in_array((int) $order->status_id, Order::QTY_LOCKED_STATUSES, true);
+		// Đã cập nhật doanh thu / đã chốt: khóa các ô tiền (hiện nhãn "đã khóa" trên từng ô)
+		$moneyLocked = $orderClosed || (!$isAdmin && in_array((int) $order->status_id, OrderMoney::LOCKED_STATUSES, true));
+		// Nhóm đi chung hiện tại
+		$groupId = Order::whereKey($order_id)->value('order_group_id');
+		$groupCode = $groupId ? \App\Models\OrderGroup::whereKey($groupId)->value('code') : null;
+		$groupMembers = $groupId ? Order::where('order_group_id', $groupId)->where('id', '!=', $order_id)->pluck('id')->all() : [];
+		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files', 'schedule', 'scheduleKept', 'orderClosed', 'qtyLocked', 'moneyLocked', 'adminOverride', 'groupCode', 'groupMembers'));
 	}
 
 	public function update(OrderRequestForm $request, $order_id)
 	{
 		$data = $request->all();
+		// Số ca có thể gõ kèm dấu chấm (1.200): chỉ lấy chữ số
+		$data['order_quantity'] = preg_replace('/\D/', '', (string) ($data['order_quantity'] ?? ''));
 		$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 		$order = Order::findOrFail($order_id);
+		// Đơn đã hoàn thành: không sửa gì nữa
+		if ($order->isClosed()) {
+			return Redirect::route('order.edit', $order_id)->with('error', Order::closedMessage($order_id));
+		}
+		// Ngày / buổi trước khi sửa: đơn đã xếp xe mà đổi thì phải hủy lịch, đơn về "Chưa lên lịch"
+		$oldDetail = OrderDetail::findOrFail($order->order_detail_id);
+		$oldStart = (string) $oldDetail->ord_start_day;
+		$oldSession = trim((string) $oldDetail->ord_session) ?: 'Cả ngày';
+		$oldUnit = $order->unit_id;
+		$oldStatus = (int) $order->status_id;
+		// Đơn đã cập nhật doanh thu (4) / đã chốt (3) ở trang Công nợ: KHÔNG sửa các ô ảnh hưởng đến tiền,
+		// giữ nguyên số trong database (kể cả khi form bị sửa tay gửi lên)
+		// Admin (role 0) sửa được cả các ô bị khóa (tiền, số lượng, phần in phim…) — đơn đã hoàn thành đã chặn ở trên
+		$isAdmin = (int) Auth::user()->role === 0;
+		$moneyLocked = !$isAdmin && OrderMoney::isLocked($order);
+		if ($moneyLocked) {
+			$data = array_merge($data, OrderMoney::lockedFormValues($order));
+		}
+		// Đã có số ca thực tế (2: Kết quả đã cập nhật, 4: kế toán đã cập nhật doanh thu): giữ nguyên số lượng và cả phần
+		// in phim / in phiếu / cảnh báo trong database (form khóa 2 ô này; gửi tay lên cũng không đổi được)
+		if (!$isAdmin && in_array((int) $order->status_id, Order::QTY_LOCKED_STATUSES, true)) {
+			$data['order_quantity'] = $order->order_quantity;
+			// Cả phần in phim / in phiếu / bác sĩ đọc / phim & phiếu / cảnh báo đơn: giữ như cũ
+			foreach (Order::PRINT_LOCKED_FIELDS as $f) {
+				$data[$f] = $oldDetail->{$f};
+			}
+			$data['order_warning'] = $order->order_warning;
+		}
+		$moneyBefore = OrderMoney::snapshot($order);
 		$order->unit_id = $data['unit_id'];
-		$order->status_id == 5 ? '' : $order->status_id = 1;
+		// Trước đây mọi đơn (trừ 5) bị đưa về 1 "Đang xử lý" mỗi lần sửa, kể cả đơn đã cập nhật số ca (2),
+		// đã cập nhật doanh thu (4), đã chốt (3). Giờ chỉ đơn mới (0) chuyển sang 1, còn lại giữ nguyên.
+		if ((int) $order->status_id === 0) {
+			$order->status_id = 1;
+		}
 		$order->order_quantity = $data['order_quantity'];
 		$order->order_price = formatPrice($data['order_price']);
 		$order->order_cost = $data['order_all_in_one'] == 0 ? formatPrice($data['order_cost']) : 0;
@@ -401,7 +450,7 @@ class OrderController extends Controller
 		$order->order_warning = $data['order_warning'];
 		$order->order_surcharge = $data['order_surcharge'];
 		$order->overnight = $data['overnight'];
-		$order->complete = $data['complete'];
+		$order->complete = $data['complete'] ?? ($order->complete ?? 0); // nút Cập nhật / Chưa hoàn thành; thiếu thì giữ giá trị cũ
 		$order->save();
 
 		ExcelUpload::where('order_id', $order->id)->first()
@@ -409,7 +458,6 @@ class OrderController extends Controller
 
 		$monthFormat = explode("-", $data['ord_start_day']);
 		$accountant = Accountant::where('order_id', $order_id)->first();
-		$accountant->accountant_owe = formatPrice($data['order_price']);
 		$accountant->accountant_distance = $data['accountant_distance'];
 		if ($monthFormat[1] == 10) {
 			$accountant->accountant_month = $monthFormat[1];
@@ -422,6 +470,18 @@ class OrderController extends Controller
 			}
 		}
 		$accountant->save();
+
+		// Tiền: chỉ khi các ô tiền thật sự đổi mới tính lại Chiết khấu, Lợi nhuận, Còn nợ (cùng công thức trang Công nợ;
+		// Còn nợ = Thành tiền − Đã thanh toán, không còn bị đưa về bằng Thành tiền mỗi lần sửa đơn)
+		if (!$moneyLocked) {
+			$moneyChanged = OrderMoney::changedFields($moneyBefore, $order);
+			OrderMoney::sync($order, $accountant, $moneyChanged);
+			// Admin sửa số ca / tiền ở đơn đang có cảnh báo "số ca đổi sau khi cập nhật doanh thu" = đã xử lý
+			if ($moneyChanged && $order->qty_changed_from !== null) {
+				OrderMoney::clearQtyFlag($order);
+				$order->save();
+			}
+		}
 
 		$customer_id = $order->customer_id;
 		$order_detail_id = $order->order_detail_id;
@@ -446,7 +506,7 @@ class OrderController extends Controller
 		$orderDetail->ord_print_result = $data['ord_print_result'];
 		$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
 		$orderDetail->ord_note = $data['ord_note'];
-		$orderDetail->ord_deadline = $this->deadlineFunction($request->ord_start_day, $request->unit_id, $request->order_quantity);
+		$orderDetail->ord_deadline = $this->deadlineFunction($data['ord_start_day'], $data['unit_id'], $data['order_quantity']);
 		$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
 		$orderDetail->ord_cty_name = $data['ord_cty_name'];
 		$orderDetail->ord_time = $data['ord_time'];
@@ -478,7 +538,71 @@ class OrderController extends Controller
 		$history->history_action = 'Sửa đơn hàng';
 		$history->save();
 
-		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin đơn hàng thành công');
+		// Nhóm đi chung: theo lựa chọn trên form; form cũ không có khung nhóm mà đổi ngày / đơn vị thì rời nhóm
+		$groups = app(\App\Services\OrderGroups::class);
+		$group = null;
+		if ($request->filled('group_touched')) {
+			$group = $groups->sync($order, (array) $request->input('group_with', []));
+		} elseif ($oldStart !== (string) $orderDetail->ord_start_day || (int) $oldUnit !== (int) $order->unit_id) {
+			$groups->leave($order);
+		}
+
+		$newSession = trim((string) $orderDetail->ord_session) ?: 'Cả ngày';
+		$cancelled = null;
+		// Đơn đã chụp xong (2/3/4) thì giữ lịch xe (dữ liệu chấm công thật), chỉ đơn chưa chụp mới phải xếp lại
+		if (($oldStart !== (string) $orderDetail->ord_start_day || $oldSession !== $newSession)
+			&& !\App\Services\Schedule\ScheduleCancel::keepsScheduleOnReschedule($oldStatus)) {
+			$cancelled = app(\App\Services\Schedule\ScheduleCancel::class)->cancel($order->fresh(),
+				'đổi ngày chụp ' . date('d/m', strtotime($oldStart)) . " {$oldSession} → " . date('d/m', strtotime($orderDetail->ord_start_day)) . " {$newSession}");
+		}
+
+		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin đơn hàng thành công'
+			. ($group ? " · nhóm đi chung {$group->code}" : '')
+			. ($cancelled ? '. Đơn đổi ngày / buổi chụp nên lịch xe cũ (' . \App\Services\Schedule\ScheduleBoard::carLabel($cancelled['car']) . ', TX ' . ($cancelled['driver'] ?: '—') . ') đã được hủy; đơn chuyển về Chưa lên lịch, cần xếp lại.' : ''));
+	}
+
+	/** Người liên hệ (họ tên + SĐT) từng dùng ở các đơn cũ của một đơn vị, mới nhất trước (ô chọn trên form lên đơn) */
+	public function customerSuggestions(Request $request)
+	{
+		$unitId = (int) $request->validate(['unit_id' => ['required', 'integer']])['unit_id'];
+
+		return response()->json(DB::table('orders')
+			->join('customers', 'customers.id', '=', 'orders.customer_id')
+			->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+			->where('orders.unit_id', $unitId)
+			->whereRaw("TRIM(COALESCE(customers.customer_name, '')) <> ''")
+			->groupBy('customers.customer_name', 'customers.customer_phone')
+			->selectRaw('TRIM(customers.customer_name) as name, TRIM(customers.customer_phone) as phone, MAX(order_details.ord_start_day) as last_day, COUNT(*) as orders')
+			->orderByDesc('last_day')
+			->limit(30)
+			->get()
+			->map(fn ($c) => ['name' => $c->name, 'phone' => $c->phone, 'last_day' => $c->last_day, 'orders' => (int) $c->orders])
+			->unique(fn ($c) => mb_strtolower($c['name']) . '|' . preg_replace('/\D/', '', (string) $c['phone']))
+			->values());
+	}
+
+	/** Các đơn cùng đơn vị, cùng ngày (khung "Đi chung với đơn khác" trên form lên đơn) */
+	public function groupCandidates(Request $request)
+	{
+		$data = $request->validate([
+			'unit_id' => ['required', 'integer'],
+			'date' => ['required', 'date_format:Y-m-d'],
+			'exclude' => ['nullable', 'integer'],
+		]);
+
+		return response()->json(app(\App\Services\OrderGroups::class)
+			->candidates((int) $data['unit_id'], $data['date'], $data['exclude'] ?? null)
+			->map(fn ($o) => [
+				'id' => $o->id,
+				'company' => $o->ord_cty_name,
+				'session' => $o->ord_session ?: 'Cả ngày',
+				'service' => $o->ord_select,
+				'quantity' => (int) $o->order_quantity,
+				'surcharge' => (int) $o->order_surcharge === 1,
+				'group_id' => $o->order_group_id,
+				'group_code' => $o->group_code,
+				'car' => $o->car_name ? \App\Services\Schedule\ScheduleBoard::carLabel($o->car_name) . ($o->car_driver_name ? ' · TX ' . $o->car_driver_name : '') : null,
+			])->values());
 	}
 
 	public function copy($order_id)
@@ -493,6 +617,8 @@ class OrderController extends Controller
 		DB::beginTransaction();
 		try {
 			$data = $request->all();
+			// Số ca có thể gõ kèm dấu chấm (1.200): chỉ lấy chữ số
+			$data['order_quantity'] = preg_replace('/\D/', '', (string) ($data['order_quantity'] ?? ''));
 			$ultraSound = ['Siêu âm Bụng, Giáp, Vú, Tử Cung, Buồng trứng', 'Siêu âm Tim', 'Siêu âm ĐMC, Mạch Máu Chi Dưới'];
 			$customer = new Customer();
 			$customer->customer_name = $data['customer_name'];
@@ -514,7 +640,7 @@ class OrderController extends Controller
 			$orderDetail->ord_print_result = $data['ord_print_result'];
 			$orderDetail->ord_film_sheet = $data['ord_film_sheet'];
 			$orderDetail->ord_note = $data['ord_note'];
-			$orderDetail->ord_deadline = $this->deadlineFunction($request->ord_start_day, $request->unit_id, $request->order_quantity);
+			$orderDetail->ord_deadline = $this->deadlineFunction($data['ord_start_day'], $data['unit_id'], $data['order_quantity']);
 			$orderDetail->ord_deliver_results = $data['ord_deliver_results'];
 			$orderDetail->ord_cty_name = $data['ord_cty_name'];
 			$orderDetail->ord_time = $data['ord_time'];
@@ -561,7 +687,7 @@ class OrderController extends Controller
 			$order->order_warning = $data['order_warning'];
 			$order->order_surcharge = $data['order_surcharge'];
 			$order->overnight = $data['overnight'];
-			$order->complete = $data['complete'];
+			$order->complete = $data['complete'] ?? ($order->complete ?? 0); // nút Cập nhật / Chưa hoàn thành; thiếu thì giữ giá trị cũ
 			$order->save();
 
 			$monthFormat = explode("-", $data['ord_start_day']);
@@ -582,22 +708,31 @@ class OrderController extends Controller
 			}
 			$accountant->save();
 
+			// Đơn mới: tính Chiết khấu, Lợi nhuận, Còn nợ ngay (cùng công thức trang Công nợ)
+			OrderMoney::sync($order, $accountant, OrderMoney::MONEY_FIELDS);
+
 			$history = new HistoryEdit();
 			$history->order_id = $order->id;
 			$history->user_name = Auth::user()->email;
 			$history->history_action = 'Thêm đơn hàng';
 			$history->save();
+			// Nhóm đi chung: Sale tích các đơn cùng đơn vị, cùng ngày ở form
+			$group = $request->filled('group_touched') ? app(\App\Services\OrderGroups::class)->sync($order, (array) $request->input('group_with', [])) : null;
 			DB::commit();
-			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công');
+			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công' . ($group ? " · nhóm đi chung {$group->code}" : ''));
 		} catch (\Exception $e) {
 			DB::rollback();
-			return Redirect()->back()->with('errors', 'Thêm đơn hàng thất bại');
+			return Redirect()->back()->withInput()->with('error', 'Thêm đơn hàng thất bại');
 		}
 	}
 
 	public function destroy($order_id)
 	{
 		$order = Order::findOrFail($order_id);
+		if ($order->isClosed()) {
+			return Redirect::route('order.index')->with('error', Order::closedMessage($order_id));
+		}
+		app(\App\Services\OrderGroups::class)->leave($order);
 		$order->delete();
 		$customer = Customer::findOrFail($order->customer_id);
 		$customer->delete();

@@ -1,178 +1,81 @@
 @extends('layouts.default_auth')
+@section('title', 'Thống kê doanh thu - Medicen')
+@push('css')
+    {{-- Giao diện ở assets/css/support/org-dashboard.css (bản nạp: dashboard.css) --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/dashboard.css') }}" type="text/css" as="style" />
+@endpush
 @section('admin_content')
-    @if (Auth::user()->role == 0)
-        <div class="market-updates">
-            <div class="col-md-3 market-update-gd">
-                <a href="{{ route('customer.index') }}">
-                    <div class="market-update-block clr-block-1">
-                        <div class="col-md-4 market-update-right">
-                            <i class="fa fa-users"></i>
-                        </div>
-                        <div class="col-md-8 market-update-left">
-                            <h4>Khách hàng</h4>
-                            <h3>{{ $customer }}</h3>
-                            <p>Tổng số khách hàng đã đăng ký.</p>
-                        </div>
-                        <div class="clearfix"> </div>
-                    </div>
-                </a>
+    @php
+        $dsConfig = [
+            'month' => route('statistics.revenue_for_the_month'),
+            'optional' => route('statistics.optional_revenue'),
+            'unit' => route('statistics.revenue_by_unit'),
+            'date' => route('statistics.revenue_by_date'),
+        ];
+    @endphp
+    <div class="ds" id="dashboard" data-config='@json($dsConfig)'>
+        <div class="ds-head">
+            <div class="ds-head__title">
+                <h1>Thống kê doanh thu</h1>
+                <p>Doanh thu, lợi nhuận theo ngày chốt đơn (kế toán bấm Hoàn thành). <span class="ds-current">Đang xem: <b class="filter-text">tháng này</b></span></p>
             </div>
-            <div class="col-md-3 market-update-gd">
-                <a href="{{ URL::to('/all-product') }}">
-                    <div class="market-update-block clr-block-3">
-                        <div class="col-md-4 market-update-right">
-                            <i class="fa fa-usd"></i>
-                        </div>
-                        <div class="col-md-8 market-update-left">
-                            <h4>Dịch vụ</h4>
-                            <h3>{{ $service }}</h3>
-                            <p>Tổng số dịch vụ đã kinh doanh.</p>
-                        </div>
-                        <div class="clearfix"> </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 market-update-gd">
-                <a href="{{ route('order.index') }}">
-                    <div class="market-update-block clr-block-4">
-                        <div class="col-md-4 market-update-right">
-                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                        </div>
-                        <div class="col-md-8 market-update-left">
-                            <h4>Đơn hàng</h4>
-                            <h3>{{ $order }}</h3>
-                            <p>Tổng số đơn hàng đã nhận.</p>
-                        </div>
-                        <div class="clearfix"> </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 market-update-gd">
-                <a href="{{ route('post.index') }}">
-                    <div class="market-update-block clr-block-2">
-                        <div class="col-md-4 market-update-right">
-                            <i class="fab fa-blogger-b"></i>
-                        </div>
-                        <div class="col-md-8 market-update-left">
-                            <h4>Bài viết</h4>
-                            <h3>{{ $post }}</h3>
-                            <p>Tổng bài viết có trên web.</p>
-                        </div>
-                        <div class="clearfix"> </div>
-                    </div>
-                </a>
-            </div>
-            <div class="clearfix"> </div>
-        </div>
-    @endif
-    <div class="chart_statistic">
-        <p class="chart-statistic-title">Thống kê doanh thu</p>
-        <div class="chart-statistic-content">
-            <div class="filter">
-                <div class="filter-title">
-                    <p class="filter-title-text">
-                        Bộ lọc
-                    </p>
-                </div>
-                <div class="filter-content">
-                    <div class="row">
-                        <form autocomplete="off">
-                            @csrf
-                            <div class="col-md-2">
-                                <p class="filter-content-title">Từ ngày:</p>
-                                <input type="date" name="from_date" class="input-control">
-                            </div>
-                            <div class="col-md-2">
-                                <p class="filter-content-title">Đến ngày:</p>
-                                <input type="date" name="to_date" class="input-control">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="primary-btn-filter btn-revenue-by-date">
-                                    Lọc ngày
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <p class="filter-content-title">Tên đơn vị:</p>
-                                <select name="unit_id" class="select-2 unit_id">
-                                    @foreach ($getAllUnit as $key => $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="primary-btn-filter btn-unit-revenue">
-                                    Lọc đơn vị
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <p class="filter-content-title">Lọc theo:</p>
-                                <select class="optional-revenue input-control">
-                                    <option>--Chọn--</option>
-                                    <option value="7ngay">7 ngày qua</option>
-                                    <option value="thangtruoc">tháng trước</option>
-                                    <option value="thangnay">tháng này</option>
-                                    <option value="365ngayqua">365 ngày qua</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="filter-accountant">
-                <div class="filter-accountant-title">
-                    <p class="filter-accountant-title-text">
-                        Báo cáo doanh thu: <span class="filter-text"></span>
-                    </p>
-                </div>
-                <div class="filter-accountant-content">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="filter-accountant-content-block">
-                                <div class="filter-accountant-content-title">
-                                    Tổng doanh thu:
-                                </div>
-                                <div class="total"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="filter-accountant-content-block">
-                                <div class="filter-accountant-content-title">
-                                    Tổng số đơn:
-                                </div>
-                                <div class="total_orders"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="filter-accountant-content-block">
-                                <div class="filter-accountant-content-title">
-                                    Lợi nhuận:
-                                </div>
-                                <div class="total"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="chart">
-                <div class="chart-title">
-                    <p class="chart-title-text">
-                        Biểu đồ doanh thu: <span class="chart-text"></span>
-                    </p>
-                </div>
-                <div id="chart"></div>
+            <div class="ds-chips" role="group" aria-label="Khoảng thời gian">
+                <button type="button" class="ds-chip is-active" data-opt="month">Tháng này</button>
+                <button type="button" class="ds-chip" data-opt="7ngay">7 ngày qua</button>
+                <button type="button" class="ds-chip" data-opt="thangtruoc">Tháng trước</button>
+                <button type="button" class="ds-chip" data-opt="365ngayqua">365 ngày qua</button>
             </div>
         </div>
+
+        <form class="ds-filters" autocomplete="off" onsubmit="return false">
+            @csrf
+            <div class="ds-filter">
+                <label class="ds-field"><span>Từ ngày</span><input type="date" name="from_date"></label>
+                <label class="ds-field"><span>Đến ngày</span><input type="date" name="to_date"></label>
+                <button type="button" class="ds-btn ds-btn--dark btn-revenue-by-date">Xem theo ngày</button>
+            </div>
+            <div class="ds-filter ds-filter--grow">
+                <label class="ds-field ds-field--grow"><span>Đơn vị</span>
+                    <select name="unit_id" class="select-2 unit_id">
+                        @foreach ($getAllUnit as $key => $unit)
+                            <option value="{{ $unit->id }}">{{ $unit->unit_abbreviation ?: $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <button type="button" class="ds-btn ds-btn--dark btn-unit-revenue">Xem theo đơn vị</button>
+            </div>
+        </form>
+
+        <div class="ds-tiles">
+            <div class="ds-tile ds-tile--money"><span>Doanh thu</span><b class="ds-total">—</b></div>
+            <div class="ds-tile ds-tile--profit"><span>Lợi nhuận</span><b class="ds-profit">—</b><small class="ds-margin"></small></div>
+            <div class="ds-tile"><span>Số đơn</span><b class="ds-orders">—</b></div>
+            <div class="ds-tile"><span>Số ca</span><b class="ds-quantity">—</b></div>
+        </div>
+
+        <section class="ds-card">
+            <div class="ds-card__head">
+                <h2>Biểu đồ doanh thu · <span class="chart-text">tháng này</span></h2>
+                <div class="ds-legend"><span><i class="ds-dot ds-dot--sales"></i>Doanh thu</span><span><i class="ds-dot ds-dot--profit"></i>Lợi nhuận</span></div>
+            </div>
+            <div id="chart" class="ds-chart"></div>
+            <div class="ds-empty" hidden>Không có dữ liệu trong khoảng này.</div>
+        </section>
+
+        @if (Auth::user()->role == 0)
+            <h2 class="ds-section">Tổng quan</h2>
+            <div class="ds-links">
+                <a href="{{ route('order.index') }}" class="ds-link"><i class="fas fa-file-alt"></i><div><b>{{ number_format($order, 0, ',', '.') }}</b><span>Đơn hàng</span></div></a>
+                <a href="{{ route('customer.index') }}" class="ds-link"><i class="fas fa-users"></i><div><b>{{ number_format($customer, 0, ',', '.') }}</b><span>Khách hàng</span></div></a>
+                <a href="{{ URL::to('/all-product') }}" class="ds-link"><i class="fas fa-briefcase-medical"></i><div><b>{{ number_format($service, 0, ',', '.') }}</b><span>Dịch vụ</span></div></a>
+                <a href="{{ route('post.index') }}" class="ds-link"><i class="fas fa-newspaper"></i><div><b>{{ number_format($post, 0, ',', '.') }}</b><span>Bài viết</span></div></a>
+            </div>
+        @endif
     </div>
 @endsection
 @push('js')
-    <script src="{{ versionResource('backend/js/chart/raphael-min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/chart/morris.min.js') }}" defer></script>
-    <script src="{{ versionResource('backend/js/chart/chart.min.js') }}" defer></script>
-    <script type="text/javascript">
-        // Revenue Statistics Url
-        var url_revenue_statistics_for_the_month = "{{ route('statistics.revenue_for_the_month') }}";
-        var url_optional_revenue_statistics = "{{ route('statistics.optional_revenue') }}";
-        var url_revenue_statistics_by_unit = "{{ route('statistics.revenue_by_unit') }}";
-        var url_revenue_statistics_by_date = "{{ route('statistics.revenue_by_date') }}";
-    </script>
+    <script src="{{ versionResource('backend/js/chart/raphael-min.js') }}"></script>
+    <script src="{{ versionResource('backend/js/chart/morris.min.js') }}"></script>
+    {{-- Thay cho backend/js/chart/chart.min.js: thêm lợi nhuận, số ca; nguồn ở assets/js/tool/org-dashboard.js --}}
+    <script src="{{ versionResource('assets/js/tool/dashboard.js') }}" defer></script>
 @endpush

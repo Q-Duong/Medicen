@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AssistantController;
+use App\Http\Controllers\DispatchController;
+use App\Http\Controllers\UserDepartmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\CustomerController;
@@ -73,9 +76,6 @@ Route::prefix('contact')->group(function () {
     Route::post('/submit', [ContactController::class, 'submit'])->name('contact.submit');
 });
 
-Route::get('hash-password', function () {
-    dd(Hash::make('giang2905'));
-});
 
 //Schedule
 Route::prefix('schedules')->group(function () {
@@ -141,10 +141,17 @@ Auth::routes();
 Route::get('/admin', [AdminController::class, 'login']);
 Route::post('admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 //-------------------------------------------- Backend --------------------------------------------
+// Mã bảo mật (CSRF) mới của phiên hiện tại: trang mở lâu bị hết phiên, đăng nhập lại ở tab khác rồi lấy mã mới
+// để lưu tiếp mà không phải tải lại trang (không mất số đang nhập). Chỉ trả mã của chính phiên đang gọi.
+Route::get('csrf-token', fn () => response()->json(['token' => csrf_token(), 'auth' => auth()->check()])
+    ->header('Cache-Control', 'no-store'))->name('csrf.token');
+
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index');
     Route::get('chat', [AdminController::class, 'chat'])->name('dashboard.chat');
+    //Chuông thông báo: việc cần làm của tài khoản
+    Route::get('notifications/todo', [\App\Http\Controllers\NotificationController::class, 'todo'])->name('notifications.todo');
 
     //Profit
     Route::prefix('profit')->group(function () {
@@ -174,6 +181,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Information Account
     Route::get('/information', [AdminController::class, 'information'])->name('information');
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    // Trang "Tài khoản của tôi": lưu thông tin cá nhân + đổi mật khẩu
     Route::post('/save-infomation', [AdminController::class, 'store_information'])->name('store-information');
 
     //Customer
@@ -214,6 +222,40 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/export-misa', [OrderController::class, 'exportMisa'])->name('export.misa');
 
 
+    //Trợ lý AI các phòng ban (Claude). Quyền theo users.department, xem AssistantAccess
+    Route::prefix('assistant')->name('assistant.')->middleware('assistant.access')->group(function () {
+        Route::get('{department}', [AssistantController::class, 'show'])->name('show');
+        Route::post('{department}/ask', [AssistantController::class, 'ask'])->name('ask')->middleware('throttle:20,1');
+        Route::get('{department}/conversations', [AssistantController::class, 'conversations'])->name('conversations');
+        Route::get('{department}/conversations/{conversation}', [AssistantController::class, 'messages'])->name('messages')->whereNumber('conversation');
+        Route::patch('{department}/conversations/{conversation}', [AssistantController::class, 'rename'])->name('rename')->whereNumber('conversation');
+        Route::delete('{department}/conversations/{conversation}', [AssistantController::class, 'destroy'])->name('destroy')->whereNumber('conversation');
+    });
+
+    //Xếp lịch xe: Technician (phòng Kỹ thuật) và Admin
+    Route::prefix('xep-lich')->name('dispatch.')->middleware('department:ky_thuat')->group(function () {
+        Route::get('/', [DispatchController::class, 'index'])->name('index');
+        Route::post('goi-y', [DispatchController::class, 'suggest'])->name('suggest')->middleware('throttle:10,1');
+        Route::post('ap-dung', [DispatchController::class, 'apply'])->name('apply');
+        Route::get('don/{order}', [DispatchController::class, 'order'])->name('order')->whereNumber('order');
+        Route::get('tuan', [DispatchController::class, 'week'])->name('week');
+        Route::get('anh-tuan', [DispatchController::class, 'weekSheet'])->name('week_sheet');
+        Route::get('cham-cong', [DispatchController::class, 'timekeeping'])->name('timekeeping');
+        Route::get('don-cho', [DispatchController::class, 'pending'])->name('pending');
+        Route::get('lam-moi', [DispatchController::class, 'refresh'])->name('refresh');
+        Route::post('huy/{order}', [DispatchController::class, 'cancelSchedule'])->name('cancel')->whereNumber('order');
+        Route::post('cham-cong/{order}', [DispatchController::class, 'saveActual'])->name('actual')->whereNumber('order');
+        Route::get('sua', [DispatchController::class, 'editOrders'])->name('edit');
+        Route::post('giu-cho', [DispatchController::class, 'storeHold'])->name('holds.store');
+        Route::get('giu-cho/{hold}', [DispatchController::class, 'showHold'])->name('holds.show');
+        Route::put('giu-cho/{hold}', [DispatchController::class, 'updateHold'])->name('holds.update');
+        Route::delete('giu-cho/{hold}', [DispatchController::class, 'destroyHold'])->name('holds.destroy');
+        Route::post('lich-nghi', [DispatchController::class, 'storeLeave'])->name('leaves.store');
+        Route::delete('lich-nghi/{leave}', [DispatchController::class, 'destroyLeave'])->name('leaves.destroy');
+        Route::post('bao-tri-xe', [DispatchController::class, 'storeMaintenance'])->name('maintenances.store');
+        Route::delete('bao-tri-xe/{maintenance}', [DispatchController::class, 'destroyMaintenance'])->name('maintenances.destroy');
+    });
+
     //Sales
     Route::group(['middleware' => 'isSale'], function () {
         //Post
@@ -234,10 +276,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::patch('update/{id}', [OrderController::class, 'update'])->name('order.update');
             Route::delete('delete/{id}', [OrderController::class, 'destroy'])->name('order.destroy');
             Route::get('copy/{id}', [OrderController::class, 'copy'])->name('order.copy');
+            Route::get('group-candidates', [OrderController::class, 'groupCandidates'])->name('order.group_candidates');
+            Route::get('filter-options', [OrderController::class, 'filterOptions'])->name('order.filter_options');
+            Route::get('customer-suggestions', [OrderController::class, 'customerSuggestions'])->name('order.customer_suggestions');
             Route::post('save-copy', [OrderController::class, 'storeCopy'])->name('order.store_copy');
             Route::get('view/{code}', [OrderController::class, 'view'])->name('order.view');
             Route::get('print/{id}', [OrderController::class, 'print'])->name('order.print');
         });
+
 
         //schedule
         Route::prefix('schedule')->group(function () {
@@ -252,6 +298,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Admin
     Route::group(['middleware' => 'isAdmin'], function () {
         //Staff
+        //Phân quyền phòng ban (dùng cho trợ lý AI)
+        Route::get('user-departments', [UserDepartmentController::class, 'index'])->name('user-departments.index');
+        Route::patch('user-departments/{user}', [UserDepartmentController::class, 'update'])->name('user-departments.update');
+        //Quản lý tài khoản đăng nhập
+        Route::prefix('accounts')->name('accounts.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\AccountController::class, 'index'])->name('index');
+            Route::get('create', [\App\Http\Controllers\AccountController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\AccountController::class, 'store'])->name('store');
+            Route::get('{user}/edit', [\App\Http\Controllers\AccountController::class, 'edit'])->name('edit')->whereNumber('user');
+            Route::patch('{user}', [\App\Http\Controllers\AccountController::class, 'update'])->name('update')->whereNumber('user');
+            Route::delete('{user}', [\App\Http\Controllers\AccountController::class, 'destroy'])->name('destroy')->whereNumber('user');
+        });
         Route::prefix('staff')->group(function () {
             Route::get('/', [StaffController::class, 'index'])->name('staff.index');
             Route::get('create', [StaffController::class, 'create'])->name('staff.create');
@@ -277,6 +335,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('/', [AccountantController::class, 'index'])->name('accountant.index');
             Route::post('get-accountant', [AccountantController::class, 'getAccountant'])->name('accountant.get');
             Route::patch('update', [AccountantController::class, 'updateRow'])->name('accountant.update');
+            Route::patch('update-rows', [AccountantController::class, 'updateRows'])->name('accountant.update_rows');
+            Route::patch('qty-change', [AccountantController::class, 'qtyChange'])->name('accountant.qty_change');
             Route::patch('complete', [AccountantController::class, 'complete'])->name('accountant.complete');
             Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant.filter_options');
         });

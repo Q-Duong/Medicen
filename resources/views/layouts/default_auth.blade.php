@@ -44,6 +44,8 @@
         as="style" />
     <!-- //select2 -->
     <link href="{{ versionResource('backend/css/select2.min.css') }}" rel="stylesheet" as="style" />
+    {{-- Khung trang (header + sidebar) theo giao diện mới: assets/css/support/org-shell.css --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/shell.css') }}" type="text/css" as="style" />
     @stack('css')
 </head>
 
@@ -81,6 +83,8 @@
     {{-- <script src="{{ versionResource('backend/js/responsive.jqueryui.min.js') }}"></script> --}}
     <script src="{{ versionResource('backend/js/tool/select2.min.js') }}"></script>
     <script src="{{ versionResource('backend/js/tool/main.min.js') }}"></script>
+    {{-- Chuông thông báo trên header: assets/js/tool/org-shell.js --}}
+    <script src="{{ versionResource('assets/js/tool/shell.js') }}" defer></script>
     @stack('js')
     {{-- [if lte IE 8]><script language="javascript" type="text/javascript" src="js/flot-chart/excanvas.min.js"></script><![endif] --}}
     <script src="{{ asset('backend/js/jquery.scrollTo.js') }}"></script>

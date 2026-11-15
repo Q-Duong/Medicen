@@ -18,8 +18,19 @@ class Staff extends Model
     'staff_phone',
     'staff_gender',
     'staff_birthday',
-    'staff_role'
+    'staff_role',
+    'staff_certificate',
+    'staff_certificate_note',
   ];
+
+  protected $casts = [
+    'staff_certificate' => 'boolean',
+  ];
+
+  public function leaves()
+  {
+    return $this->hasMany(StaffLeave::class);
+  }
 
   public function carKTV()
   {

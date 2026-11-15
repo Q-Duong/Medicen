@@ -26,7 +26,7 @@ class SendReportReminders extends Command
 
         if ($items->count() > 0) {
             Mail::send('emails.report_reminder', ['items' => $items, 'today' => $today], function ($message) {
-                $message->to('quocduong081000@gmail.com')
+                $message->to('locvietnam9@gmail.com')
                     ->subject('⏳ Cảnh báo Thu/Chi cần xử lý hôm nay!');
             });
 

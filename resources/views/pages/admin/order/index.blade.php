@@ -1,6 +1,7 @@
 @extends('layouts.default_auth')
 
 @push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/order.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/pagination.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/excel-uploads.css') }}" type="text/css"
@@ -60,22 +61,49 @@
             </nav>
 
             <!-- Form bộ lọc -->
-            <form action="{{ route('order.index') }}" method="GET" class="filters" id="filterForm">
+            <form action="{{ route('order.index') }}" method="GET" class="filters" id="filterForm" data-options-url="{{ route('order.filter_options') }}">
                 <!-- Input ẩn lưu trạng thái từ thẻ thống kê (Để khi submit form vẫn giữ được trạng thái đang chọn) -->
                 <input type="hidden" name="status_id" id="statusInput" value="{{ request('status_id') }}">
 
+                {{-- Các ô lọc liên kết với nhau: đổi một ô thì các ô chọn khác chỉ còn giá trị có đơn (kèm số đơn) --}}
                 <div class="field">
                     <label for="f-donvi">Đơn vị</label>
-                    <select id="f-donvi" name="unit_abbreviation">
+                    <select id="f-donvi" name="unit_abbreviation" data-filter-opt="units">
                         <option value="">Tất cả đơn vị</option>
-                        @if (isset($units))
-                            @foreach ($units as $unit)
-                                <option value="{{ $unit->unit_abbreviation }}"
-                                    {{ request('unit_abbreviation') == $unit->unit_abbreviation ? 'selected' : '' }}>
-                                    {{ $unit->unit_abbreviation }}
-                                </option>
-                            @endforeach
+                        @php $unitSel = (string) request('unit_abbreviation'); $unitSeen = false; @endphp
+                        @foreach ($filterOptions['units'] as $u)
+                            @php $unitSeen = $unitSeen || $u['value'] === $unitSel; @endphp
+                            <option value="{{ $u['value'] }}" {{ $u['value'] === $unitSel ? 'selected' : '' }}>{{ $u['value'] }} ({{ $u['count'] }})</option>
+                        @endforeach
+                        @if ($unitSel !== '' && !$unitSeen)
+                            <option value="{{ $unitSel }}" selected>{{ $unitSel }} (0)</option>
                         @endif
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="f-group">Nhóm đi chung</label>
+                    <select id="f-group" name="group" data-filter-opt="groups">
+                        <option value="">Tất cả</option>
+                        <option value="__any" {{ request('group') === '__any' ? 'selected' : '' }}>Chỉ đơn đi chung</option>
+                        <option value="__none" {{ request('group') === '__none' ? 'selected' : '' }}>Không đi chung</option>
+                        @php $groupSel = (string) request('group'); $groupSeen = in_array($groupSel, ['', '__any', '__none'], true); @endphp
+                        @foreach ($filterOptions['groups'] as $g)
+                            @php $groupSeen = $groupSeen || $g['value'] === $groupSel; @endphp
+                            <option value="{{ $g['value'] }}" {{ $g['value'] === $groupSel ? 'selected' : '' }}>{{ $g['value'] }} ({{ $g['count'] }} đơn)</option>
+                        @endforeach
+                        @if (!$groupSeen)
+                            <option value="{{ $groupSel }}" selected>{{ $groupSel }} (0)</option>
+                        @endif
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="f-complete">Thông tin đơn</label>
+                    <select id="f-complete" name="complete" data-filter-opt="complete">
+                        <option value="">Tất cả</option>
+                        <option value="0" {{ request('complete') === '0' ? 'selected' : '' }}>Chưa hoàn thành ({{ $filterOptions['complete']['0'] }})</option>
+                        <option value="1" {{ request('complete') === '1' ? 'selected' : '' }}>Đã đủ thông tin ({{ $filterOptions['complete']['1'] }})</option>
                     </select>
                 </div>
 
@@ -90,14 +118,14 @@
                 </div>
 
                 <div class="field field--grow">
-                    <label for="f-q">Mã ĐH hoặc Tên đơn vị</label>
+                    <label for="f-q">Tìm kiếm</label>
                     <input id="f-q" type="search" name="keyword" value="{{ request('keyword') }}"
-                        placeholder="Gõ từ khóa tìm kiếm...">
+                        placeholder="Mã ĐH, tên đơn vị, tên Cty, mã nhóm...">
                 </div>
 
                 <div class="filters__actions">
                     <button type="submit" class="btn btn--dark">Lọc</button>
-                    @if (request()->anyFilled(['unit_abbreviation', 'from_date', 'to_date', 'keyword', 'status_id', 'schedule_status']))
+                    @if (request()->anyFilled(['unit_abbreviation', 'group', 'complete', 'from_date', 'to_date', 'keyword', 'status_id', 'schedule_status']))
                         <a class="btn btn--ghost" href="{{ route('order.index') }}">Bỏ lọc</a>
                     @endif
                 </div>
@@ -119,12 +147,25 @@
                     </thead>
                     <tbody>
                         @foreach ($getAll as $key => $order)
-                            <tr class="{{ $order->complete == 0 ? 'uncomplete-order' : '' }}">
+                            <tr class="{{ $order->complete == 0 ? 'order-row--uncomplete' : '' }}">
                                 <td
                                     title="Ngày tạo: {{ \Carbon\Carbon::parse($order->created_at)->format('H:i:s d/m/Y') }}">
-                                    {{ $order->id }}</td>
+                                    {{ $order->id }}@if ($order->complete == 0)
+                                        <span class="uncomplete-tag"
+                                            title="Đơn lưu ở chế độ chưa hoàn thành, cần bổ sung thông tin">Chưa hoàn
+                                            thành</span>
+                                    @endif
+                                </td>
                                 <td>{{ Carbon\Carbon::parse($order->ord_start_day)->format('d/m/Y') }}</td>
-                                <td>{{ $order->unit_abbreviation }}</td>
+                                <td>{{ $order->unit_abbreviation }}
+                                    @if ($order->group_code)
+                                        <span class="order-group-tag" title="Nhóm đơn đi chung (cùng chuyến xe)"><i
+                                                class="fas fa-link"></i> {{ $order->group_code }}</span>
+                                    @endif
+                                    @if ((int) $order->order_surcharge === 1)
+                                        <span class="order-sur-tag">Phụ thu</span>
+                                    @endif
+                                </td>
                                 <td>{{ $order->ord_cty_name }}</td>
                                 <td>{{ $order->order_quantity }}</td>
                                 <td>{{ $order->ord_select }}</td>
@@ -158,8 +199,18 @@
                                             đơn hàng</span>
                                     @endif
                                 </td>
-                                @if (Auth::user()->role == 0)
-                                    <td class="management">
+                                <td class="management">
+                                    @if ((int) $order->status_id === 3)
+                                        {{-- Đơn đã hoàn thành: chỉ xem / copy, không sửa, xóa, nhập thông tin báo cáo --}}
+                                        <a href="{{ route('order.edit', $order->id) }}" class="management-btn" title="Xem đơn (đã hoàn thành, chỉ xem)"><i
+                                                class="fa fa-eye text-primary"></i>
+                                        </a>
+                                        <span class="management-btn order-lock-btn" title="Đơn đã hoàn thành (kế toán đã chốt): không sửa, không xóa được"><i
+                                                class="fa fa-lock"></i></span>
+                                        <a href="{{ route('order.copy', $order->id) }}" class="management-btn" title="Copy thành đơn mới">
+                                            <i class="far fa-copy"></i>
+                                        </a>
+                                    @else
                                         <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
@@ -173,24 +224,10 @@
                                         <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
                                             <i class="far fa-copy"></i></i>
                                         </a>
-                                        <a href="{{ route('accountant.order.update', $order->id) }}"
-                                            class="management-btn">
-                                            <i class="fas fa-file-import text-warning "></i>
-                                        </a>
-                                    </td>
-                                    <td class="management-lite">
-                                        @if ($order->schedule_status == 0)
-                                            <a href="{{ route('schedule.create', $order->id) }}"
-                                                class="create-schedule-btn">
-                                                Thêm Lịch
-                                            </a>
-                                        @else
-                                            <a href="{{ route('schedule.edit', $order->id) }}" class="edit-schedule-btn">
-                                                Sửa Lịch
-                                            </a>
-                                        @endif
-                                    </td>
-                                @else
+                                        {{-- Đã bỏ nút "Thông tin báo cáo" (accountant.order.update): các thông tin đó sửa ngay ở form Cập nhật đơn --}}
+                                    @endif
+                                </td>
+                                {{-- @else
                                     @php
                                         $now = Carbon\Carbon::now()->setTime(0, 0, 0);
                                         $dateEqual = Carbon\Carbon::parse($order->ord_start_day);
@@ -243,7 +280,7 @@
                                             @endif
                                         </td>
                                     @endif
-                                @endif
+                                @endif --}}
                             </tr>
                         @endforeach
                     </tbody>
@@ -259,10 +296,5 @@
 
 @push('js')
     <script src="{{ versionResource('assets/js/support/essential.js') }}"></script>
-    <script>
-        function filterByCardStatus(status) {
-            document.getElementById('statusInput').value = status;
-            document.getElementById('filterForm').submit();
-        }
-    </script>
+    <script src="{{ versionResource('assets/js/tool/order/order.js') }}"></script>
 @endpush

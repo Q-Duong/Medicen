@@ -1,5 +1,6 @@
 @extends('layouts.default_auth')
 @push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/order.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/file.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond-preview.css') }}" type="text/css"
@@ -12,13 +13,13 @@
                 <header class="panel-heading">
                     Đơn hàng copy từ đơn hàng {{ $order->order_id }}
                     <span class="tools pull-right">
-                        <a href="{{ route('order.index') }}" class="primary-btn-submit">Quản lý</a>
+                        <a href="{{ route('order.index') }}" class="primary-btn-submit">Danh sách đơn</a>
                         <a class="fa fa-chevron-down" href="javascript:;"></a>
                     </span>
                 </header>
                 <div class="panel-body">
                     <div class="position-center">
-                        <form role="form" action="{{ route('order.store_copy') }}" method="post"
+                        <form role="form" class="order-form" data-customer-url="{{ route('order.customer_suggestions') }}" action="{{ route('order.store_copy') }}" method="post"
                             enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="order_detail_id" value="{{ $order->order_detail_id }}">
@@ -157,6 +158,8 @@
                                     </div>
                                 </div>
                             </div>
+
+                            @include('pages.admin.order._group', ['groupExclude' => null, 'groupPreset' => [], 'groupCode' => null])
 
                             <div class="form-group">
                                 <label for="exampleInputPassword1">Ghi chú</label>
@@ -642,6 +645,24 @@
                                     <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}
                                     </div>
                                 @enderror
+                            </div>
+
+                            {{-- Tự tính theo cùng công thức trang Công nợ (máy chủ tính lại khi lưu) --}}
+                            <div class="row order-money-calc">
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Thành tiền chiết khấu <small class="om-hint">tự tính từ % chiết khấu</small></label>
+                                        <input type="text" class="input-control om-discount" readonly tabindex="-1"
+                                            value="{{ '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 centered">
+                                    <div class="form-group">
+                                        <label>Lợi nhuận (tổng tiền − chiết khấu)</label>
+                                        <input type="text" class="input-control om-profit" readonly tabindex="-1"
+                                            value="{{ '' }}">
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row">

@@ -1002,5 +1002,5 @@
     var url_select_driver_technologist = "{{ route('schedules.drivers.select_driver') }}";
 </script>
 <script src="{{ asset('assets/js/support/essential.js') }}"></script>
-<script src="{{ asset('assets/js/tool/schedule/technologist/schedule.js') }}"></script>
+<script src="{{ versionResource('assets/js/tool/schedule/technologist/schedule.js') }}"></script>
 @endpush

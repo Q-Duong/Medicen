@@ -6,22 +6,23 @@
                 <li>
                     <a class="{{ request()->routeIs('dashboard.index') ? 'active' : '' }}"
                         href="{{ route('dashboard.index') }}">
-                        <i class="far fa-chart-bar"></i>
+                        <i class="fas fa-chart-line"></i>
                         <span>Thống kê doanh thu</span>
                     </a>
                 </li>
                 <li>
                     <a class="{{ request()->routeIs('profit.index') ? 'active' : '' }}"
                         href="{{ route('profit.index') }}">
-                        <i class="far fa-chart-bar"></i>
+                        <i class="fas fa-calculator"></i>
                         <span>Tính lợi nhuận X-Quang</span>
                     </a>
                 </li>
+                @include('layouts.section.admin.assistant_menu')
                 @if (Auth::user()->name == 'SubAdmin')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('statistics.index') ? 'active' : '' }}"
                             href="{{ route('statistics.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-bullseye"></i>
                             <span>Tính KPI</span>
                         </a>
                     </li>
@@ -35,7 +36,7 @@
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="javascript:;">
-                            <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-clipboard-list"></i>
                             <span>Quản lý đơn hàng</span>
                         </a>
                         <ul class="sub">
@@ -72,7 +73,7 @@
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('order.index') || request()->routeIs('order.create') || request()->routeIs('order.edit') || request()->routeIs('order.copy') || request()->routeIs('schedule.create') || request()->routeIs('schedule.edit') ? 'active' : '' }}"
                             href="{{ route('order.index') }}">
-                            <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-clipboard-list"></i>
                             <span>Quản lý đơn hàng</span>
                         </a>
 
@@ -105,32 +106,25 @@
                             <span>Quản lý hợp đồng (Sales)</span>
                         </a>
                     </li> --}}
-                    {{-- <li class="sub-menu">
-                        <a class="{{ request()->routeIs('employee_timekeeping.index') ? 'active' : '' }}"
-                            href="{{ route('employee_timekeeping.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            <span>Chấm công</span>
-                        </a>
-                    </li> --}}
                 @elseif(Auth::user()->name == 'Accountant')
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('accountant.index') ? 'active' : '' }}"
                             href="{{ route('accountant.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-wallet"></i>
                             <span>Quản lý công nợ</span>
                         </a>
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('reports.index') ? 'active' : '' }}"
                             href="{{ route('reports.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-receipt"></i>
                             <span>Báo cáo thu chi</span>
                         </a>
                     </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('contract.view_only.index') ? 'active' : '' }}"
                             href="{{ route('contract.view_only.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-file-contract"></i>
                             <span>Quản lý hợp đồng</span>
                         </a>
                     </li>
@@ -143,17 +137,10 @@
                         </a>
                     </li>
                 @elseif(Auth::user()->name == 'HR')
-                    <li>
-                        <a class="{{ request()->routeIs('excel-uploads.index') ? 'active' : '' }}"
-                            href="{{ route('excel-uploads.index') }}">
-                            <i class="far fa-chart-bar"></i>
-                            <span>Phiếu đặt lịch</span>
-                        </a>
-                    </li>
                     <li class="sub-menu">
                         <a class="{{ request()->routeIs('contract.index') ? 'active' : '' }}"
                             href="{{ route('contract.index') }}">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i class="fas fa-file-contract"></i>
                             <span>Quản lý hợp đồng</span>
                         </a>
                     </li>

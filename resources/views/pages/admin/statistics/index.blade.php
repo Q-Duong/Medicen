@@ -1,66 +1,55 @@
 @extends('layouts.default_auth')
+@section('title', 'Tính KPI - Medicen')
+@push('css')
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/dashboard.css') }}" type="text/css" as="style" />
+@endpush
 @section('admin_content')
-    <div class="chart_statistic">
-        <p class="chart-statistic-title">Thống kê doanh thu</p>
-        <div class="chart-statistic-content">
-            <div class="filter">
-                <div class="filter-title">
-                    <p class="filter-title-text">
-                        Bộ lọc
-                    </p>
-                </div>
-                <div class="filter-content">
-                    <div class="row">
-                        <form role="form" action="{{ route('statistics.performance_analysis') }}" method="post">
-                            @csrf
-                            <div class="col-md-4">
-                                <div class="col-md-6">
-                                    <p class="filter-content-title">Chọn năm</p>
-                                    <select name="year" class="input-control select-year">
-                                        @for ($i = 0; $i <= 10; $i++)
-                                            <option value="{{ $i + 2023 }}"
-                                                {{ Carbon\Carbon::now()->format('Y') == $i + 2023 ? 'selected' : '' }}>
-                                                {{ $i + 2023 }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <p class="filter-content-title">Chọn tháng</p>
-                                    <select name="month" class="input-control select-month-details">
-                                        <option disabled="" class="define-month-details">Chọn tháng</option>
-                                        <option value="January" {{ Carbon\Carbon::now()->format('F') == 'January' ? 'selected' : '' }}>1</option>
-                                        <option value="February" {{ Carbon\Carbon::now()->format('F') == 'February' ? 'selected' : '' }}>2</option>
-                                        <option value="March" {{ Carbon\Carbon::now()->format('F') == 'March' ? 'selected' : '' }}>3</option>
-                                        <option value="April" {{ Carbon\Carbon::now()->format('F') == 'April' ? 'selected' : '' }}>4</option>
-                                        <option value="May" {{ Carbon\Carbon::now()->format('F') == 'May' ? 'selected' : '' }}>5</option>
-                                        <option value="June" {{ Carbon\Carbon::now()->format('F') == 'June' ? 'selected' : '' }}>6</option>
-                                        <option value="July" {{ Carbon\Carbon::now()->format('F') == 'July' ? 'selected' : '' }}>7</option>
-                                        <option value="August" {{ Carbon\Carbon::now()->format('F') == 'August' ? 'selected' : '' }}>8</option>
-                                        <option value="September" {{ Carbon\Carbon::now()->format('F') == 'September' ? 'selected' : '' }}>9</option>
-                                        <option value="October" {{ Carbon\Carbon::now()->format('F') == 'October' ? 'selected' : '' }}>10</option>
-                                        <option value="November" {{ Carbon\Carbon::now()->format('F') == 'November' ? 'selected' : '' }}>11</option>
-                                        <option value="December" {{ Carbon\Carbon::now()->format('F') == 'December' ? 'selected' : '' }}>12</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="primary-btn-submit button-submit">Performance Analysis
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+    @php
+        $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        $nowMonth = now()->format('F');
+        $nowYear = (int) now()->format('Y');
+    @endphp
+    <div class="ds">
+        <div class="ds-head">
+            <div class="ds-head__title">
+                <h1>Tính KPI</h1>
+                <p>Báo cáo hiệu suất (đúng hạn / trễ hạn) theo tháng của từng bộ phận, xuất ra file PDF.</p>
             </div>
-            <div class="col-md-2">
-                {{-- <form role="form" action="{{ route('statistics.performance_analysis') }}" method="post">
-                    @csrf
-                    <button type="submit" class="primary-btn-submit button-submit">Performance Analysis
-                    </button>
-                </form> --}}
-            </div>
+        </div>
+
+        <div class="ds-kpi">
+            <form role="form" action="{{ route('statistics.performance_analysis') }}" method="post" class="ds-card ds-kpi__form">
+                @csrf
+                <h2 class="ds-card__title">Chọn tháng</h2>
+                <div class="ds-kpi__fields">
+                    <label class="ds-field"><span>Năm</span>
+                        <select name="year" class="select-year">
+                            @for ($y = $nowYear; $y >= 2023; $y--)
+                                <option value="{{ $y }}" @selected($y === $nowYear)>{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </label>
+                    <label class="ds-field"><span>Tháng</span>
+                        <select name="month" class="select-month-details">
+                            @foreach ($months as $i => $m)
+                                <option value="{{ $m }}" @selected($m === $nowMonth)>Tháng {{ $i + 1 }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                </div>
+                <button type="submit" class="ds-btn ds-btn--primary ds-btn--block"><i class="fas fa-file-pdf"></i> Xuất báo cáo KPI (PDF)</button>
+                <p class="ds-hint">Tháng chưa có dữ liệu thì trang báo "Không có dữ liệu".</p>
+            </form>
+
+            <section class="ds-card">
+                <h2 class="ds-card__title">Báo cáo gồm</h2>
+                <ul class="ds-parts">
+                    <li><span class="ds-part ds-part--1">1</span><div><b>Sales</b><p>Hiện hệ thống không còn ghi nhận KPI phần này (mục Sales trong báo cáo sẽ trống).</p></div></li>
+                    <li><span class="ds-part ds-part--2">2</span><div><b>Kỹ thuật viên</b><p>Nhập số ca chụp (chấm công) chậm nhất trong ngày chụp, tính theo từng người.</p></div></li>
+                    <li><span class="ds-part ds-part--3">3</span><div><b>Kết quả</b><p>Ngày trả kết quả so với thời hạn giao kết quả của đơn.</p></div></li>
+                </ul>
+                <p class="ds-hint">Điểm: đúng hạn 100, trễ hạn 0. Chỉ tính lần nhập đầu tiên của người không phải Admin.</p>
+            </section>
         </div>
     </div>
 @endsection
-@push('js')
-    </script>
-@endpush

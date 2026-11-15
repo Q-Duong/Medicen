@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\Statistic;
 use App\Models\Accountant;
 use App\Models\CarKTV;
+use App\Services\Accountant\RowCalculator;
 use App\Models\HistoryEdit;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
@@ -123,7 +125,9 @@ class AccountantController extends Controller
 				'car_driver_name',
 				'driver_assistance',
 				'unit_name',
-				'unit_abbreviation'
+				'unit_abbreviation',
+				'order_groups.code as order_group',
+				'orders.qty_changed_from'
 			)
 			->cursorPaginate($perPage);
 		$sttStart = $request->input('current_count', 0);
@@ -150,6 +154,8 @@ class AccountantController extends Controller
 				'total10'         		=> $totals->total_10 ?? 0,
 				'totalPack'       		=> $totals->total_pack ?? 0,
 			];
+			// Số đơn có số ca đổi sau khi cập nhật doanh thu (nút lọc "Số ca thay đổi")
+			$response['qty_changed_count'] = self::qtyChangedCount();
 		}
 		return response()->json($response);
 	}
@@ -179,6 +185,7 @@ class AccountantController extends Controller
 			'car_driver_name'                   => 'car_driver_name',
 			'driver_assistance'                 => 'driver_assistance',
 			'unit_abbreviation'                 => 'unit_abbreviation',
+			'order_group'                       => 'order_groups.code',
 			'accountant_month'                  => 'accountants.accountant_month',
 			'accountant_distance'               => 'accountant_distance',
 			'accountant_deadline'               => 'accountant_deadline',
@@ -240,22 +247,154 @@ class AccountantController extends Controller
 		return response()->json($data);
 	}
 
+	/** Số đơn đang có số ca đổi sau khi cập nhật doanh thu (chờ kế toán), cho nút lọc trên trang Công nợ */
+	public static function qtyChangedCount(): int
+	{
+		return Order::whereNotNull('qty_changed_from')->where('status_id', 4)->count();
+	}
+
+	/**
+	 * Kế toán xử lý đơn có số ca đổi sau khi cập nhật doanh thu:
+	 * - action=apply: tính lại Thành tiền, CK, Lợi nhuận, Còn nợ theo số ca mới (OrderMoney::recalcForQuantity)
+	 * - action=keep: giữ tiền cũ
+	 * Cả hai đều bỏ đánh dấu và ghi lịch sử.
+	 */
+	public function qtyChange(Request $request)
+	{
+		$data = $request->validate(['id' => ['required', 'integer'], 'action' => ['required', 'in:apply,keep']]);
+		$accountant = Accountant::find($data['id']);
+		$order = $accountant?->order;
+		if (!$order) {
+			return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn.']);
+		}
+		if ((int) $order->status_id === 3) {
+			return response()->json(['success' => false, 'message' => 'Đơn #' . $order->id . ' đã chốt, không sửa được nữa.']);
+		}
+		if ($order->qty_changed_from === null) {
+			return response()->json(['success' => false, 'cleared' => true, 'message' => 'Đơn #' . $order->id . ' không còn cảnh báo số ca (có thể người khác vừa xử lý).']);
+		}
+
+		$from = (int) $order->qty_changed_from;
+		$to = (int) $order->order_quantity;
+		$fmt = fn ($n) => number_format((int) $n, 0, ',', '.');
+		DB::beginTransaction();
+		try {
+			if ($data['action'] === 'apply') {
+				$res = \App\Services\Accountant\OrderMoney::recalcForQuantity($order, $accountant);
+				$text = 'Kế toán tính lại tiền theo số ca ' . $from . ' → ' . $to . ': thành tiền ' . $fmt($res['price_before']) . ' → ' . $fmt($res['price_after']);
+			} else {
+				\App\Services\Accountant\OrderMoney::clearQtyFlag($order);
+				$order->save();
+				$text = 'Kế toán giữ tiền cũ khi số ca đổi ' . $from . ' → ' . $to;
+			}
+			$history = new HistoryEdit();
+			$history->order_id = $order->id;
+			$history->user_name = Auth::user()->email;
+			$history->history_action = mb_substr($text, 0, 100);
+			$history->save();
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollBack();
+			return response()->json(['success' => false, 'message' => 'Lỗi xử lý đơn #' . $order->id . ': ' . $e->getMessage()]);
+		}
+
+		$order->refresh();
+		$accountant->refresh();
+		$response = [
+			'success' => true,
+			'action' => $data['action'],
+			'message' => $text,
+			'values' => [
+				'order_quantity' => $fmt($order->order_quantity),
+				'order_price' => $fmt($order->order_price),
+				'order_discount' => $fmt($order->order_discount),
+				'order_profit' => $fmt($order->order_profit),
+				'accountant_owe' => $fmt($accountant->accountant_owe),
+			],
+			'qty_changed_count' => self::qtyChangedCount(),
+		];
+		$totals = $this->totalsForFilter($request->input('filter_data'));
+		if ($totals) {
+			$response['totals'] = $totals;
+		}
+
+		return response()->json($response);
+	}
+
 	public function updateRow(Request $request)
 	{
-		$id = $request->id;
-		$formData = $request->row_data;
+		// Trang công nợ Kế toán: lưu xong thì đơn chuyển "Đã cập nhật doanh thu"
+		return $this->saveAccountantRow($request, true);
+	}
 
-		$accountant = Accountant::findOrFail($id);
+	/**
+	 * Lưu một dòng công nợ (tự lưu khi nhập từng ô). Dùng chung cho trang Kế toán và trang Sales.
+	 *
+	 * - Trang chỉ gửi các ô ĐÃ ĐỔI (row_data), kèm giá trị cũ của chúng (original) và tên các ô người dùng
+	 *   tự sửa (edited). Không gửi cả dòng nữa, để người đang mở trang cũ không ghi đè dữ liệu người khác vừa nhập.
+	 * - Nếu một ô người dùng sửa đã bị người khác đổi trong lúc đó (giá trị trong DB khác giá trị cũ trang đang có),
+	 *   không lưu dòng đó, trả về "conflicts" kèm giá trị mới nhất để trang hiện lại và báo người dùng nhập lại.
+	 * - Tổng tiền tính SAU khi đã lưu xong (lỗi khi tính tổng không làm mất dữ liệu vừa lưu).
+	 */
+	private function saveAccountantRow(Request $request, bool $setRevenueStatus)
+	{
+		$response = $this->saveRowData($request->all(), $setRevenueStatus);
+		if (!empty($response['success'])) {
+			$totals = $this->totalsForFilter($request->filter_data);
+			if ($totals) {
+				$response['totals'] = $totals;
+			}
+		}
+
+		return response()->json($response);
+	}
+
+	/**
+	 * Lưu nhiều dòng công nợ một lần (dán từ Excel, xóa cả vùng ở trang Kế toán). Mỗi dòng lưu và kiểm tra
+	 * trùng sửa riêng như khi lưu từng dòng (một dòng lỗi không làm hỏng các dòng khác); tổng tiền tính một lần.
+	 * Trang gửi JSON: rows = [{id, row_data, original, edited}], client = 2, filter_data.
+	 */
+	public function updateRows(Request $request)
+	{
+		$rows = is_array($request->input('rows')) ? $request->input('rows') : [];
+		if (count($rows) > 300) {
+			return response()->json(['success' => false, 'message' => 'Mỗi lần lưu tối đa 300 dòng.'], 422);
+		}
+
+		$results = [];
+		foreach ($rows as $row) {
+			$id = (string) ($row['id'] ?? '');
+			if ($id === '') {
+				continue;
+			}
+			$results[$id] = $this->saveRowData(array_merge($row, ['client' => 2]), true);
+		}
+
+		$response = ['success' => true, 'results' => $results];
+		if (collect($results)->contains(fn ($r) => !empty($r['success']))) {
+			$totals = $this->totalsForFilter($request->input('filter_data'));
+			if ($totals) {
+				$response['totals'] = $totals;
+			}
+		}
+
+		return response()->json($response);
+	}
+
+	/** Lưu một dòng, trả về mảng kết quả (success / conflict / message, computed, order_status) */
+	private function saveRowData(array $in, bool $setRevenueStatus): array
+	{
+		$accountant = Accountant::find($in['id'] ?? null);
 		if (!$accountant) {
-			return response()->json(['success' => false, 'message' => 'Không tìm thấy dữ liệu!']);
+			return ['success' => false, 'message' => 'Không tìm thấy dòng công nợ này (có thể đã bị xóa).'];
 		}
 
 		$order = $accountant->order;
 		if ($order && $order->status_id == 3) {
-			return response()->json([
+			return [
 				'success' => false,
-				'message' => 'Đơn hàng này đã chốt, không thể chỉnh sửa!'
-			]);
+				'message' => 'Đơn #' . $accountant->order_id . ' đã chốt, không thể chỉnh sửa!'
+			];
 		}
 
 		$moneyFields = [
@@ -275,46 +414,148 @@ class AccountantController extends Controller
 			'accountant_doctor_date_payment'
 		];
 
-		// 3. Chuẩn bị các thùng chứa dữ liệu riêng biệt
-		$dataForAccountant = [];
-		$dataForOrder      = [];
+		// Làm sạch giá trị từ ô nhập: tiền bỏ dấu chấm, ngày d/m/Y -> Y-m-d
+		$clean = function (string $column, $value) use ($moneyFields, $dateFields) {
+			if (in_array($column, $moneyFields)) {
+				$value = preg_replace('/[^0-9]/', '', (string) $value);
+				return $value === '' ? 0 : $value;
+			}
+			if (in_array($column, $dateFields) && $value && preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $value)) {
+				try {
+					return Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+				} catch (\Exception $e) {
+					return null;
+				}
+			}
+			return $value;
+		};
+		// So sánh giá trị: tiền theo số, ngày theo Y-m-d, chữ bỏ khoảng trắng; null = rỗng
+		$same = function (string $column, $a, $b) use ($moneyFields, $dateFields) {
+			if (in_array($column, $moneyFields)) {
+				return (int) preg_replace('/[^0-9]/', '', (string) $a) === (int) preg_replace('/[^0-9]/', '', (string) $b);
+			}
+			if (in_array($column, $dateFields)) {
+				return substr(trim((string) $a), 0, 10) === substr(trim((string) $b), 0, 10);
+			}
+			return trim((string) $a) === trim((string) $b);
+		};
+		// Giá trị hiển thị lại trên ô (khi bị trùng sửa)
+		$display = function (string $column, $value) use ($moneyFields, $dateFields) {
+			if ($value === null || $value === '') {
+				return '';
+			}
+			if (in_array($column, $moneyFields)) {
+				return number_format((float) $value, 0, ',', '.');
+			}
+			if (in_array($column, $dateFields) && preg_match('/^\d{4}-\d{2}-\d{2}/', (string) $value)) {
+				return Carbon::parse($value)->format('d/m/Y');
+			}
+			return (string) $value;
+		};
 
 		$fillableAccountant = $accountant->getFillable();
 		$fillableOrder      = $order ? $order->getFillable() : [];
+		$current = fn (string $column) => in_array($column, $fillableAccountant)
+			? $accountant->getRawOriginal($column)
+			: ($order ? $order->getRawOriginal($column) : null);
 
-		// 4. Xử lý dữ liệu
-		if ($formData && is_array($formData)) {
-			foreach ($formData as $item) {
-				$column = $item['name'];
-				$value  = $item['value'];
+		$formData = is_array($in['row_data'] ?? null) ? $in['row_data'] : [];
+		$original = collect(is_array($in['original'] ?? null) ? $in['original'] : [])
+			->mapWithKeys(fn ($i) => [$i['name'] ?? '' => $i['value'] ?? null]);
+		$edited = array_flip(is_array($in['edited'] ?? null) ? $in['edited'] : []);
+		$client = (int) ($in['client'] ?? 0);
 
-				if ($column == '_token') continue;
+		$dataForAccountant = [];
+		$dataForOrder      = [];
+		$conflicts         = [];
 
-				// --- CLEAN DATA (Giữ nguyên logic cũ) ---
-				if (in_array($column, $moneyFields)) {
-					$value = preg_replace('/[^0-9]/', '', $value);
-					if ($value === '') $value = 0;
+		foreach ($formData as $item) {
+			$column = $item['name'] ?? '';
+			if ($column === '' || $column == '_token') {
+				continue;
+			}
+			$value = $clean($column, $item['value'] ?? null);
+
+			// Ô người dùng tự sửa nhưng người khác đã đổi trước đó: không ghi đè
+			if (isset($edited[$column]) && $original->has($column)
+				&& !$same($column, $clean($column, $original[$column]), $current($column))) {
+				$conflicts[] = ['name' => $column, 'value' => $display($column, $current($column))];
+				continue;
+			}
+
+			if (in_array($column, $fillableAccountant)) {
+				$dataForAccountant[$column] = $value;
+			}
+			if ($order && in_array($column, $fillableOrder)) {
+				$dataForOrder[$column] = $value;
+			}
+		}
+
+		// Ngày nhập sai định dạng: báo lỗi, không lưu ngày rác vào database
+		foreach ($formData as $item) {
+			$column = $item['name'] ?? '';
+			$raw = trim((string) ($item['value'] ?? ''));
+			// Chỉ chặn ô có chữ cái, hoặc trông như MỘT ngày nhưng không có thật (vd 32/13/2026).
+			// Cách ghi gộp nhiều lần thanh toán đang dùng (vd "2025-04-05+25", "20+21/11/2025") vẫn cho lưu.
+			$looksSingleDate = preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$|^\d{4}-\d{2}-\d{2}$/', $raw);
+			if (in_array($column, $dateFields) && $raw !== ''
+				&& (preg_match('/\p{L}/u', $raw) || ($looksSingleDate && !RowCalculator::parseDate($raw)))) {
+				return [
+					'success' => false,
+					'message' => 'Ngày "' . $raw . '" ở đơn #' . $accountant->order_id . ' không đúng định dạng ngày/tháng/năm (vd 05/11/2026), chưa lưu.',
+				];
+			}
+		}
+
+		if ($conflicts) {
+			// Trả về giá trị mới nhất của mọi ô trang gửi lên để hiện lại đúng dữ liệu đang có
+			$fresh = collect($formData)->map(fn ($i) => ['name' => $i['name'], 'value' => $display($i['name'], $current($i['name']))])->values();
+			Log::info('Công nợ: trùng sửa, không lưu', ['accountant' => $accountant->id, 'conflicts' => array_column($conflicts, 'name'), 'by' => Auth::id()]);
+
+			return [
+				'success'   => false,
+				'conflict'  => true,
+				'conflicts' => $conflicts,
+				'fresh'     => $fresh,
+				'message'   => 'Dòng đơn #' . $accountant->order_id . ' vừa được người khác sửa (' . implode(', ', array_column($conflicts, 'name')) . '). Đã hiện lại dữ liệu mới nhất, vui lòng nhập lại.',
+			];
+		}
+
+		// Trang mới (client=2): máy chủ tự tính lại các ô liên kết (Thành tiền, CK, Lợi nhuận, Còn nợ, Ngày TT,
+		// Trạng thái TT) từ số mới nhất trong database + các ô người dùng vừa sửa, không dùng số trang tự tính
+		// (trang mở lâu có thể đang giữ số cũ). Trang cũ (chưa tải lại JS) thì lưu như trước.
+		$computed = null;
+		if ($client === 2) {
+			$editedNames = array_keys($edited);
+			foreach (RowCalculator::DERIVED as $column) {
+				if (!isset($edited[$column])) {
+					unset($dataForAccountant[$column], $dataForOrder[$column]);
 				}
-
-				if (in_array($column, $dateFields)) {
-					if ($value && preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $value)) {
-						try {
-							$value = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
-						} catch (\Exception $e) {
-							$value = null;
-						}
-					}
+			}
+			$values = [];
+			foreach (array_merge($fillableAccountant, $fillableOrder) as $column) {
+				$values[$column] = $current($column);
+			}
+			$values = array_merge($values, $dataForAccountant, $dataForOrder);
+			$computed = RowCalculator::compute($values, $editedNames);
+			foreach ($computed as $column => $value) {
+				if ((string) $value === (string) $current($column) || ($value === null && ($current($column) === null || $current($column) === ''))) {
+					continue;
 				}
-
-				// --- PHÂN LOẠI DỮ LIỆU (THE "SORTING HAT") ---
 				if (in_array($column, $fillableAccountant)) {
 					$dataForAccountant[$column] = $value;
-				}
-				if ($order && in_array($column, $fillableOrder)) {
+				} elseif ($order && in_array($column, $fillableOrder)) {
 					$dataForOrder[$column] = $value;
 				}
 			}
 		}
+
+		$revenueFields = ['order_quantity', 'order_cost', 'order_price', 'order_vat', 'order_percent_discount', 'order_discount', 'accountant_amount_paid'];
+		$touchedNames = $client === 2
+			? array_keys($edited)
+			: array_column($formData, 'name');
+		$revenueTouched = (bool) array_intersect($revenueFields, $touchedNames)
+			&& (bool) array_intersect(array_keys($dataForAccountant + $dataForOrder), array_merge($revenueFields, ['order_profit', 'accountant_owe']));
 
 		DB::beginTransaction();
 		try {
@@ -323,29 +564,57 @@ class AccountantController extends Controller
 			}
 
 			if ($order) {
+				// Kế toán tự sửa số ca / thành tiền ở trang Công nợ = đã xử lý cảnh báo "số ca đổi sau khi cập nhật doanh thu"
+				// (cột đánh dấu không nằm trong $fillable nên trang không gửi lên sửa được; ở đây gán thẳng)
+				$clearQtyFlag = $order->qty_changed_from !== null && array_intersect(array_keys($dataForOrder), ['order_quantity', 'order_price', 'order_cost']);
 				if (!empty($dataForOrder)) {
 					$order->update($dataForOrder);
 				}
-				if ($order->status_id != 3) {
+				if ($clearQtyFlag) {
+					$order->forceFill(['qty_changed_from' => null, 'qty_changed_at' => null, 'qty_changed_by' => null])->save();
+				}
+				// Chỉ chuyển "Đã cập nhật doanh thu" khi người dùng sửa ô doanh thu (SL, đơn giá, thành tiền, VAT,
+				// chiết khấu, đã thanh toán). Sửa Số HĐ, ghi chú, ngày… thì giữ trạng thái đơn
+				// (trạng thái 2/3/4 được tính công tài xế ở Chấm công, không được đổi oan).
+				if ($setRevenueStatus && $revenueTouched && $order->status_id != 3 && $order->status_id != 4) {
 					$order->status_id = 4;
 					$order->save();
 				}
 			}
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollBack();
+			Log::warning('Công nợ: lưu dòng lỗi', ['accountant' => $accountant->id, 'data' => $dataForAccountant + $dataForOrder, 'error' => $e->getMessage()]);
 
-			$response = [
-				'success'       => true,
+			return [
+				'success' => false,
+				'message' => 'Lỗi lưu dữ liệu đơn #' . $accountant->order_id . ': ' . $e->getMessage()
 			];
+		}
 
+		$response = ['success' => true, 'saved' => array_keys($dataForAccountant + $dataForOrder),
+			// Trang chỉ đổi nhãn trạng thái đơn khi đơn thật sự ở "Đã cập nhật doanh thu"
+			'order_status' => $order ? (int) $order->status_id : null];
+		if ($computed !== null) {
+			// Giá trị các ô liên kết sau khi máy chủ tính, để trang hiện đúng
+			$response['computed'] = collect($computed)->map(fn ($v, $k) => $k === 'accountant_status' ? (string) (int) $v : $display($k, $v))->all();
+		}
+
+		return $response;
+	}
+
+	/** Tổng theo bộ lọc đang dùng, tính SAU khi đã lưu (lỗi ở đây không ảnh hưởng dữ liệu vừa lưu) */
+	private function totalsForFilter($filterData): ?array
+	{
+		try {
 			$filters = [];
-			if ($request->has('filter_data') && is_array($request->filter_data)) {
-				foreach ($request->filter_data as $item) {
+			if (is_array($filterData)) {
+				foreach ($filterData as $item) {
 					$filters[$item['name']] = $item['value'];
 				}
 			}
 
-			$baseQuery = Accountant::getAccountantByFilter($filters);
-
-			$totals = $baseQuery->selectRaw('
+			$totals = Accountant::getAccountantByFilter($filters)->selectRaw('
 				COUNT(*) as total_rows,
 				SUM(orders.order_price) as total_price,
 				SUM(accountants.accountant_owe) as total_owe,
@@ -360,7 +629,7 @@ class AccountantController extends Controller
 				')->first();
 
 			if ($totals) {
-				$response['totals'] = [
+				return [
 					'totalPrice'      => $totals->total_price ?? 0,
 					'totalOwe'        => $totals->total_owe ?? 0,
 					'totalAmountPaid' => $totals->total_amount_paid ?? 0,
@@ -373,17 +642,11 @@ class AccountantController extends Controller
 					'totalPack'       => $totals->total_pack ?? 0,
 				];
 			}
-
-			DB::commit();
-
-			return response()->json($response);
 		} catch (\Exception $e) {
-			DB::rollBack();
-			return response()->json([
-				'success' => false,
-				'message' => 'Lỗi lưu dữ liệu: ' . $e->getMessage()
-			]);
+			Log::warning('Công nợ: tính tổng sau khi lưu lỗi', ['error' => $e->getMessage()]);
 		}
+
+		return null;
 	}
 
 	// public function complete(Request $request)
@@ -488,23 +751,28 @@ class AccountantController extends Controller
 	{
 		DB::beginTransaction(); // Dùng Transaction cho an toàn
 		try {
-			// 1. Tìm đơn hàng
+			// 1. Tìm đơn hàng, KHÓA dòng tới hết giao dịch: bấm 2 lần / 2 tab cùng chốt thì lần sau phải đợi lần
+			//    trước xong và thấy đơn đã chốt (trước đây cả hai cùng đọc "chưa chốt" nên doanh thu bị cộng 2 lần)
 			$orderId = $request->order_id;
-			$order = Order::find($orderId);
+			$order = Order::lockForUpdate()->find($orderId);
 
 			if (!$order) {
+				DB::rollBack();
 				return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn hàng!']);
 			}
 
 			// Kiểm tra nếu đơn đã chốt rồi thì thôi (tránh cộng dồn doanh thu nhiều lần)
 			if ($order->status_id == 3) {
-				return response()->json(['success' => false, 'message' => 'Đơn hàng này đã được chốt trước đó rồi!']);
+				DB::rollBack();
+				return response()->json(['success' => false, 'already' => true, 'message' => 'Đơn #' . $order->id . ' đã được chốt trước đó rồi!']);
 			}
 
 			// 2. CẬP NHẬT TRẠNG THÁI
 			$order->status_id = 3;
 
 			// 3. CẬP NHẬT THỐNG KÊ (LOGIC BẠN YÊU CẦU)
+			// LƯU Ý: $order->ord_start_day không có trên bảng orders nên luôn lấy NGÀY CHỐT (hôm nay).
+			// Kế toán yêu cầu giữ nguyên cách này (thống kê doanh thu theo ngày chốt), không sửa.
 			// Chỉ cộng dồn nếu chưa được cộng (accountant_updated != 1)
 			if ($order->accountant_updated != 1) {
 
@@ -512,7 +780,8 @@ class AccountantController extends Controller
 				// Nếu không có ord_start_day thì dùng created_at hoặc today()
 				$order_date = $order->ord_start_day ? \Carbon\Carbon::parse($order->ord_start_day)->format('Y-m-d') : date('Y-m-d');
 
-				$statistic = Statistic::where('order_date', $order_date)->first();
+				// Khóa dòng thống kê của ngày đó: hai đơn cùng ngày chốt cùng lúc không ghi đè số của nhau
+				$statistic = Statistic::where('order_date', $order_date)->lockForUpdate()->first();
 
 				// Biến đếm số đơn (mỗi lần chốt là 1 đơn)
 				$total_order_count = 1;
@@ -566,12 +835,18 @@ class AccountantController extends Controller
 	//Sales
 	public function updateOrder($order_id)
 	{
+		if ($msg = Order::closedMessage($order_id)) {
+			return Redirect::route('order.index')->with('error', $msg);
+		}
 		$accountant = Accountant::getAccountantForUpdateOrder($order_id);
 		return view('pages.admin.accountant.sales.edit', compact('accountant'));
 	}
 
 	public function storeOrder(Request $request, $order_id)
 	{
+		if ($msg = Order::closedMessage($order_id)) {
+			return Redirect::route('order.index')->with('error', $msg);
+		}
 		$order = Order::findOrFail($order_id);
 		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		$carKTV = CarKTV::firstWhere('order_id', $order_id);
@@ -692,7 +967,9 @@ class AccountantController extends Controller
 				'car_driver_name',
 				'driver_assistance',
 				'unit_name',
-				'unit_abbreviation'
+				'unit_abbreviation',
+				'order_groups.code as order_group',
+				'orders.qty_changed_from'
 			)
 			->cursorPaginate($perPage);
 		$sttStart = $request->input('current_count', 0);
@@ -725,147 +1002,12 @@ class AccountantController extends Controller
 
 	public function updateRowSales(Request $request)
 	{
-		$id = $request->id;
-		$formData = $request->row_data;
-
-		$accountant = Accountant::findOrFail($id);
-		if (!$accountant) {
-			return response()->json(['success' => false, 'message' => 'Không tìm thấy dữ liệu!']);
-		}
-
-		$order = $accountant->order;
-		if ($order && $order->status_id == 3) {
-			return response()->json([
-				'success' => false,
-				'message' => 'Đơn hàng này đã chốt, không thể chỉnh sửa!'
-			]);
-		}
-
-		$moneyFields = [
-			'order_price',
-			'order_cost',
-			'order_quantity',
-			'order_discount',
-			'accountant_amount_paid',
-			'accountant_owe',
-			'order_profit',
-		];
-
-		$dateFields = [
-			'accountant_date',
-			'accountant_day_payment',
-			'accountant_discount_day',
-			'accountant_doctor_date_payment'
-		];
-
-		// 3. Chuẩn bị các thùng chứa dữ liệu riêng biệt
-		$dataForAccountant = [];
-		$dataForOrder      = [];
-
-		$fillableAccountant = $accountant->getFillable();
-		$fillableOrder      = $order ? $order->getFillable() : [];
-
-		// 4. Xử lý dữ liệu
-		if ($formData && is_array($formData)) {
-			foreach ($formData as $item) {
-				$column = $item['name'];
-				$value  = $item['value'];
-
-				if ($column == '_token') continue;
-
-				// --- CLEAN DATA (Giữ nguyên logic cũ) ---
-				if (in_array($column, $moneyFields)) {
-					$value = preg_replace('/[^0-9]/', '', $value);
-					if ($value === '') $value = 0;
-				}
-
-				if (in_array($column, $dateFields)) {
-					if ($value && preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $value)) {
-						try {
-							$value = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
-						} catch (\Exception $e) {
-							$value = null;
-						}
-					}
-				}
-
-				// --- PHÂN LOẠI DỮ LIỆU (THE "SORTING HAT") ---
-				if (in_array($column, $fillableAccountant)) {
-					$dataForAccountant[$column] = $value;
-				}
-				if ($order && in_array($column, $fillableOrder)) {
-					$dataForOrder[$column] = $value;
-				}
-			}
-		}
-
-		DB::beginTransaction();
-		try {
-			if (!empty($dataForAccountant)) {
-				$accountant->update($dataForAccountant);
-			}
-
-			if ($order) {
-				if (!empty($dataForOrder)) {
-					$order->update($dataForOrder);
-				}
-				if ($order->status_id != 3) {
-					$order->save();
-				}
-			}
-
-			$response = [
-				'success'       => true,
-			];
-
-			$filters = [];
-			if ($request->has('filter_data') && is_array($request->filter_data)) {
-				foreach ($request->filter_data as $item) {
-					$filters[$item['name']] = $item['value'];
-				}
-			}
-
-			$baseQuery = Accountant::getAccountantByFilter($filters);
-
-			$totals = $baseQuery->selectRaw('
-				COUNT(*) as total_rows,
-				SUM(orders.order_price) as total_price,
-				SUM(accountants.accountant_owe) as total_owe,
-				SUM(accountants.accountant_amount_paid) as total_amount_paid,
-				SUM(orders.order_quantity) as total_quantity,
-				SUM(orders.order_discount) as total_discount,
-				SUM(accountants.accountant_35X43) as total_35,
-				SUM(accountants.accountant_polime) as total_polime,
-				SUM(accountants.accountant_8X10) as total_8,
-				SUM(accountants.accountant_10X12) as total_10,
-				SUM(accountants.accountant_film_bag) as total_pack
-				')->first();
-
-			if ($totals) {
-				$response['totals'] = [
-					'totalPrice'      => $totals->total_price ?? 0,
-					'totalOwe'        => $totals->total_owe ?? 0,
-					'totalAmountPaid' => $totals->total_amount_paid ?? 0,
-					'totalQuantity'   => $totals->total_quantity ?? 0,
-					'totalDiscount'   => $totals->total_discount ?? 0,
-					'total35'         => $totals->total_35 ?? 0,
-					'totalPolime'     => $totals->total_polime ?? 0,
-					'total8'          => $totals->total_8 ?? 0,
-					'total10'         => $totals->total_10 ?? 0,
-					'totalPack'       => $totals->total_pack ?? 0,
-				];
-			}
-
-			DB::commit();
-
-			return response()->json($response);
-		} catch (\Exception $e) {
-			DB::rollBack();
-			return response()->json([
-				'success' => false,
-				'message' => 'Lỗi lưu dữ liệu: ' . $e->getMessage()
-			]);
-		}
+		// Trang công nợ Sales chỉ để xem và lọc, không cho sửa (Kế toán nhập ở trang công nợ Kế toán).
+		// Giữ đường dẫn để trang Sales đang mở bản cũ nhận thông báo rõ ràng thay vì lỗi.
+		return response()->json([
+			'success' => false,
+			'message' => 'Trang công nợ Sales chỉ để xem, không sửa được. Vui lòng báo Kế toán cập nhật.',
+		], 403);
 	}
 
 	//Result
