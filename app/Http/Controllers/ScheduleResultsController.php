@@ -228,6 +228,16 @@ class ScheduleResultsController extends Controller
 		if ($order->isClosed()) {
 			return response()->json(['success' => false, 'message' => Order::closedMessage($order->id)], 422);
 		}
+		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
+		// File kết quả: kiểm tra TRƯỚC khi lưu gì (trước đây lưu số ca / tiền xong mới lỗi ở đây → lưu dở dang).
+		// Tên gửi lên trùng file đang có = không đổi file; khác mà không có trong file tạm = upload chưa xong / lỗi.
+		$tmp_file = null;
+		if ($request->ord_total_file_name && $request->ord_total_file_name !== $orderDetail->ord_total_file_name) {
+			$tmp_file = TempFile::where('filename', $request->ord_total_file_name)->first();
+			if (!$tmp_file) {
+				return response()->json(['success' => false, 'message' => 'File kết quả chưa tải lên xong hoặc tải lên bị lỗi. Vui lòng xóa file và tải lại rồi bấm cập nhật.'], 422);
+			}
+		}
 		$orderUpdatedBeforeUpdate = $order->order_updated;
 		$accountant = Accountant::where('order_id', $request->id)->first();
 		// Số ca thực tế đổi thì tính lại Thành tiền, Thành tiền CK, Lợi nhuận, Còn nợ theo quy tắc Công nợ,
@@ -240,10 +250,8 @@ class ScheduleResultsController extends Controller
 		}
 		$order->order_updated = 1;
 		$order->save();
-		$orderDetail = OrderDetail::findOrFail($order->order_detail_id);
 		$orderDetail->ord_delivery_date = $data['ord_delivery_date'];
-		if ($request->ord_total_file_name) {
-			$tmp_file = TempFile::where('filename', $request->ord_total_file_name)->first();
+		if ($tmp_file) {
 			$orderDetail->ord_total_file_name = $tmp_file->filename;
 			$orderDetail->ord_total_file_path = $tmp_file->folder;
 			$tmp_file->delete();

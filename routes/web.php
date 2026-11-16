@@ -209,7 +209,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 
     //File
-    Route::prefix('file')->middleware('access:orders')->group(function () {
+    // Upload file: danh sách khám (trang Đơn hàng) và file kết quả (trang lịch bộ phận Kết quả)
+    Route::prefix('file')->middleware('access:orders,debt_result')->group(function () {
         Route::post('process', [FileController::class, 'process'])->name('file.process');
         Route::delete('revert', [FileController::class, 'revert'])->name('file.revert');
         Route::delete('delete-file-order', [FileController::class, 'destroyFileOrder'])->name('file.delete_file_order');

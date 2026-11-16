@@ -1074,13 +1074,17 @@
                     location.reload();
                 }, 1000);
             },
-            error: function (textStatus) {
-                popupNotificationSessionExpired();
-            },
-            complete: function () {
+            error: function (xhr) {
+                $(".loader-over").fadeOut();
+                // Lỗi có lời nhắn từ server (vd file kết quả chưa tải xong, đơn đã hoàn thành): báo và giữ form để sửa
+                var msg = xhr && xhr.responseJSON && xhr.responseJSON.message;
+                if (msg && xhr.status !== 419 && xhr.status !== 401) {
+                    if (typeof errorMsg === "function") errorMsg(msg); else alert(msg);
+                    return;
+                }
                 $(".event-modal").fadeOut();
                 $(".cover-layer").css({ opacity: "0" });
-                $(".loader-over").fadeOut();
+                popupNotificationSessionExpired();
             },
         });
     });
