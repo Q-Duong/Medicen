@@ -23,6 +23,10 @@ return [
     'suggest_days' => 30,
     // Đơn đã qua ngày mà chưa xếp xe: hiện trong bao nhiêu ngày gần đây (để ghi bổ sung xe / người)
     'past_days' => 60,
+
+    // Nhắc "Đơn đã qua ngày chụp chưa chấm công" (chuông + trang Xếp lịch) chỉ tính đơn chụp từ ngày này trở đi.
+    // Đơn cũ hơn đã đối chiếu với file công nợ kế toán nên không nhắc nữa.
+    'timekeeping_from' => env('SCHEDULE_TIMEKEEPING_FROM', '2026-11-01'),
     // Đơn xa hơn suggest_days: hiện tới bao nhiêu ngày tới (xếp thủ công)
     'future_days' => 365,
 

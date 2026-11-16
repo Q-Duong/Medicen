@@ -147,9 +147,11 @@ class TodoList
             ->whereBetween('order_details.ord_start_day', [$today->toDateString(), $soon])
             ->whereNotExists(fn ($q) => $q->from('car_ktvs')->whereColumn('car_ktvs.order_id', 'orders.id')->where('car_ktvs.car_active', 1))
             ->count();
-        // Đã qua ngày chụp (60 ngày gần đây) mà KTV chưa nhập số ca (giống mục "Chưa chấm công" ở trang Xếp lịch)
+        // Đã qua ngày chụp (60 ngày gần đây, không trước schedule.timekeeping_from) mà KTV chưa nhập số ca
+        // (giống mục "Chưa chấm công" ở trang Xếp lịch)
+        $missingFrom = max($today->copy()->subDays(60)->toDateString(), (string) config('schedule.timekeeping_from', '2000-01-01'));
         $missing = $this->scheduled()
-            ->whereBetween('order_details.ord_start_day', [$today->copy()->subDays(60)->toDateString(), $today->copy()->subDay()->toDateString()])
+            ->whereBetween('order_details.ord_start_day', [$missingFrom, $today->copy()->subDay()->toDateString()])
             ->where('orders.status_id', '!=', 3)
             ->where(fn ($q) => $q->whereNull('orders.order_quantity_draft')->orWhere('orders.order_quantity_draft', 0))
             ->whereExists(fn ($q) => $q->from('car_ktvs')->whereColumn('car_ktvs.order_id', 'orders.id')->where('car_ktvs.car_active', 1)

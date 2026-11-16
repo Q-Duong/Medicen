@@ -139,9 +139,11 @@ class Timekeeping
     public function missingActual(Carbon $month, ?Collection $orders = null): Collection
     {
         $today = Carbon::today()->toDateString();
+        // Đơn chụp trước schedule.timekeeping_from không nhắc nữa (đã đối chiếu với công nợ kế toán)
+        $from = (string) config('schedule.timekeeping_from', '2000-01-01');
 
         return ($orders ?? $this->orders($month))
-            ->filter(fn ($o) => $o->ord_start_day < $today && empty($o->order_quantity_draft) && trim((string) $o->car_ktv_name_1) !== '')
+            ->filter(fn ($o) => $o->ord_start_day < $today && $o->ord_start_day >= $from && empty($o->order_quantity_draft) && trim((string) $o->car_ktv_name_1) !== '')
             ->values();
     }
 }
