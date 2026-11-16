@@ -20,7 +20,7 @@ class UnitController extends Controller
         if ($request->filled('q')) {
             $q = trim((string) $request->q);
             $query->where(fn ($w) => $w->where('unit_code', 'LIKE', "%{$q}%")->orWhere('unit_abbreviation', 'LIKE', "%{$q}%")
-                ->orWhere('unit_name', 'LIKE', "%{$q}%")->orWhere('unit_tax_code', 'LIKE', "%{$q}%"));
+                ->orWhere('unit_name', 'LIKE', "%{$q}%")->orWhere('unit_tax_code', 'LIKE', "%{$q}%")->orWhere('unit_address', 'LIKE', "%{$q}%"));
         }
         if ($request->input('has_orders') === '1') {
             $query->whereRaw('COALESCE(oc.orders_count, 0) > 0');
@@ -98,5 +98,6 @@ class UnitController extends Controller
         $unit->unit_abbreviation = trim((string) $request->unit_abbreviation);
         $unit->unit_name = trim((string) $request->unit_name);
         $unit->unit_tax_code = $request->filled('unit_tax_code') ? trim($request->unit_tax_code) : null;
+        $unit->unit_address = $request->filled('unit_address') ? trim($request->unit_address) : null;
     }
 }

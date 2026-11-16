@@ -26,4 +26,9 @@
         <input type="text" name="unit_tax_code" value="{{ $v('unit_tax_code') }}" maxlength="30" placeholder="Vd: 0312345678" autocomplete="off">
         @error('unit_tax_code')<small class="sf-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</small>@enderror
     </label>
+    <label class="sf-input sf-input--full @error('unit_address') has-error @enderror">
+        <span>Địa chỉ <small class="sf-muted">(không bắt buộc)</small></span>
+        <input type="text" name="unit_address" value="{{ $v('unit_address') }}" maxlength="255" placeholder="Số nhà, đường, phường / xã, quận / huyện, tỉnh / thành" autocomplete="off">
+        @error('unit_address')<small class="sf-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</small>@enderror
+    </label>
 </div>

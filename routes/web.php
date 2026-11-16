@@ -153,8 +153,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Chuông thông báo: việc cần làm của tài khoản
     Route::get('notifications/todo', [\App\Http\Controllers\NotificationController::class, 'todo'])->name('notifications.todo');
 
-    //Profit
-    Route::prefix('profit')->group(function () {
+    //Profit: Sales, Kế toán (config profit.user_departments) và Admin
+    Route::prefix('profit')->middleware('department:' . implode(',', config('profit.user_departments', [])))->group(function () {
         Route::get('calculate', [ProfitController::class, 'index'])->name('profit.index');
         Route::post('save', [ProfitController::class, 'store'])->name('profit.save');
         Route::get('report/{id}', [ProfitController::class, 'show'])->name('profit.show');
@@ -168,14 +168,14 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::post('optional-revenue', [StatisticsController::class, 'optionalRevenue'])->name('statistics.optional_revenue');
         Route::post('revenue-for-the-month', [StatisticsController::class, 'revenueForTheMonth'])->name('statistics.revenue_for_the_month');
         Route::post('revenue-by-unit', [StatisticsController::class, 'revenueByUnit'])->name('statistics.revenue_by_unit');
-        Route::get('/', [StatisticsController::class, 'index'])->name('statistics.index');
-        Route::post('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis');
+        Route::get('/', [StatisticsController::class, 'index'])->name('statistics.index')->middleware('access:kpi');
+        Route::post('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis')->middleware('access:kpi');
     });
 
     //Statistics
     Route::prefix('employee-timekeeping')->group(function () {
-        Route::get('/', [EmployeeController::class, 'index'])->name('employee_timekeeping.index');
-        Route::post('export', [EmployeeController::class, 'export'])->name('employee_timekeeping.export');
+        Route::get('/', [EmployeeController::class, 'index'])->name('employee_timekeeping.index')->middleware('isAdmin');
+        Route::post('export', [EmployeeController::class, 'export'])->name('employee_timekeeping.export')->middleware('access:timekeeping');
     });
 
     //Information Account
@@ -185,7 +185,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/save-infomation', [AdminController::class, 'store_information'])->name('store-information');
 
     //Customer
-    Route::prefix('customer')->group(function () {
+    Route::prefix('customer')->middleware('isAdmin')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
     });
     // Route::prefix('contact')->group(function () {
@@ -198,17 +198,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     })->name('403');
 
     //Unit
-    Route::prefix('unit')->group(function () {
+    // Kế toán thêm / sửa đơn vị; xóa chỉ Admin
+    Route::prefix('unit')->middleware('access:units')->group(function () {
         Route::get('/', [UnitController::class, 'index'])->name('unit.index');
         Route::get('create', [UnitController::class, 'create'])->name('unit.create');
         Route::post('save', [UnitController::class, 'store'])->name('unit.store');
         Route::get('edit/{id}', [UnitController::class, 'edit'])->name('unit.edit');
         Route::patch('update/{id}', [UnitController::class, 'update'])->name('unit.update');
-        Route::delete('delete/{id}', [UnitController::class, 'destroy'])->name('unit.destroy');
+        Route::delete('delete/{id}', [UnitController::class, 'destroy'])->name('unit.destroy')->middleware('isAdmin');
     });
 
     //File
-    Route::prefix('file')->group(function () {
+    Route::prefix('file')->middleware('access:orders')->group(function () {
         Route::post('process', [FileController::class, 'process'])->name('file.process');
         Route::delete('revert', [FileController::class, 'revert'])->name('file.revert');
         Route::delete('delete-file-order', [FileController::class, 'destroyFileOrder'])->name('file.delete_file_order');
@@ -216,10 +217,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 
     //Export Excel
-    Route::get('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export-excel', [OrderController::class, 'exportExcel'])->name('export.excel')->middleware('access:debt_export');
 
     //Export Misa
-    Route::get('/export-misa', [OrderController::class, 'exportMisa'])->name('export.misa');
+    Route::get('/export-misa', [OrderController::class, 'exportMisa'])->name('export.misa')->middleware('access:debt_export');
 
 
     //Trợ lý AI các phòng ban (Claude). Quyền theo users.department, xem AssistantAccess
@@ -234,8 +235,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::delete('{department}/conversations/{conversation}', [AssistantController::class, 'destroy'])->name('destroy')->whereNumber('conversation');
     });
 
-    //Xếp lịch xe: Technician (phòng Kỹ thuật) và Admin
-    Route::prefix('xep-lich')->name('dispatch.')->middleware('department:ky_thuat')->group(function () {
+    //Xếp lịch xe: phòng Điều phối xếp lịch (config schedule.user_departments) và Admin
+    Route::prefix('xep-lich')->name('dispatch.')->middleware('department:' . implode(',', config('schedule.user_departments', [])))->group(function () {
         Route::get('/', [DispatchController::class, 'index'])->name('index');
         Route::post('goi-y', [DispatchController::class, 'suggest'])->name('suggest')->middleware('throttle:10,1');
         Route::post('ap-dung', [DispatchController::class, 'apply'])->name('apply');
@@ -258,10 +259,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::delete('bao-tri-xe/{maintenance}', [DispatchController::class, 'destroyMaintenance'])->name('maintenances.destroy');
     });
 
-    //Sales
-    Route::group(['middleware' => 'isSale'], function () {
-        //Post
-        Route::prefix('post')->group(function () {
+    //Sales (đơn hàng). Trước đây 'isSale' cho qua mọi tài khoản nhân viên (role 2) nên KTV / Office / HR dán link vẫn vào được
+    Route::group(['middleware' => 'access:orders'], function () {
+        //Post (bài viết trang chủ): chỉ Admin
+        Route::prefix('post')->middleware('isAdmin')->group(function () {
             Route::get('/', [PostController::class, 'index'])->name('post.index');
             Route::get('create', [PostController::class, 'create'])->name('post.create');
             Route::post('save', [PostController::class, 'store'])->name('post.store');
@@ -326,12 +327,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         });
     });
 
-    //Accountant
-    Route::prefix('accountant')->group(function () {
+    //Accountant: trang "Thông tin báo cáo" cũ của đơn
+    Route::prefix('accountant')->middleware('access:order_report')->group(function () {
         Route::get('update-order/{id}', [AccountantController::class, 'updateOrder'])->name('accountant.order.update');
         Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.order.store');
     });
-    Route::group(['middleware' => 'isAccountant'], function () {
+    Route::group(['middleware' => 'access:debt_accountant'], function () {
         //Accountant
         Route::prefix('accountant')->group(function () {
             Route::get('/', [AccountantController::class, 'index'])->name('accountant.index');
@@ -355,7 +356,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         });
     });
 
-    Route::group(['middleware' => 'isSale'], function () {
+    Route::group(['middleware' => 'access:debt_sales'], function () {
         Route::prefix('accountant-sales')->group(function () {
             Route::get('/', [AccountantController::class, 'indexSales'])->name('accountant_sales.index');
             Route::post('get-accountant', [AccountantController::class, 'getAccountantSales'])->name('accountant_sales.get');
@@ -364,32 +365,34 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         });
     });
 
-    Route::prefix('accountant-result')->group(function () {
+    Route::prefix('accountant-result')->middleware('access:debt_result')->group(function () {
         Route::get('/', [AccountantController::class, 'indexResult'])->name('accountant_result.index');
         Route::post('get-accountant', [AccountantController::class, 'getAccountantResult'])->name('accountant_result.get');
         Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant_result.filter_options');
     });
 
     Route::prefix('contract')->group(function () {
-        Route::get('/', [ContractController::class, 'index'])->name('contract.index');
-        Route::post('get-contract', [ContractController::class, 'getContract'])->name('contract.get');
-        Route::patch('update', [ContractController::class, 'update'])->name('contract.update');
-        Route::post('filter', [ContractController::class, 'filter'])->name('contract.filter');
-        Route::prefix('view-only')->group(function () {
+        Route::middleware('access:contract_edit')->group(function () {
+            Route::get('/', [ContractController::class, 'index'])->name('contract.index');
+            Route::post('get-contract', [ContractController::class, 'getContract'])->name('contract.get');
+            Route::patch('update', [ContractController::class, 'update'])->name('contract.update');
+            Route::post('filter', [ContractController::class, 'filter'])->name('contract.filter');
+        });
+        Route::prefix('view-only')->middleware('access:contract_view,contract_edit')->group(function () {
             Route::get('/', [ContractController::class, 'indexViewOnly'])->name('contract.view_only.index');
             Route::post('get-contract', [ContractController::class, 'getContractViewOnly'])->name('contract.view_only.get');
             Route::post('filter', [ContractController::class, 'filterViewOnly'])->name('contract.view_only.filter');
         });
     });
 
-    Route::prefix('excel-uploads')->name('excel-uploads.')->group(function () {
+    Route::prefix('excel-uploads')->name('excel-uploads.')->middleware('access:orders')->group(function () {
         Route::get('template', [ExcelUploadController::class, 'template'])->name('template');
         Route::get('{excel_upload}/to-order', [ExcelUploadController::class, 'toOrder'])->name('to-order');
         Route::get('{excel_upload}/download', [ExcelUploadController::class, 'download'])->name('download');
         Route::patch('{excel_upload}/status', [ExcelUploadController::class, 'updateStatus'])->name('status');
     });
 
-    Route::resource('excel-uploads', ExcelUploadController::class);
+    Route::resource('excel-uploads', ExcelUploadController::class)->middleware('access:orders');
     /*
  * Route::resource tạo sẵn:
  *  GET    /excel-uploads                       index    excel-uploads.index
@@ -404,13 +407,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 //Zalo
 //Route::get('get-access-token','App\Http\Controllers\OrderController@getAccessToken');
-Route::get('test-zalo', [ZaloController::class, 'test_zalo']);
-Route::get('test-zalo-cancle', [ZaloController::class, 'test_zalo_cancle']);
+Route::get('test-zalo', [ZaloController::class, 'test_zalo'])->middleware(['auth', 'isAdmin']);
+Route::get('test-zalo-cancle', [ZaloController::class, 'test_zalo_cancle'])->middleware(['auth', 'isAdmin']);
 Route::get('get-access-token', [ZaloController::class, 'getAccessTokenFromRefreshToken']);
 
 
 
-Route::get('/clear-cache', function () {
+Route::middleware(['auth', 'isAdmin'])->get('/clear-cache', function () {
     Artisan::call('optimize:clear');
     echo ('View clear succcess');
     Artisan::call('route:clear');
@@ -418,11 +421,11 @@ Route::get('/clear-cache', function () {
 });
 
 
-Route::prefix('clear')->group(function () {
+Route::prefix('clear')->middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('route', [ConfigController::class, 'clearRoute']);
     Route::get('cache', [ConfigController::class, 'clearCache']);
 });
 
-Route::get('/clear/route', [ConfigController::class, 'clearRoute']);
+Route::get('/clear/route', [ConfigController::class, 'clearRoute'])->middleware(['auth', 'isAdmin']);
 
-Route::post('/upload-image-ck', [PostController::class, 'upload_image_ck'])->name('upload-image-ck');
+Route::post('/upload-image-ck', [PostController::class, 'upload_image_ck'])->name('upload-image-ck')->middleware(['auth', 'isAdmin']);

@@ -26,6 +26,7 @@ class UnitRequestForm extends FormRequest
             'unit_abbreviation' => ['required', 'string', 'max:255'],
             'unit_name' => 'required',
             'unit_tax_code' => ['nullable', 'string', 'max:30'],
+            'unit_address' => ['nullable', 'string', 'max:255'],
         ];
     }
     public function messages()

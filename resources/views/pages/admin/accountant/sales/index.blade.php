@@ -3,162 +3,75 @@
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
 @endpush
 @section('admin_content')
-    <div class="table-agile-info">
-        <div class="panel-heading">
-            Quản Lý Công Nợ <span class="acc-readonly-tag" title="Trang Sales chỉ xem và lọc, Kế toán nhập ở trang công nợ Kế toán">Chỉ xem</span>
+    <div class="table-agile-info acc-page">
+        {{-- Cùng giao diện trang Công nợ Kế toán (accountant/index), nhưng chỉ xem và lọc: không sửa ô, không có Hoàn thành.
+             Giữ id / class cũ vì accountant.js dùng (year-filter, type-filter, btn-export-*, total-*). --}}
+        <div class="acc-head">
+            <div class="acc-head__title">
+                <h1>Quản lý công nợ</h1>
+                <span class="acc-readonly-tag" title="Trang Sales chỉ xem và lọc, Kế toán nhập ở trang công nợ Kế toán">Chỉ xem</span>
+            </div>
+            <div class="acc-head__actions">
+                <label class="acc-field">
+                    <span>Năm</span>
+                    <select id="year-select" name="year" class="year-filter filter-input">
+                        <option value="all" {{ Session::get('year') == 'all' ? 'selected' : '' }}>Tất cả</option>
+                        @php
+                            $currentYear = \Carbon\Carbon::now()->year;
+                            $startYear = 2023;
+                        @endphp
+                        @for ($i = $currentYear; $i >= $startYear; $i--)
+                            <option value="{{ $i }}" {{ Session::get('year') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
+                </label>
+                <label class="acc-field">
+                    <span>Loại</span>
+                    <select id="type-select" name="type" class="type-filter filter-input">
+                        <option value="all" {{ Session::get('type') == 'all' ? 'selected' : '' }}>Tất cả</option>
+                        <option value="1" {{ Session::get('type') == 1 ? 'selected' : '' }}>X-Quang</option>
+                        <option value="2" {{ Session::get('type') == 2 ? 'selected' : '' }}>Siêu âm</option>
+                    </select>
+                </label>
+                <button type="button" class="acc-btn btn-export-excel">
+                    <i class="fa-solid fa-file-excel"></i> Xuất Excel
+                </button>
+                <button type="button" class="acc-btn btn-export-misa">
+                    <i class="fa-solid fa-file-export"></i> Xuất Misa
+                </button>
+            </div>
         </div>
         <div class="alert alert-success" style="display:none"></div>
-        <div class="filter-section accountant">
-            <div class="row">
-                <!-- Block 1: Filter -->
-                <div class="col-lg-2 col-md-2 col-sm-6">
-                    <div class="filter-tiles">
-                        <div class="filter-title">
-                            <p class="filter-title-text">Filter</p>
-                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                        </div>
-                        <div class="tile-content-wrapper">
-                            <ul class="filter-content">
-                                <li class="filter-content-block">
-                                    <select id="year-select" name="year" class="input-control year-filter filter-input">
-                                        <option value="all" {{ Session::get('year') == 'all' ? 'selected' : '' }}>All
-                                        </option>
-                                        @php
-                                            $currentYear = \Carbon\Carbon::now()->year;
-                                            $startYear = 2023;
-                                        @endphp
 
-                                        @for ($i = $startYear; $i <= $currentYear; $i++)
-                                            <option value="{{ $i }}"
-                                                {{ Session::get('year') == $i ? 'selected' : '' }}>
-                                                {{ $i }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </li>
-                                <li class="filter-content-block">
-                                    <select id="type-select" name="type" class="input-control type-filter filter-input">
-                                        <option value="all" {{ Session::get('type') == 'all' ? 'selected' : '' }}>All
-                                        </option>
-                                        <option value="1" {{ Session::get('type') == 1 ? 'selected' : '' }}>X-Ray
-                                        </option>
-                                        <option value="2" {{ Session::get('type') == 2 ? 'selected' : '' }}>
-                                            UltraSound
-                                        </option>
-                                    </select>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="filter-tiles">
-                        <div class="filter-title">
-                            <p class="filter-title-text">Doanh thu</p>
-                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                        </div>
-                        <div class="tile-content-wrapper">
-                            <ul class="filter-content text-ellipsis">
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Tổng tiền :</div>
-                                    <div class="filter-content-details" id="total-price"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Đã thanh toán :</div>
-                                    <div class="filter-content-details" id="total-amount-paid"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Còn nợ :</div>
-                                    <div class="filter-content-details" id="total-owe"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Chiết khấu :</div>
-                                    <div class="filter-content-details" id="total-discount"></div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="filter-tiles">
-                        <div class="filter-title">
-                            <p class="filter-title-text">Số Lượng</p>
-                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                        </div>
-                        <div class="tile-content-wrapper">
-                            <ul class="filter-content">
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Số cas :</div>
-                                    <div class="filter-content-details" id="total-quantity"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Số cas KTV :</div>
-                                    <div class="filter-content-details" id="total-quantity-draft"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Số cas TX phụ :</div>
-                                    <div class="filter-content-details" id="total-driver-assistance"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Tổng số đơn :</div>
-                                    <div class="filter-content-details" id="total-rows"></div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-2 col-md-4 col-sm-6">
-                    <div class="filter-tiles">
-                        <div class="filter-title">
-                            <p class="filter-title-text">Phim</p>
-                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                        </div>
-                        <div class="tile-content-wrapper">
-                            <ul class="filter-content">
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;35 X 43 :</div>
-                                    <div class="filter-content-details" id="total-35"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;Polime :</div>
-                                    <div class="filter-content-details" id="total-polime"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;8 X 10 :</div>
-                                    <div class="filter-content-details" id="total-8"></div>
-                                </li>
-                                <li class="filter-content-block">
-                                    <div class="filter-content-title">•&nbsp;10 X 12 :</div>
-                                    <div class="filter-content-details" id="total-10"></div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-2 col-md-2 col-sm-6">
-                    <div class="filter-tiles">
-                        <div class="filter-title">
-                            <p class="filter-title-text">Export</p>
-                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                        </div>
-                        <div class="tile-content-wrapper">
-                            <div class="filter-content">
-                                <button type="button" class="primary-btn-filter btn-export-excel">
-                                    <i class="fa-solid fa-file-excel"></i> Export
-                                </button>
-
-                                <button type="button" class="primary-btn-filter btn-export-misa">
-                                    <i class="fa-solid fa-file-export"></i> Misa Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {{-- Tổng theo bộ lọc đang dùng (accountant.js điền số vào các id total-*) --}}
+        <div class="acc-stats">
+            <section class="acc-card acc-card--money">
+                <h2 class="acc-card__title">Doanh thu</h2>
+                <dl class="acc-card__grid">
+                    <div class="acc-stat"><dt>Tổng tiền</dt><dd id="total-price"></dd></div>
+                    <div class="acc-stat acc-stat--ok"><dt>Đã thanh toán</dt><dd id="total-amount-paid"></dd></div>
+                    <div class="acc-stat acc-stat--bad"><dt>Còn nợ</dt><dd id="total-owe"></dd></div>
+                    <div class="acc-stat"><dt>Chiết khấu</dt><dd id="total-discount"></dd></div>
+                </dl>
+            </section>
+            <section class="acc-card">
+                <h2 class="acc-card__title">Số lượng</h2>
+                <dl class="acc-card__grid">
+                    <div class="acc-stat"><dt>Số cas</dt><dd id="total-quantity"></dd></div>
+                    <div class="acc-stat"><dt>Số cas KTV</dt><dd id="total-quantity-draft"></dd></div>
+                    <div class="acc-stat"><dt>Số cas TX phụ</dt><dd id="total-driver-assistance"></dd></div>
+                    <div class="acc-stat"><dt>Tổng số đơn</dt><dd id="total-rows"></dd></div>
+                </dl>
+            </section>
+            <section class="acc-card acc-card--film">
+                <h2 class="acc-card__title">Phim</h2>
+                <dl class="acc-card__grid">
+                    <div class="acc-stat"><dt>35 × 43</dt><dd id="total-35"></dd></div>
+                    <div class="acc-stat"><dt>Polime</dt><dd id="total-polime"></dd></div>
+                    <div class="acc-stat"><dt>8 × 10</dt><dd id="total-8"></dd></div>
+                    <div class="acc-stat"><dt>10 × 12</dt><dd id="total-10"></dd></div>
+                </dl>
+            </section>
         </div>
 
         <div class="table-responsive table-content">
@@ -189,6 +102,9 @@
                             </th>
                             <th class="sticky-col eighth-col">
                                 <x-excel-filter field="ord_cty_name" label="Công ty" />
+                            </th>
+                            <th class="acc-group-cell">
+                                <x-excel-filter field="order_group" label="Nhóm" />
                             </th>
                             <th>
                                 <x-excel-filter field="accountant_deadline" label="THCN" />
@@ -283,7 +199,7 @@
                             <th>
                                 <x-excel-filter field="status_id" label="Trạng thái ĐH" />
                             </th>
-                            <th>Thao tác</th>
+                            {{-- Trang chỉ xem: không có cột Thao tác (dòng không có nút Hoàn thành) --}}
                         </tr>
                     </thead>
                     <tbody class="tbody-content">

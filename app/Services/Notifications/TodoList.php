@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
  * không có đã đọc / chưa đọc): làm xong việc thì số tự giảm. Mỗi dòng có link sang đúng trang, lọc sẵn.
  *
  * Ai thấy nhóm nào: Admin (role 0/1) thấy tất cả; Kế toán (role 3 hoặc phòng ban ke_toan); Sales (sales);
- * Xếp lịch / Kỹ thuật (config schedule.user_departments, mặc định ky_thuat); Kết quả (ket_qua).
+ * Xếp lịch (config schedule.user_departments: phòng Điều phối xếp lịch); Kết quả (ket_qua).
  * Kết quả lưu cache 60 giây mỗi tài khoản (trang hỏi lại mỗi phút).
  */
 class TodoList
@@ -41,7 +41,7 @@ class TodoList
         if ($dept === 'sales') {
             $groups[] = 'sales';
         }
-        if (in_array($dept, config('schedule.user_departments', ['ky_thuat']), true)) {
+        if (in_array($dept, config('schedule.user_departments', []), true)) {
             $groups[] = 'xep_lich';
         }
         if ($dept === 'ket_qua') {

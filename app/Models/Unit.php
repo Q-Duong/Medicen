@@ -19,6 +19,7 @@ class Unit extends Model
         'unit_abbreviation',
         'unit_name',
         'unit_tax_code',
+        'unit_address',
     ];
 
     public function order(): HasMany

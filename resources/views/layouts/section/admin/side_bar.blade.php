@@ -10,6 +10,7 @@
                         <span>Thống kê doanh thu</span>
                     </a>
                 </li>
+                @if (in_array(Auth::user()->department, config('profit.user_departments', []), true))
                 <li>
                     <a class="{{ request()->routeIs('profit.index') ? 'active' : '' }}"
                         href="{{ route('profit.index') }}">
@@ -17,6 +18,15 @@
                         <span>Tính lợi nhuận X-Quang</span>
                     </a>
                 </li>
+                @endif
+                @if (\App\Http\Middleware\PageAccess::allows(Auth::user(), ['units']))
+                <li>
+                    <a class="{{ request()->routeIs('unit.*') ? 'active' : '' }}" href="{{ route('unit.index') }}">
+                        <i class="fas fa-building"></i>
+                        <span>Quản lý đơn vị</span>
+                    </a>
+                </li>
+                @endif
                 @include('layouts.section.admin.assistant_menu')
                 @if (Auth::user()->name == 'SubAdmin')
                     <li class="sub-menu">

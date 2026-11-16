@@ -67,6 +67,8 @@ class Kernel extends HttpKernel
         'isAdmin' => \App\Http\Middleware\AdminMiddleWare::class,
         'isSale' => \App\Http\Middleware\SaleMiddleWare::class,
         'isAccountant' => \App\Http\Middleware\AccountantMiddleWare::class,
+        // Quyền theo nhóm trang (config/access.php)
+        'access' => \App\Http\Middleware\PageAccess::class,
         'assistant.access' => \App\Http\Middleware\AssistantAccessMiddleware::class,
         'department' => \App\Http\Middleware\DepartmentAccess::class,
         'schedules.login' => \App\Http\Middleware\CheckLoginSchedule::class,

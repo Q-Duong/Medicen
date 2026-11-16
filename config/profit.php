@@ -53,4 +53,7 @@ return [
 
     // Ngưỡng % lợi nhuận để phân loại (quy trình: lãi → tự chốt, hòa/lỗ → báo KTT)
     'margin_break_even' => 0,
+
+    // Phòng ban được dùng trang Tính lợi nhuận X-Quang (Admin luôn dùng được)
+    'user_departments' => ['sales', 'ke_toan'],
 ];

@@ -21,7 +21,8 @@
             @include('pages.admin.unit._form', ['unit' => $unit])
         </form>
         <div class="sf-form-actions sf-form-actions--split">
-            @if ($ordersCount === 0)
+            {{-- Xóa đơn vị: chỉ Admin (Kế toán chỉ thêm / sửa) --}}
+            @if ($ordersCount === 0 && \App\Services\Claude\AssistantAccess::isAdmin(Auth::user()))
                 <form action="{{ route('unit.destroy', $unit->id) }}" method="POST"
                     data-confirm="Xóa đơn vị {{ $unit->unit_abbreviation }} ({{ $unit->unit_code }})? Đơn vị này chưa có đơn hàng nào."
                     data-confirm-title="Xóa đơn vị" data-confirm-ok="Xóa" data-confirm-danger>

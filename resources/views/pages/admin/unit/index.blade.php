@@ -29,7 +29,7 @@
             @if ($has !== null && $has !== '')<input type="hidden" name="has_orders" value="{{ $has }}">@endif
             <label class="sf-field sf-field--grow">
                 <span>Tìm kiếm</span>
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="Mã, tên viết tắt, tên đơn vị hoặc mã số thuế..." autocomplete="off">
+                <input type="search" name="q" value="{{ request('q') }}" placeholder="Mã, tên viết tắt, tên đơn vị, mã số thuế hoặc địa chỉ..." autocomplete="off">
             </label>
             <label class="sf-field">
                 <span>Sắp xếp</span>
@@ -54,6 +54,7 @@
                         <th>Tên viết tắt</th>
                         <th>Tên đơn vị</th>
                         <th>Mã số thuế</th>
+                        <th>Địa chỉ</th>
                         <th>Số đơn</th>
                         <th class="sf-actions-h">Thao tác</th>
                     </tr>
@@ -70,8 +71,11 @@
                             </td>
                             <td data-label="Tên đơn vị">{{ $unit->unit_name }}</td>
                             <td data-label="Mã số thuế">{{ $unit->unit_tax_code ?: '—' }}</td>
+                            <td data-label="Địa chỉ" class="sf-unit-address">{{ $unit->unit_address ?: '—' }}</td>
                             <td data-label="Số đơn">
-                                @if ($unit->orders_count > 0)
+                                @if ($unit->orders_count > 0 && !\App\Http\Middleware\PageAccess::allows(Auth::user(), ['orders']))
+                                    <span class="sf-count">{{ number_format($unit->orders_count, 0, ',', '.') }} đơn</span>
+                                @elseif ($unit->orders_count > 0)
                                     <a href="{{ route('order.index', ['unit_abbreviation' => $unit->unit_abbreviation]) }}" class="sf-count" title="Xem các đơn của đơn vị này">{{ number_format($unit->orders_count, 0, ',', '.') }} đơn</a>
                                 @else
                                     <span class="sf-muted">Chưa có</span>
@@ -79,7 +83,9 @@
                             </td>
                             <td data-label="Thao tác" class="sf-actions">
                                 <a href="{{ route('unit.edit', $unit->id) }}" class="sf-icon-btn" title="Sửa đơn vị"><i class="fas fa-pen"></i></a>
-                                @if ($unit->orders_count > 0)
+                                @if (!\App\Services\Claude\AssistantAccess::isAdmin(Auth::user()))
+                                    {{-- Kế toán chỉ thêm / sửa, không xóa đơn vị --}}
+                                @elseif ($unit->orders_count > 0)
                                     <span class="sf-icon-btn is-disabled" title="Đơn vị đã có {{ $unit->orders_count }} đơn hàng, không xóa được"><i class="fas fa-lock"></i></span>
                                 @else
                                     <form action="{{ route('unit.destroy', $unit->id) }}" method="POST"

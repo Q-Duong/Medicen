@@ -34,6 +34,12 @@
             {{ $accountant->unit_abbreviation }}</td>
         <td title="{{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}" class="sticky-col eighth-col">
             {{ capitalizeWordsExceptAbbreviations($accountant->ord_cty_name) }}</td>
+        {{-- Nhóm đơn đi chung (cùng chuyến xe) --}}
+        <td class="acc-group-cell">
+            @if ($accountant->order_group)
+                <span class="acc-group-tag" title="Nhóm đơn đi chung (cùng chuyến xe)">{{ $accountant->order_group }}</span>
+            @endif
+        </td>
 
         <td>
             <input type="text" name="accountant_deadline"

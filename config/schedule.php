@@ -32,7 +32,7 @@ return [
      */
     // Email nhắc người xếp lịch (lệnh schedule:remind, chạy hằng ngày lúc 'remind_at'):
     // đơn trong 'remind_days' ngày tới (tính cả hôm nay) chưa xếp xe, và giữ chỗ trong 'remind_hold_days' ngày tới chưa lên đơn.
-    // Gửi cho tài khoản phòng Kỹ thuật (users.department = ky_thuat) + các email thêm trong SCHEDULE_REMIND_TO (cách nhau dấu phẩy).
+    // Gửi cho tài khoản thuộc 'user_departments' (Điều phối xếp lịch) + các email thêm trong SCHEDULE_REMIND_TO (cách nhau dấu phẩy).
     'remind_at' => env('SCHEDULE_REMIND_AT', '16:00'),
     'remind_days' => (int) env('SCHEDULE_REMIND_DAYS', 2),
     'remind_hold_days' => (int) env('SCHEDULE_REMIND_HOLD_DAYS', 7),
@@ -60,6 +60,7 @@ return [
     // Sáng ở A, chiều cùng ngày ở B (khác đơn vị): tối đa bao nhiêu phút chạy xe
     'same_day_max_minutes' => (int) env('SCHEDULE_SAME_DAY_MAX_MINUTES', 90),
 
-    // Phòng ban được vào trang xếp lịch (Admin luôn vào được)
-    'user_departments' => ['ky_thuat'],
+    // Phòng ban được vào trang xếp lịch, thấy việc xếp lịch trên chuông và nhận mail nhắc (Admin luôn vào được).
+    // Tách riêng khỏi Kỹ thuật để tài khoản KTV không vào được trang xếp lịch.
+    'user_departments' => ['dieu_phoi'],
 ];

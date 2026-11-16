@@ -35,7 +35,7 @@ class ScheduleRemind extends Command
             ->whereBetween('hold_start', [$today->toDateString(), $today->copy()->addDays((int) config('schedule.remind_hold_days', 7))->toDateString()])
             ->orderBy('hold_start')->get();
 
-        $recipients = User::where('department', 'ky_thuat')->whereNotNull('email')->pluck('email')
+        $recipients = User::whereIn('department', config('schedule.user_departments', []))->whereNotNull('email')->pluck('email')
             ->merge(config('schedule.remind_to', []))
             ->map(fn ($e) => strtolower(trim($e)))->filter(fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL))->unique()->values();
 
@@ -49,7 +49,7 @@ class ScheduleRemind extends Command
             return self::SUCCESS;
         }
         if ($recipients->isEmpty()) {
-            $this->warn('Không có người nhận (tài khoản phòng Kỹ thuật chưa có email, SCHEDULE_REMIND_TO trống).');
+            $this->warn('Không có người nhận (tài khoản phòng Điều phối xếp lịch chưa có email, SCHEDULE_REMIND_TO trống).');
 
             return self::SUCCESS;
         }

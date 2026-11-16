@@ -786,3 +786,12 @@ a.sf-tag--code:hover {
     text-decoration: none;
     filter: brightness(.95);
 }
+
+/* Quản lý đơn vị: cột Địa chỉ xuống dòng, không kéo rộng bảng */
+.sf-table td.sf-unit-address {
+    min-width: 180px;
+    max-width: 280px;
+    white-space: normal;
+    line-height: 1.45;
+    color: #4a4845;
+}
