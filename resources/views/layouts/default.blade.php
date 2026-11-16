@@ -47,6 +47,8 @@
     {{-- Font Awesome 6.7.2 Free (trước đây nạp qua kit fontawesome.com, kit chỉ cho phép localhost nên production mất icon) --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- Ô chọn ngày không tràn trên điện thoại (assets/css/support/org-form-fix.css) --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/form-fix.css') }}" type="text/css" />
     @stack('css')
 </head>
 

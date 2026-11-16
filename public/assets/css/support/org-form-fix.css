@@ -1,0 +1,37 @@
+/*
+ * Ô chọn ngày / giờ trên điện thoại (iOS Safari, Chrome Android).
+ * Trình duyệt di động cho ô date một độ rộng tối thiểu riêng (vd "dd/mm/yyyy" + nút lịch), nên khi ô nằm trong
+ * cột hẹp (lưới 2 cột trên điện thoại) ô bị tràn ra ngoài khung. Nạp ở cả layout trang quản trị và trang lịch.
+ */
+input[type="date"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="time"],
+input[type="week"] {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Phần chữ ngày bên trong ô: canh trái, được co lại */
+input[type="date"]::-webkit-date-and-time-value,
+input[type="datetime-local"]::-webkit-date-and-time-value,
+input[type="month"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+    min-width: 0;
+    text-align: left;
+}
+
+/* iOS Safari: bỏ kiểu ô mặc định của hệ thống thì ô mới chịu co theo width / max-width */
+@supports (-webkit-touch-callout: none) {
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"] {
+        -webkit-appearance: none;
+        appearance: none;
+        min-height: 1.6em;
+        background-color: #fff;
+    }
+}

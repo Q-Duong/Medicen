@@ -125,7 +125,7 @@
                             <th class="name">Nhân sự</th>
                             <th class="cases" title="Đã chụp: đơn đã nhập số ca thực tế (order_quantity_draft). Dự kiến: đơn đã xếp chưa nhập số thực tế. Bộ phận 2 tư thế tính x2.">Số ca tháng {{ $monthLabel }}</th>
                             @foreach ($grid['days'] as $day)
-                                <th>{{ $day['label'] }}</th>
+                                <th class="day">{{ $day['label'] }}</th>
                             @endforeach
                         </tr>
                     </thead>
@@ -155,7 +155,7 @@
                                                 [$cState, $cWhy] = $person['cells'][$day['date'] . '|C'];
                                                 $full = $sState === $cState && $sWhy === $cWhy && $sState !== 'free';
                                             @endphp
-                                            <td>
+                                            <td class="day">
                                                 <div class="bar {{ $full ? 'full' : '' }}">
                                                     <span class="{{ $sState }}" title="Sáng {{ $day['label'] }}: {{ $sWhy ?: 'Trống' }}">{{ $sState === 'leave' ? 'Nghỉ' : '' }}</span>
                                                     <span class="{{ $cState }}" title="Chiều {{ $day['label'] }}: {{ $cWhy ?: 'Trống' }}">{{ $cState === 'leave' && !$full ? 'Nghỉ' : '' }}</span>
