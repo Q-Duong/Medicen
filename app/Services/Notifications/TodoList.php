@@ -153,6 +153,9 @@ class TodoList
         $missing = $this->scheduled()
             ->whereBetween('order_details.ord_start_day', [$missingFrom, $today->copy()->subDay()->toDateString()])
             ->where('orders.status_id', '!=', 3)
+            // Không tính đơn phụ thu và đơn chỉ có tiền không có số ca (in thêm phim / giấy…): không cần chấm công
+            ->where('orders.order_surcharge', 0)
+            ->where('orders.order_quantity', '>', 0)
             ->where(fn ($q) => $q->whereNull('orders.order_quantity_draft')->orWhere('orders.order_quantity_draft', 0))
             ->whereExists(fn ($q) => $q->from('car_ktvs')->whereColumn('car_ktvs.order_id', 'orders.id')->where('car_ktvs.car_active', 1)
                 ->whereNotNull('car_ktvs.car_ktv_name_1')->where('car_ktvs.car_ktv_name_1', '!=', ''))

@@ -143,7 +143,9 @@ class Timekeeping
         $from = (string) config('schedule.timekeeping_from', '2000-01-01');
 
         return ($orders ?? $this->orders($month))
-            ->filter(fn ($o) => $o->ord_start_day < $today && $o->ord_start_day >= $from && empty($o->order_quantity_draft) && trim((string) $o->car_ktv_name_1) !== '')
+            // Đơn chỉ có tiền, không có số ca (in thêm phim / giấy, phí khác…): không cần chấm công
+            ->filter(fn ($o) => $o->ord_start_day < $today && $o->ord_start_day >= $from && (int) $o->order_quantity > 0
+                && empty($o->order_quantity_draft) && trim((string) $o->car_ktv_name_1) !== '')
             ->values();
     }
 }
