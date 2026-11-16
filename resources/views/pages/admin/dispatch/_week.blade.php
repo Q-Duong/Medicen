@@ -20,12 +20,12 @@
                         <tr>
                             <th class="row-h" rowspan="2">Xe</th>
                             @foreach ($grid['days'] as $day)
-                                <th colspan="2">{{ $day['label'] }}</th>
+                                <th colspan="2" class="day-end">{{ $day['label'] }}</th>
                             @endforeach
                         </tr>
                         <tr>
                             @foreach ($grid['days'] as $day)
-                                <th class="half">S</th><th class="half">C</th>
+                                <th class="half">S</th><th class="half day-end">C</th>
                             @endforeach
                         </tr>
                     </thead>
@@ -64,7 +64,7 @@
                                                 : $i['unit'] . ' #' . $i['order_id'] . (!empty($i['closed']) ? ' (ĐÃ HOÀN THÀNH)' : '') . (!empty($i['surcharge']) ? ' (PHỤ THU)' : '') . (!empty($i['group']) ? ' · nhóm ' . $i['group'] : '') . ' · ' . $i['quantity'] . ' cas · TX ' . $i['driver'] . ' · KTV ' . implode(', ', $i['ktv']))->join("\n");
                                         @endphp
                                         <td @if ($merged) colspan="2" @else data-car="{{ $car['key'] }}" data-key="{{ $day['date'] }}|{{ $half }}" @endif
-                                            class="{{ $day['weekend'] ? 'weekend' : '' }}">
+                                            class="{{ $day['weekend'] ? 'weekend' : '' }} {{ $half !== 'S' ? 'day-end' : '' }}">
                                             @if ($maintItems->isNotEmpty())
                                                 <div class="slot slot--maint" role="button" tabindex="0" data-maint="{{ $maintItems->first()['maintenance_id'] }}"
                                                     title="Xe nghỉ bảo trì{{ $maintItems->first()['note'] ? ': ' . $maintItems->first()['note'] : '' }}{{ $items ? "\nVẫn còn lịch: " . collect($items)->pluck('unit')->unique()->join(', ') . ' — cần đổi xe' : '' }}">

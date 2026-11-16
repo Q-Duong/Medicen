@@ -1,10 +1,15 @@
 // Link bản đồ từ toạ độ đơn (customers.customer_location): link http(s) (vd https://maps.app.goo.gl/…) dùng thẳng;
 // dạng "10.77, 106.69" thì mở Google Maps tại toạ độ đó; còn lại (trống / sai) thì không có link.
 function mapLinkFrom(location) {
+    // Ô "toạ độ" của khách người dùng nhập tự do, nhận các dạng:
+    //  - link đủ: https://maps.app.goo.gl/..., https://www.google.com/maps/...
+    //  - link thiếu https://: google.com/maps/search/?api=1&query=10.85,106.74, maps.app.goo.gl/abc, www.google.com/maps/...
+    //  - toạ độ: "10.8535, 106.7469" (kể cả lẫn trong chữ, vd "Toạ độ: 10.85,106.74")
     var v = String(location || "").trim();
     if (!v) return null;
     if (/^https?:\/\/\S+$/i.test(v)) return v;
-    var m = v.match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
+    if (/^(www\.)?([a-z0-9-]+\.)+[a-z]{2,}\/\S*$/i.test(v)) return "https://" + v;
+    var m = v.match(/(-?\d{1,2}\.\d+)\s*[,; ]\s*(-?\d{1,3}\.\d+)/);
     if (m && Math.abs(+m[1]) <= 90 && Math.abs(+m[2]) <= 180) {
         return "https://www.google.com/maps?q=" + m[1] + "," + m[2];
     }

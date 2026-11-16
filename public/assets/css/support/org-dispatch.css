@@ -1956,3 +1956,20 @@
 .wk td.weekend .slot.slot--done {
     background: #e6f0fc;
 }
+
+/* Lịch xe tuần: đường kẻ dọc ngăn giữa các ngày (cột "C" chiều / ô gộp cả ngày là ô cuối của ngày) */
+.wk th.day-end,
+.wk td.day-end {
+    border-right: 1px solid #dcd6c9;
+    padding-right: 3px;
+}
+
+.wk th.row-h {
+    border-right: 1px solid #dcd6c9;
+}
+
+.wk td.day-end:last-child,
+.wk th.day-end:last-child {
+    border-right: 0;
+    padding-right: 0;
+}
