@@ -126,7 +126,7 @@ Sau khi tính lợi nhuận bằng **bảng tính lợi nhuận trên web Medice
 - Đủ thông tin → **lên đơn trên web** (Bước 3). Kỹ thuật sẽ xếp xe, tài xế và KTV cho đơn trên trang Xếp lịch; Sales không tự chọn TX / KTV.
 - Không còn dùng file Excel lịch xe cá nhân: mọi lịch nằm trên web.
 
-**Xe, tài xế (TX) và KTV:** không dùng danh sách cố định trong skill. Danh sách nhân sự đang làm việc lấy từ dữ liệu thật (tool `xem_lich_xe`, theo trang Quản lý nhân viên trên web); xe không gán cố định cho tài xế nào. Người đã nghỉ không còn trong dữ liệu thì không nhắc tới.
+**Xe, tài xế (TX) và KTV:** không dùng danh sách cố định trong skill. Danh sách nhân sự đang làm việc lấy từ dữ liệu thật (tool `xem_lich_xe`, theo trang Quản lý nhân viên trên web); xe không gán cố định cho tài xế nào. Người đã nghỉ không còn trong dữ liệu thì không nhắc tới. Cần biết **ai đi đơn nào và SĐT liên hệ** (để báo khách, gọi người đi chụp): tool `xem_nguoi_di_don` theo ngày / đơn vị; SĐT lấy từ trang Quản lý nhân viên, sai số thì sửa ở đó. Ai có **CCHN**: tool `xem_nhan_su` (hoặc `ktv_co_cchn_trong_ca_ngay` trong `xem_lich_xe` khi cần KTV có CCHN cho một ngày); CCHN đánh dấu ở trang Quản lý nhân viên.
 
 Khi nhắc tới nhân sự, luôn ghi **đầy đủ họ tên** đúng như trong hệ thống (ví dụ "Lê Văn Hoàng"), không viết tắt kiểu "TX Hoàng", "Hùng N", "A. Thạch".
 

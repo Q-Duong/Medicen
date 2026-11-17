@@ -32,7 +32,7 @@
     const composerWrap = document.getElementById('composer-wrap');
     const readonlyBar = document.getElementById('readonly-bar');
     const toolNames = {
-        tra_cuu_don_vi: 'tra cứu đơn vị', xem_lich_xe: 'xem lịch xe', xem_cong_no: 'xem công nợ',
+        tra_cuu_don_vi: 'tra cứu đơn vị', xem_lich_xe: 'xem lịch xe', xem_nguoi_di_don: 'xem người đi đơn', xem_nhan_su: 'xem nhân sự', xem_cong_no: 'xem công nợ',
         tinh_loi_nhuan: 'tính lợi nhuận', xem_don_gia_mac_dinh: 'xem bảng giá', cap_nhat_don_gia_mac_dinh: 'CẬP NHẬT giá mặc định',
         // Trợ lý Kế toán
         tong_quan_du_lieu: 'xem dữ liệu sổ sách', ket_qua_kinh_doanh: 'tính kết quả kinh doanh', phat_sinh_tai_khoan: 'xem phát sinh tài khoản',

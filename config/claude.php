@@ -88,11 +88,12 @@ return [
                     'label' => 'Lịch xe / chốt lịch',
                     'icon' => 'fas fa-shuttle-van',
                     'placeholder' => 'Ví dụ: ngày 20/11 còn xe nào trống?',
-                    'instruction' => 'Lịch xe. Dùng xem_lich_xe để trả lời xe nào trống, đơn nào chưa xếp xe. Khi chốt lịch, nhắc các bước '
+                    'instruction' => 'Lịch xe. Dùng xem_lich_xe để trả lời xe nào trống, đơn nào chưa xếp xe; xem_nguoi_di_don để biết ai đi đơn nào và SĐT. Khi chốt lịch, nhắc các bước '
                         . 'theo skill (lịch nháp, chuyển lịch chính thức trước 1 tuần, thông báo TX/KTV).',
                     'suggestions' => [
                         'Tuần sau xe nào còn trống?',
                         'Liệt kê các đơn tháng này chưa xếp xe',
+                        'Ngày mai ai đi đơn nào, SĐT liên hệ?',
                     ],
                 ],
                 'cong_no' => [

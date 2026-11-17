@@ -152,7 +152,7 @@ class SalesTools implements DepartmentTools
                     . 'mỗi ngày xe chính nào trống cả ngày / chỉ trống buổi sáng / chỉ trống buổi chiều, các đơn đã xếp xe '
                     . '(đơn vị, dịch vụ, số cas, buổi, tài xế, KTV), các lịch GIỮ CHỖ (khách đặt trước, chưa lên đơn: tính là đã có lịch), '
                     . 'xe nghỉ BẢO TRÌ / đăng kiểm (xe_bao_tri: không nhận đơn), '
-                    . 'tài xế / KTV còn trống cả ngày (đã trừ người nghỉ), và các đơn đã nhận nhưng chưa xếp xe. '
+                    . 'tài xế / KTV còn trống cả ngày (đã trừ người nghỉ), KTV có CCHN còn trống, và các đơn đã nhận nhưng chưa xếp xe. '
                     . 'Dùng khi khách hỏi ngày nào còn trống, chốt lịch, kiểm tra còn slot không.',
                 'input_schema' => [
                     'type' => 'object',
@@ -161,6 +161,38 @@ class SalesTools implements DepartmentTools
                         'den_ngay' => ['type' => 'string', 'description' => 'Ngày kết thúc, định dạng YYYY-MM-DD (không quá 31 ngày sau tu_ngay)'],
                     ],
                     'required' => ['tu_ngay', 'den_ngay'],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'xem_nguoi_di_don',
+                'description' => 'Tra cứu AI ĐI ĐƠN: tài xế và KTV được xếp cho các đơn đã lên lịch xe trong một ngày / khoảng ngày (tối đa 31 ngày), '
+                    . 'có thể lọc theo đơn vị. Trả về xe, buổi, giờ, địa chỉ chụp, họ tên và SỐ ĐIỆN THOẠI liên hệ của tài xế, KTV '
+                    . '(lấy từ trang Quản lý nhân viên). Dùng khi hỏi "ngày X ai đi đơn Y", "SĐT tài xế / KTV đi đơn Y", '
+                    . 'hoặc khi soạn tin báo khách thông tin người đi chụp.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'tu_ngay' => ['type' => 'string', 'description' => 'Ngày chụp (hoặc ngày bắt đầu), định dạng YYYY-MM-DD'],
+                        'den_ngay' => ['type' => 'string', 'description' => 'Ngày kết thúc YYYY-MM-DD; bỏ trống = chỉ một ngày tu_ngay'],
+                        'don_vi' => ['type' => 'string', 'description' => 'Tên, tên viết tắt hoặc mã đơn vị để lọc; bỏ trống = mọi đơn vị'],
+                    ],
+                    'required' => ['tu_ngay'],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'xem_nhan_su',
+                'description' => 'Danh sách tài xế (TX) và KTV đang làm việc (theo trang Quản lý nhân viên): họ tên, vai trò, SĐT, '
+                    . 'có CCHN (chứng chỉ hành nghề) hay không và số / ghi chú CCHN. Dùng khi hỏi "ai có CCHN", "KTV nào có chứng chỉ", '
+                    . '"SĐT của tài xế / KTV X", hoặc khi khách yêu cầu KTV có CCHN.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'vai_tro' => ['type' => 'string', 'enum' => ['TX', 'KTV', 'tat_ca'], 'description' => 'Lọc theo vai trò; mặc định tat_ca'],
+                        'chi_co_cchn' => ['type' => 'boolean', 'description' => 'true = chỉ người có CCHN'],
+                        'ten' => ['type' => 'string', 'description' => 'Tìm theo một phần họ tên; bỏ trống = tất cả'],
+                    ],
                     'additionalProperties' => false,
                 ],
             ],
@@ -188,6 +220,8 @@ class SalesTools implements DepartmentTools
             'cap_nhat_don_gia_mac_dinh' => $this->updatePrice($input, $user),
             'tra_cuu_don_vi' => $this->findUnits($this->requireString($input, 'tu_khoa')),
             'xem_lich_xe' => $this->carSchedule($this->requireDate($input, 'tu_ngay'), $this->requireDate($input, 'den_ngay')),
+            'xem_nguoi_di_don' => $this->crew($input),
+            'xem_nhan_su' => $this->staffList($input),
             'xem_cong_no' => $this->debts($this->requireString($input, 'tu_khoa')),
             default => throw new InvalidArgumentException("Tool không tồn tại: {$name}"),
         };
@@ -413,6 +447,7 @@ class SalesTools implements DepartmentTools
         $board = ScheduleBoard::forRange($from, $to);
         $ownCars = config('schedule.own_cars', self::MAIN_CARS);
         $halfName = ['S' => 'sáng', 'C' => 'chiều'];
+        $certified = DB::table('staffs')->where('staff_certificate', 1)->pluck('staff_name')->all();
 
         $days = [];
         for ($d = $from->copy(); $d->lte($to); $d->addDay()) {
@@ -480,6 +515,7 @@ class SalesTools implements DepartmentTools
                 ])->all(),
                 'tai_xe_trong_ca_ngay' => $freeStaff('TX'),
                 'ktv_trong_ca_ngay' => $freeStaff('KTV'),
+                'ktv_co_cchn_trong_ca_ngay' => array_values(array_intersect($freeStaff('KTV'), $certified)),
             ];
         }
 
@@ -512,6 +548,156 @@ class SalesTools implements DepartmentTools
             'theo_ngay' => $days,
             'don_chua_xep_xe' => $unscheduled,
         ];
+    }
+
+    // ------------------------------------------------------------------
+    // xem_nguoi_di_don
+    // ------------------------------------------------------------------
+
+    /**
+     * Tài xế / KTV đi các đơn đã xếp xe, kèm SĐT. SĐT ưu tiên lấy từ bảng nhân viên (staffs, trang Quản lý nhân viên —
+     * luôn là số mới nhất); không có thì dùng số đã lưu lúc xếp lịch (car_ktvs). Người thuê ngoài không có SĐT.
+     */
+    private function crew(array $input): array
+    {
+        $from = $this->requireDate($input, 'tu_ngay');
+        $to = !empty($input['den_ngay']) ? $this->requireDate($input, 'den_ngay') : $from->copy();
+        if ($to->lt($from)) {
+            throw new InvalidArgumentException('den_ngay phải sau hoặc bằng tu_ngay.');
+        }
+        if ($from->diffInDays($to) > 31) {
+            throw new InvalidArgumentException('Khoảng ngày tối đa là 31 ngày.');
+        }
+        $keyword = trim((string) ($input['don_vi'] ?? ''));
+        $unitIds = null;
+        if ($keyword !== '') {
+            $units = $this->matchUnits($keyword, 20);
+            $unitIds = $units->pluck('id')->all();
+        }
+
+        $rows = DB::table('car_ktvs')
+            ->join('orders', 'orders.id', '=', 'car_ktvs.order_id')
+            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->leftJoin('units', 'units.id', '=', 'orders.unit_id')
+            ->leftJoin('customers', 'customers.id', '=', 'orders.customer_id')
+            ->where('car_ktvs.car_active', 1)
+            ->whereNotNull('car_ktvs.car_name')
+            ->where('order_details.ord_start_day', '<=', $to->toDateString())
+            ->where(fn ($q) => $q->where('order_details.ord_end_day', '>=', $from->toDateString())
+                ->orWhere(fn ($q) => $q->whereNull('order_details.ord_end_day')->where('order_details.ord_start_day', '>=', $from->toDateString())))
+            ->when($unitIds !== null, fn ($q) => $q->where(fn ($q) => $q->whereIn('orders.unit_id', $unitIds ?: [0])
+                ->orWhere('order_details.ord_cty_name', 'like', '%' . str_replace(['%', '_'], ['\%', '\_'], $keyword) . '%')))
+            ->orderBy('order_details.ord_start_day')->orderBy('car_ktvs.car_name')
+            ->select('orders.id', 'orders.order_quantity', 'car_ktvs.car_name', 'car_ktvs.car_driver_name', 'car_ktvs.car_driver_phone',
+                'car_ktvs.car_ktv_name_1', 'car_ktvs.car_ktv_phone_1', 'car_ktvs.car_ktv_name_2', 'car_ktvs.car_ktv_phone_2',
+                'order_details.ord_start_day', 'order_details.ord_end_day', 'order_details.ord_session', 'order_details.ord_time',
+                'order_details.ord_select', 'customers.customer_address',
+                DB::raw("COALESCE(NULLIF(units.unit_abbreviation, ''), order_details.ord_cty_name) as unit"), 'units.unit_name')
+            ->get();
+
+        $staff = $this->staffInfo();
+        $person = function (?string $name, ?string $savedPhone, string $role) use ($staff) {
+            $name = trim((string) $name);
+            if ($name === '') {
+                return null;
+            }
+            if (ScheduleBoard::isHiredPerson($name)) {
+                return ['ho_ten' => $name, 'vai_tro' => $role, 'sdt' => null, 'ghi_chu' => 'Người thuê ngoài, chưa có tên / SĐT trên hệ thống'];
+            }
+            $info = $staff[$name] ?? null;
+            $phone = ($info['sdt'] ?? null) ?: $this->phone($savedPhone);
+
+            // CCHN chỉ ghi cho KTV (tài xế chỉ ghi khi có)
+            $cert = $info && ($role === 'KTV' || $info['co_cchn']) ? $info['cchn'] : null;
+
+            return ['ho_ten' => $name, 'vai_tro' => $role, 'sdt' => $phone] + ($cert ? ['cchn' => $cert] : [])
+                + ($phone === null ? ['ghi_chu' => 'Chưa có SĐT trong Quản lý nhân viên'] : []);
+        };
+
+        return [
+            'tu_ngay' => $from->toDateString(),
+            'den_ngay' => $to->toDateString(),
+            'loc_don_vi' => $keyword !== '' ? $keyword : null,
+            'so_don' => $rows->count(),
+            'ghi_chu' => 'Chỉ gồm đơn ĐÃ XẾP XE. SĐT, CCHN lấy từ trang Quản lý nhân viên (mới nhất); cchn null = không có trong danh sách nhân viên. '
+                . 'Đơn chưa xếp xe: xem xem_lich_xe (don_chua_xep_xe).',
+            'don' => $rows->map(fn ($r) => [
+                'ma_don' => $r->id,
+                'ngay' => $r->ord_start_day . ($r->ord_end_day && $r->ord_end_day !== $r->ord_start_day ? ' → ' . $r->ord_end_day : ''),
+                'thu' => $this->weekday(Carbon::parse($r->ord_start_day)),
+                'buoi' => $r->ord_session ?: 'Cả ngày',
+                'gio' => $r->ord_time ?: null,
+                'don_vi' => $r->unit,
+                'ten_don_vi' => $r->unit_name,
+                'dia_chi' => $r->customer_address,
+                'dich_vu' => $r->ord_select,
+                'so_cas' => (int) $r->order_quantity,
+                'xe' => $this->carLabel($r->car_name),
+                'nguoi_di' => array_values(array_filter([
+                    $person($r->car_driver_name, $r->car_driver_phone, 'Tài xế'),
+                    $person($r->car_ktv_name_1, $r->car_ktv_phone_1, 'KTV'),
+                    $person($r->car_ktv_name_2, $r->car_ktv_phone_2, 'KTV'),
+                ])),
+            ])->values()->all(),
+        ];
+    }
+
+    // ------------------------------------------------------------------
+    // xem_nhan_su
+    // ------------------------------------------------------------------
+
+    private function staffList(array $input): array
+    {
+        $role = in_array($input['vai_tro'] ?? '', ['TX', 'KTV'], true) ? $input['vai_tro'] : null;
+        $onlyCert = (bool) ($input['chi_co_cchn'] ?? false);
+        $name = mb_strtolower(trim((string) ($input['ten'] ?? '')));
+
+        $list = collect($this->staffInfo())
+            ->reject(fn ($p) => ScheduleBoard::isHiredPerson($p['ho_ten']))
+            ->when($role, fn ($c) => $c->where('vai_tro', $role))
+            ->when($onlyCert, fn ($c) => $c->filter(fn ($p) => $p['co_cchn']))
+            ->when($name !== '', fn ($c) => $c->filter(fn ($p) => str_contains(mb_strtolower($p['ho_ten']), $name)))
+            ->sortBy(fn ($p) => ($p['vai_tro'] === 'KTV' ? 0 : 1) . ($p['co_cchn'] ? 0 : 1) . $p['ho_ten'])
+            ->values();
+
+        return [
+            'so_nguoi' => $list->count(),
+            'ghi_chu' => 'Theo trang Quản lý nhân viên. "KTV Thuê" / "TX Thuê" (thuê ngoài) không liệt kê. '
+                . 'Cần KTV có CCHN còn trống ngày nào: dùng xem_lich_xe (ktv_co_cchn_trong_ca_ngay).',
+            'nhan_su' => $list->map(fn ($p) => [
+                'ho_ten' => $p['ho_ten'], 'vai_tro' => $p['vai_tro'], 'sdt' => $p['sdt'], 'cchn' => $p['cchn'],
+            ])->all(),
+        ];
+    }
+
+    /** @return array<string, array{ho_ten: string, vai_tro: string, sdt: ?string, co_cchn: bool, cchn: string}> theo họ tên */
+    private function staffInfo(): array
+    {
+        $out = [];
+        foreach (DB::table('staffs')->get(['staff_name', 'staff_role', 'staff_phone', 'staff_certificate', 'staff_certificate_note']) as $st) {
+            $has = (bool) $st->staff_certificate;
+            $note = trim((string) $st->staff_certificate_note);
+            $out[$st->staff_name] = [
+                'ho_ten' => $st->staff_name,
+                'vai_tro' => $st->staff_role,
+                'sdt' => $this->phone($st->staff_phone),
+                'co_cchn' => $has,
+                'cchn' => $has ? 'Có CCHN' . ($note !== '' ? " ({$note})" : '') : 'Không có CCHN',
+            ];
+        }
+
+        return $out;
+    }
+
+    /** SĐT về dạng 0xxxxxxxxx (số lưu dạng Zalo 84xxxxxxxxx); rỗng → null */
+    private function phone(?string $raw): ?string
+    {
+        $phone = preg_replace('/\D/', '', (string) $raw);
+        if (str_starts_with($phone, '84') && strlen($phone) === 11) {
+            $phone = '0' . substr($phone, 2);
+        }
+
+        return $phone !== '' ? $phone : null;
     }
 
     // ------------------------------------------------------------------
