@@ -1,10 +1,10 @@
-{{-- Popup hướng dẫn "Đọc bằng AI" (form tài liệu kế toán). Mở bằng nút [data-ad-help] --}}
-<dialog class="ad-help" id="ad-help" aria-labelledby="ad-help-title">
-    <div class="ad-help__head">
-        <h2 id="ad-help-title"><i class="fas fa-magic"></i> Hướng dẫn Đọc bằng AI</h2>
-        <button type="button" class="ad-help__close" data-ad-help-close aria-label="Đóng"><i class="fas fa-times"></i></button>
+{{-- Popup hướng dẫn "Đọc bằng AI" (form tài liệu kế toán). Mở bằng nút [data-ktd-help] --}}
+<dialog class="ktd-help" id="ktd-help" aria-labelledby="ktd-help-title">
+    <div class="ktd-help__head">
+        <h2 id="ktd-help-title"><i class="fas fa-magic"></i> Hướng dẫn Đọc bằng AI</h2>
+        <button type="button" class="ktd-help__close" data-ktd-help-close aria-label="Đóng"><i class="fas fa-times"></i></button>
     </div>
-    <div class="ad-help__body">
+    <div class="ktd-help__body">
         <h3>Dùng cho tài liệu nào</h3>
         <ul>
             <li><b>Báo cáo tài chính</b> (bản thuế, bản nội bộ / gửi ngân hàng), <b>hợp đồng, phụ lục</b>, biên bản, <b>hóa đơn</b>.</li>
@@ -18,10 +18,10 @@
             <li>AI điền: loại, tên, các bên, kỳ, ngày ký, hiệu lực, giá trị, tóm tắt (ô vừa điền viền cam).</li>
             <li><b>Kiểm tra lại số liệu</b>, sửa nếu cần rồi bấm <b>Lưu</b>. AI không tự lưu.</li>
         </ol>
-        <p class="ad-help__note"><i class="fas fa-info-circle"></i> Trợ lý Kế toán chỉ đọc phần <b>Tóm tắt</b>, không mở file gốc — tóm tắt đủ số liệu thì trợ lý trả lời mới đúng.</p>
+        <p class="ktd-help__note"><i class="fas fa-info-circle"></i> Trợ lý Kế toán chỉ đọc phần <b>Tóm tắt</b>, không mở file gốc — tóm tắt đủ số liệu thì trợ lý trả lời mới đúng.</p>
 
         <h3>Giới hạn file</h3>
-        <div class="ad-help__table">
+        <div class="ktd-help__table">
             <table>
                 <thead><tr><th>Loại file</th><th>AI đọc được</th><th>Ghi chú</th></tr></thead>
                 <tbody>
@@ -33,7 +33,7 @@
                 </tbody>
             </table>
         </div>
-        <ul class="ad-help__small">
+        <ul class="ktd-help__small">
             <li>Lưu file gốc: tối đa <b>30 MB</b> mỗi tài liệu.</li>
             <li>Mỗi tài khoản bấm <b>Đọc bằng AI</b> tối đa <b>10 lần / phút</b>; mỗi lần đọc tốn một ít phí AI.</li>
             <li>File được gửi tới dịch vụ AI (Claude) để đọc; hệ thống chỉ lưu khi bạn bấm <b>Lưu</b>.</li>

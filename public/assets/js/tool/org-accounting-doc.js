@@ -5,13 +5,13 @@
 (function () {
     'use strict';
 
-    // Popup hướng dẫn (dialog #ad-help)
-    var help = document.getElementById('ad-help');
+    // Popup hướng dẫn (dialog #ktd-help)
+    var help = document.getElementById('ktd-help');
     if (help && help.showModal) {
-        document.querySelectorAll('[data-ad-help]').forEach(function (b) {
+        document.querySelectorAll('[data-ktd-help]').forEach(function (b) {
             b.addEventListener('click', function () { help.showModal(); });
         });
-        help.querySelectorAll('[data-ad-help-close]').forEach(function (b) {
+        help.querySelectorAll('[data-ktd-help-close]').forEach(function (b) {
             b.addEventListener('click', function () { help.close(); });
         });
         // Bấm ra ngoài khung thì đóng
@@ -20,16 +20,16 @@
         });
     }
 
-    var fileInput = document.getElementById('ad-file');
-    var btn = document.getElementById('ad-ai-btn');
-    var status = document.getElementById('ad-ai-status');
+    var fileInput = document.getElementById('ktd-file');
+    var btn = document.getElementById('ktd-ai-btn');
+    var status = document.getElementById('ktd-ai-status');
     if (!fileInput || !btn) return;
     var form = fileInput.form;
     var btnLabel = btn.innerHTML;
     var readable = ['pdf', 'xlsx', 'xls', 'docx', 'jpg', 'jpeg', 'png'];
 
     function setStatus(html, cls) {
-        status.className = 'ad-ai__hint' + (cls ? ' ' + cls : '');
+        status.className = 'ktd-ai__hint' + (cls ? ' ' + cls : '');
         status.innerHTML = html;
     }
 
@@ -50,8 +50,8 @@
         var el = field(name);
         if (!el || value === null || value === undefined || value === '') return false;
         el.value = value;
-        el.classList.add('ad-filled');
-        setTimeout(function () { el.classList.remove('ad-filled'); }, 2500);
+        el.classList.add('ktd-filled');
+        setTimeout(function () { el.classList.remove('ktd-filled'); }, 2500);
         return true;
     }
 

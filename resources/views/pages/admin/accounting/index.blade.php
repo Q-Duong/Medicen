@@ -3,24 +3,24 @@
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/staff.css') }}" type="text/css" as="style" />
     <style>
-        .ad-tabs { display: flex; gap: 6px; margin: 0 0 16px; border-bottom: 1px solid #e7e3da; }
-        .ad-tabs a { padding: 9px 14px; font-weight: 600; font-size: 14px; color: #6b6966; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-        .ad-tabs a.is-active { color: #c96442; border-bottom-color: #c96442; }
-        .ad-upload { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-        .ad-upload input[type=file] { flex: 1 1 280px; min-width: 0; padding: 9px 10px; border: 1px dashed #cfc9bb; border-radius: 11px; background: #faf9f5; font-size: 13px; }
-        .ad-guide { margin: 10px 0 0; padding-left: 18px; color: #6b6966; font-size: 13px; line-height: 1.6; }
-        .ad-result { margin-top: 14px; border: 1px solid #e7e3da; border-radius: 12px; overflow: hidden; }
-        .ad-result__head { padding: 8px 12px; background: #f5f4ef; font-weight: 600; font-size: 13.5px; }
-        .ad-result__head.is-bad { background: #fdecea; color: #a12622; }
-        .ad-result table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .ad-result td, .ad-result th { padding: 6px 12px; border-top: 1px solid #eee9df; text-align: left; }
-        .ad-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-        .ad-cov { padding: 12px 14px; border: 1px solid #e7e3da; border-radius: 12px; background: #fff; }
-        .ad-cov b { display: block; font-size: 13px; color: #6b6966; font-weight: 600; margin-bottom: 4px; }
-        .ad-cov span { font-size: 14.5px; color: #1f1e1d; }
-        .ad-cov small { display: block; color: #8a877f; margin-top: 2px; }
-        .ad-sum { color: #6b6966; font-size: 12.5px; max-width: 520px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        @media (max-width: 640px) { .ad-sum { white-space: normal; } }
+        .ktd-tabs { display: flex; gap: 6px; margin: 0 0 16px; border-bottom: 1px solid #e7e3da; }
+        .ktd-tabs a { padding: 9px 14px; font-weight: 600; font-size: 14px; color: #6b6966; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .ktd-tabs a.is-active { color: #c96442; border-bottom-color: #c96442; }
+        .ktd-upload { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .ktd-upload input[type=file] { flex: 1 1 280px; min-width: 0; padding: 9px 10px; border: 1px dashed #cfc9bb; border-radius: 11px; background: #faf9f5; font-size: 13px; }
+        .ktd-guide { margin: 10px 0 0; padding-left: 18px; color: #6b6966; font-size: 13px; line-height: 1.6; }
+        .ktd-result { margin-top: 14px; border: 1px solid #e7e3da; border-radius: 12px; overflow: hidden; }
+        .ktd-result__head { padding: 8px 12px; background: #f5f4ef; font-weight: 600; font-size: 13.5px; }
+        .ktd-result__head.is-bad { background: #fdecea; color: #a12622; }
+        .ktd-result table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .ktd-result td, .ktd-result th { padding: 6px 12px; border-top: 1px solid #eee9df; text-align: left; }
+        .ktd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .ktd-cov { padding: 12px 14px; border: 1px solid #e7e3da; border-radius: 12px; background: #fff; }
+        .ktd-cov b { display: block; font-size: 13px; color: #6b6966; font-weight: 600; margin-bottom: 4px; }
+        .ktd-cov span { font-size: 14.5px; color: #1f1e1d; }
+        .ktd-cov small { display: block; color: #8a877f; margin-top: 2px; }
+        .ktd-sum { color: #6b6966; font-size: 12.5px; max-width: 520px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 640px) { .ktd-sum { white-space: normal; } }
     </style>
 @endpush
 @section('admin_content')
@@ -41,21 +41,21 @@
             @endif
         </div>
 
-        <nav class="ad-tabs">
+        <nav class="ktd-tabs">
             <a href="{{ route('accounting.index') }}" class="{{ $tab === 'so-sach' ? 'is-active' : '' }}"><i class="fas fa-book"></i> Sổ sách MISA</a>
             <a href="{{ route('accounting.index', ['tab' => 'tai-lieu']) }}" class="{{ $tab === 'tai-lieu' ? 'is-active' : '' }}"><i class="far fa-file-alt"></i> Tài liệu ({{ $documents->count() }})</a>
         </nav>
 
         @if ($tab === 'so-sach')
             <section class="sf-card" style="margin-bottom:16px">
-                <form method="POST" action="{{ route('accounting.import') }}" enctype="multipart/form-data" class="ad-upload" id="ad-import">
+                <form method="POST" action="{{ route('accounting.import') }}" enctype="multipart/form-data" class="ktd-upload" id="ktd-import">
                     @csrf
                     <input type="file" name="files[]" accept=".xlsx,.xls" multiple required>
                     <button type="submit" class="sf-btn sf-btn--primary"><i class="fas fa-file-import"></i> Nhập sổ sách</button>
                 </form>
                 @error('files')<small class="sf-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</small>@enderror
                 @error('files.*')<small class="sf-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</small>@enderror
-                <ul class="ad-guide">
+                <ul class="ktd-guide">
                     <li>Xuất từ MISA ra Excel, mỗi file có thể gồm nhiều sheet: <b>Sổ nhật ký chung</b>, <b>Sổ chi tiết tài khoản 111</b>, <b>Sổ tiền gửi ngân hàng</b> (đặt tên sheet theo ngân hàng: HDB, VCB, AGRI), <b>Tổng hợp công nợ phải thu / phải trả</b>. File lương: mỗi sheet là một năm (cột Tháng | CT | XQ).</li>
                     <li>Kỳ của sổ lấy ở dòng tiêu đề ("Năm 2026" hoặc "Từ ngày … đến ngày …"). <b>Nhập lại cùng kỳ sẽ thay dữ liệu cũ</b>, không bị trùng — sửa trên MISA xong cứ xuất và tải lên lại.</li>
                     <li>Giới hạn: file Excel <b>.xlsx / .xls</b>, tối đa <b>10 file</b> mỗi lần, mỗi file tối đa <b>30 MB</b>. Không dùng AI — giữ đúng mẫu xuất của MISA (không đổi tiêu đề, không xóa dòng tiêu đề cột) để hệ thống nhận ra.</li>
@@ -63,8 +63,8 @@
                 </ul>
                 @if ($results)
                     @foreach ($results as $r)
-                        <div class="ad-result">
-                            <div class="ad-result__head {{ $r['ok'] ? '' : 'is-bad' }}">
+                        <div class="ktd-result">
+                            <div class="ktd-result__head {{ $r['ok'] ? '' : 'is-bad' }}">
                                 {{ $r['ok'] ? '✓' : '✗' }} {{ $r['file'] }}{{ $r['ok'] ? '' : ': ' . $r['error'] }}
                             </div>
                             @if ($r['ok'])
@@ -82,15 +82,15 @@
             </section>
 
             <h2 class="sf-section">Đang có</h2>
-            <div class="ad-grid" style="margin-bottom:18px">
-                <div class="ad-cov"><b>Nhật ký chung</b><span>{{ $d($coverage['nkc']->tu) }} – {{ $d($coverage['nkc']->den) }}</span>
+            <div class="ktd-grid" style="margin-bottom:18px">
+                <div class="ktd-cov"><b>Nhật ký chung</b><span>{{ $d($coverage['nkc']->tu) }} – {{ $d($coverage['nkc']->den) }}</span>
                     <small>{{ number_format($coverage['nkc']->n, 0, ',', '.') }} bút toán</small></div>
                 @foreach ($coverage['cash'] as $c)
-                    <div class="ad-cov"><b>{{ $bankName[$c->book] ?? $c->book }}</b><span>{{ $d($c->tu) }} – {{ $d($c->den) }}</span>
+                    <div class="ktd-cov"><b>{{ $bankName[$c->book] ?? $c->book }}</b><span>{{ $d($c->tu) }} – {{ $d($c->den) }}</span>
                         <small>{{ number_format($c->n, 0, ',', '.') }} dòng thu / chi</small></div>
                 @endforeach
-                <div class="ad-cov"><b>Lương thực trả (CT / XQ)</b><span>{{ $coverage['salary']->tu ?? '—' }} → {{ $coverage['salary']->den ?? '—' }}</span><small>tổng theo tháng</small></div>
-                <div class="ad-cov"><b>Công nợ phải thu / phải trả</b>
+                <div class="ktd-cov"><b>Lương thực trả (CT / XQ)</b><span>{{ $coverage['salary']->tu ?? '—' }} → {{ $coverage['salary']->den ?? '—' }}</span><small>tổng theo tháng</small></div>
+                <div class="ktd-cov"><b>Công nợ phải thu / phải trả</b>
                     <span>{{ $coverage['parties']->unique(fn ($p) => $p->period_from . $p->period_to)->count() }} kỳ</span>
                     <small>mới nhất đến {{ $d(optional($coverage['parties']->first())->period_to) }}</small></div>
             </div>
@@ -137,7 +137,7 @@
                     <tbody>
                         @forelse ($documents as $doc)
                             <tr>
-                                <td data-label="Tài liệu"><b>{{ $doc->title }}</b><div class="ad-sum" title="{{ \Illuminate\Support\Str::limit($doc->summary, 400) }}">{{ \Illuminate\Support\Str::limit($doc->summary, 160) }}</div></td>
+                                <td data-label="Tài liệu"><b>{{ $doc->title }}</b><div class="ktd-sum" title="{{ \Illuminate\Support\Str::limit($doc->summary, 400) }}">{{ \Illuminate\Support\Str::limit($doc->summary, 160) }}</div></td>
                                 <td data-label="Loại"><span class="sf-tag {{ $doc->type === 'bctc' ? 'sf-tag--acc' : ($doc->type === 'hop_dong' ? 'sf-tag--staff' : '') }}">{{ $docTypes[$doc->type] ?? $doc->type }}</span></td>
                                 <td data-label="Đối tác / kỳ">{{ $doc->parties ?: $doc->period ?: '—' }}</td>
                                 <td data-label="Ngày ký" class="sf-nowrap">{{ $d($doc->signed_on) }}</td>
@@ -169,7 +169,7 @@
 @push('js')
     <script>
         // Nhập file lớn mất vài chục giây: khóa nút để không bấm 2 lần
-        document.getElementById('ad-import')?.addEventListener('submit', function () {
+        document.getElementById('ktd-import')?.addEventListener('submit', function () {
             const b = this.querySelector('button[type=submit]');
             b.disabled = true;
             b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang nhập…';
