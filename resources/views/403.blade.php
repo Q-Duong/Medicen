@@ -125,10 +125,10 @@
                 </div>
             @endif
             <div class="na-actions">
-                <button type="button" class="na-btn" onclick="history.length > 1 ? history.back() : (location.href='{{ route('dashboard.index') }}')">
+                <button type="button" class="na-btn" onclick="history.length > 1 ? history.back() : (location.href='{{ route('admin.home') }}')">
                     <i class="fas fa-arrow-left"></i> Quay lại
                 </button>
-                <a href="{{ route('dashboard.index') }}" class="na-btn na-btn--primary">
+                <a href="{{ route('admin.home') }}" class="na-btn na-btn--primary">
                     <i class="fas fa-home"></i> Về trang chủ
                 </a>
             </div>

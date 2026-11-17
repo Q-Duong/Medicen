@@ -9,7 +9,7 @@
 @endphp
 <header class="header fixed-top clearfix app-header">
     <div class="brand">
-        <a href="{{ route('dashboard.index') }}" class="logo">
+        <a href="{{ route('admin.home') }}" class="logo">
             <span class="logo-mark">M</span><span class="logo-text">Medicen</span>
         </a>
         <div class="sidebar-toggle-box" title="Thu gọn / mở menu">

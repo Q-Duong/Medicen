@@ -32,7 +32,11 @@ class PageAccess
         if (!$user) {
             return false;
         }
-        if (AssistantAccess::isAdmin($user)) {
+        if (AssistantAccess::isFullAdmin($user)) {
+            return true;
+        }
+        if (AssistantAccess::isSubAdmin($user)) {
+            // SubAdmin loại Admin: route nào được vào do SubAdminScope (config access.subadmin_routes) quyết định
             return true;
         }
         foreach ($groups as $group) {

@@ -540,7 +540,8 @@ class SalesTools implements DepartmentTools
                 ->get();
 
             $invoices = $rows->map(function ($r) use ($today) {
-                $remaining = max(0, (int) $r->accountant_owe - (int) $r->accountant_amount_paid);
+                // accountant_owe đã là "Còn nợ" (= Thành tiền − Đã thanh toán), không trừ thêm lần nữa
+                $remaining = max(0, (int) $r->accountant_owe);
                 $issued = $this->parseDate($r->accountant_date);
                 $due = $issued && is_numeric($r->accountant_deadline)
                     ? $issued->copy()->addDays((int) $r->accountant_deadline)

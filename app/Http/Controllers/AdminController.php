@@ -36,13 +36,32 @@ class AdminController extends Controller
         return view('pages.admin.index')->with(compact('service','post','order','customer','getAllUnit'));
     }
 
+    /** Trang chào sau khi đăng nhập: lời chào, việc cần làm, lối tắt theo quyền */
+    public function home()
+    {
+        $user = Auth::user();
+        $todo = null;
+        try {
+            $todo = app(\App\Services\Notifications\TodoList::class)->for($user);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return view('pages.admin.home', [
+            'user' => $user,
+            'todo' => $todo,
+            'sections' => \App\Support\AdminMenu::sections($user),
+            'departmentLabel' => $user->department ? config('departments.' . $user->department) : null,
+        ]);
+    }
+
     public function chat(){
         return view('pages.admin.chatbox.admin');
     }
 
     public function login(){
         if(Auth::check()){
-            return Redirect::route('dashboard.index');
+            return Redirect::route('admin.home');
         }else{
             return view('pages.admin.login.index');
         }

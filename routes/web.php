@@ -148,7 +148,8 @@ Route::get('csrf-token', fn () => response()->json(['token' => csrf_token(), 'au
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     //Dashboard
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index');
+    Route::get('/trang-chu', [AdminController::class, 'home'])->name('admin.home');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index')->middleware('access:dashboard');
     Route::get('chat', [AdminController::class, 'chat'])->name('dashboard.chat');
     //Chuông thông báo: việc cần làm của tài khoản
     Route::get('notifications/todo', [\App\Http\Controllers\NotificationController::class, 'todo'])->name('notifications.todo');
@@ -164,10 +165,10 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     //Statistics
     Route::prefix('statistics')->group(function () {
-        Route::post('revenue-by-date', [StatisticsController::class, 'revenueByDate'])->name('statistics.revenue_by_date');
-        Route::post('optional-revenue', [StatisticsController::class, 'optionalRevenue'])->name('statistics.optional_revenue');
-        Route::post('revenue-for-the-month', [StatisticsController::class, 'revenueForTheMonth'])->name('statistics.revenue_for_the_month');
-        Route::post('revenue-by-unit', [StatisticsController::class, 'revenueByUnit'])->name('statistics.revenue_by_unit');
+        Route::post('revenue-by-date', [StatisticsController::class, 'revenueByDate'])->name('statistics.revenue_by_date')->middleware('access:dashboard,kpi');
+        Route::post('optional-revenue', [StatisticsController::class, 'optionalRevenue'])->name('statistics.optional_revenue')->middleware('access:dashboard,kpi');
+        Route::post('revenue-for-the-month', [StatisticsController::class, 'revenueForTheMonth'])->name('statistics.revenue_for_the_month')->middleware('access:dashboard,kpi');
+        Route::post('revenue-by-unit', [StatisticsController::class, 'revenueByUnit'])->name('statistics.revenue_by_unit')->middleware('access:dashboard,kpi');
         Route::get('/', [StatisticsController::class, 'index'])->name('statistics.index')->middleware('access:kpi');
         Route::post('performance-analysis', [StatisticsController::class, 'performanceAnalysis'])->name('statistics.performance_analysis')->middleware('access:kpi');
     });
@@ -333,6 +334,19 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('update-order/{id}', [AccountantController::class, 'updateOrder'])->name('accountant.order.update');
         Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.order.store');
     });
+    //Dữ liệu kế toán (sổ sách MISA + tài liệu) cho Trợ lý Kế toán
+    Route::prefix('du-lieu-ke-toan')->name('accounting.')->middleware('access:debt_accountant')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AccountingDataController::class, 'index'])->name('index');
+        Route::post('so-sach', [\App\Http\Controllers\AccountingDataController::class, 'importBooks'])->name('import');
+        Route::get('tai-lieu/them', [\App\Http\Controllers\AccountingDataController::class, 'createDocument'])->name('documents.create');
+        Route::post('tai-lieu', [\App\Http\Controllers\AccountingDataController::class, 'storeDocument'])->name('documents.store');
+        Route::post('tai-lieu/doc-bang-ai', [\App\Http\Controllers\AccountingDataController::class, 'extractDocument'])->name('documents.extract')->middleware('throttle:10,1');
+        Route::get('tai-lieu/{id}/sua', [\App\Http\Controllers\AccountingDataController::class, 'editDocument'])->name('documents.edit')->whereNumber('id');
+        Route::patch('tai-lieu/{id}', [\App\Http\Controllers\AccountingDataController::class, 'updateDocument'])->name('documents.update')->whereNumber('id');
+        Route::delete('tai-lieu/{id}', [\App\Http\Controllers\AccountingDataController::class, 'destroyDocument'])->name('documents.destroy')->whereNumber('id');
+        Route::get('tai-lieu/{id}/tai-ve', [\App\Http\Controllers\AccountingDataController::class, 'download'])->name('documents.download')->whereNumber('id');
+    });
+
     Route::group(['middleware' => 'access:debt_accountant'], function () {
         //Accountant
         Route::prefix('accountant')->group(function () {

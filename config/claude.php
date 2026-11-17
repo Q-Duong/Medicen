@@ -25,6 +25,9 @@ return [
     // Số ngày giữ lịch sử chat với trợ lý (lệnh assistant:prune chạy mỗi ngày lúc 02:00)
     'history_days' => (int) env('CLAUDE_HISTORY_DAYS', 90),
 
+    // SubAdmin loại Admin (role 0/1, tên 'SubAdmin') chỉ dùng các trợ lý này, không xem lịch sử chat của người khác
+    'subadmin_assistants' => ['ke_toan'],
+
     'departments' => [
         'sales' => [
             'name' => 'NKL Sales',
@@ -118,6 +121,75 @@ return [
             ],
         ],
 
-        // 'accountant' => [...], 'technicians' => [...], 'results' => [...]
+        // Trợ lý phòng Kế toán: sổ sách MISA cả công ty (XQ + CT) nhập vào acc_* (php artisan accounting:import),
+        // công nợ / thu chi trên web, báo cáo tài chính + hợp đồng (acc_documents). Chỉ đọc.
+        'ke_toan' => [
+            'name' => 'NKL Kế toán',
+            'title' => 'Trợ lý Kế toán',
+            'user_departments' => ['ke_toan'],
+            'description' => 'Trợ lý nội bộ phòng Kế toán NKL: doanh thu, chi phí, lợi nhuận, dòng tiền, công nợ, lương, báo cáo tài chính, hợp đồng.',
+            'system_prompt' => resource_path('claude/agents/ke_toan.md'),
+            'skills' => [
+                resource_path('claude/skills/nkl-ke-toan'),
+            ],
+            'tools' => \App\Services\Claude\Tools\AccountantTools::class,
+            'modes' => [
+                'auto' => [
+                    'label' => 'Tự động',
+                    'icon' => 'fas fa-magic',
+                    'placeholder' => 'Hỏi về doanh thu, chi phí, dòng tiền, công nợ, lương, hợp đồng…',
+                    'instruction' => null,
+                    'suggestions' => [
+                        'Tóm tắt kết quả kinh doanh 6 tháng đầu năm 2026 theo tháng',
+                        'Tồn quỹ tiền mặt và các ngân hàng cuối tháng 6/2026?',
+                        'Khách nào đang nợ quá hạn nhiều nhất?',
+                    ],
+                ],
+                'bao_cao' => [
+                    'label' => 'Kết quả kinh doanh',
+                    'icon' => 'fas fa-chart-line',
+                    'placeholder' => 'Kỳ cần xem, vd: quý 2/2026, năm 2025 so với 2024…',
+                    'instruction' => 'Kết quả kinh doanh. Dùng ket_qua_kinh_doanh (chia theo kỳ phù hợp), so sánh kỳ trước nếu hợp lý, chỉ ra khoản chi phí tăng / giảm mạnh. '
+                        . 'Nếu là năm đã có báo cáo tài chính thì đối chiếu và nêu chênh lệch.',
+                    'suggestions' => [
+                        'So sánh kết quả kinh doanh 2025 với 2024',
+                        'Chi phí quản lý 6 tháng đầu 2026 theo từng khoản',
+                    ],
+                ],
+                'dong_tien' => [
+                    'label' => 'Dòng tiền',
+                    'icon' => 'fas fa-coins',
+                    'placeholder' => 'Vd: tiền mặt tháng 5/2026 chi những gì…',
+                    'instruction' => 'Dòng tiền. Dùng so_quy_ngan_hang và thu_chi_web: số dư đầu / cuối, thu chi theo tháng, khoản chi lớn, các khoản sắp đến hạn; cảnh báo nếu thiếu tiền.',
+                    'suggestions' => [
+                        'Chi tiền mặt năm 2025 theo XQ / CT / VP và theo xe',
+                        'Các khoản phải chi trong 30 ngày tới, có đủ tiền không?',
+                    ],
+                ],
+                'cong_no' => [
+                    'label' => 'Công nợ',
+                    'icon' => 'fas fa-receipt',
+                    'placeholder' => 'Tên khách / nhà cung cấp…',
+                    'instruction' => 'Công nợ. Khách XQ: cong_no_web (hóa đơn, quá hạn); đối chiếu cong_no_doi_tac (sổ MISA) nếu cần. Nhà cung cấp / vay: cong_no_doi_tac phai_tra, phat_sinh_tai_khoan 341. '
+                        . 'Soạn sẵn tin nhắc nợ / thư đối chiếu khi được yêu cầu.',
+                    'suggestions' => [
+                        'Danh sách khách nợ quá hạn và số ngày quá hạn',
+                        'Công ty còn nợ nhà cung cấp nào bao nhiêu?',
+                    ],
+                ],
+                'tai_lieu' => [
+                    'label' => 'BCTC / Hợp đồng',
+                    'icon' => 'far fa-file-alt',
+                    'placeholder' => 'Vd: hợp đồng máy CT Lagi hết hạn khi nào?',
+                    'instruction' => 'Tra tài liệu bằng tool tai_lieu (báo cáo tài chính, hợp đồng). Trả lời kèm tên tài liệu nguồn.',
+                    'suggestions' => [
+                        'Tổng tài sản và nợ phải trả cuối năm 2025 theo BCTC',
+                        'Các hợp đồng thuê / mua máy siêu âm đang có',
+                    ],
+                ],
+            ],
+        ],
+
+        // 'technicians' => [...], 'results' => [...]
     ],
 ];

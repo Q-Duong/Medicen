@@ -36,7 +36,7 @@ class ScheduleController extends Controller
 					$route = 'schedules.results.index';
 					break;
 				default:
-					$route = 'dashboard.index';
+					$route = 'admin.home';
 					break;
 			}
 			return Redirect::route($route);

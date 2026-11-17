@@ -85,7 +85,7 @@
             </div>
 
             <div class="sf-form-actions">
-                <a href="{{ route('dashboard.index') }}" class="sf-btn sf-btn--ghost">Hủy</a>
+                <a href="{{ route('admin.home') }}" class="sf-btn sf-btn--ghost">Hủy</a>
                 <button type="submit" class="sf-btn sf-btn--primary"><i class="fas fa-check"></i> Lưu thay đổi</button>
             </div>
         </form>

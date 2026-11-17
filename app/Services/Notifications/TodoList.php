@@ -30,8 +30,11 @@ class TodoList
     /** Nhóm thông báo tài khoản được xem */
     public function groupsFor(User $user): array
     {
-        if (AssistantAccess::isAdmin($user)) {
+        if (AssistantAccess::isFullAdmin($user)) {
             return array_keys(self::GROUPS);
+        }
+        if (AssistantAccess::isSubAdmin($user)) {
+            return []; // việc trên chuông dẫn tới trang đơn hàng / xếp lịch / công nợ kế toán — SubAdmin không vào được
         }
         $dept = (string) $user->department;
         $groups = [];

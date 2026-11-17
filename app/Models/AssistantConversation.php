@@ -26,10 +26,10 @@ class AssistantConversation extends Model
         return $this->hasMany(AssistantMessage::class, 'conversation_id')->orderBy('id');
     }
 
-    /** Admin xem được lịch sử chat của mọi nhân viên */
+    /** Chỉ Admin (không gồm SubAdmin) xem được lịch sử chat của mọi nhân viên */
     public static function canViewAll(?User $user): bool
     {
-        return AssistantAccess::isAdmin($user);
+        return AssistantAccess::isFullAdmin($user);
     }
 
     public function canView(User $user): bool

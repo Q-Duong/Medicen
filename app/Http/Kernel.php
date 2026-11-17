@@ -36,6 +36,8 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // SubAdmin loại Admin chỉ vào các route trong config('access.subadmin_routes')
+            \App\Http\Middleware\SubAdminScope::class,
         ],
 
         'api' => [

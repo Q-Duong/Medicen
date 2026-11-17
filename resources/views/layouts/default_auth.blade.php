@@ -57,11 +57,7 @@
 <body>
     <section id="container">
         @include('layouts.section.admin.header')
-        @if (Auth::user()->role == 0)
-            @include('layouts.section.admin.side_bar_super_admin')
-        @else
-            @include('layouts.section.admin.side_bar')
-        @endif
+        @include('layouts.section.admin.side_bar_grouped')
         <section id="main-content">
             <section class="wrapper">
                 <div class="container-fluid">
