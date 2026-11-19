@@ -389,7 +389,9 @@ class OrderController extends Controller
 		// Admin (role 0) sửa được mọi ô, trừ đơn đã hoàn thành
 		$isAdmin = (int) Auth::user()->role === 0;
 		$adminOverride = $isAdmin && !$orderClosed && in_array((int) $order->status_id, array_merge(Order::QTY_LOCKED_STATUSES, OrderMoney::LOCKED_STATUSES), true);
-		$qtyLocked = !$isAdmin && in_array((int) $order->status_id, Order::QTY_LOCKED_STATUSES, true);
+		// Đơn phụ thu ở trạng thái 2: không qua Kết quả nên số lượng do Sale nhập, chưa khóa (khóa khi kế toán cập nhật doanh thu)
+		$qtyLocked = !$isAdmin && !((int) $order->order_surcharge === 1 && (int) $order->status_id === 2)
+			&& in_array((int) $order->status_id, Order::QTY_LOCKED_STATUSES, true);
 		// Đã cập nhật doanh thu / đã chốt: khóa các ô tiền (hiện nhãn "đã khóa" trên từng ô)
 		$moneyLocked = $orderClosed || (!$isAdmin && in_array((int) $order->status_id, OrderMoney::LOCKED_STATUSES, true));
 		// Nhóm đi chung hiện tại
@@ -426,7 +428,8 @@ class OrderController extends Controller
 		}
 		// Đã có số ca thực tế (2: Kết quả đã cập nhật, 4: kế toán đã cập nhật doanh thu): giữ nguyên số lượng và cả phần
 		// in phim / in phiếu / cảnh báo trong database (form khóa 2 ô này; gửi tay lên cũng không đổi được)
-		if (!$isAdmin && in_array((int) $order->status_id, Order::QTY_LOCKED_STATUSES, true)) {
+		if (!$isAdmin && !((int) $order->order_surcharge === 1 && (int) $order->status_id === 2)
+			&& in_array((int) $order->status_id, Order::QTY_LOCKED_STATUSES, true)) {
 			$data['order_quantity'] = $order->order_quantity;
 			// Cả phần in phim / in phiếu / bác sĩ đọc / phim & phiếu / cảnh báo đơn: giữ như cũ
 			foreach (Order::PRINT_LOCKED_FIELDS as $f) {

@@ -314,7 +314,9 @@ class DispatchController extends Controller
                     ])->save();
 
                     if (!$editing) {
-                        Order::whereKey($order->id)->update(['schedule_status' => 1, 'status_id' => 1]);
+                        // Đơn phụ thu giữ "Đã cập nhật số ca thực tế" (2), xem Order::booted
+                        Order::whereKey($order->id)->update(['schedule_status' => 1,
+                            'status_id' => DB::raw('CASE WHEN order_surcharge = 1 THEN 2 ELSE 1 END')]);
                     }
 
                     return $car;

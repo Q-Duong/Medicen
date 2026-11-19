@@ -39,6 +39,9 @@
             @if ($accountant->order_group)
                 <span class="acc-group-tag" title="Nhóm đơn đi chung (cùng chuyến xe)">{{ $accountant->order_group }}</span>
             @endif
+            @if ($accountant->order_surcharge)
+                <span class="acc-pt-tag" title="Đơn phụ thu (thu thêm tiền, không qua bộ phận Kết quả)">Phụ thu</span>
+            @endif
         </td>
 
         <td>

@@ -51,6 +51,31 @@ class Order extends Model
     /** Các ô (order_details) khóa cùng số lượng khi đã có số ca thực tế (cùng order_warning ở orders) */
     public const PRINT_LOCKED_FIELDS = ['ord_doctor_read', 'ord_film', 'ord_form', 'ord_print', 'ord_form_print', 'ord_print_result', 'ord_film_sheet'];
 
+    /** Trạng thái chưa có số ca thực tế: đơn mới (0), đang xử lý (1), chưa lên lịch (5) */
+    public const PRE_ACTUAL_STATUSES = [0, 1, 5];
+
+    protected static function booted(): void
+    {
+        // Đơn PHỤ THU không qua bộ phận Kết quả (không hiện trên lịch Kết quả, không chấm công) nên không ai cập nhật
+        // số ca thực tế: lên đơn phụ thu là coi như "Đã cập nhật số ca thực tế" (2) để kế toán lọc và cập nhật doanh thu.
+        static::saving(function (Order $order) {
+            $status = (int) $order->status_id;
+            if ((int) $order->order_surcharge === 1 && in_array($status, self::PRE_ACTUAL_STATUSES, true)) {
+                $order->status_id = 2;
+            } elseif ((int) $order->order_surcharge === 0 && $status === 2 && $order->isDirty('order_surcharge')
+                && !(int) $order->order_updated) {
+                // Bỏ đánh dấu phụ thu khi Kết quả chưa cập nhật số ca: trở lại Đang xử lý / Chưa lên lịch
+                $order->status_id = (int) $order->schedule_status === 1 ? 1 : 5;
+            }
+        });
+    }
+
+    /** Đơn phụ thu: số lượng do Sale nhập, không bị khóa theo số ca thực tế */
+    public function isSurcharge(): bool
+    {
+        return (int) $this->order_surcharge === 1;
+    }
+
     public function isClosed(): bool
     {
         return (int) $this->status_id === self::STATUS_CLOSED;

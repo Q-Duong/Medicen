@@ -621,6 +621,18 @@
     text-align: center;
 }
 
+.acc-pt-tag {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #fdf0e6;
+    color: #a4501d;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 .acc-group-tag {
     display: inline-block;
     padding: 1px 8px;

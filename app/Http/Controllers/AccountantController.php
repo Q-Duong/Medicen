@@ -127,7 +127,8 @@ class AccountantController extends Controller
 				'unit_name',
 				'unit_abbreviation',
 				'order_groups.code as order_group',
-				'orders.qty_changed_from'
+				'orders.qty_changed_from',
+				'orders.order_surcharge'
 			)
 			->cursorPaginate($perPage);
 		$sttStart = $request->input('current_count', 0);
@@ -969,7 +970,8 @@ class AccountantController extends Controller
 				'unit_name',
 				'unit_abbreviation',
 				'order_groups.code as order_group',
-				'orders.qty_changed_from'
+				'orders.qty_changed_from',
+				'orders.order_surcharge'
 			)
 			->cursorPaginate($perPage);
 		$sttStart = $request->input('current_count', 0);
@@ -1031,6 +1033,8 @@ class AccountantController extends Controller
 			'type' => $type
 		]);
 
+		// Bộ phận Kết quả không xử lý đơn phụ thu chưa xếp xe (không có phim / kết quả)
+		$params['only_scheduled'] = 1;
 		$baseQuery = Accountant::getAccountantByFilter($params);
 
 		$totals = $baseQuery->clone()

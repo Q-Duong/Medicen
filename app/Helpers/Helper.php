@@ -117,6 +117,10 @@ if (!function_exists('statusRenameFunction')) {
             $status = 'Đã xử lý';
         } elseif ($status_id == 4) {
             $status = 'Đã cập nhật doanh thu';
+        } elseif ($status_id == 5) {
+            $status = 'Chưa lên lịch';
+        } else {
+            $status = '';
         }
         return $status;
     }

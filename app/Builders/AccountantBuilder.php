@@ -262,10 +262,18 @@ final class AccountantBuilder extends Builder
         $query = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-            ->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+            // Lịch xe đang dùng của đơn. Đơn thường chỉ hiện khi đã xếp xe; đơn PHỤ THU (thu thêm tiền, không cần xe)
+            // hiện cả khi chưa xếp xe (cột xe để trống).
+            ->leftJoin('car_ktvs', fn ($j) => $j->on('car_ktvs.order_id', '=', 'orders.id')->where('car_ktvs.car_active', 1))
             // Nhóm đơn đi chung (mã nhóm, vd PKQT-251126)
             ->leftJoin('order_groups', 'order_groups.id', '=', 'orders.order_group_id')
-            ->where('car_active', 1);
+            ->where(fn ($q) => $q->whereNotNull('car_ktvs.id')
+                ->when(empty($params['only_scheduled']), fn ($q) => $q->orWhere('orders.order_surcharge', 1)));
+
+        // Lọc đơn phụ thu: 1 = chỉ đơn phụ thu, 0 = bỏ đơn phụ thu
+        if (isset($params['surcharge']) && in_array((string) $params['surcharge'], ['0', '1'], true)) {
+            $query->where('orders.order_surcharge', (int) $params['surcharge']);
+        }
 
         // Mở từ chuông thông báo (?todo=...): lọc đúng nhóm việc, không theo năm đang chọn
         // (công nợ quá hạn có thể rơi vào năm trước)

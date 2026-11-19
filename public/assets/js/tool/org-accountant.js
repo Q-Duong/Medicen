@@ -511,7 +511,7 @@ $(document).ready(function () {
             delete currentFilters[fieldName];
         currentFilters.field = fieldName;
         currentFilters.year = $(".year-filter").val();
-        currentFilters.type = $(".type-filter").val();
+        currentFilters.type = $("#type-select").val();
 
         $.ajax({
             url: url_filter_options,
@@ -1579,6 +1579,8 @@ $(document).ready(function () {
         // 2. Bổ sung thêm Year/Type đang chọn trên giao diện (để chắc chắn đúng)
         paramsObj.year = $('#year-select').val();
         paramsObj.type = $('#type-select').val();
+        // Lọc đơn phụ thu (trang Công nợ / Công nợ Sales)
+        if ($('#surcharge-select').length) paramsObj.surcharge = $('#surcharge-select').val();
     
         // 3. Chuyển Object thành Query String (dạng ?year=2025&doctor=A...)
         // Dùng $.param của jQuery để tự động xử lý mảng
@@ -1607,6 +1609,8 @@ $(document).ready(function () {
         // 2. Bổ sung thêm Year/Type đang chọn trên giao diện (để chắc chắn đúng)
         paramsObj.year = $('#year-select').val();
         paramsObj.type = $('#type-select').val();
+        // Lọc đơn phụ thu (trang Công nợ / Công nợ Sales)
+        if ($('#surcharge-select').length) paramsObj.surcharge = $('#surcharge-select').val();
     
         // 3. Chuyển Object thành Query String (dạng ?year=2025&doctor=A...)
         // Dùng $.param của jQuery để tự động xử lý mảng

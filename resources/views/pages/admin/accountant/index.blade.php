@@ -32,6 +32,15 @@
                         <option value="2" {{ Session::get('type') == 2 ? 'selected' : '' }}>Siêu âm</option>
                     </select>
                 </label>
+                <label class="acc-field">
+                    <span>Đơn</span>
+                    {{-- Lọc đơn phụ thu (class type-filter để accountant.js gửi kèm khi tải bảng) --}}
+                    <select id="surcharge-select" name="surcharge" class="type-filter filter-input">
+                        <option value="all">Tất cả</option>
+                        <option value="1">Chỉ đơn phụ thu</option>
+                        <option value="0">Không gồm phụ thu</option>
+                    </select>
+                </label>
                 <button type="button" class="acc-btn btn-export-excel">
                     <i class="fa-solid fa-file-excel"></i> Xuất Excel
                 </button>
