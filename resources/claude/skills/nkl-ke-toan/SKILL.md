@@ -77,7 +77,9 @@ Sổ năm 2023 dùng tài khoản 3 số (642, 511…); từ 2024 dùng tài kho
 
 - Lương: `luong_thuc_tra` có sẵn CT / XQ.
 - Chi tiền mặt: `so_quy_ngan_hang` (TIEN_MAT) chia theo khoản mục.
-- Doanh thu CT: tìm diễn giải có "CT" hoặc tên bệnh viện đặt máy (`tim_but_toan` / `phat_sinh_tai_khoan` 511 với tu_khoa); kế hoạch thu CT hằng tháng có trong `thu_chi_web` (nhóm "CT").
+- **Công nợ CT từ 2026: dùng `cong_no_ct`** (số kế toán nhập theo từng bệnh viện, từng tháng; Medicen thu về là phần công ty được nhận, đã trừ phần bệnh viện). Thanh toán CT hình thức "L-VCB" là tiền vào TK VCB chú Lộc (xem `so_vcb_chu_loc`), "HDB" là vào TK HDB công ty.
+- Tiền công ty đi qua TK cá nhân chú Lộc: `so_vcb_chu_loc`. Dòng "Tiền hiện có (VCB chú Lộc)" của báo cáo thu chi = số dư cuối tháng trước của sổ này. Công nợ cũ Thiên Phú (2023–2024) chỉ để ghi nhớ, không tính vào công nợ hiện tại.
+- Doanh thu CT trước 2026 / đối chiếu sổ sách: tìm diễn giải có "CT" hoặc tên bệnh viện đặt máy (`tim_but_toan` / `phat_sinh_tai_khoan` 511 với tu_khoa); kế hoạch thu CT hằng tháng có trong `thu_chi_web` (nhóm "CT").
 - Khấu hao máy CT: `phat_sinh_tai_khoan` 6424 / 214 với tu_khoa "CT".
 - Doanh thu XQ chi tiết theo đơn vị / tháng: công nợ web (`cong_no_web`) hoặc trang Thống kê doanh thu.
 - Luôn nói rõ phần nào là số trực tiếp, phần nào ước tính theo diễn giải.

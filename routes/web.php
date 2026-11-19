@@ -335,6 +335,33 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::post('save-order/{id}', [AccountantController::class, 'storeOrder'])->name('accountant.order.store');
     });
     //Dữ liệu kế toán (sổ sách MISA + tài liệu) cho Trợ lý Kế toán
+    // Công nợ CT (máy CT tại bệnh viện hợp tác) + Sổ TK VCB chú Lộc: kế toán nhập trên web, nối vào Báo cáo thu chi
+    Route::prefix('cong-no-ct')->name('ct.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\CtReceivableController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('them', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{receivable}', 'edit')->name('edit')->whereNumber('receivable');
+        Route::patch('{receivable}', 'update')->name('update')->whereNumber('receivable');
+        Route::delete('{receivable}', 'destroy')->name('destroy')->whereNumber('receivable');
+        Route::post('{receivable}/thanh-toan', 'storePayment')->name('payments.store')->whereNumber('receivable');
+        Route::patch('thanh-toan/{payment}', 'updatePayment')->name('payments.update')->whereNumber('payment');
+        Route::delete('thanh-toan/{payment}', 'destroyPayment')->name('payments.destroy')->whereNumber('payment');
+        Route::post('don-vi', 'storePartner')->name('partners.store');
+        Route::patch('don-vi/{partner}', 'updatePartner')->name('partners.update')->whereNumber('partner');
+        Route::delete('don-vi/{partner}', 'destroyPartner')->name('partners.destroy')->whereNumber('partner');
+        Route::post('ghi-nho', 'saveMemo')->name('memos.store');
+        Route::patch('ghi-nho/{memo}', 'saveMemo')->name('memos.update')->whereNumber('memo');
+        Route::delete('ghi-nho/{memo}', 'destroyMemo')->name('memos.destroy')->whereNumber('memo');
+    });
+    Route::prefix('so-vcb-chu-loc')->name('vcb.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\VcbLedgerController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::patch('{entry}', 'update')->name('update')->whereNumber('entry');
+        Route::delete('{entry}', 'destroy')->name('destroy')->whereNumber('entry');
+        Route::post('so-du-dau', 'opening')->name('opening');
+        Route::post('khoan-co-dinh', 'saveRecurring')->name('recurrings.store');
+        Route::patch('khoan-co-dinh/{recurring}', 'saveRecurring')->name('recurrings.update')->whereNumber('recurring');
+    });
     Route::prefix('du-lieu-ke-toan')->name('accounting.')->middleware('access:debt_accountant')->group(function () {
         Route::get('/', [\App\Http\Controllers\AccountingDataController::class, 'index'])->name('index');
         Route::post('so-sach', [\App\Http\Controllers\AccountingDataController::class, 'importBooks'])->name('import');

@@ -182,6 +182,35 @@ class AccountantTools implements DepartmentTools
                     'additionalProperties' => false,
                 ],
             ],
+            [
+                'name' => 'cong_no_ct',
+                'description' => 'Công nợ CT (máy CT đặt tại bệnh viện hợp tác: Á Châu, Bảo Lộc, Cà Mau, Gò Công, Lagi-YSG…), kế toán nhập trên web: '
+                    . 'theo bệnh viện và tháng gồm số ca, doanh thu, chi phí, lãi lỗ, phần chia bệnh viện / Medicen, Medicen thu về, '
+                    . 'các lần thanh toán (ngày, hình thức HDB / VCB chú Lộc), còn phải thu. Kèm công nợ cũ cần ghi nhớ (Thiên Phú…). '
+                    . 'Dùng cho câu hỏi về doanh thu / lãi lỗ / công nợ mảng CT theo bệnh viện (chính xác hơn lọc diễn giải sổ MISA).',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'nam' => ['type' => 'integer', 'description' => 'Năm, mặc định năm hiện tại'],
+                        'benh_vien' => ['type' => 'string', 'description' => 'Tên hoặc mã bệnh viện (không bắt buộc)'],
+                        'chi_tiet' => ['type' => 'boolean', 'description' => 'true = trả từng tháng và từng lần thanh toán; mặc định chỉ tổng hợp'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'so_vcb_chu_loc',
+                'description' => 'Sổ TK VCB cá nhân chú Lộc (tiền công ty đi qua TK chú): số dư chốt, số dư đầu / cuối tháng, các dòng thu (tiền CT bệnh viện '
+                    . 'chuyển vào, góp vốn, bác sĩ đọc CT…) và chi (chú chuyển lại HDB công ty, trả gốc lãi căn A44, xe VF7…), số dư cuối các tháng trong năm, ghi nhớ số cũ.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'nam' => ['type' => 'integer'],
+                        'thang' => ['type' => 'integer', 'description' => '1-12; bỏ trống = chỉ số dư cuối các tháng của năm'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
         ];
     }
 
@@ -197,9 +226,80 @@ class AccountantTools implements DepartmentTools
             'luong_thuc_tra' => $this->salaries((int) ($input['tu_nam'] ?? 0), (int) ($input['den_nam'] ?? 0)),
             'cong_no_web' => $this->webDebts($this->optString($input, 'tu_khoa'), isset($input['nam']) ? (int) $input['nam'] : null),
             'thu_chi_web' => $this->webCashPlan(isset($input['nam']) ? (int) $input['nam'] : null, isset($input['thang']) ? (int) $input['thang'] : null),
+            'cong_no_ct' => $this->ctBook((int) ($input['nam'] ?? now()->year), $this->optString($input, 'benh_vien'), (bool) ($input['chi_tiet'] ?? false)),
+            'so_vcb_chu_loc' => $this->vcbBook((int) ($input['nam'] ?? now()->year), isset($input['thang']) ? (int) $input['thang'] : null),
             'tai_lieu' => $this->documents((string) ($input['loai'] ?? 'tat_ca'), $this->optString($input, 'tu_khoa')),
             default => throw new InvalidArgumentException("Tool không tồn tại: {$name}"),
         };
+    }
+
+    // ------------------------------------------------------------------
+    // cong_no_ct / so_vcb_chu_loc
+    // ------------------------------------------------------------------
+
+    private function ctBook(int $year, ?string $partner, bool $detail): array
+    {
+        $book = app(\App\Services\Accounting\CtBook::class);
+        $p = $partner ? \App\Models\Accounting\CtPartner::where('code', strtoupper($partner))->orWhere('name', 'like', '%' . $partner . '%')->first() : null;
+        if ($partner && !$p) {
+            return ['loi' => 'Không thấy bệnh viện "' . $partner . '"', 'benh_vien' => \App\Models\Accounting\CtPartner::pluck('name', 'code')];
+        }
+        $sum = $book->summary($year);
+        $out = [
+            'nam' => $year,
+            'ghi_chu' => 'Medicen thu về = phần doanh thu Medicen được nhận; còn phải thu = Medicen thu về − đã thanh toán. Số tiền đơn vị đồng.',
+            'tong_nam' => $sum['total'],
+            'theo_benh_vien' => $sum['by_partner']->map(fn ($x) => ['benh_vien' => $x['partner']->name] + collect($x)->except('partner')->all())->values(),
+            'con_phai_thu_moi_ky' => $book->totalOutstanding($p?->id),
+            'cong_no_cu_ghi_nho' => \App\Models\Accounting\AccMemo::where('scope', 'ct')->get(['title', 'period', 'amount', 'note']),
+        ];
+        if ($p) {
+            $out['theo_benh_vien'] = $out['theo_benh_vien']->where('benh_vien', $p->name)->values();
+            $out['tong_nam'] = $out['theo_benh_vien']->first() ?? 'Bệnh viện chưa có công nợ năm ' . $year;
+        }
+        if ($detail || $p) {
+            $out['chi_tiet'] = $book->rows($year, $p?->id)->map(fn ($r) => [
+                'thang' => $r->month, 'benh_vien' => $r->partner->name, 'loai' => $r->kind === 'bhyt' ? 'BHYT ' . $r->label : 'ca chụp',
+                'so_ca' => $r->quantity, 'doanh_thu' => (int) $r->revenue, 'chi_phi' => (int) $r->cost, 'lai_lo' => $r->profit,
+                'bv_chia' => (int) $r->hospital_share, 'medicen_chia' => (int) $r->medicen_share,
+                'bv_thu_ve' => (int) $r->hospital_collect, 'medicen_thu_ve' => (int) $r->medicen_collect,
+                'thanh_toan' => $r->payments->map(fn ($x) => ['ngay' => $x->paid_on->toDateString(), 'hinh_thuc' => $x->method, 'so_tien' => (int) $x->amount])->all(),
+                'con_phai_thu' => $r->outstanding,
+            ])->values();
+        }
+
+        return $out;
+    }
+
+    private function vcbBook(int $year, ?int $month): array
+    {
+        $book = app(\App\Services\Accounting\VcbBook::class);
+        $opening = $book->opening();
+        $out = [
+            'so_du_chot' => $opening ? ['ngay' => $opening->entry_date->toDateString(), 'so_tien' => (int) $opening->thu] : null,
+            'ghi_chu' => $opening ? 'Số dư = số dư chốt + thu − chi các dòng sau ngày chốt; dòng trước ngày chốt chỉ để ghi nhớ.'
+                : 'Kế toán chưa chốt số dư đầu: chưa tính được số dư, chỉ có các dòng thu chi.',
+            'so_du_cuoi_thang' => $opening ? $book->yearBalances($year)->filter(fn ($v) => $v !== null) : [],
+            'ghi_nho_so_cu' => \App\Models\Accounting\AccMemo::where('scope', 'vcb')->get(['title', 'period', 'amount', 'note']),
+        ];
+        if ($month) {
+            $m = $book->month($year, $month);
+            $out['thang'] = [
+                'thang' => $month . '/' . $year,
+                'so_du_dau_thang' => $m['start_balance'],
+                'thu' => $m['thu'],
+                'chi' => $m['chi'],
+                'so_du_cuoi_thang' => $m['end_balance'],
+                'cac_dong' => $m['entries']->map(fn ($e) => ['ngay' => $e->entry_date->toDateString(), 'noi_dung' => $e->description,
+                    'thu' => (int) $e->thu, 'chi' => (int) $e->chi, 'nguon' => \App\Models\Accounting\VcbEntry::SOURCES[$e->source] ?? $e->source])->values(),
+            ];
+            if (!$opening) {
+                $out['thang']['tong_thu_cac_dong'] = (int) $m['entries']->sum('thu');
+                $out['thang']['tong_chi_cac_dong'] = (int) $m['entries']->sum('chi');
+            }
+        }
+
+        return $out;
     }
 
     // ------------------------------------------------------------------

@@ -30,14 +30,21 @@ class ReportRepository implements ReportRepositoryInterface
                 
                 // 1. NẾU CÓ LỆNH XÓA TỪ GIAO DIỆN
                 if (isset($item['_delete']) && $item['_delete'] == '1') {
+                    // Dòng lấy số tự động (VCB chú Lộc, CT) không xóa được
                     if (!empty($item['id'])) {
-                        ReportItem::where('id', $item['id'])->where('report_id', $reportId)->delete();
+                        ReportItem::where('id', $item['id'])->where('report_id', $reportId)->whereNull('auto_key')->delete();
                     }
                     continue; // Xóa xong thì bỏ qua, không chạy code Cập nhật bên dưới nữa
                 }
 
                 // 2. NẾU LÀ CẬP NHẬT DÒNG CŨ
                 if (!empty($item['id'])) {
+                    // Dòng tự động: chỉ sửa được ngày dự kiến, số tiền lấy từ Sổ VCB / Công nợ CT
+                    $auto = ReportItem::where('id', $item['id'])->where('report_id', $reportId)->value('auto_key');
+                    if ($auto) {
+                        ReportItem::where('id', $item['id'])->update(['expected_date' => $item['expected_date'] ?? null]);
+                        continue;
+                    }
                     ReportItem::where('id', $item['id'])
                               ->where('report_id', $reportId)
                               ->update([

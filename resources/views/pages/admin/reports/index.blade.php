@@ -1,499 +1,350 @@
 @extends('layouts.default_auth')
+@section('title', 'Báo cáo thu chi - Medicen')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/report.css') }}" type="text/css" as="style" />
-    <link rel="stylesheet" href="{{ versionResource('assets/css/support/filepond-preview.css') }}" type="text/css"
-        as="style" />
 @endpush
 
 @section('admin_content')
-    <div class="table-agile-info">
-        <h2 class="panel-heading">BÁO CÁO DỰ TOÁN THU CHI
-            {{ $month === 'all' ? 'NĂM ' . $year : 'THÁNG ' . $month . '/' . $year }}
-        </h2>
+    @php
+        $isYearly = $isYearly ?? false;
+        // Kế toán lập / sửa báo cáo tháng; cả năm và các tài khoản khác chỉ xem (ReportController::canEdit)
+        $canEdit = !$isYearly && \App\Http\Controllers\ReportController::canEdit(Auth::user());
+        $period = $isYearly ? 'năm ' . $year : 'tháng ' . $month . '/' . $year;
+        $money = fn ($v) => number_format((float) ($v ?? 0), 0, ',', '.');
 
-        <div class="table-content">
-            <div id="reportContainer">
+        $mainHeaders = [
+            'Tiền hiện có (SDĐK)' => 'Số dư đầu kỳ',
+            'CT' => 'I. Thu cố định',
+            'XQ (số dự thu trong tháng)' => 'I. Thu cố định',
+            'Thu chuyển nhượng' => 'II. Thu chuyển nhượng',
+            'Chi tiền vay Bank' => 'I. Chi trả tiền vay',
+            'Chi DV' => 'II. Chi dịch vụ / các khoản cố định',
+            'Chi cố định' => 'II. Chi dịch vụ / các khoản cố định',
+            'Chi nộp thuế' => 'II. Chi dịch vụ / các khoản cố định',
+            'Chi trả NCC' => 'III. Chi trả nợ NCC',
+            'Chi mượn cá nhân' => 'IV. Chi tiền mượn cá nhân',
+            'Chi khác' => 'V. Chi khác',
+        ];
+        $subHeaders = [
+            'Chi DV' => '1. Chi các khoản phí dịch vụ',
+            'Chi cố định' => '2. Chi các khoản phí cố định',
+            'Chi nộp thuế' => '3. Chi nộp ngân sách nhà nước',
+            'Chi trả NCC' => '4. Chi trả nợ nhà cung cấp',
+            'Chi mượn cá nhân' => '5. Chi tiền mượn cá nhân',
+            'Chi khác' => '6. Chi khác',
+        ];
+        $groupOrder = array_keys($mainHeaders);
+        $thuGroups = ['Tiền hiện có (SDĐK)', 'Thu chuyển nhượng', 'CT', 'XQ (số dự thu trong tháng)'];
+        $chiGroups = ['Chi tiền vay Bank', 'Chi DV', 'Chi cố định', 'Chi nộp thuế', 'Chi trả NCC', 'Chi mượn cá nhân', 'Chi khác'];
+        $groupLabel = ['Tiền hiện có (SDĐK)' => 'Tiền hiện có (số dư đầu kỳ)', 'XQ (số dự thu trong tháng)' => 'XQ (dự thu trong tháng)',
+            'Chi tiền vay Bank' => 'Chi tiền vay ngân hàng', 'Chi DV' => 'Chi dịch vụ', 'Chi trả NCC' => 'Chi trả nhà cung cấp'];
 
-                <div class="sticky-summary-section">
-                    <div class="filter-section">
-                        <div class="filter-group">
-                            <select name="month" id="selectMonth" class="select-filter">
-                                <option value="all" {{ $month === 'all' ? 'selected' : '' }}>Cả năm</option>
-                                @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}"
-                                        {{ $month != 'all' && $i == $month ? 'selected' : '' }}>Tháng
-                                        {{ $i }}</option>
-                                @endfor
-                            </select>
+        $orderedItems = $report->items
+            ->sortBy(fn ($item) => (($pos = array_search($item->summary_group, $groupOrder)) === false ? 999 : $pos))
+            ->values();
+        $today = \Carbon\Carbon::now()->startOfDay();
+    @endphp
 
-                            <select name="year" id="selectYear" class="select-filter">
-                                @for ($y = date('Y') - 1; $y <= date('Y') + 2; $y++)
-                                    <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>Năm
-                                        {{ $y }}</option>
-                                @endfor
-                            </select>
-
-                            <button type="button" class="btn btn-primary btn-filter"
-                                onclick="window.location.href='?month='+document.getElementById('selectMonth').value+'&year='+document.getElementById('selectYear').value">Lọc</button>
-
-                            <a href="{{ route('reports.export_pdf', $report->id) }}" class="btn btn-danger"
-                                style="border-radius: 10px;">
-                                <i class="fas fa-file-pdf"></i> Xuất file PDF
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="summary-wrapper">
-                        <!-- BẢNG TỔNG THU -->
-                        <div class="summary-box">
-                            <table class="table-thu">
-                                <thead>
-                                    <tr class="section-title">
-                                        <th>Danh mục Thu</th>
-                                        <th>Số phải thu</th>
-                                        <th>Đã thu</th>
-                                        <th>Còn lại</th>
-                                    </tr>
-                                    <tr class="grand-total">
-                                        <td>Tổng thu</td>
-                                        <td id="tong-thu-est">0</td>
-                                        <td id="tong-thu-act">0</td>
-                                        <td id="tong-thu-diff">0</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="summary-row" data-group="Tiền hiện có (SDĐK)" data-type="thu">
-                                        <td>Tiền hiện có (SDĐK)</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Thu chuyển nhượng" data-type="thu">
-                                        <td>Thu chuyển nhượng</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="CT" data-type="thu">
-                                        <td>CT</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="XQ (số dự thu trong tháng)" data-type="thu">
-                                        <td>XQ (số dự thu trong tháng)</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-style: italic; font-size: 14px; font-weight: bold; color: #3498db;">
-                                            - Tổng nợ X-Quang</td>
-                                        <td colspan="3"
-                                            style="font-style: italic; font-size: 14px; text-align: center; font-weight: bold; color: #3498db;">
-                                            {{ number_format($accStats->total_price ?? 0, 0, ',', '.') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-style: italic; font-size: 14px; font-weight: bold; color: #e67e22;">
-                                            - Tổng đã xuất HD</td>
-                                        <td colspan="3"
-                                            style="font-style: italic; font-size: 14px; text-align: center; font-weight: bold; color: #e67e22;">
-                                            {{ number_format($accStats->total_da_xuat_hd ?? 0, 0, ',', '.') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-style: italic; font-size: 14px; font-weight: bold; color: #c0392b;">
-                                            - Tổng chưa xuất HD</td>
-                                        <td colspan="3"
-                                            style="font-style: italic; font-size: 14px; text-align: center;  font-weight: bold; color: #c0392b;">
-                                            {{ number_format($accStats->total_chua_xuat_hd ?? 0, 0, ',', '.') }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- BẢNG TỔNG CHI -->
-                        <div class="summary-box">
-                            <table class="table-chi">
-                                <thead>
-                                    <tr>
-                                        <th>Danh mục Chi</th>
-                                        <th>Cộng chi</th>
-                                        <th>Đã chi</th>
-                                        <th>Chưa chi</th>
-                                    </tr>
-                                    <tr class="grand-total">
-                                        <td>Tổng chi</td>
-                                        <td id="tong-chi-est">0</td>
-                                        <td id="tong-chi-act">0</td>
-                                        <td id="tong-chi-diff">0</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="summary-row" data-group="Chi tiền vay Bank" data-type="chi">
-                                        <td>Chi tiền vay Bank</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Chi DV" data-type="chi">
-                                        <td>Chi DV</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Chi cố định" data-type="chi">
-                                        <td>Chi cố định</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Chi nộp thuế" data-type="chi">
-                                        <td>Chi nộp thuế</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Chi trả NCC" data-type="chi">
-                                        <td>Chi trả NCC</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Chi mượn cá nhân" data-type="chi">
-                                        <td>Chi mượn cá nhân</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                    <tr class="summary-row" data-group="Chi khác" data-type="chi">
-                                        <td>Chi khác</td>
-                                        <td class="sum-est">0</td>
-                                        <td class="sum-act">0</td>
-                                        <td class="sum-diff">0</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="balance-wrapper">
-                        <table>
-                            <thead>
-                                <tr class="section-title">
-                                    <th>CÂN ĐỐI DÒNG TIỀN (THU - CHI)</th>
-                                    <th>Thặng Dư Dự Kiến</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="background-color: #ffffff;">
-                                    <td
-                                        style="width: 50%; padding: 10px; font-weight: bold; text-align: center; border: 1px solid #dee2e6; color: #2c3e50;">
-                                        LỢI NHUẬN / THẶNG DƯ</td>
-                                    <td id="balance-est"
-                                        style="width: 50%; padding: 10px; text-align: center; font-weight: bold; font-size: 17px; border: 1px solid #dee2e6;">
-                                        0</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <form id="reportForm" action="{{ route('reports.update', $report->id) }}" method="POST">
-                        @csrf @method('PUT')
-
-                        @if (!$report->items->isEmpty() && (!isset($isYearly) || !$isYearly) && Auth::user()->role == 3)
-                            <button type="submit" class="btn btn-success btn-save-all" id="btn-save-all">Lưu
-                                Tất
-                                Cả</button>
-                        @endif
-                    </form>
-                </div>
-
-                @if ($report->items->isEmpty())
-                    <div style="text-align: center; padding: 80px 20px; background: #fff; border-radius: 8px;">
-                        <i class="fas fa-folder-open" style="font-size: 50px; color: #bdc3c7; margin-bottom: 15px;"></i>
-                        <h4 style="color: #7f8c8d;">Chưa có dữ liệu báo cáo cho tháng này</h4>
-
-                        @if ((!isset($isYearly) || !$isYearly) && Auth::user()->role == 3)
-                            <form action="{{ route('reports.seed_default', $report->id) }}" method="POST"
-                                style="margin-top: 20px;">
-                                @csrf
-                                <button type="submit" class="btn btn-primary btn-seed-default"
-                                    style="padding: 10px 20px; font-size: 15px;">
-                                    + Tạo khung báo cáo mẫu ngay
-                                </button>
-                            </form>
-                        @endif
-                    </div>
-                @else
-                    <form id="reportForm" action="{{ route('reports.update', $report->id) }}" method="POST">
-                        @csrf @method('PUT')
-                        <!-- GÓI CUỘN RIÊNG CHO BẢNG CHI TIẾT -->
-                        <div class="detail-table-wrapper">
-                            <table class="detail-table">
-                                <thead>
-                                    <tr>
-                                        <th width="12%">Ngày dự kiến</th>
-                                        <th width="28%">Hạng mục chi tiết</th>
-                                        <th width="18%">Số tiền (Dự thu/chi)</th>
-                                        <th width="18%">Số tiền (Đã thu/chi)</th>
-                                        <th width="12%">Ngày thực tế</th>
-                                        <th width="12%">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="sortable-table-body">
-                                    @php
-                                        $currentMainGroup = '';
-                                        $currentSubGroup = '';
-                                        $currentType = '';
-
-                                        $mainHeaders = [
-                                            'Tiền hiện có (SDĐK)' => 'SỐ DƯ ĐẦU KỲ',
-                                            'CT' => 'I. THU CỐ ĐỊNH',
-                                            'XQ (số dự thu trong tháng)' => 'I. THU CỐ ĐỊNH',
-                                            'Thu chuyển nhượng' => 'II. THU CHUYỂN NHƯỢNG',
-                                            'Chi tiền vay Bank' => 'I. CHI TRẢ TIỀN VAY',
-                                            'Chi DV' => 'II. CHI DỊCH VỤ / CÁC KHOẢN CỐ ĐỊNH',
-                                            'Chi cố định' => 'II. CHI DỊCH VỤ / CÁC KHOẢN CỐ ĐỊNH',
-                                            'Chi nộp thuế' => 'II. CHI DỊCH VỤ / CÁC KHOẢN CỐ ĐỊNH',
-                                            'Chi trả NCC' => 'III. CHI TRẢ NỢ NCC',
-                                            'Chi mượn cá nhân' => 'IV. CHI TIỀN MƯỢN CÁ NHÂN',
-                                            'Chi khác' => 'V. CHI KHÁC',
-                                        ];
-
-                                        $subHeaders = [
-                                            'Chi DV' => '1. Chi các khoản phí DV',
-                                            'Chi cố định' => '2. Chi các khoản phí cố định',
-                                            'Chi nộp thuế' => '3. Chi nộp NSNN',
-                                            'Chi trả NCC' => '4. Chi trả nợ NCC',
-                                            'Chi mượn cá nhân' => '5. Chi tiền mượn cá nhân',
-                                            'Chi khác' => '6. Chi khác',
-                                        ];
-
-                                        $groupOrder = [
-                                            'Tiền hiện có (SDĐK)',
-                                            'CT',
-                                            'XQ (số dự thu trong tháng)',
-                                            'Thu chuyển nhượng',
-                                            'Chi tiền vay Bank',
-                                            'Chi DV',
-                                            'Chi cố định',
-                                            'Chi nộp thuế',
-                                            'Chi trả NCC',
-                                            'Chi mượn cá nhân',
-                                            'Chi khác',
-                                        ];
-
-                                        $orderedItems = $report->items
-                                            ->sortBy(function ($item) use ($groupOrder) {
-                                                $pos = array_search($item->summary_group, $groupOrder);
-                                                return $pos === false ? 999 : $pos;
-                                            })
-                                            ->values();
-                                    @endphp
-
-                                    @foreach ($orderedItems as $index => $item)
-                                        @php
-                                            $main = $mainHeaders[$item->summary_group] ?? $item->summary_group;
-                                            $sub = $subHeaders[$item->summary_group] ?? '';
-
-                                            // LOGIC TÍNH TOÁN NGÀY NHẮC NHỞ
-                                            $reminderBadge = '';
-                                            $rowBgColor = '';
-
-                                            if ($item->expected_date && $item->actual_amount == 0) {
-                                                $today = \Carbon\Carbon::now()->startOfDay();
-                                                $expected = \Carbon\Carbon::parse($item->expected_date)->startOfDay();
-                                                $diff = $today->diffInDays($expected, false); // Âm là quá hạn, dương là còn hạn
-
-                                                if ($diff < 0) {
-                                                    $rowBgColor = 'background-color: #facfcf;'; // Đỏ nhạt (Quá hạn)
-                                                    $reminderBadge =
-                                                        '<span class="overdue-badge">Quá hạn ' .
-                                                        abs($diff) .
-                                                        ' ngày</span>';
-                                                } elseif ($diff >= 0 && $diff <= 5) {
-                                                    $rowBgColor = 'background-color: #f8ecae;'; // Vàng nhạt (Sắp đến hạn trong 5 ngày)
-                                                    $reminderBadge =
-                                                        '<span class="due-soon-badge">Còn ' . $diff . ' ngày</span>';
-                                                }
-                                            }
-                                        @endphp
-
-                                        {{-- Dòng Tổng Thu / Tổng Chi --}}
-                                        @if ($currentType !== $item->type)
-                                            @if ($item->type == 'thu')
-                                                <tr class="total-thu-row">
-                                                    <td style="text-align: center;"><strong>THU</strong></td>
-                                                    <td style="text-align: center;"><em><strong>Tổng thu</strong></em></td>
-                                                    <td
-                                                        style="text-align: right; font-weight: bold; font-size: 15px; font-style: italic;">
-                                                        <span id="detail-tong-thu-est">0</span>
-                                                    </td>
-                                                    <td
-                                                        style="text-align: right; font-weight: bold; font-size: 15px; font-style: italic;">
-                                                        <span id="detail-tong-thu-act">0</span>
-                                                    </td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            @elseif($item->type == 'chi')
-                                                <tr class="total-chi-row">
-                                                    <td style="text-align: center;"><strong>CHI</strong></td>
-                                                    <td style="text-align: center;"><em><strong>Tổng Chi</strong></em></td>
-                                                    <td
-                                                        style="text-align: right; font-weight: bold; font-size: 15px; font-style: italic;">
-                                                        <span id="detail-tong-chi-est">0</span>
-                                                    </td>
-                                                    <td
-                                                        style="text-align: right; font-weight: bold; font-size: 15px; font-style: italic;">
-                                                        <span id="detail-tong-chi-act">0</span>
-                                                    </td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            @endif
-                                            @php $currentType = $item->type; @endphp
-                                        @endif
-
-                                        {{-- Tiêu đề Nhóm Lớn --}}
-                                        @if ($currentMainGroup !== $main)
-                                            <tr class="group-header" data-main-header="{{ $main }}">
-                                                <td colspan="2">
-                                                    {{-- {{ $item->type == 'thu' ? 'THU' : 'CHI' }}:  --}}
-                                                    {{ $main }}
-                                                </td>
-                                                <td style="text-align: right; color: #23bf65; font-size: 15px;"><span
-                                                        class="header-sum-est">0</span></td>
-                                                <td style="text-align: right; color: #3498db; font-size: 15px;"><span
-                                                        class="header-sum-act">0</span></td>
-                                                <td></td>
-
-                                                @if (!$sub && (!isset($isYearly) || !$isYearly) && Auth::user()->role == 3)
-                                                    <td style="text-align: center;">
-                                                        <button type="button" class="btn btn-sm add-row-btn"
-                                                            data-type="{{ $item->type }}"
-                                                            data-group="{{ $item->summary_group }}"
-                                                            data-main="{{ $main }}" data-sub="0">+ Thêm
-                                                            dòng</button>
-                                                    </td>
-                                                @else
-                                                    <td style="text-align: center;">
-                                                    </td>
-                                                @endif
-
-                                            </tr>
-                                            @php $currentMainGroup = $main; @endphp
-                                        @endif
-
-                                        {{-- Tiêu đề Nhóm Nhỏ --}}
-                                        @if ($sub && $currentSubGroup !== $sub)
-                                            <tr class="sub-header-row">
-                                                <td colspan="5" class="sub-header">
-                                                    {{ $sub }}
-                                                </td>
-
-                                                @if ((!isset($isYearly) || !$isYearly) && Auth::user()->role == 3)
-                                                    <td style="text-align: center; background-color: #fafafa;">
-                                                        <button type="button" class="btn btn-sm add-row-btn"
-                                                            data-type="{{ $item->type }}"
-                                                            data-group="{{ $item->summary_group }}"
-                                                            data-main="{{ $main }}" data-sub="1">+ Thêm
-                                                            dòng</button>
-                                                    </td>
-                                                @else
-                                                    <td style="text-align: center; background-color: #fafafa;">
-                                                    </td>
-                                                @endif
-
-                                            </tr>
-                                            @php $currentSubGroup = $sub; @endphp
-                                        @endif
-
-                                        <tr class="item-row" data-id="{{ $item->id }}"
-                                            data-group="{{ $item->summary_group }}" data-type="{{ $item->type }}"
-                                            data-main-group="{{ $main }}" style="{{ $rowBgColor }}">
-
-                                            <input type="hidden" class="row-id" name="items[{{ $index }}][id]"
-                                                value="{{ $item->id }}">
-
-                                            <td style="text-align: center">
-                                                {!! $reminderBadge !!}
-                                                <input type="date" class="date-input expected-date"
-                                                    name="items[{{ $index }}][expected_date]"
-                                                    value="{{ $item->expected_date ? $item->expected_date->format('Y-m-d') : '' }}"
-                                                    {{ (isset($isYearly) && $isYearly) || Auth::user()->role != 3 ? 'readonly' : '' }}>
-                                            </td>
-
-                                            <td
-                                                style="padding-left: {{ $sub ? '35px' : '15px' }}; text-align: left; vertical-align: middle;">
-                                                <div
-                                                    style="display: flex; align-items: center; width: 100%; height: 100%;">
-                                                    @if ((!isset($isYearly) || !$isYearly) && Auth::user()->role == 3)
-                                                        <i class="fas fa-grip-vertical drag-handle"
-                                                            style="cursor: grab; color: #bdc3c7; margin-right: 8px; font-size: 16px; padding: 10px 5px; display: flex; align-items: center; height: 100%;"></i>
-                                                    @endif
-                                                    <input type="text" class="item-name"
-                                                        name="items[{{ $index }}][name]"
-                                                        value="{{ $item->name }}"
-                                                        style="width: 100%; border: none; font-weight: bold; background: transparent; outline: none; padding: 8px 0; font-size: 15px;"
-                                                        {{ (isset($isYearly) && $isYearly) || Auth::user()->role != 3 ? 'readonly' : '' }}>
-                                                </div>
-                                            </td>
-
-                                            <td>
-                                                <input type="text" class="currency-input"
-                                                    value="{{ $item->estimated_amount }}"
-                                                    {{ (isset($isYearly) && $isYearly) || Auth::user()->role != 3 ? 'readonly' : '' }}>
-                                                <input type="hidden" class="est-input"
-                                                    name="items[{{ $index }}][estimated_amount]"
-                                                    value="{{ $item->estimated_amount }}">
-                                            </td>
-
-                                            <td>
-                                                <input type="text" class="currency-input"
-                                                    value="{{ $item->actual_amount }}"
-                                                    {{ (isset($isYearly) && $isYearly) || Auth::user()->role != 3 ? 'readonly' : '' }}>
-                                                <input type="hidden" class="act-input"
-                                                    name="items[{{ $index }}][actual_amount]"
-                                                    value="{{ $item->actual_amount }}">
-                                            </td>
-
-                                            <td>
-                                                <input type="datetime-local" class="date-input actual-date"
-                                                    name="items[{{ $index }}][actual_date]"
-                                                    value="{{ $item->actual_date ? $item->actual_date->format('Y-m-d\TH:i') : '' }}"
-                                                    {{ (isset($isYearly) && $isYearly) || Auth::user()->role != 3 ? 'readonly' : '' }}>
-                                            </td>
-
-                                            @if ((!isset($isYearly) || !$isYearly) && Auth::user()->role == 3)
-                                                <td style="text-align: center;">
-                                                    <button type="button" class="action-btn btn-save-row"
-                                                        title="Lưu dòng này">Lưu</button>
-                                                    <button type="button" class="action-btn btn-delete-row"
-                                                        title="Xóa dòng này">✕</button>
-                                                    <input type="hidden" name="items[{{ $index }}][_delete]"
-                                                        class="delete-flag" value="0">
-                                                </td>
-                                            @else
-                                                <td style="text-align: center;"></td>
-                                            @endif
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </form>
+    <div class="rp">
+        {{-- Đầu trang: cùng kiểu Công nợ / Đơn hàng (thẻ trắng, vạch cam, ô chọn có nhãn) --}}
+        <div class="rp-head">
+            <div class="rp-head__title">
+                <h1>Báo cáo thu chi</h1>
+                <p>Kế hoạch dự thu, dự chi {{ $period }}@if ($isYearly) · tổng hợp 12 tháng, chỉ xem @elseif (!$canEdit) · chỉ xem @endif</p>
+            </div>
+            <div class="rp-head__actions">
+                <label class="rp-field">
+                    <span>Tháng</span>
+                    <select id="selectMonth" aria-label="Chọn tháng" class="rp-month">
+                        <option value="all" @selected($month === 'all')>Cả năm</option>
+                        @for ($i = 1; $i <= 12; $i++)
+                            <option value="{{ $i }}" @selected($month !== 'all' && $i == $month)>{{ $i }}</option>
+                        @endfor
+                    </select>
+                </label>
+                <label class="rp-field">
+                    <span>Năm</span>
+                    <select id="selectYear" aria-label="Chọn năm">
+                        @for ($y = date('Y') + 1; $y >= 2025; $y--)
+                            <option value="{{ $y }}" @selected($y == $year)>{{ $y }}</option>
+                        @endfor
+                    </select>
+                </label>
+                @if (!$isYearly && $report->id && $report->items->isNotEmpty())
+                    <a href="{{ route('reports.export_pdf', $report->id) }}" class="rp-btn">
+                        <i class="fas fa-file-pdf"></i> Xuất PDF
+                    </a>
                 @endif
             </div>
         </div>
+
+        {{-- Thẻ tổng: report.js điền số vào các id tong-* / balance-est --}}
+        <div class="rp-kpis">
+            <section class="rp-card rp-kpi rp-card--thu">
+                <h2 class="rp-card__title"><i class="fas fa-arrow-down"></i> Tổng thu</h2>
+                <dl class="rp-kpi__grid">
+                    <div><dt>Dự thu</dt><dd id="tong-thu-est">0</dd></div>
+                    <div class="is-ok"><dt>Đã thu</dt><dd id="tong-thu-act">0</dd></div>
+                    <div><dt>Còn phải thu</dt><dd id="tong-thu-diff">0</dd></div>
+                </dl>
+            </section>
+            <section class="rp-card rp-kpi rp-card--chi">
+                <h2 class="rp-card__title"><i class="fas fa-arrow-up"></i> Tổng chi</h2>
+                <dl class="rp-kpi__grid">
+                    <div><dt>Dự chi</dt><dd id="tong-chi-est">0</dd></div>
+                    <div class="is-ok"><dt>Đã chi</dt><dd id="tong-chi-act">0</dd></div>
+                    <div><dt>Chưa chi</dt><dd id="tong-chi-diff">0</dd></div>
+                </dl>
+            </section>
+            <section class="rp-card rp-kpi rp-kpi--balance" id="balance-card">
+                <h2 class="rp-card__title"><i class="fas fa-balance-scale"></i> Cân đối dự kiến</h2>
+                <p class="rp-kpi__big" id="balance-est">0</p>
+                <p class="rp-kpi__note">Tổng dự thu − tổng dự chi</p>
+            </section>
+            <section class="rp-card rp-kpi rp-card--debt">
+                <h2 class="rp-card__title"><i class="fas fa-file-invoice-dollar"></i> Công nợ X-Quang {{ $year }}</h2>
+                <dl class="rp-kpi__grid">
+                    <div class="is-bad"><dt>Tổng còn nợ</dt><dd>{{ $money($accStats->total_price ?? 0) }}</dd></div>
+                    <div><dt>Đã xuất HĐ</dt><dd>{{ $money($accStats->total_da_xuat_hd ?? 0) }}</dd></div>
+                    <div><dt>Chưa xuất HĐ</dt><dd>{{ $money($accStats->total_chua_xuat_hd ?? 0) }}</dd></div>
+                </dl>
+            </section>
+        </div>
+
+        {{-- Tổng theo nhóm (report.js điền sum-est / sum-act / sum-diff theo data-group) --}}
+        <div class="rp-sums">
+            @foreach (['thu' => $thuGroups, 'chi' => $chiGroups] as $type => $groups)
+                <section class="rp-card rp-card--{{ $type }}">
+                    <h2 class="rp-card__title"><i class="fas fa-arrow-{{ $type === 'thu' ? 'down' : 'up' }}"></i> {{ $type === 'thu' ? 'Thu theo nhóm' : 'Chi theo nhóm' }}</h2>
+                    <div class="rp-scroll">
+                        <table class="rp-sum">
+                            <thead>
+                                <tr>
+                                    <th>Nhóm</th>
+                                    <th>{{ $type === 'thu' ? 'Dự thu' : 'Dự chi' }}</th>
+                                    <th>{{ $type === 'thu' ? 'Đã thu' : 'Đã chi' }}</th>
+                                    <th>{{ $type === 'thu' ? 'Còn lại' : 'Chưa chi' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($groups as $g)
+                                    <tr class="summary-row" data-group="{{ $g }}" data-type="{{ $type }}">
+                                        <td>{{ $groupLabel[$g] ?? $g }}</td>
+                                        <td class="sum-est">0</td>
+                                        <td class="sum-act">0</td>
+                                        <td class="sum-diff">0</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            @endforeach
+        </div>
+
+        @if ($report->items->isEmpty())
+            <section class="rp-card rp-empty">
+                <i class="fas fa-folder-open"></i>
+                <h2>Chưa có báo cáo {{ $period }}</h2>
+                @if ($canEdit)
+                    <p>Tạo khung mẫu gồm các khoản thu chi thường gặp (CT, XQ, vay ngân hàng, lương, thuế…) rồi sửa số cho tháng này.</p>
+                    <form action="{{ route('reports.seed_default', $report->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="rp-btn rp-btn--primary"><i class="fas fa-plus"></i> Tạo khung báo cáo mẫu</button>
+                    </form>
+                @elseif ($isYearly)
+                    <p>Năm {{ $year }} chưa có báo cáo tháng nào.</p>
+                @else
+                    <p>Phòng Kế toán chưa lập báo cáo cho tháng này.</p>
+                @endif
+            </section>
+        @else
+            <section class="rp-card rp-detail">
+                {{-- Đầu bảng chi tiết: nút Lưu tất cả ngay trên bảng nó lưu; có thay đổi chưa lưu thì hiện thêm thanh lưu nổi dưới màn hình --}}
+                <div class="rp-detail__head">
+                    <div class="rp-detail__info">
+                        <h2 class="rp-card__title">Chi tiết dự thu / dự chi</h2>
+                        <div class="rp-legend">
+                            <span class="rp-badge rp-badge--overdue">Quá hạn</span>
+                            <span class="rp-badge rp-badge--soon">Còn ≤ 5 ngày</span>
+                            @if ($canEdit)
+                                <span class="rp-legend__hint"><i class="fas fa-grip-vertical"></i> kéo để đổi thứ tự trong nhóm · nút <i class="fas fa-check"></i> lưu 1 dòng và gửi email báo cập nhật</span>
+                            @endif
+                        </div>
+                    </div>
+                    @if ($canEdit)
+                        <div class="rp-detail__save">
+                            <button type="submit" form="reportForm" class="rp-btn rp-btn--primary rp-save-all" id="btn-save-all" title="Lưu toàn bộ bảng (không gửi email)">
+                                <i class="fas fa-save"></i> <span>Lưu tất cả</span>
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
+                <form id="reportForm" action="{{ route('reports.update', $report->id) }}" method="POST">
+                    @csrf @method('PUT')
+                    <div class="rp-scroll">
+                        <table class="rp-table{{ $canEdit ? ' is-editable' : '' }}">
+                            <thead>
+                                <tr>
+                                    <th class="rp-col-name">Hạng mục</th>
+                                    <th class="rp-col-date">Ngày dự kiến</th>
+                                    <th class="rp-col-money">Dự thu / chi</th>
+                                    <th class="rp-col-money">Đã thu / chi</th>
+                                    <th class="rp-col-date">Ngày thực tế</th>
+                                    @if ($canEdit)
+                                        <th class="rp-col-act"></th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody id="sortable-table-body">
+                                @php
+                                    $currentMainGroup = $currentSubGroup = $currentType = '';
+                                    $cols = $canEdit ? 6 : 5;
+                                @endphp
+                                @foreach ($orderedItems as $index => $item)
+                                    @php
+                                        $main = $mainHeaders[$item->summary_group] ?? $item->summary_group;
+                                        $sub = $subHeaders[$item->summary_group] ?? '';
+                                        // Nhắc hạn: khoản chưa thu / chi có ngày dự kiến đã qua hoặc trong 5 ngày tới
+                                        $badge = '';
+                                        $rowClass = '';
+                                        if ($item->expected_date && $item->actual_amount == 0 && $item->estimated_amount > 0) {
+                                            $diff = $today->diffInDays(\Carbon\Carbon::parse($item->expected_date)->startOfDay(), false);
+                                            if ($diff < 0) {
+                                                $rowClass = 'is-overdue';
+                                                $badge = '<span class="rp-badge rp-badge--overdue">Quá hạn ' . abs($diff) . ' ngày</span>';
+                                            } elseif ($diff <= 5) {
+                                                $rowClass = 'is-soon';
+                                                $badge = '<span class="rp-badge rp-badge--soon">' . ($diff === 0 ? 'Hôm nay' : 'Còn ' . $diff . ' ngày') . '</span>';
+                                            }
+                                        }
+                                    @endphp
+
+                                    {{-- Dải THU / CHI --}}
+                                    @if ($currentType !== $item->type)
+                                        <tr class="rp-band rp-band--{{ $item->type }} {{ $item->type === 'thu' ? 'total-thu-row' : 'total-chi-row' }}">
+                                            <td>{{ $item->type === 'thu' ? 'Thu' : 'Chi' }}</td>
+                                            <td class="rp-band__label">{{ $item->type === 'thu' ? 'Tổng thu' : 'Tổng chi' }}</td>
+                                            <td class="rp-num"><span id="detail-tong-{{ $item->type }}-est">0</span></td>
+                                            <td class="rp-num"><span id="detail-tong-{{ $item->type }}-act">0</span></td>
+                                            <td colspan="{{ $cols - 4 }}"></td>
+                                        </tr>
+                                        @php $currentType = $item->type; @endphp
+                                    @endif
+
+                                    {{-- Nhóm lớn --}}
+                                    @if ($currentMainGroup !== $main)
+                                        <tr class="group-header rp-group" data-main-header="{{ $main }}">
+                                            <td colspan="2">{{ $main }}</td>
+                                            <td class="rp-num rp-num--est"><span class="header-sum-est">0</span></td>
+                                            <td class="rp-num rp-num--act"><span class="header-sum-act">0</span></td>
+                                            <td></td>
+                                            @if ($canEdit)
+                                                <td class="rp-col-act">
+                                                    @if (!$sub)
+                                                        <button type="button" class="rp-add add-row-btn" data-type="{{ $item->type }}"
+                                                            data-group="{{ $item->summary_group }}" data-main="{{ $main }}" data-sub="0">+ Thêm dòng</button>
+                                                    @endif
+                                                </td>
+                                            @endif
+                                        </tr>
+                                        @php $currentMainGroup = $main; @endphp
+                                    @endif
+
+                                    {{-- Nhóm nhỏ --}}
+                                    @if ($sub && $currentSubGroup !== $sub)
+                                        <tr class="rp-subgroup">
+                                            <td colspan="5">{{ $sub }}</td>
+                                            @if ($canEdit)
+                                                <td class="rp-col-act">
+                                                    <button type="button" class="rp-add add-row-btn" data-type="{{ $item->type }}"
+                                                        data-group="{{ $item->summary_group }}" data-main="{{ $main }}" data-sub="1">+ Thêm dòng</button>
+                                                </td>
+                                            @endif
+                                        </tr>
+                                        @php $currentSubGroup = $sub; @endphp
+                                    @endif
+
+                                    @php
+                                        // Dòng lấy số tự động: VCB chú Lộc (Sổ VCB) / CT (Công nợ CT) — chỉ sửa được ngày dự kiến
+                                        $auto = $item->auto_key;
+                                        $lock = !$canEdit || $auto;
+                                        // Bấm "Tự động": VCB -> sổ VCB tháng trước (số dư cuối tháng đó là số đầu kỳ);
+                                        // CT -> Công nợ CT đúng bệnh viện, đánh dấu các kỳ tạo nên số của tháng báo cáo
+                                        $autoUrl = null;
+                                        if ($auto === 'vcb') {
+                                            $prev = \Carbon\Carbon::create($year, (int) $month, 1)->subMonth();
+                                            $autoUrl = route('vcb.index', ['year' => $prev->year, 'month' => $prev->month]);
+                                        } elseif ($auto) {
+                                            [, $ctCode, $ctKind] = array_pad(explode(':', $auto), 3, 'thuong');
+                                            $ctPartnerIds ??= \App\Models\Accounting\CtPartner::pluck('id', 'code');
+                                            $autoUrl = route('ct.index', ['year' => $year, 'partner' => $ctPartnerIds[$ctCode] ?? null, 'loai' => $ctKind, 'bao_cao' => (int) $month]);
+                                        }
+                                    @endphp
+                                    <tr class="item-row {{ $rowClass }}{{ $sub ? ' is-sub' : '' }}{{ $auto ? ' is-auto' : '' }}" data-id="{{ $item->id }}"
+                                        data-group="{{ $item->summary_group }}" data-type="{{ $item->type }}" data-main-group="{{ $main }}">
+                                        <td class="rp-col-name">
+                                            <input type="hidden" class="row-id" name="items[{{ $index }}][id]" value="{{ $item->id }}">
+                                            <div class="rp-name">
+                                                @if ($canEdit)
+                                                    <i class="fas fa-grip-vertical drag-handle" title="Kéo để đổi thứ tự"></i>
+                                                @endif
+                                                <input type="text" class="item-name" name="items[{{ $index }}][name]" value="{{ $item->name }}"
+                                                    @readonly($lock) aria-label="Hạng mục">
+                                                @if ($auto)
+                                                    <a href="{{ $autoUrl }}" class="rp-auto" title="{{ $auto === 'vcb' ? 'Số dư cuối tháng trước của Sổ VCB chú Lộc' : 'Dự thu = phần Medicen còn phải thu đến đầu tháng; Đã thu = tiền nhận trong tháng (Công nợ CT)' }}"><i class="fas fa-link"></i> Tự động</a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="rp-col-date">
+                                            <input type="date" class="date-input expected-date" name="items[{{ $index }}][expected_date]"
+                                                value="{{ $item->expected_date ? $item->expected_date->format('Y-m-d') : '' }}" @readonly(!$canEdit) aria-label="Ngày dự kiến">
+                                            {!! $badge !!}
+                                        </td>
+                                        <td class="rp-col-money">
+                                            <input type="text" class="currency-input" inputmode="numeric" value="{{ $item->estimated_amount }}" @readonly($lock) aria-label="Số tiền dự kiến">
+                                            <input type="hidden" class="est-input" name="items[{{ $index }}][estimated_amount]" value="{{ $item->estimated_amount }}">
+                                        </td>
+                                        <td class="rp-col-money">
+                                            <input type="text" class="currency-input" inputmode="numeric" value="{{ $item->actual_amount }}" @readonly($lock) aria-label="Số tiền thực tế">
+                                            <input type="hidden" class="act-input" name="items[{{ $index }}][actual_amount]" value="{{ $item->actual_amount }}">
+                                        </td>
+                                        <td class="rp-col-date">
+                                            <input type="datetime-local" class="date-input actual-date" name="items[{{ $index }}][actual_date]"
+                                                value="{{ $item->actual_date ? $item->actual_date->format('Y-m-d\TH:i') : '' }}" @readonly($lock) aria-label="Ngày thực tế">
+                                        </td>
+                                        @if ($canEdit)
+                                            <td class="rp-col-act">
+                                                @if (!$auto)
+                                                <button type="button" class="rp-icon btn-save-row" title="Lưu dòng này (gửi email báo cập nhật)" aria-label="Lưu dòng"><i class="fas fa-check"></i></button>
+                                                <button type="button" class="rp-icon rp-icon--danger btn-delete-row" title="Xóa dòng này" aria-label="Xóa dòng"><i class="fas fa-trash-alt"></i></button>
+                                                @endif
+                                                <input type="hidden" name="items[{{ $index }}][_delete]" class="delete-flag" value="0">
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </section>
+            @if ($canEdit)
+                <div class="rp-savebar" id="rp-savebar" hidden>
+                    <span><i class="fas fa-circle"></i> Có <b id="rp-dirty-count">0</b> dòng đã sửa chưa lưu</span>
+                    <button type="submit" form="reportForm" class="rp-btn rp-btn--primary rp-save-all"><i class="fas fa-save"></i> <span>Lưu tất cả</span></button>
+                </div>
+            @endif
+        @endif
     </div>
+    @include('pages.admin.partials.dialog')
 @endsection
 @push('js')
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script src="{{ versionResource('assets/js/tool/report.js') }}" defer></script>
-    <script src="{{ versionResource('assets/js/support/essential.js') }}" defer></script>
-    <script defer>
-        var url_reports_update = "{{ route('reports.update', $report->id) }}";
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+    <script>
+        var url_reports_update = "{{ route('reports.update', $report->id ?: 0) }}";
         var url_reports_update_order = "{{ route('reports.update_order') }}";
     </script>
+    <script src="{{ versionResource('assets/js/tool/report.js') }}" defer></script>
 @endpush

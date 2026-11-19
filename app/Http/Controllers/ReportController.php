@@ -21,10 +21,27 @@ class ReportController extends Controller
         $this->reportRepo = $reportRepo;
     }
 
+    /**
+     * Người được lập / sửa báo cáo thu chi: tài khoản Kế toán (role 3 hoặc phòng ban ke_toan).
+     * Các tài khoản khác vào được trang (nhóm quyền debt_accountant) chỉ xem.
+     */
+    public static function canEdit($user): bool
+    {
+        return $user && ((int) $user->role === 3 || $user->department === 'ke_toan');
+    }
+
+    private function authorizeEdit(): void
+    {
+        abort_unless(self::canEdit(auth()->user()), 403, 'Chỉ phòng Kế toán được sửa báo cáo thu chi.');
+    }
+
     public function index(Request $request)
     {
         $month = $request->input('month', date('n'));
-        $year = $request->input('year', date('Y'));
+        $year = (int) $request->input('year', date('Y'));
+        if ($month !== 'all') {
+            $month = max(1, min(12, (int) $month));
+        }
 
         if ($month === 'all') {
             $reports = Report::with(['items' => function ($query) {
@@ -45,6 +62,9 @@ class ReportController extends Controller
             $isYearly = true;
         } else {
             $report = $this->reportRepo->getReportByPeriod($month, $year);
+            // Dòng VCB chú Lộc / CT lấy số từ Sổ VCB và Công nợ CT
+            app(\App\Services\Accounting\ReportAutoSync::class)->sync($report);
+            $report->load(['items' => fn ($q) => $q->orderBy('sort_order', 'asc')]);
             $isYearly = false;
         }
 
@@ -55,15 +75,23 @@ class ReportController extends Controller
 
     public function seedDefault($id)
     {
+        $this->authorizeEdit();
         $report = Report::findOrFail($id);
+        if ($report->items()->exists()) {
+            return redirect()->back()->with('error', 'Báo cáo tháng này đã có dữ liệu.');
+        }
 
         $this->reportRepo->seedDefaultItems($report);
+        $sync = app(\App\Services\Accounting\ReportAutoSync::class);
+        $sync->tagDefaults($report);
+        $sync->sync($report);
 
         return redirect()->back()->with('success', 'Đã tạo khung báo cáo mẫu thành công!');
     }
 
     public function update(UpdateReportRequest $request, $id)
     {
+        $this->authorizeEdit();
         $report = $this->reportRepo->updateReportItems($id, $request->validated('items'));
 
         if ($request->boolean('send_mail')) {
@@ -90,6 +118,7 @@ class ReportController extends Controller
 
     public function updateOrder(Request $request)
     {
+        $this->authorizeEdit();
         $orders = $request->input('orders');
 
         if ($orders && is_array($orders)) {
@@ -103,6 +132,7 @@ class ReportController extends Controller
 
     public function exportPdf($id)
     {
+        app(\App\Services\Accounting\ReportAutoSync::class)->sync(Report::findOrFail($id));
         // 1. Tìm cuốn báo cáo và load items kèm theo
         $report = Report::with(['items' => function ($query) {
             $query->orderBy('sort_order', 'asc');

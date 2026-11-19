@@ -15,6 +15,7 @@ class ReportItem extends Model
         'report_id',
         'type',
         'summary_group',
+        'auto_key',
         'name',
         'sort_order',
         'expected_date',
