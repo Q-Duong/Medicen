@@ -943,3 +943,62 @@ body.is-internal .sch-sec .main-file .delete-file {
 }
 body.is-internal .sch-sec .main-file .delete-file i { color: #b42318; font-size: 13px; }
 body.is-internal .sch-sec .main-file .delete-file:hover { border-color: #b42318; background: #fdecea; }
+
+/* Tên file dài: cắt bằng "…" trong phạm vi dòng, nút Xem / Xóa giữ nguyên cỡ */
+body.is-internal .sch-sec .event-item > span { min-width: 0; max-width: 100%; }
+body.is-internal .sch-sec .main-file .file-content { min-width: 0; }
+body.is-internal .sch-sec .main-file .file-name {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+body.is-internal .sch-sec .main-file .file-name::before { display: inline-block; margin-right: 8px; }
+body.is-internal .sch-sec .main-file .file-action { flex: 0 0 auto; }
+body.is-internal .sch-sec .main-file .download-file { flex: 0 0 auto; white-space: nowrap; }
+
+/* ---------- Điện thoại ---------- */
+@media only screen and (max-width: 799px) {
+    /* Hàng thẻ mỗi xe: chừa chỗ dưới để thấy hết viền / bóng thẻ */
+    body.is-internal .cd-schedule .events .events-group > ul { padding-bottom: 16px; }
+
+    /* Popup chi tiết: tấm trượt gần kín màn hình, đầu sát trên, phần nội dung cuộn được tới hết nút Cập nhật */
+    body.is-internal .cd-schedule .event-modal {
+        top: 10px;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        border-radius: 18px 18px 0 0;
+        overflow: hidden;
+    }
+    body.is-internal .cd-schedule .event-modal .header { flex: 0 0 auto; height: auto; }
+    body.is-internal .cd-schedule .event-modal .header .content { padding: 14px 58px 12px 16px; }
+    body.is-internal .cd-schedule .event-modal .header .sub-title { gap: 5px; margin-bottom: 6px; font-size: 12.5px; }
+    body.is-internal .cd-schedule .event-modal .header .sub-title > span:not(.line) { padding: 3px 9px; }
+    body.is-internal .cd-schedule .event-modal .close { top: 12px; right: 12px; }
+    body.is-internal .cd-schedule .event-modal .body { display: flex; flex: 1 1 auto; flex-direction: column; height: auto; min-height: 0; }
+    body.is-internal .cd-schedule .event-modal .event-info { flex: 1 1 auto; height: auto; min-height: 0; padding: 4px 16px calc(24px + env(safe-area-inset-bottom)); }
+}
+@media only screen and (max-width: 799px) {
+    /* Popup chi tiết trên điện thoại: phủ kín màn hình, sát mép trên và hai bên (JS gốc có thể đặt width / top inline) */
+    body.is-internal .cd-schedule .event-modal {
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        border-radius: 0;
+    }
+    body.is-internal .cd-schedule .event-modal .header,
+    body.is-internal .cd-schedule .event-modal .header-bg { border-radius: 0; }
+    body.is-internal .cd-schedule .event-modal .header .content { padding-top: calc(14px + env(safe-area-inset-top)); }
+    body.is-internal .cd-schedule .event-modal .close { top: calc(12px + env(safe-area-inset-top)); }
+}
+
+/* Ô Hình thức trả kết quả: nhãn canh giữa theo chiều dọc với 2 nút chọn */
+.sch-sec--form form > .sch-field-block.is-half > legend { display: flex; align-items: center; align-self: center; height: auto; margin: 0 !important; padding: 0 !important; line-height: 1.25; }
+.sch-sec--form form > .sch-field-block.is-half .rs-form-label-header { margin: 0 !important; padding: 0 !important; color: var(--sh-muted); font-size: 12.5px !important; font-weight: 500; line-height: 1.25 !important; }
