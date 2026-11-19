@@ -81,7 +81,9 @@ class ReportController extends Controller
             return redirect()->back()->with('error', 'Báo cáo tháng này đã có dữ liệu.');
         }
 
-        $this->reportRepo->seedDefaultItems($report);
+        // Tạo khung mẫu: ghi 1 dòng nhật ký thay cho từng khoản
+        \App\Models\ActivityLog::muted(fn () => $this->reportRepo->seedDefaultItems($report));
+        \App\Models\ActivityLog::record('bao_cao_thu_chi', 'them', 'Tạo khung báo cáo mẫu tháng ' . $report->month . '/' . $report->year, $report);
         $sync = app(\App\Services\Accounting\ReportAutoSync::class);
         $sync->tagDefaults($report);
         $sync->sync($report);

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /** Công nợ CT: một bệnh viện, một tháng (kind: thuong | bhyt) */
 class CtReceivable extends Model
 {
+    use \App\Models\Concerns\RecordsActivity;
+
     public const KINDS = ['thuong' => 'Ca chụp', 'bhyt' => 'BHYT'];
 
     protected $table = 'ct_receivables';
@@ -45,5 +47,22 @@ class CtReceivable extends Model
     {
         return ($this->partner->name ?? '?') . ' T' . $this->month . '/' . $this->year
             . ($this->kind === 'bhyt' ? ' (BHYT' . ($this->label ? ' ' . $this->label : '') . ')' : '');
+    }
+
+    public function activityArea(): string
+    {
+        return 'cong_no_ct';
+    }
+
+    public function activityTitle(): string
+    {
+        return 'kỳ CT ' . $this->title;
+    }
+
+    public function activityFields(): array
+    {
+        return ['partner_id' => 'Bệnh viện (mã)', 'month' => 'Tháng', 'year' => 'Năm', 'kind' => 'Loại', 'label' => 'Đợt BHYT', 'quantity' => 'Số ca',
+            'revenue' => 'Doanh thu', 'cost' => 'Chi phí', 'hospital_share' => 'BV chia lãi', 'medicen_share' => 'Medicen chia lãi',
+            'hospital_collect' => 'BV thu về', 'medicen_collect' => 'Medicen thu về', 'note' => 'Ghi chú'];
     }
 }

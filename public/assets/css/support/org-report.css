@@ -973,3 +973,84 @@ details[open] > summary.bk-edit { border-color: #2f6fd1; background: #2f6fd1; co
 .bk-toast__text b { display: block; color: var(--bk-tone); font-size: 13px; }
 .bk-toast__close { flex: none; width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #a3a19b; cursor: pointer; }
 .bk-toast__close:hover { background: #f5f4ef; color: #1f1e1d; }
+
+/* ==========================================================================
+   Phân tích tài chính (pages/admin/finance): tiền kẹt & tuổi nợ, lãi ước tính, dòng tiền 13 tuần
+   ========================================================================== */
+.fn .rp-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fn-kpi--stuck { border-color: #f0d58a; background: #fffaeb; }
+.fn-sub { color: var(--rp-muted, #73716c); font-size: 12px; font-weight: 500; }
+.fn-warn { color: #a15c00; }
+.fn-bad { color: #b42318; }
+.fn-stuck { color: #8a5a00; background: #fffaeb; }
+.fn-in { color: #0f7a52; }
+.fn-out { color: #b42318; }
+.fn-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.fn-two > .rp-card { min-width: 0; }
+.fn-list { max-height: 460px; overflow-y: auto; }
+.fn-chart { position: relative; height: 320px; }
+.fn-filter { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; }
+.fn-filter .bk-hint { flex: 1 1 320px; margin: 0; }
+.fn-filter .rp-field input, .fn-filter .rp-field select { min-width: 150px; }
+
+.fn-aging { display: grid; gap: 8px; }
+.fn-aging__row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 140px 70px; align-items: center; gap: 12px; font-size: 14px; }
+.fn-aging__label { font-weight: 600; }
+.fn-aging__bar { height: 14px; border-radius: 999px; background: #f1efe9; overflow: hidden; }
+.fn-aging__bar i { display: block; height: 100%; border-radius: 999px; background: #2f6fd1; }
+.fn-aging__amt { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fn-aging__cnt { color: var(--rp-muted, #73716c); font-size: 12.5px; text-align: right; }
+.fn-aging__row--chua_den_han .fn-aging__bar i { background: #0f9d6b; }
+.fn-aging__row--qh_1_30 .fn-aging__bar i { background: #d49b00; }
+.fn-aging__row--qh_31_60 .fn-aging__bar i { background: #e0703a; }
+.fn-aging__row--qh_61_90 .fn-aging__bar i { background: #c94a2c; }
+.fn-aging__row--qh_tren_90 .fn-aging__bar i { background: #b42318; }
+.fn-aging__row--chua_xuat_hd .fn-aging__bar i { background: #8a5a00; }
+
+.fn-cash tr.is-alert td { background: #fdf1ef; }
+.fn-items { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; }
+.fn-items small { color: var(--rp-muted, #73716c); }
+.fn-notes { margin: 0; padding-left: 18px; color: #4a4843; font-size: 13.5px; line-height: 1.6; }
+
+@media (max-width: 991px) {
+    .fn .rp-kpis, .fn-two { grid-template-columns: 1fr; }
+    .fn-aging__row { grid-template-columns: 120px minmax(0, 1fr) 110px; }
+    .fn-aging__cnt { display: none; }
+    .fn-chart { height: 260px; }
+}
+/* Khoảng cách giữa các khối của trang Phân tích tài chính */
+.fn > .rp-card, .fn > .fn-two, .fn > .fn-filter { margin-bottom: 14px; }
+
+/* Ô lọc / giả định trên trang Phân tích tài chính: nhãn nhỏ trên, ô nhập cao 42px, nút cùng hàng */
+.fn-filter { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 14px; padding: 14px 18px; }
+.fn-f { display: flex; flex-direction: column; gap: 5px; flex: 1 1 130px; min-width: 120px; max-width: 240px; margin: 0; }
+.fn-f--wide { flex-basis: 180px; max-width: 280px; }
+.fn-f > span:first-child { overflow: hidden; color: var(--rp-muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.fn-f > span:first-child em { color: var(--rp-faint); font-style: normal; font-weight: 500; }
+.fn-f input, .fn-f select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--rp-line);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--rp-ink);
+    font-size: 14.5px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    outline: 0;
+    transition: border-color .15s, box-shadow .15s;
+}
+.fn-f select { padding-right: 30px; cursor: pointer; }
+.fn-f input:focus, .fn-f select:focus { border-color: var(--rp-accent); box-shadow: 0 0 0 3px var(--rp-accent-soft); }
+.fn-f input::placeholder { color: var(--rp-faint); font-weight: 500; }
+.fn-f__unit { position: relative; display: block; }
+.fn-f__unit input { padding-right: 34px; }
+.fn-f__unit i { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); color: var(--rp-muted); font-size: 13px; font-style: normal; font-weight: 600; pointer-events: none; }
+.fn-f__unit input[type=number]::-webkit-inner-spin-button { opacity: .4; }
+.fn-filter > .rp-btn { flex: 0 0 auto; height: 42px; padding: 0 18px; border-radius: 11px; }
+.fn-filter > .bk-hint { flex: 1 1 100%; order: 10; margin: 0; }
+@media (max-width: 767px) {
+    .fn-f, .fn-f--wide { flex: 1 1 calc(50% - 7px); max-width: none; min-width: 0; }
+    .fn-filter > .rp-btn { flex: 1 1 100%; justify-content: center; }
+}

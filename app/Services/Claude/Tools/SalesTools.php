@@ -199,13 +199,16 @@ class SalesTools implements DepartmentTools
             [
                 'name' => 'xem_cong_no',
                 'description' => 'Xem công nợ chưa thanh toán của một đơn vị: từng hóa đơn (số HĐ, ngày xuất, hạn thanh toán, số tiền, số ngày quá hạn) '
-                    . 'và tổng nợ, tổng nợ quá hạn. Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ.',
+                    . 'và tổng nợ, tổng nợ quá hạn. Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ. '
+                    . 'Ghi loc (không cần tu_khoa) để lấy danh sách đơn của MỌI đơn vị: qua_han (đã quá hạn), sap_den_han (đến hạn trong so_ngay ngày tới), '
+                    . 'chua_xuat_hd (còn nợ nhưng chưa xuất hóa đơn).',
                 'input_schema' => [
                     'type' => 'object',
                     'properties' => [
-                        'tu_khoa' => ['type' => 'string', 'description' => 'Tên, tên viết tắt hoặc mã đơn vị'],
+                        'tu_khoa' => ['type' => 'string', 'description' => 'Tên, tên viết tắt hoặc mã đơn vị (bắt buộc nếu không ghi loc)'],
+                        'loc' => ['type' => 'string', 'enum' => ['qua_han', 'sap_den_han', 'chua_xuat_hd'], 'description' => 'Lọc danh sách đơn theo hạn thanh toán'],
+                        'so_ngay' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 90, 'description' => 'Với loc = sap_den_han: số ngày tới, mặc định 7'],
                     ],
-                    'required' => ['tu_khoa'],
                     'additionalProperties' => false,
                 ],
             ],
@@ -222,7 +225,9 @@ class SalesTools implements DepartmentTools
             'xem_lich_xe' => $this->carSchedule($this->requireDate($input, 'tu_ngay'), $this->requireDate($input, 'den_ngay')),
             'xem_nguoi_di_don' => $this->crew($input),
             'xem_nhan_su' => $this->staffList($input),
-            'xem_cong_no' => $this->debts($this->requireString($input, 'tu_khoa')),
+            'xem_cong_no' => !empty($input['loc'])
+                ? app(\App\Services\Accountant\DebtList::class)->find((string) $input['loc'], (int) ($input['so_ngay'] ?? 7), trim((string) ($input['tu_khoa'] ?? '')) ?: null)
+                : $this->debts($this->requireString($input, 'tu_khoa')),
             default => throw new InvalidArgumentException("Tool không tồn tại: {$name}"),
         };
     }

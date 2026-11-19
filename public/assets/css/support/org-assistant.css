@@ -1028,3 +1028,50 @@
         display: none;
     }
 }
+
+/* Tab "Tất cả nhân viên": nhóm theo người, bấm để mở / gập */
+.conv-group { margin-top: 4px; }
+.conv-group:first-child { margin-top: 0; }
+.conv-group__btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--ink);
+    font-size: 13.5px;
+    font-weight: 650;
+    text-align: left;
+}
+.conv-group__btn:hover { background: #eae7df; }
+.conv-group__chev { flex: 0 0 auto; width: 10px; color: var(--faint); font-size: 10px; transition: transform .15s; }
+.conv-group.is-open .conv-group__chev { transform: rotate(90deg); }
+.conv-group__name { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.conv-group__count { flex: 0 0 auto; padding: 1px 8px; border-radius: 999px; background: #eae7df; color: var(--faint); font-size: 11.5px; font-weight: 600; }
+.conv-group.is-open + .conv,
+.conv-group.is-open ~ .conv { margin-left: 14px; }
+.conv-group ~ .conv { margin-left: 14px; }
+
+/* Cuộc trò chuyện nhân viên đã xóa (chỉ Admin thấy) */
+.conv.is-deleted .conv__title { color: var(--faint); text-decoration: line-through; text-decoration-color: rgba(0, 0, 0, .25); }
+.conv.is-deleted .conv__meta { color: #b42318; }
+
+/* Biểu đồ trong câu trả lời (khối ```bieu-do```, vẽ bằng Chart.js) */
+.md-chart {
+    margin: 10px 0 14px;
+    padding: 12px 14px 10px;
+    border: 1px solid #e2ded3;
+    border-radius: 12px;
+    background: #fff;
+}
+.md-chart__title { margin-bottom: 8px; color: var(--ink); font-size: 13.5px; font-weight: 650; }
+.md-chart__box { position: relative; height: 280px; }
+.md-chart__note { margin-top: 6px; color: var(--faint); font-size: 12px; }
+.md-chart__err { display: grid; place-items: center; height: 100%; color: var(--faint); font-size: 13px; text-align: center; }
+@media (max-width: 768px) {
+    .md-chart { padding: 10px 8px 8px; }
+    .md-chart__box { height: 230px; }
+}

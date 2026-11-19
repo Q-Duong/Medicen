@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('assistant:prune')->dailyAt('02:00');
         // Nhắc người xếp lịch: đơn sắp chạy chưa xếp xe, giữ chỗ chưa lên đơn
         $schedule->command('schedule:remind')->dailyAt(config('schedule.remind_at', '16:00'));
+        // Tài chính: cảnh báo sớm sáng thứ Hai, báo cáo CFO tự động ngày 3 hằng tháng (người nhận: config/finance.php)
+        $schedule->command('finance:alerts')->weeklyOn(1, '07:30');
+        $schedule->command('finance:cfo-report')->monthlyOn(3, '08:00')->withoutOverlapping(60);
     }
 
     /**

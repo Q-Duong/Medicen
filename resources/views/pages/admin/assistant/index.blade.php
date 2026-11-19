@@ -13,6 +13,9 @@
             'department' => $department,
             'modes' => $modes,
             'initialConversation' => $initialConversation,
+            // Đầu trang PDF khi xuất câu trả lời
+            'assistantTitle' => $title,
+            'userName' => auth()->user()?->display_name,
         ];
     @endphp
     <div class="assistant" id="assistant" data-config='@json($assistantConfig)'>

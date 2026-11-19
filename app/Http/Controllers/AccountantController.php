@@ -383,6 +383,34 @@ class AccountantController extends Controller
 	}
 
 	/** Lưu một dòng, trả về mảng kết quả (success / conflict / message, computed, order_status) */
+	/** Nhãn cột trang Công nợ cho nhật ký thao tác */
+	private const DEBT_LABELS = [
+		'order_quantity' => 'Số ca', 'order_cost' => 'Đơn giá', 'order_price' => 'Thành tiền', 'order_vat' => 'VAT',
+		'order_percent_discount' => '% chiết khấu', 'order_discount' => 'Chiết khấu', 'order_profit' => 'Lợi nhuận',
+		'accountant_amount_paid' => 'Đã thanh toán', 'accountant_owe' => 'Còn nợ', 'accountant_day_payment' => 'Ngày thanh toán',
+		'accountant_payment' => 'Trạng thái thanh toán', 'accountant_method' => 'Hình thức TT', 'accountant_number' => 'Số HĐ',
+		'accountant_date' => 'Ngày HĐ', 'accountant_deadline' => 'Hạn thanh toán', 'accountant_distance' => 'Khoảng cách',
+		'accountant_note' => 'Ghi chú', 'accountant_doctor_read' => 'Bác sĩ đọc', 'accountant_doctor_date_payment' => 'Ngày TT bác sĩ',
+		'accountant_35X43' => '35x43', 'accountant_polime' => 'Polime', 'accountant_8X10' => '8x10', 'accountant_10X12' => '10x12',
+		'accountant_film_bag' => 'Túi phim', 'accountant_month' => 'Tháng', 'accountant_discount_day' => 'Ngày CK',
+	];
+
+	private function logDebtChange(Accountant $accountant, array $before, array $after): void
+	{
+		$changes = [];
+		foreach ($after as $column => $new) {
+			$old = $before[$column] ?? null;
+			if ((string) $old === (string) $new || (is_numeric($old) && is_numeric($new) && (float) $old == (float) $new)) {
+				continue;
+			}
+			$changes[self::DEBT_LABELS[$column] ?? $column] = [$old, $new];
+		}
+		if ($changes) {
+			$unit = optional(optional($accountant->order)->unit)->unit_abbreviation;
+			\App\Models\ActivityLog::record('cong_no', 'sua', 'Sửa công nợ đơn #' . $accountant->order_id . ($unit ? ' (' . $unit . ')' : ''), $accountant, $changes);
+		}
+	}
+
 	private function saveRowData(array $in, bool $setRevenueStatus): array
 	{
 		$accountant = Accountant::find($in['id'] ?? null);
@@ -558,6 +586,12 @@ class AccountantController extends Controller
 		$revenueTouched = (bool) array_intersect($revenueFields, $touchedNames)
 			&& (bool) array_intersect(array_keys($dataForAccountant + $dataForOrder), array_merge($revenueFields, ['order_profit', 'accountant_owe']));
 
+		// Giá trị trước khi lưu, để ghi nhật ký thao tác (Lịch sử chỉnh sửa → tab Kế toán)
+		$before = [];
+		foreach (array_keys($dataForAccountant + $dataForOrder) as $column) {
+			$before[$column] = $current($column);
+		}
+
 		DB::beginTransaction();
 		try {
 			if (!empty($dataForAccountant)) {
@@ -583,6 +617,7 @@ class AccountantController extends Controller
 				}
 			}
 			DB::commit();
+			$this->logDebtChange($accountant, $before, $dataForAccountant + $dataForOrder);
 		} catch (\Exception $e) {
 			DB::rollBack();
 			Log::warning('Công nợ: lưu dòng lỗi', ['accountant' => $accountant->id, 'data' => $dataForAccountant + $dataForOrder, 'error' => $e->getMessage()]);

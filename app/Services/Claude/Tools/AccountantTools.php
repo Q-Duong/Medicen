@@ -146,12 +146,16 @@ class AccountantTools implements DepartmentTools
             [
                 'name' => 'cong_no_web',
                 'description' => 'Công nợ XQ đang theo dõi trên web Medicen (trang Công nợ, cập nhật từng ngày): từng hóa đơn chưa thu đủ của một đơn vị, '
-                    . 'hoặc danh sách đơn vị đang nợ (tổng nợ, quá hạn) nếu không ghi tu_khoa. Có thêm số đơn chưa xuất hóa đơn.',
+                    . 'hoặc danh sách đơn vị đang nợ (tổng nợ, quá hạn) nếu không ghi tu_khoa. Có thêm số đơn chưa xuất hóa đơn. '
+                    . 'Ghi loc để lấy danh sách từng đơn của MỌI đơn vị: qua_han (đơn đã quá hạn), sap_den_han (đến hạn trong so_ngay ngày tới), '
+                    . 'chua_xuat_hd (còn nợ nhưng chưa xuất hóa đơn).',
                 'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'tu_khoa' => ['type' => 'string', 'description' => 'Tên viết tắt / tên / mã đơn vị (không bắt buộc)'],
                         'nam' => ['type' => 'integer', 'description' => 'Chỉ tính đơn chụp trong năm này (không bắt buộc)'],
+                        'loc' => ['type' => 'string', 'enum' => ['qua_han', 'sap_den_han', 'chua_xuat_hd'], 'description' => 'Lọc danh sách đơn theo hạn thanh toán (không bắt buộc)'],
+                        'so_ngay' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 90, 'description' => 'Với loc = sap_den_han: số ngày tới, mặc định 7'],
                     ],
                     'additionalProperties' => false,
                 ],
@@ -199,6 +203,60 @@ class AccountantTools implements DepartmentTools
                 ],
             ],
             [
+                'name' => 'phan_tich_van_hanh',
+                'description' => 'Số liệu vận hành mảng XQ từ đơn hàng trên web để phân tích kiểu CFO: doanh thu, số ca, giá bình quân / ca, LÃI ƯỚC TÍNH (giá vốn từng chuyến theo đơn giá mặc định) theo tháng; '
+                    . 'khách hàng (top 15, tỷ trọng, mức tập trung, khách mới, khách kỳ trước không quay lại); hiệu suất từng xe (ngày chạy, doanh thu / ngày); '
+                    . 'tốc độ thu tiền; lãi / biên theo khách, theo xe; khách biên thấp nhất; 15 đơn lãi thấp nhất; so sánh với kỳ trước cùng độ dài. '
+                    . 'Lãi ước tính chưa gồm khấu hao, lãi vay, lương văn phòng — lãi lỗ thật toàn công ty lấy ket_qua_kinh_doanh.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'tu_ngay' => $date('Từ ngày, bỏ trống = 12 tháng gần nhất'),
+                        'den_ngay' => $date('Đến ngày, bỏ trống = hôm nay'),
+                        'so_sanh' => ['type' => 'boolean', 'description' => 'So với kỳ trước cùng độ dài (mặc định true)'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'tuoi_no_tien_ket',
+                'description' => 'Phải thu XQ theo tuổi nợ (chưa đến hạn, quá hạn 1–30 / 31–60 / 61–90 / trên 90 ngày, chưa xuất hóa đơn) theo từng đơn vị, '
+                    . '"tiền kẹt" (đơn đã chụp xong ≥ 7 ngày chưa xuất hóa đơn), số ngày thu tiền bình quân (DSO). Cùng số với trang Phân tích tài chính.',
+                'input_schema' => ['type' => 'object', 'properties' => new \stdClass(), 'additionalProperties' => false],
+            ],
+            [
+                'name' => 'du_bao_dong_tien',
+                'description' => 'Dự báo dòng tiền 13 tuần tới (tuần 1 = hôm nay): tiền đầu kỳ, thu (XQ theo hạn hóa đơn, nợ quá hạn, đơn chưa xuất HĐ, '
+                    . 'đơn mới, CT, thu khác) và chi (theo Báo cáo thu chi, tháng chưa có báo cáo thì lặp lại chi định kỳ) từng tuần, số dư cuối tuần, '
+                    . 'tuần thấp nhất, cảnh báo dưới ngưỡng, các giả định. Đổi giả định để chạy kịch bản.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'so_du' => ['type' => 'integer', 'description' => 'Tiền hiện có nếu người dùng nêu (bỏ trống = tự tính từ Báo cáo thu chi tháng này)'],
+                        'qua_han_pct' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 100, 'description' => '% nợ quá hạn thu được trong 4 tuần đầu, mặc định 50'],
+                        'chua_hd_pct' => ['type' => 'integer', 'minimum' => 0, 'maximum' => 100, 'description' => '% đơn chưa xuất HĐ thu được, mặc định 80'],
+                        'don_moi' => ['type' => 'boolean', 'description' => 'Tính doanh thu đơn mới (mặc định true; false = kịch bản thận trọng)'],
+                        'nguong' => ['type' => 'integer', 'description' => 'Ngưỡng cảnh báo số dư, mặc định 100.000.000'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'hoat_dong_nhan_vien',
+                'description' => 'CHỈ ADMIN / SUBADMIN. Nhân viên đã làm gì trên web Medicen trong một ngày / khoảng ngày: thao tác ở Báo cáo thu chi, Công nợ, '
+                    . 'Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán (thêm / sửa / xóa, số cũ → số mới), lịch sử chỉnh sửa đơn hàng (thêm đơn, xếp lịch, '
+                    . 'hủy lịch, cập nhật số ca / tiền…) và số câu hỏi đã hỏi trợ lý AI. Dùng khi hỏi "hôm nay nhân viên làm gì", "chị X sửa gì ở công nợ"...',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'tu_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = hôm nay'],
+                        'den_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = bằng tu_ngay'],
+                        'nhan_vien' => ['type' => 'string', 'description' => 'Tên / email nhân viên để lọc (tùy chọn)'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
                 'name' => 'so_vcb_chu_loc',
                 'description' => 'Sổ TK VCB cá nhân chú Lộc (tiền công ty đi qua TK chú): số dư chốt, số dư đầu / cuối tháng, các dòng thu (tiền CT bệnh viện '
                     . 'chuyển vào, góp vốn, bác sĩ đọc CT…) và chi (chú chuyển lại HDB công ty, trả gốc lãi căn A44, xe VF7…), số dư cuối các tháng trong năm, ghi nhớ số cũ.',
@@ -224,13 +282,153 @@ class AccountantTools implements DepartmentTools
             'so_quy_ngan_hang' => $this->cashBooks(strtoupper((string) ($input['so'] ?? 'TAT_CA')), $this->date($input, 'tu_ngay'), $this->date($input, 'den_ngay')),
             'cong_no_doi_tac' => $this->partyBalances((string) ($input['loai'] ?? ''), isset($input['nam']) ? (int) $input['nam'] : null, $this->optString($input, 'tu_khoa')),
             'luong_thuc_tra' => $this->salaries((int) ($input['tu_nam'] ?? 0), (int) ($input['den_nam'] ?? 0)),
-            'cong_no_web' => $this->webDebts($this->optString($input, 'tu_khoa'), isset($input['nam']) ? (int) $input['nam'] : null),
+            'cong_no_web' => !empty($input['loc'])
+                ? app(\App\Services\Accountant\DebtList::class)->find((string) $input['loc'], (int) ($input['so_ngay'] ?? 7), $this->optString($input, 'tu_khoa'), isset($input['nam']) ? (int) $input['nam'] : null)
+                : $this->webDebts($this->optString($input, 'tu_khoa'), isset($input['nam']) ? (int) $input['nam'] : null),
             'thu_chi_web' => $this->webCashPlan(isset($input['nam']) ? (int) $input['nam'] : null, isset($input['thang']) ? (int) $input['thang'] : null),
             'cong_no_ct' => $this->ctBook((int) ($input['nam'] ?? now()->year), $this->optString($input, 'benh_vien'), (bool) ($input['chi_tiet'] ?? false)),
             'so_vcb_chu_loc' => $this->vcbBook((int) ($input['nam'] ?? now()->year), isset($input['thang']) ? (int) $input['thang'] : null),
+            'hoat_dong_nhan_vien' => $this->staffActivity($input, $user),
+            'phan_tich_van_hanh' => $this->operations($input),
+            'tuoi_no_tien_ket' => $this->aging(),
+            'du_bao_dong_tien' => app(\App\Services\Accounting\CashForecast::class)->build($input),
             'tai_lieu' => $this->documents((string) ($input['loai'] ?? 'tat_ca'), $this->optString($input, 'tu_khoa')),
             default => throw new InvalidArgumentException("Tool không tồn tại: {$name}"),
         };
+    }
+
+    // ------------------------------------------------------------------
+    // tuoi_no_tien_ket
+    // ------------------------------------------------------------------
+
+    private function aging(): array
+    {
+        $r = app(\App\Services\Accounting\Receivables::class)->summary();
+        $row = fn ($x) => ['ma_don' => $x->id, 'don_vi' => $x->unit, 'ngay_chup' => $x->shot?->toDateString(), 'so_hd' => $x->invoice_no,
+            'han_tt' => $x->due?->toDateString(), 'qua_han_ngay' => $x->overdue_days, 'so_ngay_tu_khi_chup' => $x->days_since_shot, 'con_no' => $x->owe];
+
+        return [
+            'ngay_tinh' => $r['today']->toDateString(),
+            'nguon' => 'Trang Công nợ trên web (mảng XQ), cùng số với trang Phân tích tài chính → Tiền kẹt & tuổi nợ',
+            'tong_phai_thu' => $r['total'],
+            'qua_han' => $r['overdue'],
+            'qua_han_pct' => $r['overdue_pct'],
+            'chua_xuat_hd' => $r['uninvoiced'],
+            'tien_ket_tren_7_ngay' => $r['stuck_total'],
+            'so_ngay_thu_tien_binh_quan' => $r['dso'],
+            'tuoi_no' => $r['buckets']->map(fn ($b) => ['nhom' => $b['label'], 'so_tien' => $b['amount'], 'so_don' => $b['count']])->all(),
+            'theo_don_vi' => $r['by_unit']->take(25)->all(),
+            'don_ket_lon_nhat' => $r['stuck']->take(20)->map($row)->all(),
+            'qua_han_lau_nhat' => $r['overdue_rows']->take(20)->map($row)->all(),
+        ];
+    }
+
+    // ------------------------------------------------------------------
+    // phan_tich_van_hanh
+    // ------------------------------------------------------------------
+
+    private function operations(array $input): array
+    {
+        $to = $this->parseDate((string) ($input['den_ngay'] ?? '')) ?? Carbon::today();
+        $from = $this->parseDate((string) ($input['tu_ngay'] ?? '')) ?? $to->copy()->subMonthsNoOverflow(12)->addDay();
+        if ($to->lt($from) || $from->diffInDays($to) > 1100) {
+            throw new InvalidArgumentException('Khoảng ngày không hợp lệ (tối đa 3 năm).');
+        }
+
+        return app(\App\Services\Accounting\CfoAnalytics::class)->analyze($from, $to, (bool) ($input['so_sanh'] ?? true));
+    }
+
+    // ------------------------------------------------------------------
+    // hoat_dong_nhan_vien (Admin, SubAdmin)
+    // ------------------------------------------------------------------
+
+    private function staffActivity(array $input, ?User $user): array
+    {
+        // Admin và SubAdmin (role 0 / 1) được xem; nhân viên khác không
+        if (!\App\Services\Claude\AssistantAccess::isAdmin($user)) {
+            return ['loi' => 'Chỉ Admin / SubAdmin được xem hoạt động của nhân viên. Hãy trả lời người hỏi là họ không có quyền xem thông tin này.'];
+        }
+        $from = ($this->parseDate((string) ($input['tu_ngay'] ?? '')) ?? Carbon::today())->startOfDay();
+        $to = ($this->parseDate((string) ($input['den_ngay'] ?? '')) ?? $from->copy())->endOfDay();
+        if ($to->lt($from) || $from->diffInDays($to) > 31) {
+            throw new InvalidArgumentException('Khoảng ngày không hợp lệ (tối đa 31 ngày).');
+        }
+        $who = $this->optString($input, 'nhan_vien');
+
+        // Tên hiển thị theo user (profile), tra cả theo email vì lịch sử đơn lưu email
+        $users = User::with('profile:id,profile_firstname,profile_lastname')->get(['id', 'name', 'email', 'profile_id', 'department']);
+        $nameOf = $users->mapWithKeys(fn ($u) => [$u->id => $u->display_name ?? $u->name]);
+        $byEmail = $users->keyBy('email');
+        $match = function (?string $name, ?string $email = null) use ($who): bool {
+            if (!$who) {
+                return true;
+            }
+            $needle = mb_strtolower($who);
+
+            return str_contains(mb_strtolower((string) $name), $needle) || str_contains(mb_strtolower((string) $email), $needle);
+        };
+
+        $people = [];
+        $push = function (string $person, array $item) use (&$people) {
+            $people[$person]['nguoi'] = $person;
+            $people[$person]['so_thao_tac'] = ($people[$person]['so_thao_tac'] ?? 0) + 1;
+            $people[$person]['theo_trang'][$item['trang']] = ($people[$person]['theo_trang'][$item['trang']] ?? 0) + 1;
+            $people[$person]['chi_tiet'][] = $item;
+        };
+
+        // 1. Nhật ký trang kế toán / trợ lý
+        \App\Models\ActivityLog::whereBetween('created_at', [$from, $to])->orderBy('id')->get()
+            ->each(function ($log) use ($push, $match, $nameOf) {
+                $name = $nameOf[$log->user_id] ?? $log->user_name ?? 'Không rõ';
+                if (!$match($name)) {
+                    return;
+                }
+                $push($name, ['luc' => $log->created_at->format('d/m H:i'), 'trang' => $log->areaLabel(), 'viec' => $log->summary,
+                    'thay_doi' => array_slice($log->changeLines(), 0, 6)]);
+            });
+
+        // 2. Lịch sử chỉnh sửa đơn hàng
+        \App\Models\HistoryEdit::whereBetween('created_at', [$from, $to])->orderBy('id')->get(['order_id', 'user_name', 'history_action', 'created_at'])
+            ->each(function ($h) use ($push, $match, $byEmail) {
+                $u = $byEmail[$h->user_name] ?? null;
+                $name = $u ? ($u->display_name ?? $u->name) : $h->user_name;
+                if (!$match($name, $h->user_name)) {
+                    return;
+                }
+                $push($name, ['luc' => $h->created_at->format('d/m H:i'), 'trang' => 'Đơn hàng', 'viec' => 'Đơn #' . $h->order_id . ': ' . $h->history_action]);
+            });
+
+        // 3. Số câu hỏi trợ lý AI (không đưa nội dung)
+        DB::table('assistant_messages')->join('assistant_conversations', 'assistant_conversations.id', '=', 'assistant_messages.conversation_id')
+            ->where('assistant_messages.role', 'user')->whereBetween('assistant_messages.created_at', [$from, $to])
+            ->groupBy('assistant_conversations.user_id', 'assistant_conversations.department')
+            ->get([DB::raw('assistant_conversations.user_id as uid'), 'assistant_conversations.department', DB::raw('count(*) as n')])
+            ->each(function ($r) use (&$people, $match, $nameOf) {
+                $name = $nameOf[$r->uid] ?? 'Không rõ';
+                if (!$match($name)) {
+                    return;
+                }
+                $people[$name]['nguoi'] = $name;
+                $people[$name]['cau_hoi_tro_ly'][$r->department] = (int) $r->n;
+            });
+
+        $list = collect($people)->map(function ($p) {
+            $items = $p['chi_tiet'] ?? [];
+            $p['so_thao_tac'] = $p['so_thao_tac'] ?? 0;
+            // Nhiều thao tác: giữ 60 việc gần nhất cho mỗi người
+            $p['chi_tiet'] = count($items) > 60 ? array_slice($items, -60) : $items;
+            $p['bi_cat_bot'] = count($items) > 60;
+
+            return $p;
+        })->sortByDesc('so_thao_tac')->values();
+
+        return [
+            'pham_vi' => $from->isSameDay($to) ? 'Ngày ' . $from->format('d/m/Y') : 'Từ ' . $from->format('d/m/Y') . ' đến ' . $to->format('d/m/Y'),
+            'nguon' => 'Nhật ký thao tác trang kế toán (chỉ có từ khi cài bản cập nhật ghi nhật ký), lịch sử chỉnh sửa đơn hàng, số câu hỏi trợ lý AI. '
+                . 'Không gồm việc làm ngoài web (gọi điện, MISA trên máy…).',
+            'so_nguoi' => $list->count(),
+            'nhan_vien' => $list->all(),
+        ];
     }
 
     // ------------------------------------------------------------------

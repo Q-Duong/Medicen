@@ -26,6 +26,8 @@
             </div>
         </div>
 
+        @include('pages.admin.history._tabs', ['tab' => 'don'])
+
         <form method="GET" action="{{ route('history.index') }}" class="sf-filters">
             <label class="sf-field" style="width:130px">
                 <span>Mã đơn</span>

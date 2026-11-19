@@ -62,6 +62,8 @@ class AccountingDataController extends Controller
             try {
                 $rows = $importer->import($file->getRealPath(), Auth::id(), $file->getClientOriginalName());
                 $results[] = ['file' => $file->getClientOriginalName(), 'ok' => true, 'rows' => $rows];
+                \App\Models\ActivityLog::record('du_lieu_ke_toan', 'nhap', 'Nhập sổ MISA từ file "' . $file->getClientOriginalName() . '"'
+                    . ': ' . collect($rows)->filter(fn ($r) => ($r['rows'] ?? 0) > 0)->map(fn ($r) => $r['book'] . ' ' . number_format($r['rows'], 0, ',', '.') . ' dòng')->implode(', '));
             } catch (Throwable $e) {
                 Log::warning('Nhập sổ kế toán lỗi', ['file' => $file->getClientOriginalName(), 'error' => $e->getMessage()]);
                 $results[] = ['file' => $file->getClientOriginalName(), 'ok' => false, 'error' => $e->getMessage()];
@@ -110,6 +112,7 @@ class AccountingDataController extends Controller
         $data = $this->validateDocument($request, true);
         $data['file_path'] = $this->storeFile($request);
         DB::table('acc_documents')->insert($data + ['user_id' => Auth::id(), 'created_at' => now(), 'updated_at' => now()]);
+        \App\Models\ActivityLog::record('du_lieu_ke_toan', 'tai_len', 'Thêm tài liệu "' . $data['title'] . '"' . ($data['file_path'] ? ' (có file)' : ''));
 
         return redirect()->route('accounting.index', ['tab' => 'tai-lieu'])->with('success', 'Đã lưu tài liệu "' . $data['title'] . '".');
     }
@@ -125,6 +128,9 @@ class AccountingDataController extends Controller
             }
         }
         DB::table('acc_documents')->where('id', $id)->update($data + ['updated_at' => now()]);
+        $changed = collect($data)->except('file_path')->filter(fn ($v, $k) => (string) ($doc->{$k} ?? '') !== (string) $v)
+            ->mapWithKeys(fn ($v, $k) => [$k => [$doc->{$k} ?? null, $v]])->all();
+        \App\Models\ActivityLog::record('du_lieu_ke_toan', 'sua', 'Sửa tài liệu "' . $data['title'] . '"' . ($request->hasFile('file') ? ' (thay file)' : ''), null, $changed ?: null);
 
         return redirect()->route('accounting.index', ['tab' => 'tai-lieu'])->with('success', 'Đã cập nhật tài liệu "' . $data['title'] . '".');
     }
@@ -137,6 +143,7 @@ class AccountingDataController extends Controller
         }
         DB::table('acc_documents')->where('id', $id)->delete();
         Log::info('Xóa tài liệu kế toán', ['title' => $doc->title, 'by' => Auth::id()]);
+        \App\Models\ActivityLog::record('du_lieu_ke_toan', 'xoa', 'Xóa tài liệu "' . $doc->title . '"');
 
         return redirect()->route('accounting.index', ['tab' => 'tai-lieu'])->with('success', 'Đã xóa tài liệu "' . $doc->title . '".');
     }

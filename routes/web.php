@@ -354,6 +354,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::patch('ghi-nho/{memo}', 'saveMemo')->name('memos.update')->whereNumber('memo');
         Route::delete('ghi-nho/{memo}', 'destroyMemo')->name('memos.destroy')->whereNumber('memo');
     });
+    // Phân tích tài chính: tiền kẹt & tuổi nợ, lãi ước tính, dòng tiền 13 tuần
+    Route::get('phan-tich-tai-chinh', [\App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index')->middleware('access:debt_accountant');
     Route::prefix('so-vcb-chu-loc')->name('vcb.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\VcbLedgerController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');

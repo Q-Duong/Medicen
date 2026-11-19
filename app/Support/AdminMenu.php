@@ -63,6 +63,7 @@ class AdminMenu
             $can('debt_accountant') ? $item('Công nợ', 'fas fa-wallet', 'accountant.index', [], 'accountant.*', 'Doanh thu, thanh toán, hoàn thành đơn') : null,
             (!$admin && $can('debt_result')) ? $item('Công nợ (Kết quả)', 'fas fa-wallet', 'accountant_result.index') : null,
             $can('debt_accountant') ? $item('Báo cáo thu chi', 'fas fa-receipt', 'reports.index', [], 'reports.*', 'Kế hoạch thu chi theo tháng') : null,
+            $can('debt_accountant') ? $item('Phân tích tài chính', 'fas fa-chart-pie', 'finance.index', [], 'finance.*', 'Tiền kẹt, lãi ước tính, dòng tiền 13 tuần') : null,
             $can('debt_accountant') ? $item('Công nợ CT', 'fas fa-x-ray', 'ct.index', [], 'ct.*', 'Máy CT tại bệnh viện hợp tác') : null,
             $can('debt_accountant') ? $item('Sổ VCB chú Lộc', 'fas fa-university', 'vcb.index', [], 'vcb.*', 'Tiền công ty qua TK VCB chú') : null,
             $can('debt_accountant') ? $item('Dữ liệu kế toán', 'fas fa-database', 'accounting.index', [], 'accounting.*', 'Sổ sách MISA, BCTC, hợp đồng') : null,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\AssistantConversation;
 use App\Models\Unit;
 use App\Services\Claude\AssistantAccess;
@@ -188,6 +189,8 @@ class AssistantController extends Controller
         $search = trim((string) $request->query('q', ''));
 
         $items = AssistantConversation::query()
+            // Admin xem "Tất cả nhân viên" thấy cả cuộc trò chuyện nhân viên đã xóa (đánh dấu Đã xóa)
+            ->when($all, fn ($q) => $q->withTrashed()->with('deleter:id,name,profile_id', 'deleter.profile:id,profile_firstname,profile_lastname'))
             ->where('department', $department)
             ->when(!$all, fn ($q) => $q->where('user_id', $user->id))
             ->when($search !== '', fn ($q) => $q->where('title', 'like', '%' . addcslashes($search, '%_\\') . '%'))
@@ -200,8 +203,11 @@ class AssistantController extends Controller
             'items' => $items->map(fn ($c) => $this->summary($c) + [
                 // Họ tên trong profile (thay cho tên tài khoản Admin / Sale…)
                 'user_name' => $c->user?->display_name ?? 'Không rõ',
+                'user_id' => $c->user_id,
                 'is_mine' => $c->isOwnedBy($user),
             ]),
+            // Admin xóa là xóa hẳn; nhân viên xóa chỉ ẩn khỏi danh sách của mình
+            'delete_mode' => AssistantConversation::canViewAll($user) ? 'hard' : 'soft',
         ]);
     }
 
@@ -209,7 +215,7 @@ class AssistantController extends Controller
     {
         $this->department($department);
         $user = Auth::user();
-        $conversation = $this->find($department, $conversation);
+        $conversation = $this->find($department, $conversation, AssistantConversation::canViewAll($user));
         abort_unless($conversation->canView($user), 403);
 
         $modes = config("claude.departments.{$department}.modes", []);
@@ -217,7 +223,7 @@ class AssistantController extends Controller
         return response()->json([
             'conversation' => $this->summary($conversation) + [
                 'user_name' => $conversation->user?->display_name ?? 'Không rõ',
-                'readonly' => !$conversation->isOwnedBy($user),
+                'readonly' => !$conversation->isOwnedBy($user) || $conversation->trashed(),
                 // Câu hỏi cuối còn đang chờ trả lời (tải lại trang giữa chừng): trình duyệt hỏi lại tiếp
                 'pending' => $conversation->isOwnedBy($user) && Cache::has(self::turnKey($conversation)),
             ],
@@ -247,10 +253,19 @@ class AssistantController extends Controller
     public function destroy(string $department, int $conversation)
     {
         $this->department($department);
-        $conversation = $this->find($department, $conversation);
-        abort_unless($conversation->canView(Auth::user()), 403);
+        $user = Auth::user();
+        $isAdmin = AssistantConversation::canViewAll($user);
+        $conversation = $this->find($department, $conversation, $isAdmin);
+        abort_unless($conversation->canView($user), 403);
 
-        $conversation->purge();
+        $owner = $conversation->user?->display_name ?? 'Không rõ';
+        if ($isAdmin) {
+            $conversation->purge();
+            ActivityLog::record('tro_ly_ai', 'xoa', 'Xóa hẳn cuộc trò chuyện "' . $conversation->title . '" của ' . $owner . ' (trợ lý ' . $department . ')');
+        } else {
+            $conversation->hide($user);
+            ActivityLog::record('tro_ly_ai', 'xoa', 'Xóa cuộc trò chuyện "' . $conversation->title . '" (trợ lý ' . $department . ', Admin vẫn xem được)', $conversation);
+        }
 
         return response()->json(['success' => true]);
     }
@@ -268,9 +283,9 @@ class AssistantController extends Controller
         abort_unless(AssistantAccess::exists($department), 404);
     }
 
-    private function find(string $department, int $id): AssistantConversation
+    private function find(string $department, int $id, bool $withTrashed = false): AssistantConversation
     {
-        return AssistantConversation::where('department', $department)->findOrFail($id);
+        return AssistantConversation::where('department', $department)->when($withTrashed, fn ($q) => $q->withTrashed())->findOrFail($id);
     }
 
     private function titleFrom(string $message): string
@@ -286,6 +301,8 @@ class AssistantController extends Controller
             'id' => $c->id,
             'title' => $c->title,
             'last_message_at' => $c->last_message_at?->toIso8601String(),
+            'deleted_at' => $c->deleted_at?->toIso8601String(),
+            'deleted_by' => $c->deleted_at ? ($c->deleter?->display_name ?? null) : null,
         ];
     }
 }

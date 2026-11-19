@@ -7,14 +7,30 @@ use App\Services\Claude\DepartmentAgentRunner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class AssistantConversation extends Model
 {
-    protected $fillable = ['user_id', 'department', 'title', 'claude_session_id', 'last_message_at'];
+    // Nhân viên xóa = xóa mềm (ẩn khỏi danh sách của họ, Admin vẫn xem được). Admin xóa = xóa hẳn (purge).
+    use SoftDeletes;
+
+    protected $fillable = ['user_id', 'department', 'title', 'claude_session_id', 'last_message_at', 'deleted_by'];
 
     protected $casts = ['last_message_at' => 'datetime'];
+
+    public function deleter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    /** Nhân viên xóa cuộc trò chuyện của mình: chỉ ẩn, giữ nội dung và session Claude để Admin xem lại */
+    public function hide(User $by): void
+    {
+        $this->forceFill(['deleted_by' => $by->id])->save();
+        $this->delete();
+    }
 
     public function user(): BelongsTo
     {
@@ -43,7 +59,7 @@ class AssistantConversation extends Model
         return (int) $this->user_id === (int) $user->id;
     }
 
-    /** Xóa ở cả Medicen và session trên Claude (lỗi phía Claude không chặn việc xóa). */
+    /** Xóa hẳn ở cả Medicen và session trên Claude (lỗi phía Claude không chặn việc xóa). Chỉ Admin. */
     public function purge(): void
     {
         if ($this->claude_session_id) {
@@ -53,6 +69,6 @@ class AssistantConversation extends Model
                 Log::warning('Không xóa được session Claude', ['session' => $this->claude_session_id, 'error' => $e->getMessage()]);
             }
         }
-        $this->delete();
+        $this->forceDelete();
     }
 }

@@ -20,6 +20,8 @@ return [
         'accountant_sales.index', 'accountant_sales.get', 'accountant_sales.filter_options', 'export.excel', 'export.misa',
         // Báo cáo thu chi: chỉ xem + xuất PDF (không lưu / sửa / tạo khung)
         'reports.index', 'reports.export_pdf',
+        // Phân tích tài chính (chỉ xem)
+        'finance.index',
         // Trợ lý AI (chỉ trợ lý trong config('claude.subadmin_assistants'))
         'assistant.*',
     ],

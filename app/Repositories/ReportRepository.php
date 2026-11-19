@@ -32,7 +32,8 @@ class ReportRepository implements ReportRepositoryInterface
                 if (isset($item['_delete']) && $item['_delete'] == '1') {
                     // Dòng lấy số tự động (VCB chú Lộc, CT) không xóa được
                     if (!empty($item['id'])) {
-                        ReportItem::where('id', $item['id'])->where('report_id', $reportId)->whereNull('auto_key')->delete();
+                        // Xóa qua model để ghi nhật ký thao tác (RecordsActivity)
+                        ReportItem::where('id', $item['id'])->where('report_id', $reportId)->whereNull('auto_key')->first()?->delete();
                     }
                     continue; // Xóa xong thì bỏ qua, không chạy code Cập nhật bên dưới nữa
                 }
@@ -42,18 +43,18 @@ class ReportRepository implements ReportRepositoryInterface
                     // Dòng tự động: chỉ sửa được ngày dự kiến, số tiền lấy từ Sổ VCB / Công nợ CT
                     $auto = ReportItem::where('id', $item['id'])->where('report_id', $reportId)->value('auto_key');
                     if ($auto) {
-                        ReportItem::where('id', $item['id'])->update(['expected_date' => $item['expected_date'] ?? null]);
+                        ReportItem::find($item['id'])?->update(['expected_date' => $item['expected_date'] ?? null]);
                         continue;
                     }
-                    ReportItem::where('id', $item['id'])
-                              ->where('report_id', $reportId)
-                              ->update([
-                                  'name'             => $item['name'] ?? DB::raw('name'),
-                                  'estimated_amount' => $item['estimated_amount'] ?? 0,
-                                  'actual_amount'    => $item['actual_amount'] ?? 0,
-                                  'expected_date'    => $item['expected_date'] ?? null,
-                                  'actual_date'      => $item['actual_date'] ?? null,
-                              ]);
+                    // Sửa qua model (không update hàng loạt) để chỉ dòng thật sự đổi mới được ghi nhật ký
+                    $row = ReportItem::where('id', $item['id'])->where('report_id', $reportId)->first();
+                    $row?->update(array_filter([
+                        'name'             => $item['name'] ?? null,
+                        'estimated_amount' => $item['estimated_amount'] ?? 0,
+                        'actual_amount'    => $item['actual_amount'] ?? 0,
+                        'expected_date'    => $item['expected_date'] ?? null,
+                        'actual_date'      => $item['actual_date'] ?? null,
+                    ], fn ($v, $k) => $k !== 'name' || $v !== null, ARRAY_FILTER_USE_BOTH));
                 } 
                 // 3. NẾU LÀ THÊM DÒNG MỚI
                 else {

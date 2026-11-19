@@ -37,7 +37,9 @@
         // Trợ lý Kế toán
         tong_quan_du_lieu: 'xem dữ liệu sổ sách', ket_qua_kinh_doanh: 'tính kết quả kinh doanh', phat_sinh_tai_khoan: 'xem phát sinh tài khoản',
         tim_but_toan: 'tìm bút toán', so_quy_ngan_hang: 'xem sổ quỹ / ngân hàng', cong_no_doi_tac: 'xem công nợ sổ sách',
-        luong_thuc_tra: 'xem lương', cong_no_web: 'xem công nợ web', thu_chi_web: 'xem kế hoạch thu chi', tai_lieu: 'tra tài liệu'
+        luong_thuc_tra: 'xem lương', cong_no_web: 'xem công nợ web', thu_chi_web: 'xem kế hoạch thu chi', tai_lieu: 'tra tài liệu',
+        phan_tich_van_hanh: 'phân tích vận hành', hoat_dong_nhan_vien: 'xem hoạt động nhân viên',
+        tuoi_no_tien_ket: 'xem tuổi nợ, tiền kẹt', du_bao_dong_tien: 'dự báo dòng tiền'
     };
     const ICON_COPY = '<svg class="i-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
     const ICON_CHECK = '<svg class="i-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -48,6 +50,130 @@
     // ---------- Markdown → HTML (tự viết, escape mọi thứ trước khi chèn) ----------
     const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const MSG_LANGS = ['tin-nhan', 'tinnhan', 'tin_nhan', 'khach', 'message'];
+
+    // ---------- Biểu đồ: trợ lý trả khối ```bieu-do {JSON}```, trang vẽ bằng Chart.js (tải khi cần) ----------
+    // JSON: { "loai": "cot|duong|tron|cot-chong|ket-hop", "tieu_de": "...", "nhan": ["T1", ...], "don_vi": "đ|%|ca|...",
+    //         "chuoi": [{ "ten": "Doanh thu", "so": [..], "loai": "cot|duong", "truc": "phai" }] }
+    // (nhận cả khóa tiếng Anh: type, title, labels, unit, datasets[{label, data, type}]).
+    const CHART_LANGS = ['bieu-do', 'bieudo', 'bieu_do', 'chart'];
+    const CHART_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+    const PALETTE = ['#c96442', '#2f6fd1', '#0f9d6b', '#d49b00', '#9b4dca', '#0f9b9b', '#7b8794', '#e0703a', '#5b4bc4', '#b42318'];
+    let chartLib = null;
+
+    function normalizeChart(raw) {
+        let j;
+        try { j = JSON.parse(raw); } catch (e) { return null; }
+        if (!j || typeof j !== 'object') return null;
+        const series = (j.chuoi || j.datasets || []).map(d => ({
+            name: String(d.ten ?? d.label ?? ''),
+            data: (d.so ?? d.data ?? []).map(v => (v === null || v === '' ? null : Number(String(v).replace(/[^\d.-]/g, '')))),
+            type: d.loai ?? d.type ?? null,
+            right: (d.truc ?? d.axis) === 'phai' || (d.truc ?? d.axis) === 'right',
+            unit: d.don_vi ?? d.unit ?? null,
+        })).filter(d => d.data.length);
+        const labels = (j.nhan || j.labels || []).map(String);
+        if (!series.length || !labels.length) return null;
+        return { type: String(j.loai || j.type || 'cot').toLowerCase(), title: String(j.tieu_de || j.title || ''), labels, unit: j.don_vi || j.unit || '', note: j.ghi_chu || j.note || '', series };
+    }
+
+    function chartFigure(raw) {
+        const spec = normalizeChart(raw);
+        if (!spec) return copyBlock('code', 'Biểu đồ (dữ liệu lỗi)', raw);
+        return '<figure class="md-chart" data-spec="' + esc(JSON.stringify(spec)) + '">'
+            + (spec.title ? '<figcaption class="md-chart__title">' + esc(spec.title) + '</figcaption>' : '')
+            + '<div class="md-chart__box"><canvas role="img" aria-label="' + esc(spec.title || 'Biểu đồ') + '"></canvas></div>'
+            + (spec.note ? '<div class="md-chart__note">' + esc(spec.note) + '</div>' : '')
+            + '</figure>';
+    }
+
+    function loadChartLib() {
+        if (window.Chart) return Promise.resolve(window.Chart);
+        if (chartLib) return chartLib;
+        chartLib = new Promise((resolve, reject) => {
+            const sc = document.createElement('script');
+            sc.src = CHART_SRC;
+            sc.onload = () => resolve(window.Chart);
+            sc.onerror = () => { chartLib = null; reject(new Error('Không tải được thư viện biểu đồ')); };
+            document.head.appendChild(sc);
+        });
+        return chartLib;
+    }
+
+    // Số tiền trên trục: 1,2 tỷ / 350 tr; trong chú thích: đầy đủ 1.234.567 đ
+    const fmtFull = (v, unit) => v === null || v === undefined || isNaN(v) ? '—'
+        : new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(v) + (unit ? (unit === '%' ? '%' : ' ' + unit) : '');
+    function fmtShort(v, unit) {
+        if (unit === 'đ' || unit === 'VNĐ' || unit === 'vnđ') {
+            const a = Math.abs(v);
+            if (a >= 1e9) return (v / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' tỷ';
+            if (a >= 1e6) return (v / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' tr';
+            if (a >= 1e3) return (v / 1e3).toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' k';
+        }
+        return v.toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + (unit === '%' ? '%' : '');
+    }
+
+    async function hydrateCharts(scope) {
+        const figs = [...scope.querySelectorAll('.md-chart:not(.is-ready)')];
+        if (!figs.length) return;
+        let Chart;
+        try { Chart = await loadChartLib(); } catch (e) {
+            figs.forEach(f => { f.querySelector('.md-chart__box').innerHTML = '<div class="md-chart__err">Không tải được biểu đồ (kiểm tra kết nối mạng). Số liệu vẫn có trong bảng.</div>'; });
+            return;
+        }
+        figs.forEach(fig => {
+            fig.classList.add('is-ready');
+            let spec;
+            try { spec = JSON.parse(fig.dataset.spec); } catch (e) { return; }
+            const pie = spec.type === 'tron' || spec.type === 'pie' || spec.type === 'doughnut';
+            const stacked = spec.type === 'cot-chong' || spec.type === 'stacked';
+            const baseType = spec.type === 'duong' || spec.type === 'line' ? 'line' : 'bar';
+            const rightUnit = (spec.series.find(s => s.right) || {}).unit || (spec.series.some(s => s.right) ? '%' : null);
+            const datasets = pie
+                ? [{ label: spec.series[0].name, data: spec.series[0].data, backgroundColor: spec.labels.map((_, i) => PALETTE[i % PALETTE.length]), borderColor: '#fff', borderWidth: 2 }]
+                : spec.series.map((s, i) => {
+                    const t = s.type === 'duong' || s.type === 'line' ? 'line' : s.type === 'cot' || s.type === 'bar' ? 'bar' : baseType;
+                    const c = PALETTE[i % PALETTE.length];
+                    return {
+                        type: t, label: s.name, data: s.data, yAxisID: s.right ? 'y1' : 'y', _unit: s.unit || (s.right ? rightUnit : spec.unit),
+                        backgroundColor: t === 'line' ? c : c + 'cc', borderColor: c, borderWidth: t === 'line' ? 2.5 : 0,
+                        borderRadius: t === 'bar' ? 5 : 0, pointRadius: t === 'line' ? 3 : 0, tension: .25, order: t === 'line' ? 0 : 1,
+                    };
+                });
+            const scales = pie ? {} : {
+                x: { stacked, grid: { display: false }, ticks: { color: '#73716c', font: { size: 11 } } },
+                y: { stacked, beginAtZero: true, grid: { color: '#eeebe3' }, ticks: { color: '#73716c', font: { size: 11 }, callback: v => fmtShort(v, spec.unit) } },
+            };
+            if (!pie && spec.series.some(s => s.right)) {
+                scales.y1 = { position: 'right', beginAtZero: true, grid: { display: false }, ticks: { color: '#73716c', font: { size: 11 }, callback: v => fmtShort(v, rightUnit) } };
+            }
+            const total = pie ? spec.series[0].data.reduce((a, b) => a + (b || 0), 0) : 0;
+            const config = {
+                type: pie ? 'doughnut' : baseType,
+                data: { labels: spec.labels, datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+                    interaction: { mode: pie ? 'nearest' : 'index', intersect: pie },
+                    plugins: {
+                        legend: { display: pie || datasets.length > 1, position: 'bottom', labels: { boxWidth: 12, boxHeight: 12, color: '#1f1e1d', font: { size: 12 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const v = ctx.parsed && typeof ctx.parsed === 'object' ? ctx.parsed.y : ctx.parsed;
+                                    const unit = pie ? spec.unit : (ctx.dataset._unit ?? spec.unit);
+                                    return ' ' + (pie ? ctx.label : ctx.dataset.label) + ': ' + fmtFull(v, unit)
+                                        + (pie && total ? ' (' + (v / total * 100).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + '%)' : '');
+                                },
+                            },
+                        },
+                    },
+                    scales,
+                    cutout: pie ? '55%' : undefined,
+                },
+            };
+            fig._config = config;
+            fig._chart = new Chart(fig.querySelector('canvas'), config);
+        });
+    }
 
     function inline(s) {
         const codes = [];
@@ -124,6 +250,10 @@
                 while (i < lines.length && !lines[i].trim().startsWith(m[1])) buf.push(lines[i++]);
                 i++;
                 const raw = buf.join('\n').replace(/^\n+|\n+$/g, '');
+                if (CHART_LANGS.includes(lang)) {
+                    html += chartFigure(raw);
+                    continue;
+                }
                 html += MSG_LANGS.includes(lang)
                     ? copyBlock('msg', '<i class="far fa-comment-dots"></i> Tin nhắn gửi khách', raw)
                     : copyBlock('code', esc(lang || 'Nội dung'), raw);
@@ -170,6 +300,8 @@
     // Bản chữ thuần (bỏ ký hiệu Markdown) để sao chép cả câu trả lời
     function plainText(md) {
         return String(md || '')
+            // Khối biểu đồ (JSON) không chép ra chữ
+            .replace(/^\s*(```|~~~)\s*(bieu-do|bieudo|bieu_do|chart)\s*\n[\s\S]*?^\s*\1\s*$/gim, '[Biểu đồ]')
             .replace(/^\s*(```|~~~).*$/gm, '')
             .replace(/^#{1,6}\s+/gm, '')
             .replace(/^\s*>\s?/gm, '')
@@ -209,7 +341,101 @@
         if (block) return copyText(block.closest('.md-block').querySelector('pre').textContent, block);
         const all = e.target.closest('[data-copy-all]');
         if (all) copyText(plainText(all.closest('.msg')._raw), all);
+        const pdf = e.target.closest('[data-pdf]');
+        if (pdf) exportPdf(pdf.closest('.msg'));
     });
+
+    // Vẽ lại biểu đồ ra ảnh khổ cố định cho bản in (không phụ thuộc độ rộng khung chat, không chạy hiệu ứng)
+    function chartImage(config) {
+        if (!window.Chart) return null;
+        const pie = config.type === 'doughnut';
+        const c = document.createElement('canvas');
+        // Gần bằng bề rộng trang A4 để chữ trên biểu đồ không bị thu quá nhỏ khi in
+        c.width = pie ? 640 : 760;
+        c.height = pie ? 320 : 320;
+        c.style.cssText = 'position:fixed;left:-9999px;top:0;width:' + c.width + 'px;height:' + c.height + 'px';
+        document.body.appendChild(c);
+        let chart;
+        try {
+            chart = new window.Chart(c, Object.assign({}, config, {
+                options: Object.assign({}, config.options, { responsive: false, animation: false, devicePixelRatio: 2 }),
+                data: { labels: config.data.labels, datasets: config.data.datasets.map(d => Object.assign({}, d)) },
+            }));
+            return c.toDataURL('image/png');
+        } catch (e) {
+            return null;
+        } finally {
+            if (chart) chart.destroy();
+            c.remove();
+        }
+    }
+
+    // ---------- Xuất PDF: in câu trả lời (kèm câu hỏi, biểu đồ thành ảnh) qua hộp thoại In → "Lưu thành PDF" ----------
+    function exportPdf(msg) {
+        if (!msg) return;
+        let q = msg.previousElementSibling;
+        while (q && !q.classList.contains('msg--user')) q = q.previousElementSibling;
+        const question = q ? [...q.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join(' ').trim() : '';
+        const mode = q && q.querySelector('.msg__mode') ? q.querySelector('.msg__mode').textContent : '';
+        const body = msg.querySelector('.md').cloneNode(true);
+        // Biểu đồ: canvas → ảnh (canvas không in sang cửa sổ khác được)
+        const srcFigs = msg.querySelectorAll('.md-chart');
+        body.querySelectorAll('.md-chart').forEach((fig, i) => {
+            const box = fig.querySelector('.md-chart__box');
+            const src = srcFigs[i];
+            if (!box) return;
+            const url = src && src._config ? chartImage(src._config) : null;
+            if (url) box.innerHTML = '<img alt="" src="' + url + '">';
+            else box.remove();
+        });
+        body.querySelectorAll('.copy-btn').forEach(b => b.remove());
+        const now = new Date();
+        const stamp = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const title = (convHeading.textContent || 'Báo cáo trợ lý').split(' · ')[0];
+        const fileTitle = (title + ' ' + now.toLocaleDateString('vi-VN')).replace(/[\\/:*?"<>|]+/g, '-');
+
+        const html = '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>' + esc(fileTitle) + '</title><style>'
+            + '@page{size:A4;margin:16mm 14mm 18mm}*{box-sizing:border-box}html{color-scheme:light;background:#fff}'
+            + 'body{margin:0;background:#fff;font:13px/1.55 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1f1e1d;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+            + '.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding-bottom:10px;margin-bottom:14px;border-bottom:2px solid #c96442}'
+            + '.hd b{display:block;font-size:18px}.hd span{color:#73716c;font-size:12px}.hd .r{text-align:right}'
+            + '.q{margin:0 0 16px;padding:10px 14px;border-left:3px solid #c96442;background:#faf9f5;border-radius:6px}.q small{display:block;color:#73716c;font-size:11px;margin-bottom:2px}'
+            + 'h3,h4,h5,h6{margin:18px 0 6px;break-after:avoid}h3{font-size:16px}h4{font-size:14.5px}p{margin:0 0 8px}ul,ol{margin:0 0 8px;padding-left:20px}'
+            + 'table{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:12px;break-inside:avoid}th,td{padding:5px 8px;border:1px solid #e2ded3;text-align:left;vertical-align:top}'
+            + 'th{background:#f4f2eb;font-weight:600}td.num,th.num{text-align:right;white-space:nowrap}'
+            + '.md-chart{margin:10px 0 16px;padding:10px 12px;border:1px solid #e2ded3;border-radius:8px;break-inside:avoid}.md-chart__title{font-weight:600;margin-bottom:6px}'
+            + '.md-chart img{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff}.md-chart__note{color:#73716c;font-size:11px;margin-top:4px}'
+            + '.md-block{margin:8px 0;border:1px solid #e2ded3;border-radius:8px;break-inside:avoid}.md-block__head{padding:6px 10px;background:#f4f2eb;font-size:12px;font-weight:600}'
+            + '.md-block pre{margin:0;padding:8px 10px;white-space:pre-wrap;font:12px/1.5 inherit}blockquote{margin:8px 0;padding:6px 12px;border-left:3px solid #e2ded3;color:#4a4843}'
+            + '.ft{margin-top:22px;padding-top:8px;border-top:1px solid #e2ded3;color:#73716c;font-size:11px}'
+            + '</style></head><body>'
+            + '<div class="hd"><div><b>' + esc(title) + '</b><span>' + esc((CFG.assistantTitle || 'Trợ lý AI') + (mode ? ' · ' + mode : '')) + '</span></div>'
+            + '<div class="r"><span>Medicen · Nam Khánh Linh</span><br><span>Xuất lúc ' + esc(stamp) + (CFG.userName ? ' · ' + esc(CFG.userName) : '') + '</span></div></div>'
+            + (question ? '<div class="q"><small>Câu hỏi</small>' + esc(question) + '</div>' : '')
+            + body.innerHTML
+            + '<div class="ft">Nội dung do trợ lý AI tổng hợp từ dữ liệu nội bộ Medicen; số liệu nêu nguồn và kỳ trong từng phần. Tài liệu nội bộ, không gửi ra ngoài.</div>'
+            + '</body></html>';
+
+        const frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+        document.body.appendChild(frame);
+        const doc = frame.contentWindow.document;
+        doc.open();
+        doc.write(html);
+        doc.close();
+        const go = () => {
+            // Tên file gợi ý khi lưu PDF lấy theo tiêu đề trang
+            const oldTitle = document.title;
+            document.title = fileTitle;
+            try { frame.contentWindow.focus(); frame.contentWindow.print(); } finally {
+                document.title = oldTitle;
+                setTimeout(() => frame.remove(), 60000);
+            }
+        };
+        const imgs = [...doc.images];
+        Promise.all(imgs.map(img => img.complete ? null : new Promise(r => { img.onload = img.onerror = r; }))).then(() => setTimeout(go, 150));
+    }
 
     // ---------- Chọn chức năng ----------
     function setPlaceholder() {
@@ -353,9 +579,11 @@
         el.innerHTML = '<div class="md">' + renderMarkdown(markdown) + '</div>'
             + '<div class="msg__actions"><button type="button" class="icon-btn" data-copy-all title="Sao chép câu trả lời" aria-label="Sao chép câu trả lời">'
             + ICON_COPY + ICON_CHECK + '</button>'
+            + '<button type="button" class="icon-btn" data-pdf title="Xuất PDF câu trả lời này" aria-label="Xuất PDF"><i class="far fa-file-pdf" style="font-size:14px"></i></button>'
             + (tools && tools.length ? '<span>Đã ' + esc(tools.map(n => toolNames[n] || n).join(', ')) + '</span>' : '')
             + '</div>';
         thread.appendChild(el);
+        hydrateCharts(el);
         scrollDown();
     }
 
@@ -535,25 +763,60 @@
         return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
     }
 
+    // Tab "Tất cả nhân viên" (Admin): chia nhóm theo từng người, bấm tên để mở / gập; nhóm đang mở được nhớ trong phiên
+    const openGroups = new Set();
+    let deleteMode = 'soft';
+
+    function convItem(c) {
+        const li = document.createElement('li');
+        li.className = 'conv' + (c.id === conversationId ? ' is-active' : '') + (c.deleted_at ? ' is-deleted' : '');
+        li.dataset.id = c.id;
+        const meta = timeLabel(c.last_message_at) + (c.deleted_at ? ' · Đã xóa' + (c.deleted_by ? ' bởi ' + c.deleted_by : '') : '');
+        li.innerHTML = '<button type="button" class="conv__open"><span class="conv__title"></span><span class="conv__meta"></span></button>'
+            + '<span class="conv__actions">'
+            + (c.is_mine && !c.deleted_at ? '<button type="button" class="icon-btn" data-act="rename" title="Đổi tên" aria-label="Đổi tên"><i class="fas fa-pen" style="font-size:11px"></i></button>' : '')
+            + '<button type="button" class="icon-btn" data-act="delete" title="' + (deleteMode === 'hard' ? 'Xóa hẳn' : 'Xóa') + '" aria-label="Xóa"><i class="far fa-trash-alt" style="font-size:12px"></i></button>'
+            + '</span>';
+        li.querySelector('.conv__title').textContent = c.title;
+        li.querySelector('.conv__meta').textContent = meta;
+        return li;
+    }
+
     function renderList() {
         convList.innerHTML = '';
         if (!items.length) {
             convList.innerHTML = '<li class="side__empty">' + (convSearch.value.trim() ? 'Không tìm thấy cuộc trò chuyện nào.' : 'Chưa có cuộc trò chuyện nào.') + '</li>';
             return;
         }
+        if (scope !== 'all') {
+            items.forEach(c => convList.appendChild(convItem(c)));
+            return;
+        }
+        // Gom theo người (giữ thứ tự: người có tin nhắn mới nhất lên trước)
+        const groups = new Map();
         items.forEach(c => {
-            const li = document.createElement('li');
-            li.className = 'conv' + (c.id === conversationId ? ' is-active' : '');
-            li.dataset.id = c.id;
-            const meta = (scope === 'all' ? c.user_name + ' · ' : '') + timeLabel(c.last_message_at);
-            li.innerHTML = '<button type="button" class="conv__open"><span class="conv__title"></span><span class="conv__meta"></span></button>'
-                + '<span class="conv__actions">'
-                + (c.is_mine ? '<button type="button" class="icon-btn" data-act="rename" title="Đổi tên" aria-label="Đổi tên"><i class="fas fa-pen" style="font-size:11px"></i></button>' : '')
-                + '<button type="button" class="icon-btn" data-act="delete" title="Xóa" aria-label="Xóa"><i class="far fa-trash-alt" style="font-size:12px"></i></button>'
-                + '</span>';
-            li.querySelector('.conv__title').textContent = c.title;
-            li.querySelector('.conv__meta').textContent = meta;
-            convList.appendChild(li);
+            const key = String(c.user_id ?? c.user_name);
+            if (!groups.has(key)) groups.set(key, { name: c.user_name, mine: c.is_mine, list: [] });
+            groups.get(key).list.push(c);
+        });
+        const searching = convSearch.value.trim() !== '';
+        groups.forEach((g, key) => {
+            const hasActive = g.list.some(c => c.id === conversationId);
+            const open = searching || hasActive || openGroups.has(key);
+            const deleted = g.list.filter(c => c.deleted_at).length;
+            const head = document.createElement('li');
+            head.className = 'conv-group' + (open ? ' is-open' : '');
+            head.innerHTML = '<button type="button" class="conv-group__btn" aria-expanded="' + open + '">'
+                + '<i class="fas fa-chevron-right conv-group__chev"></i><span class="conv-group__name"></span>'
+                + '<span class="conv-group__count"></span></button>';
+            head.querySelector('.conv-group__name').textContent = g.name + (g.mine ? ' (tôi)' : '');
+            head.querySelector('.conv-group__count').textContent = g.list.length + (deleted ? ' · ' + deleted + ' đã xóa' : '');
+            head.querySelector('button').addEventListener('click', () => {
+                openGroups.has(key) ? openGroups.delete(key) : openGroups.add(key);
+                renderList();
+            });
+            convList.appendChild(head);
+            if (open) g.list.forEach(c => convList.appendChild(convItem(c)));
         });
     }
 
@@ -563,6 +826,7 @@
         try {
             const data = await api('GET', listUrl + '?scope=' + scope + (q ? '&q=' + encodeURIComponent(q) : ''));
             items = data.items || [];
+            if (data.delete_mode) deleteMode = data.delete_mode;
         } catch (e) {
             items = [];
         }
@@ -649,7 +913,10 @@
         const id = Number(li.dataset.id);
         const act = e.target.closest('[data-act]')?.dataset.act;
         if (act === 'delete') {
-            if (!await uiConfirm('Cuộc trò chuyện sẽ bị xóa hẳn, không khôi phục lại được.', { title: 'Xóa cuộc trò chuyện này?', ok: 'Xóa', danger: true })) return;
+            const msg = deleteMode === 'hard'
+                ? 'Cuộc trò chuyện sẽ bị xóa hẳn, không khôi phục lại được.'
+                : 'Cuộc trò chuyện sẽ biến mất khỏi danh sách của bạn.';
+            if (!await uiConfirm(msg, { title: 'Xóa cuộc trò chuyện này?', ok: 'Xóa', danger: true })) return;
             try {
                 await api('DELETE', convUrl(id));
                 if (id === conversationId) newConversation();

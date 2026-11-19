@@ -128,7 +128,7 @@ return [
             'name' => 'NKL Kế toán',
             'title' => 'Trợ lý Kế toán',
             'user_departments' => ['ke_toan'],
-            'description' => 'Trợ lý nội bộ phòng Kế toán NKL: doanh thu, chi phí, lợi nhuận, dòng tiền, công nợ, lương, báo cáo tài chính, hợp đồng.',
+            'description' => 'Trợ lý nội bộ phòng Kế toán NKL kiêm CFO: doanh thu, chi phí, lợi nhuận, dòng tiền, công nợ, lương, báo cáo tài chính, hợp đồng; phân tích chuyên sâu và hướng kinh doanh.',
             'system_prompt' => resource_path('claude/agents/ke_toan.md'),
             'skills' => [
                 resource_path('claude/skills/nkl-ke-toan'),
@@ -144,6 +144,36 @@ return [
                         'Tóm tắt kết quả kinh doanh 6 tháng đầu năm 2026 theo tháng',
                         'Tồn quỹ tiền mặt và các ngân hàng cuối tháng 6/2026?',
                         'Khách nào đang nợ quá hạn nhiều nhất?',
+                    ],
+                ],
+                'cfo' => [
+                    'label' => 'Phân tích CFO',
+                    'icon' => 'fas fa-user-tie',
+                    'placeholder' => 'Kỳ cần phân tích hoặc vấn đề, vd: tháng 10/2026, 6 tháng gần nhất, vì sao lợi nhuận giảm…',
+                    'instruction' => 'Vai CFO (mục 7 skill nkl-ke-toan). Lấy đủ 3 lớp: phan_tich_van_hanh (vận hành XQ, lãi ước tính, so kỳ trước), ket_qua_kinh_doanh (lãi lỗ, chi phí), '
+                        . 'tiền và nợ (du_bao_dong_tien, tuoi_no_tien_ket, so_quy_ngan_hang). Trình bày: tóm tắt điều hành, bảng chỉ số kỳ này / kỳ trước, '
+                        . 'phân tích nguyên nhân bằng số cụ thể, rủi ro theo mức độ, khuyến nghị hành động có người làm, thời hạn và tác động bằng tiền. '
+                        . 'Kèm 1–3 biểu đồ ```bieu-do (doanh thu & lợi nhuận theo tháng, khách hàng / xe, cơ cấu chi phí).',
+                    'suggestions' => [
+                        'Báo cáo CFO tháng vừa rồi: tình hình, rủi ro và việc cần làm',
+                        'Phân tích 6 tháng gần nhất: doanh thu đến từ đâu, khách nào đang giảm?',
+                        'Xe nào chạy hiệu quả nhất, xe nào đang lãng phí?',
+                        'Dòng tiền 13 tuần tới có tuần nào thiếu tiền không?',
+                        'Tiền đang kẹt ở đâu, nên thu nợ ai trước?',
+                    ],
+                ],
+                'chien_luoc' => [
+                    'label' => 'Hướng kinh doanh',
+                    'icon' => 'fas fa-compass',
+                    'placeholder' => 'Vd: năm 2027 nên tập trung vào đâu? Có nên mua thêm xe? Tăng giá được không?',
+                    'instruction' => 'Vạch hướng kinh doanh ở vai CFO (mục 7 skill nkl-ke-toan): dựa trên số liệu 12 tháng gần nhất (phan_tich_van_hanh, ket_qua_kinh_doanh, '
+                        . 'cong_no_ct, dòng tiền), xác định thế mạnh / điểm yếu, các lựa chọn và kịch bản cơ sở – tốt – xấu với giả định ghi rõ, '
+                        . 'tác động lên lợi nhuận và tiền; kết thúc bằng 3–5 ưu tiên cụ thể. Số liệu ngoài web (giá đối thủ, giá máy mới) thì hỏi lại người dùng, không bịa. '
+                        . 'Vẽ biểu đồ ```bieu-do so sánh các kịch bản và xu hướng 12 tháng.',
+                    'suggestions' => [
+                        'Năm 2027 công ty nên tập trung vào đâu để tăng lợi nhuận?',
+                        'Có nên mua thêm 1 xe X-quang không? Cần bao nhiêu ca / tháng để hòa vốn?',
+                        'Nếu tăng giá 5% thì lợi nhuận và rủi ro mất khách thế nào?',
                     ],
                 ],
                 'bao_cao' => [
