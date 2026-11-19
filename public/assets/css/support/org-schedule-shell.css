@@ -926,3 +926,20 @@ body.is-internal .sch-sec .main-file .download-file {
 body.is-internal .sch-sec .main-file .download-file::after { content: 'Xem'; }
 body.is-internal .sch-sec .main-file .download-file i { color: var(--sh-accent); font-size: 13px; }
 body.is-internal .sch-sec .main-file .download-file:hover { border-color: var(--sh-accent); background: var(--sh-accent-soft); }
+
+/* Nút xóa file kết quả tổng: cùng kiểu nút Xem, màu đỏ */
+body.is-internal .sch-sec .main-file .file-action { display: flex; align-items: center; gap: 6px; }
+body.is-internal .sch-sec .main-file .delete-file {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid #f1c8c3;
+    border-radius: 9px;
+    background: #fff;
+    color: #b42318;
+    cursor: pointer;
+}
+body.is-internal .sch-sec .main-file .delete-file i { color: #b42318; font-size: 13px; }
+body.is-internal .sch-sec .main-file .delete-file:hover { border-color: #b42318; background: #fdecea; }
