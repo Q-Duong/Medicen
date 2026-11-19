@@ -44,8 +44,8 @@ class FinanceCfoReport extends Command
         $prompt = "Lập BÁO CÁO CFO THÁNG {$label} để gửi email cho giám đốc (báo cáo tự động đầu tháng).\n"
             . "- Kỳ: {$month->format('01/m/Y')} – {$month->copy()->endOfMonth()->format('d/m/Y')}, so với tháng trước và cùng kỳ năm trước nếu có số.\n"
             . "- Đủ 3 lớp số liệu: vận hành XQ và lãi ước tính (phan_tich_van_hanh), lãi lỗ theo sổ MISA nếu đã có sổ tháng này (ket_qua_kinh_doanh), "
-            . "CT (cong_no_ct), tiền và nợ (du_bao_dong_tien, tuoi_no_tien_ket).\n"
-            . "- Bố cục: Tóm tắt điều hành (3–5 ý) → Bảng chỉ số chính → Phân tích → Rủi ro → 3–5 việc cần làm tháng này (ai làm, hạn, tác động bằng tiền) → Dòng tiền 13 tuần tới.\n"
+            . "CT (cong_no_ct), tiền và nợ (du_bao_dong_tien, tuoi_no_tien_ket), so với kế hoạch năm (ke_hoach_nam) nếu đã có.\n"
+            . "- Bố cục: Tóm tắt điều hành (3–5 ý) → Bảng chỉ số chính (kèm cột kế hoạch nếu có) → Phân tích → Rủi ro → 3–5 việc cần làm tháng này (ai làm, hạn, tác động bằng tiền) → Dòng tiền 13 tuần tới.\n"
             . "- Kèm 2–3 biểu đồ bieu-do. Viết để giám đốc đọc trên điện thoại: ngắn, rõ số, không hỏi lại.";
 
         $to = FinanceAlerts::recipients();

@@ -1054,3 +1054,38 @@ details[open] > summary.bk-edit { border-color: #2f6fd1; background: #2f6fd1; co
     .fn-f, .fn-f--wide { flex: 1 1 calc(50% - 7px); max-width: none; min-width: 0; }
     .fn-filter > .rp-btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* Hạn mức tín dụng */
+.fn-meter { display: inline-block; width: 90px; height: 8px; margin-right: 6px; border-radius: 999px; background: #f1efe9; overflow: hidden; vertical-align: middle; }
+.fn-meter i { display: block; height: 100%; border-radius: 999px; background: #0f9d6b; }
+.fn-meter--sap_vuot i { background: #d49b00; }
+.fn-meter--qua_han_lau i { background: #e0703a; }
+.fn-meter--vuot_han_muc i { background: #b42318; }
+.fn-status { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.fn-status--ok { background: #e6f5ec; color: #18794e; }
+.fn-status--sap_vuot { background: #fff6dd; color: #8a5a00; }
+.fn-status--qua_han_lau { background: #fdeee6; color: #a8462a; }
+.fn-status--vuot_han_muc { background: #fdecea; color: #b42318; }
+.fn-edit summary { list-style: none; cursor: pointer; }
+.fn-edit__form { display: none; }
+/* Mở "Sửa": hộp nổi giữa màn hình (bảng có thanh cuộn nên không chèn form vào dòng) */
+.fn-edit[open]::before { content: ''; position: fixed; inset: 0; z-index: 1059; background: rgba(31, 30, 29, .32); }
+.fn-edit[open] .fn-edit__form {
+    position: fixed; top: 50%; left: 50%; z-index: 1060; transform: translate(-50%, -50%);
+    display: flex; flex-wrap: wrap; gap: 12px; width: min(460px, 92vw); padding: 18px;
+    border: 1px solid var(--rp-line); border-radius: 16px; background: #fff; box-shadow: 0 20px 50px rgba(31, 30, 29, .22);
+}
+.fn-edit__title { flex-basis: 100%; margin: 0; font-size: 16px; font-weight: 700; }
+.fn-edit__form .fn-f { flex: 1 1 160px; max-width: none; }
+.fn-edit__form .fn-f--full { flex-basis: 100%; }
+.fn-edit__form .bk-actions { display: flex; justify-content: flex-end; gap: 8px; width: 100%; margin: 0; }
+.fn .rp-kpis:has(.fn-kpi--stuck) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Kế hoạch năm */
+.fn-note { margin-bottom: 14px; border-color: #c9dcf7; background: #f3f8ff; color: #1f4f96; font-size: 13.5px; }
+.fn-note i { margin-right: 6px; }
+.fn-budget__grid td input { width: 108px; height: 34px; padding: 0 8px; border: 1px solid var(--rp-line); border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.fn-budget__grid td input:focus { border-color: var(--rp-accent); outline: 0; box-shadow: 0 0 0 3px var(--rp-accent-soft); }
+.fn-budget__grid td { padding: 6px 4px; }
+.fn-budget__grid td:first-child { position: sticky; left: 0; z-index: 1; min-width: 210px; background: #fff; }
+.fn-budget__sum { font-weight: 700; white-space: nowrap; }

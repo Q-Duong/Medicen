@@ -60,6 +60,15 @@ class EarlyWarnings
                 'lines' => $r['stuck']->take(5)->map(fn ($x) => $x->unit . ' · đơn #' . $x->id . ' · chụp ' . $x->shot?->format('d/m/Y') . ' (' . $x->days_since_shot . ' ngày) · ' . $m($x->owe))->all()];
         }
 
+        // 3b. Khách vượt hạn mức tín dụng / quá hạn quá lâu
+        $credit = app(\App\Services\Accounting\CreditPolicy::class)->all()->whereIn('status', ['vuot_han_muc', 'qua_han_lau'])->values();
+        if ($credit->isNotEmpty()) {
+            $alerts[] = ['level' => 'bad', 'title' => $credit->count() . ' khách vượt hạn mức tín dụng / quá hạn quá lâu',
+                'detail' => 'Tổng nợ của nhóm này ' . $m($credit->sum('owe')) . '. Nên thu nợ hoặc duyệt trước khi nhận lịch mới.',
+                'lines' => $credit->take(6)->map(fn ($c) => $c['unit'] . ' · nợ ' . $m($c['owe']) . ' / hạn mức ' . $m($c['limit'])
+                    . ($c['max_overdue_days'] > $c['max_days'] ? ' · quá hạn ' . $c['max_overdue_days'] . ' ngày' : ''))->all()];
+        }
+
         // 4. Khách quen ngưng đặt lịch: ≥ 3 đơn trong 180 ngày, đơn gần nhất cách quá N ngày, chưa có lịch sắp tới
         $idle = DB::table('orders')->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->join('units', 'units.id', '=', 'orders.unit_id')

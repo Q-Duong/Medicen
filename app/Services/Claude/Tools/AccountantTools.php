@@ -242,6 +242,16 @@ class AccountantTools implements DepartmentTools
                 ],
             ],
             [
+                'name' => 'ke_hoach_nam',
+                'description' => 'Kế hoạch năm (giám đốc / kế toán nhập ở trang Phân tích tài chính) so với thực tế từng tháng: doanh thu XQ, Medicen thu về CT, số ca, '
+                    . 'các nhóm chi (lương & BHXH, vay, nhà cung cấp, thuế, cố định, khác) — kế hoạch cả năm, lũy kế, % đạt, chênh lệch, ước cả năm.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => ['nam' => ['type' => 'integer', 'description' => 'Năm kế hoạch, mặc định năm nay']],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
                 'name' => 'hoat_dong_nhan_vien',
                 'description' => 'CHỈ ADMIN / SUBADMIN. Nhân viên đã làm gì trên web Medicen trong một ngày / khoảng ngày: thao tác ở Báo cáo thu chi, Công nợ, '
                     . 'Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán (thêm / sửa / xóa, số cũ → số mới), lịch sử chỉnh sửa đơn hàng (thêm đơn, xếp lịch, '
@@ -291,6 +301,7 @@ class AccountantTools implements DepartmentTools
             'hoat_dong_nhan_vien' => $this->staffActivity($input, $user),
             'phan_tich_van_hanh' => $this->operations($input),
             'tuoi_no_tien_ket' => $this->aging(),
+            'ke_hoach_nam' => $this->budget((int) ($input['nam'] ?? now()->year)),
             'du_bao_dong_tien' => app(\App\Services\Accounting\CashForecast::class)->build($input),
             'tai_lieu' => $this->documents((string) ($input['loai'] ?? 'tat_ca'), $this->optString($input, 'tu_khoa')),
             default => throw new InvalidArgumentException("Tool không tồn tại: {$name}"),
@@ -320,6 +331,30 @@ class AccountantTools implements DepartmentTools
             'theo_don_vi' => $r['by_unit']->take(25)->all(),
             'don_ket_lon_nhat' => $r['stuck']->take(20)->map($row)->all(),
             'qua_han_lau_nhat' => $r['overdue_rows']->take(20)->map($row)->all(),
+            // Hạn mức tín dụng: đơn vị vượt hạn mức hoặc quá hạn quá lâu (kế toán đặt ở trang Phân tích tài chính; chưa đặt = gợi ý 2,5 tháng doanh thu)
+            'vi_pham_han_muc' => app(\App\Services\Accounting\CreditPolicy::class)->all()->whereIn('status', ['vuot_han_muc', 'qua_han_lau'])->take(20)
+                ->map(fn ($c) => ['don_vi' => $c['unit'], 'dang_no' => $c['owe'], 'han_muc' => $c['limit'], 'nguon_han_muc' => $c['is_manual'] ? 'kế toán đặt' : 'gợi ý',
+                    'da_dung_pct' => $c['used_pct'], 'qua_han_lau_nhat_ngay' => $c['max_overdue_days'], 'qua_han_toi_da_ngay' => $c['max_days'], 'trang_thai' => $c['status_label']])->values()->all(),
+        ];
+    }
+
+    private function budget(int $year): array
+    {
+        $c = app(\App\Services\Accounting\Budget::class)->compare($year);
+        if (!$c['has_plan']) {
+            return ['nam' => $year, 'ket_qua' => 'Chưa có kế hoạch năm ' . $year . '. Gợi ý người dùng nhập ở trang Phân tích tài chính → Kế hoạch năm (có nút gợi ý từ thực tế năm trước).'];
+        }
+
+        return [
+            'nam' => $year,
+            'luy_ke_den_het_thang' => $c['up_to_month'],
+            'nguon' => 'Kế hoạch: trang Phân tích tài chính. Thực tế: doanh thu / số ca từ đơn hàng, CT từ Công nợ CT, chi = số đã chi trong Báo cáo thu chi.',
+            'tong' => $c['totals'],
+            'tung_khoan' => collect($c['lines'])->map(fn ($l) => [
+                'khoan' => $l['label'], 'loai' => $l['type'], 'ke_hoach_ca_nam' => $l['plan_year'], 'ke_hoach_luy_ke' => $l['plan_ytd'],
+                'thuc_te_luy_ke' => $l['actual_ytd'], 'dat_pct' => $l['pct_ytd'], 'chenh_lech' => $l['diff_ytd'], 'uoc_ca_nam' => $l['forecast_year'],
+                'theo_thang' => collect(range(1, 12))->map(fn ($m) => ['thang' => $m, 'ke_hoach' => $l['plan'][$m], 'thuc_te' => $m <= $c['up_to_month'] ? $l['actual'][$m] : null])->all(),
+            ])->values()->all(),
         ];
     }
 

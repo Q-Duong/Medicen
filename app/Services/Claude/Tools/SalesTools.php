@@ -198,8 +198,8 @@ class SalesTools implements DepartmentTools
             ],
             [
                 'name' => 'xem_cong_no',
-                'description' => 'Xem công nợ chưa thanh toán của một đơn vị: từng hóa đơn (số HĐ, ngày xuất, hạn thanh toán, số tiền, số ngày quá hạn) '
-                    . 'và tổng nợ, tổng nợ quá hạn. Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ. '
+                'description' => 'Xem công nợ chưa thanh toán của một đơn vị: từng hóa đơn (số HĐ, ngày xuất, hạn thanh toán, số tiền, số ngày quá hạn), '
+                    . 'tổng nợ, tổng nợ quá hạn và HẠN MỨC TÍN DỤNG (vượt hạn mức / quá hạn quá lâu = cần thu nợ hoặc xin duyệt trước khi nhận đơn). Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ. '
                     . 'Ghi loc (không cần tu_khoa) để lấy danh sách đơn của MỌI đơn vị: qua_han (đã quá hạn), sap_den_han (đến hạn trong so_ngay ngày tới), '
                     . 'chua_xuat_hd (còn nợ nhưng chưa xuất hóa đơn).',
                 'input_schema' => [
@@ -753,9 +753,21 @@ class SalesTools implements DepartmentTools
 
             $overdueItems = $invoices->where('so_ngay_qua_han', '>', 0);
 
+            $credit = app(\App\Services\Accounting\CreditPolicy::class)->forUnit((int) $unit->id);
+
             return [
                 'ten_viet_tat' => $unit->unit_abbreviation,
                 'ten_day_du' => $unit->unit_name,
+                // Hạn mức tín dụng (kế toán đặt ở trang Phân tích tài chính; chưa đặt = gợi ý 2,5 tháng doanh thu)
+                'han_muc' => [
+                    'han_muc_no' => $credit['limit'],
+                    'nguon' => $credit['is_manual'] ? 'kế toán đặt' : 'gợi ý tự động',
+                    'dang_no_ke_ca_chua_xuat_hd' => $credit['owe'],
+                    'da_dung_pct' => $credit['used_pct'],
+                    'qua_han_toi_da_ngay' => $credit['max_days'],
+                    'trang_thai' => $credit['status_label'],
+                    'can_xu_ly_truoc_khi_nhan_don' => in_array($credit['status'], ['vuot_han_muc', 'qua_han_lau'], true),
+                ],
                 'tong_con_no' => $invoices->sum('con_no'),
                 'tong_qua_han' => $overdueItems->sum('con_no'),
                 'qua_han_lau_nhat_ngay' => (int) $overdueItems->max('so_ngay_qua_han'),

@@ -28,10 +28,200 @@
         <nav class="bk-tabs">
             @foreach ($tabs as $k => $label)
                 <a href="{{ route('finance.index', ['tab' => $k]) }}" class="{{ $tab === $k ? 'is-active' : '' }}">
-                    <i class="fas {{ ['tien-ket' => 'fa-hourglass-half', 'lai-uoc-tinh' => 'fa-coins', 'dong-tien' => 'fa-water'][$k] }}"></i>{{ $label }}
+                    <i class="fas {{ ['tien-ket' => 'fa-hourglass-half', 'han-muc' => 'fa-shield-alt', 'lai-uoc-tinh' => 'fa-coins', 'dong-tien' => 'fa-water', 'ke-hoach' => 'fa-bullseye'][$k] }}"></i>{{ $label }}
                 </a>
             @endforeach
         </nav>
+        @include('pages.admin.ct._toast')
+
+        {{-- ============================== HẠN MỨC TÍN DỤNG ============================== --}}
+        @if ($tab === 'han-muc')
+            @php
+                $cnt = $credits->countBy('status');
+            @endphp
+            <div class="rp-kpis">
+                <section class="rp-card rp-kpi rp-card--neg">
+                    <h2 class="rp-card__title"><i class="fas fa-ban"></i> Vượt hạn mức</h2>
+                    <p class="rp-kpi__big is-neg">{{ $cnt['vuot_han_muc'] ?? 0 }} đơn vị</p>
+                    <p class="rp-kpi__note">Nợ {{ $m($credits->where('status', 'vuot_han_muc')->sum('owe')) }} · Sales nên thu nợ trước khi nhận lịch mới</p>
+                </section>
+                <section class="rp-card rp-kpi fn-kpi--stuck">
+                    <h2 class="rp-card__title"><i class="fas fa-clock"></i> Quá hạn quá lâu</h2>
+                    <p class="rp-kpi__big">{{ $cnt['qua_han_lau'] ?? 0 }} đơn vị</p>
+                    <p class="rp-kpi__note">Có hóa đơn quá hạn lâu hơn số ngày cho phép</p>
+                </section>
+                <section class="rp-card rp-kpi">
+                    <h2 class="rp-card__title"><i class="fas fa-shield-alt"></i> Cách đặt hạn mức</h2>
+                    <p class="rp-kpi__note" style="margin-top:2px">Chưa đặt tay thì dùng <b>gợi ý</b> = 2,5 tháng doanh thu bình quân 6 tháng gần nhất (tối thiểu 20 triệu), quá hạn tối đa 30 ngày. Nợ tính cả đơn chưa xuất hóa đơn.</p>
+                </section>
+            </div>
+            <section class="rp-card">
+                <h2 class="rp-card__title"><i class="fas fa-building"></i> Hạn mức từng đơn vị ({{ $credits->count() }})</h2>
+                <div class="rp-scroll">
+                    <table class="bk-table fn-credit">
+                        <thead>
+                            <tr>
+                                <th class="is-text">Đơn vị</th>
+                                <th>Đang nợ</th>
+                                <th>Hạn mức</th>
+                                <th class="is-text">Đã dùng</th>
+                                <th>Quá hạn lâu nhất</th>
+                                <th class="is-text">Trạng thái</th>
+                                @if ($canEdit)<th></th>@endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($credits as $c)
+                                <tr>
+                                    <td class="is-text is-wrap"><b>{{ $c['unit'] }}</b><div class="fn-sub">DT bq {{ $tr($c['avg_month_revenue']) }}/tháng{{ $c['note'] ? ' · ' . $c['note'] : '' }}</div></td>
+                                    <td><b>{{ $m($c['owe']) }}</b>@if ($c['uninvoiced'])<div class="fn-sub">chưa xuất HĐ {{ $tr($c['uninvoiced']) }}</div>@endif</td>
+                                    <td>{{ $m($c['limit']) }}<div class="fn-sub">{{ $c['is_manual'] ? 'đặt tay' : 'gợi ý' }}</div></td>
+                                    <td class="is-text">
+                                        <span class="fn-meter fn-meter--{{ $c['status'] }}"><i style="width: {{ min(100, (int) ($c['used_pct'] ?? 0)) }}%"></i></span>
+                                        <span class="fn-sub">{{ $c['used_pct'] !== null ? number_format($c['used_pct'], 0, ',', '.') . '%' : '—' }}</span>
+                                    </td>
+                                    <td class="{{ $c['max_overdue_days'] > $c['max_days'] ? 'fn-bad' : '' }}">{{ $c['max_overdue_days'] ? $c['max_overdue_days'] . ' ngày' : '—' }}<div class="fn-sub">tối đa {{ $c['max_days'] }} ngày</div></td>
+                                    <td class="is-text"><span class="fn-status fn-status--{{ $c['status'] }}">{{ $c['status_label'] }}</span></td>
+                                    @if ($canEdit)
+                                        <td class="is-text">
+                                            <details class="fn-edit">
+                                                <summary class="bk-edit"><i class="fas fa-pen"></i> Sửa</summary>
+                                                <form method="post" action="{{ route('finance.credit.save') }}" class="fn-edit__form">
+                                                    @csrf
+                                                    <h3 class="fn-edit__title">Hạn mức tín dụng · {{ $c['unit'] }}</h3>
+                                                    <input type="hidden" name="unit_id" value="{{ $c['unit_id'] }}">
+                                                    <label class="fn-f"><span>Hạn mức nợ <em>trống = gợi ý {{ $tr($c['suggested_limit']) }}</em></span>
+                                                        <input type="text" name="limit_amount" class="is-money" inputmode="numeric" value="{{ $c['is_manual'] && $c['limit'] !== $c['suggested_limit'] ? $m($c['limit']) : '' }}" placeholder="{{ $m($c['suggested_limit']) }}"></label>
+                                                    <label class="fn-f"><span>Quá hạn tối đa (ngày)</span><input type="number" name="max_overdue_days" min="0" max="365" value="{{ $c['is_manual'] && $c['max_days'] !== \App\Services\Accounting\CreditPolicy::DEFAULT_DAYS ? $c['max_days'] : '' }}" placeholder="{{ \App\Services\Accounting\CreditPolicy::DEFAULT_DAYS }}"></label>
+                                                    <label class="fn-f fn-f--full"><span>Ghi chú</span><input type="text" name="note" maxlength="255" value="{{ $c['note'] }}" placeholder="Vd: theo hợp đồng số…"></label>
+                                                    <div class="bk-actions"><button type="button" class="rp-btn" data-details-cancel>Hủy</button><button class="rp-btn rp-btn--primary" type="submit">Lưu</button></div>
+                                                </form>
+                                            </details>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        @endif
+
+        {{-- ============================== KẾ HOẠCH NĂM ============================== --}}
+        @if ($tab === 'ke-hoach')
+            @php
+                $T = $cmp['totals'];
+                $upTo = $cmp['up_to_month'];
+            @endphp
+            <form method="get" class="rp-card fn-filter">
+                <input type="hidden" name="tab" value="ke-hoach">
+                <label class="fn-f"><span>Năm kế hoạch</span>
+                    <select name="nam" onchange="this.form.submit()">
+                        @for ($y = now()->year + 2; $y >= 2024; $y--)<option value="{{ $y }}" @selected($y == $year)>{{ $y }}</option>@endfor
+                    </select>
+                </label>
+                @if ($canEdit)
+                    <label class="fn-f"><span>Tăng trưởng so với {{ $year - 1 }}</span><span class="fn-f__unit"><input type="number" name="goi_y" step="1" min="-50" max="200" value="{{ $suggestPct ?? 10 }}"><i>%</i></span></label>
+                    <button class="rp-btn" type="submit"><i class="fas fa-magic"></i> Gợi ý từ thực tế {{ $year - 1 }}</button>
+                @endif
+                <span class="bk-hint">Thực tế: doanh thu & số ca từ đơn hàng, CT từ Công nợ CT, các khoản chi lấy số <b>đã chi</b> trong Báo cáo thu chi. Lũy kế tính đến hết tháng {{ $upTo ?: '—' }}.</span>
+            </form>
+
+            @if ($suggestPct !== null)
+                <div class="rp-card fn-note">
+                    <i class="fas fa-magic"></i> Bảng nhập bên dưới đang điền <b>gợi ý</b> = thực tế từng tháng năm {{ $year - 1 }} {{ $suggestPct >= 0 ? '+' : '' }}{{ $suggestPct }}% (tháng chưa có số dùng bình quân). Chưa lưu — xem lại, sửa rồi bấm <b>Lưu kế hoạch</b>.
+                </div>
+            @endif
+
+            @if ($cmp['has_plan'])
+                <div class="rp-kpis">
+                    <section class="rp-card rp-kpi rp-card--thu">
+                        <h2 class="rp-card__title"><i class="fas fa-arrow-down"></i> Thu lũy kế {{ $upTo ? 'đến T' . $upTo : '' }}</h2>
+                        <p class="rp-kpi__big">{{ $T['thu_plan_ytd'] ? number_format($T['thu_actual_ytd'] / $T['thu_plan_ytd'] * 100, 1, ',', '.') . '%' : '—' }}</p>
+                        <p class="rp-kpi__note">Thực tế {{ $tr($T['thu_actual_ytd']) }} / kế hoạch {{ $tr($T['thu_plan_ytd']) }} · cả năm {{ $tr($T['thu_plan_year']) }}</p>
+                    </section>
+                    <section class="rp-card rp-kpi {{ $T['chi_actual_ytd'] > $T['chi_plan_ytd'] ? 'rp-card--neg' : '' }}">
+                        <h2 class="rp-card__title"><i class="fas fa-arrow-up"></i> Chi lũy kế {{ $upTo ? 'đến T' . $upTo : '' }}</h2>
+                        <p class="rp-kpi__big {{ $T['chi_actual_ytd'] > $T['chi_plan_ytd'] ? 'is-neg' : '' }}">{{ $T['chi_plan_ytd'] ? number_format($T['chi_actual_ytd'] / $T['chi_plan_ytd'] * 100, 1, ',', '.') . '%' : '—' }}</p>
+                        <p class="rp-kpi__note">Thực tế {{ $tr($T['chi_actual_ytd']) }} / kế hoạch {{ $tr($T['chi_plan_ytd']) }} · cả năm {{ $tr($T['chi_plan_year']) }}</p>
+                    </section>
+                    <section class="rp-card rp-kpi">
+                        <h2 class="rp-card__title"><i class="fas fa-balance-scale"></i> Kế hoạch thu − chi cả năm</h2>
+                        <p class="rp-kpi__big {{ $T['thu_plan_year'] - $T['chi_plan_year'] < 0 ? 'is-neg' : 'is-pos' }}">{{ $m($T['thu_plan_year'] - $T['chi_plan_year']) }}</p>
+                        <p class="rp-kpi__note">Chưa gồm khoản vay mới / thu khác ngoài các dòng kế hoạch</p>
+                    </section>
+                </div>
+
+                <section class="rp-card">
+                    <h2 class="rp-card__title"><i class="fas fa-chart-bar"></i> Doanh thu (XQ + CT) theo tháng: kế hoạch và thực tế</h2>
+                    <div class="fn-chart"><canvas id="fn-budget-chart"></canvas></div>
+                </section>
+
+                <section class="rp-card">
+                    <h2 class="rp-card__title"><i class="fas fa-table"></i> So với kế hoạch</h2>
+                    <div class="rp-scroll">
+                        <table class="bk-table">
+                            <thead><tr><th class="is-text">Khoản</th><th>KH cả năm</th><th>KH lũy kế</th><th>Thực tế lũy kế</th><th>% đạt</th><th>Chênh lệch</th><th>Ước cả năm</th></tr></thead>
+                            <tbody>
+                                @foreach ($cmp['lines'] as $k => $l)
+                                    @php
+                                        $bad = $l['pct_ytd'] !== null && ($l['type'] === 'chi' ? $l['pct_ytd'] > 105 : $l['pct_ytd'] < 95);
+                                    @endphp
+                                    <tr>
+                                        <td class="is-text"><b>{{ $l['label'] }}</b> <span class="fn-sub">{{ ['thu' => 'thu', 'chi' => 'chi', 'so' => 'ca'][$l['type']] }}</span></td>
+                                        <td>{{ $m($l['plan_year']) }}</td>
+                                        <td>{{ $m($l['plan_ytd']) }}</td>
+                                        <td>{{ $m($l['actual_ytd']) }}</td>
+                                        <td class="{{ $bad ? 'fn-bad' : 'fn-in' }}"><b>{{ $pct($l['pct_ytd']) }}</b></td>
+                                        <td class="{{ ($l['type'] === 'chi' ? $l['diff_ytd'] > 0 : $l['diff_ytd'] < 0) ? 'fn-bad' : '' }}">{{ $l['diff_ytd'] > 0 ? '+' : '' }}{{ $m($l['diff_ytd']) }}</td>
+                                        <td>{{ $m($l['forecast_year']) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                @php
+                    $rev = fn ($src) => array_map(fn ($mm) => ($cmp['lines']['dt_xq'][$src][$mm] ?? 0) + ($cmp['lines']['dt_ct'][$src][$mm] ?? 0), range(1, 12));
+                    $budgetChart = [
+                        'labels' => array_map(fn ($mm) => 'T' . $mm, range(1, 12)),
+                        'plan' => $rev('plan'),
+                        'actual' => array_map(fn ($v, $i) => $i < $upTo ? $v : null, $rev('actual'), range(0, 11)),
+                    ];
+                @endphp
+                <script type="application/json" id="fn-budget-data">@json($budgetChart)</script>
+            @elseif (!$canEdit)
+                <section class="rp-card"><div class="rp-empty"><i class="fas fa-bullseye"></i><h2>Chưa có kế hoạch năm {{ $year }}</h2><p>Kế toán / giám đốc nhập kế hoạch để so với thực tế.</p></div></section>
+            @endif
+
+            @if ($canEdit)
+                <form method="post" action="{{ route('finance.budget.save') }}" class="rp-card fn-budget">
+                    @csrf
+                    <input type="hidden" name="year" value="{{ $year }}">
+                    <h2 class="rp-card__title"><i class="fas fa-pen"></i> Nhập kế hoạch năm {{ $year }} <small class="fn-sub">tiền (đ) theo tháng; số ca là số lượng</small></h2>
+                    <div class="rp-scroll">
+                        <table class="bk-table fn-budget__grid">
+                            <thead><tr><th class="is-text">Khoản</th>@for ($mm = 1; $mm <= 12; $mm++)<th>T{{ $mm }}</th>@endfor<th>Cả năm</th></tr></thead>
+                            <tbody>
+                                @foreach (\App\Services\Accounting\Budget::LINES as $k => [$label, $type])
+                                    <tr data-row>
+                                        <td class="is-text"><b>{{ $label }}</b></td>
+                                        @for ($mm = 1; $mm <= 12; $mm++)
+                                            <td><input type="text" name="plan[{{ $k }}][{{ $mm }}]" class="{{ $type === 'so' ? '' : 'is-money' }}" inputmode="numeric" value="{{ $grid[$k][$mm] ? number_format($grid[$k][$mm], 0, ',', '.') : '' }}"></td>
+                                        @endfor
+                                        <td class="fn-budget__sum" data-sum>{{ $m(array_sum($grid[$k])) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bk-actions" style="justify-content:flex-end;display:flex;gap:8px;margin-top:12px">
+                        <a href="{{ route('finance.index', ['tab' => 'ke-hoach', 'nam' => $year]) }}" class="rp-btn">Hủy thay đổi</a>
+                        <button type="submit" class="rp-btn rp-btn--primary"><i class="fas fa-save"></i> Lưu kế hoạch</button>
+                    </div>
+                </form>
+            @endif
+        @endif
 
         {{-- ============================== TIỀN KẸT & TUỔI NỢ ============================== --}}
         @if ($tab === 'tien-ket')
@@ -345,7 +535,20 @@
     </div>
 @endsection
 @push('js')
-    @if ($tab !== 'tien-ket')
+    @if ($tab === 'ke-hoach')
+        <script>
+            // Cộng tổng cả năm từng dòng khi nhập kế hoạch
+            document.querySelectorAll('.fn-budget__grid tr[data-row]').forEach(function (tr) {
+                const sum = () => {
+                    let t = 0;
+                    tr.querySelectorAll('input').forEach(i => { t += parseInt((i.value || '').replace(/\D/g, ''), 10) || 0; });
+                    tr.querySelector('[data-sum]').textContent = new Intl.NumberFormat('vi-VN').format(t);
+                };
+                tr.addEventListener('input', sum);
+            });
+        </script>
+    @endif
+    @if (in_array($tab, ['lai-uoc-tinh', 'dong-tien', 'ke-hoach'], true))
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
         <script>
             (function () {
@@ -373,6 +576,18 @@
                             { type: 'line', label: 'Biên lãi', data: d.margin, borderColor: '#c96442', backgroundColor: '#c96442', yAxisID: 'y1', tension: .25, order: 1 },
                         ] },
                         options: Object.assign({}, base, { scales: Object.assign({}, base.scales, { y1: { position: 'right', grid: { display: false }, ticks: { callback: v => v + '%' } } }) }),
+                    });
+                }
+                const budget = document.getElementById('fn-budget-data');
+                if (budget) {
+                    const d = JSON.parse(budget.textContent);
+                    new Chart(document.getElementById('fn-budget-chart'), {
+                        type: 'bar',
+                        data: { labels: d.labels, datasets: [
+                            { label: 'Kế hoạch', data: d.plan, backgroundColor: '#e2ded3', borderRadius: 5 },
+                            { label: 'Thực tế', data: d.actual, backgroundColor: '#2f6fd1cc', borderRadius: 5 },
+                        ] },
+                        options: base,
                     });
                 }
                 const cash = document.getElementById('fn-cash-data');

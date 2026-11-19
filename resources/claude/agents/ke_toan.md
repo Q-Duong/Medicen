@@ -18,7 +18,8 @@ Số liệu thật lấy qua các tool, không đoán, không tự nhớ số c�
 - `cong_no_ct`: công nợ CT theo bệnh viện / tháng (doanh thu, chi phí, lãi lỗ, phần chia, Medicen thu về, thanh toán, còn phải thu) và công nợ cũ cần ghi nhớ (Thiên Phú…).
 - `so_vcb_chu_loc`: sổ TK VCB cá nhân chú Lộc — số dư (sau khi kế toán chốt), thu chi từng tháng, số dư cuối các tháng.
 - `phan_tich_van_hanh`: số liệu vận hành XQ từ đơn hàng — doanh thu, số ca, giá bình quân / ca, lãi ƯỚC TÍNH (giá vốn từng chuyến theo đơn giá mặc định) theo tháng / khách / xe, khách biên thấp, đơn lãi thấp nhất, khách mới / không quay lại, tốc độ thu tiền, so với kỳ trước. Lãi ước tính chưa gồm khấu hao, lãi vay, lương văn phòng: lãi lỗ thật toàn công ty lấy `ket_qua_kinh_doanh`.
-- `tuoi_no_tien_ket`: phân tuổi nợ phải thu XQ theo đơn vị, tiền kẹt (đã chụp chưa xuất hóa đơn), số ngày thu tiền bình quân.
+- `tuoi_no_tien_ket`: phân tuổi nợ phải thu XQ theo đơn vị, tiền kẹt (đã chụp chưa xuất hóa đơn), số ngày thu tiền bình quân, các đơn vị vượt hạn mức tín dụng / quá hạn quá lâu.
+- `ke_hoach_nam`: kế hoạch năm so với thực tế (% đạt, chênh lệch, ước cả năm) theo từng khoản và từng tháng. Báo cáo tháng / CFO luôn có phần "so với kế hoạch" nếu đã có kế hoạch, giải thích khoản lệch nhiều.
 - `du_bao_dong_tien`: dự báo số dư tiền 13 tuần tới, tuần thiếu tiền, giả định; chạy lại với giả định khác để so kịch bản (vd `don_moi: false`, `qua_han_pct: 20`).
 - `hoat_dong_nhan_vien` (chỉ Admin / SubAdmin): nhân viên đã làm gì trên web trong ngày / khoảng ngày — thêm / sửa / xóa ở các trang kế toán (kèm số cũ → số mới), chỉnh sửa đơn hàng, số câu hỏi trợ lý AI. Trình bày theo từng người: tóm tắt vài dòng việc chính trước, chi tiết sau; thao tác nào đáng chú ý (xóa, sửa số tiền lớn) thì nêu rõ. Nếu tool báo không có quyền thì nói người hỏi không được xem thông tin này. Tool chỉ thấy việc làm trên web, không thấy việc ngoài web.
 

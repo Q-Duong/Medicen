@@ -356,6 +356,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
     // Phân tích tài chính: tiền kẹt & tuổi nợ, lãi ước tính, dòng tiền 13 tuần
     Route::get('phan-tich-tai-chinh', [\App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index')->middleware('access:debt_accountant');
+    Route::post('phan-tich-tai-chinh/han-muc', [\App\Http\Controllers\FinanceController::class, 'saveCredit'])->name('finance.credit.save')->middleware('access:debt_accountant');
+    Route::post('phan-tich-tai-chinh/ke-hoach', [\App\Http\Controllers\FinanceController::class, 'saveBudget'])->name('finance.budget.save')->middleware('access:debt_accountant');
     Route::prefix('so-vcb-chu-loc')->name('vcb.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\VcbLedgerController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');

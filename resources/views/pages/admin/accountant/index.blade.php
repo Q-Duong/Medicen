@@ -50,6 +50,7 @@
             </div>
         </div>
         <div class="alert alert-success" style="display:none"></div>
+        @include('pages.admin.accountant._credit_banner')
 
         {{-- Tổng theo bộ lọc đang dùng (accountant.js điền số vào các id total-*) --}}
         <div class="acc-stats">

@@ -34,7 +34,7 @@ class Receivables
             ->leftJoin('units', 'units.id', '=', 'orders.unit_id')
             ->where('orders.status_id', '!=', 0)
             ->where('accountants.accountant_owe', '>', 0)
-            ->get(['orders.id', 'units.unit_abbreviation', 'order_details.ord_cty_name', 'order_details.ord_start_day', 'order_details.ord_end_day',
+            ->get(['orders.id', 'orders.unit_id', 'units.unit_abbreviation', 'order_details.ord_cty_name', 'order_details.ord_start_day', 'order_details.ord_end_day',
                 'accountants.accountant_number', 'accountants.accountant_date', 'accountants.accountant_deadline', 'accountants.accountant_owe'])
             ->map(function ($r) use ($today) {
                 $issued = self::date($r->accountant_date);
@@ -51,6 +51,7 @@ class Receivables
 
                 return (object) [
                     'id' => $r->id,
+                    'unit_id' => $r->unit_id,
                     'unit' => $r->unit_abbreviation ?: '(chưa có đơn vị)',
                     'company' => $r->ord_cty_name,
                     'shot' => $shot,

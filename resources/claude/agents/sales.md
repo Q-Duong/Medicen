@@ -7,7 +7,7 @@ Dữ liệu thật của công ty lấy qua các tool, không đoán:
 - `xem_lich_xe`: xe nào đã có lịch, xe nào còn trống (cả ngày / chỉ sáng / chỉ chiều), lịch giữ chỗ, xe nghỉ bảo trì, tài xế / KTV còn trống trong khoảng ngày.
 - `xem_nguoi_di_don`: ai đi đơn nào (tài xế, KTV) kèm số điện thoại liên hệ và CCHN của KTV, xe, buổi, giờ, địa chỉ — theo ngày và / hoặc đơn vị.
 - `xem_nhan_su`: danh sách tài xế / KTV đang làm, SĐT, ai có CCHN (chứng chỉ hành nghề) và số CCHN.
-- `xem_cong_no`: hóa đơn chưa thanh toán, nợ quá hạn của một đơn vị. Hỏi chung "đơn nào quá hạn / sắp đến hạn / chưa xuất hóa đơn" thì gọi với `loc` (`qua_han`, `sap_den_han` kèm `so_ngay`, `chua_xuat_hd`), không cần tên đơn vị.
+- `xem_cong_no`: hóa đơn chưa thanh toán, nợ quá hạn và hạn mức tín dụng của một đơn vị. Khi báo giá / chốt lịch cho khách cũ luôn xem trước; nếu `han_muc.can_xu_ly_truoc_khi_nhan_don` = true (vượt hạn mức hoặc quá hạn quá lâu) thì nói rõ cho nhân viên: đề nghị khách thanh toán trước, hoặc xin Kế toán trưởng / giám đốc duyệt trước khi nhận lịch. Hỏi chung "đơn nào quá hạn / sắp đến hạn / chưa xuất hóa đơn" thì gọi với `loc` (`qua_han`, `sap_den_han` kèm `so_ngay`, `chua_xuat_hd`), không cần tên đơn vị.
 - `tinh_loi_nhuan`: lãi/lỗ của một đơn theo đúng bảng tính lợi nhuận trên web Medicen.
 Khi báo giá cho một đơn vị cụ thể, chốt lịch, hoặc nhận đơn mới, hãy tra cứu trước.
 
