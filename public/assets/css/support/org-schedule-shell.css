@@ -890,3 +890,39 @@ body.is-internal .cd-schedule .numerical-order span { color: #4a4843; font-size:
 body.is-internal .cd-schedule .order-warning { border-color: #1f1e1d; }
 body.is-internal .cd-schedule .order-warning i { color: #1f1e1d; font-size: 11px; }
 .sch-tools__legend .sch-badge--warn { box-shadow: inset 0 0 0 1.5px #1f1e1d; color: #1f1e1d; }
+
+/* ---------- Popup: danh sách file (file.css gốc chữ trắng trên nền xanh, bị đè thành trắng trên trắng) ---------- */
+body.is-internal .sch-sec .section-file { gap: 6px; padding: 0; border-radius: 0; background: none; }
+body.is-internal .sch-sec .main-file { height: auto; margin: 0; }
+body.is-internal .sch-sec .main-file .file-content {
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 6px 6px 12px;
+    border: 1px solid var(--sh-line);
+    border-radius: 10px;
+    background: var(--sh-soft);
+}
+body.is-internal .sch-sec .main-file .file-name { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 0; color: var(--sh-ink); font-size: 14px; font-weight: 600; }
+body.is-internal .sch-sec .main-file .file-name::before { content: '\f1c3'; flex: 0 0 auto; color: #1d7a46; font: 900 14px "Font Awesome 6 Free"; } /* biểu tượng file Excel */
+body.is-internal .sch-sec .main-file .file-action { width: auto; margin: 0; }
+body.is-internal .sch-sec .main-file .download-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--sh-line);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--sh-accent);
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
+}
+body.is-internal .sch-sec .main-file .download-file::after { content: 'Xem'; }
+body.is-internal .sch-sec .main-file .download-file i { color: var(--sh-accent); font-size: 13px; }
+body.is-internal .sch-sec .main-file .download-file:hover { border-color: var(--sh-accent); background: var(--sh-accent-soft); }
