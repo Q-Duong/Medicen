@@ -101,10 +101,16 @@ class ScheduleResultsController extends Controller
 		$data = $request->all();
 		$firstDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->firstOfMonth()->toDateString();
 		$lastDayofThisMonth = Carbon::createFromFormat('M Y', $request->currentTime['month'] . ' ' . $request->currentTime['year'])->endOfMonth()->toDateString();
-		$ctyName = OrderDetail::whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
+		// Chỉ gợi ý công ty có đơn thật hiện trên lịch: bỏ đơn phụ thu và đơn trạng thái 0, giống điều kiện lọc ở search()
+		$ctyName = OrderDetail::join('orders', 'orders.order_detail_id', '=', 'order_details.id')
+			->join('car_ktvs', 'car_ktvs.order_id', '=', 'orders.id')
+			->where('car_ktvs.car_active', 1)
+			->where('orders.status_id', '!=', 0)
+			->where(fn ($q) => $q->where('orders.order_surcharge', 0)->orWhereNull('orders.order_surcharge'))
+			->whereBetween('order_details.ord_start_day', [$firstDayofThisMonth, $lastDayofThisMonth])
 			->whereBetween('order_details.ord_end_day', [$firstDayofThisMonth, $lastDayofThisMonth])
-			->where('ord_cty_name', 'LIKE', '%' . $data['query'] . '%')
-			->select(['ord_cty_name'])
+			->where('order_details.ord_cty_name', 'LIKE', '%' . $data['query'] . '%')
+			->select(['order_details.ord_cty_name'])
 			->orderBy('ord_cty_name', 'ASC')
 			->get();
 		$uniqueCtyName = $ctyName->unique('ord_cty_name');

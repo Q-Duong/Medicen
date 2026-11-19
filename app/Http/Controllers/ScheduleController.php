@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
+	/** Đăng xuất từ các trang lịch (nút tài khoản trên header): về trang đăng nhập lịch */
+	public function logout(Request $request)
+	{
+		Auth::logout();
+		$request->session()->invalidate();
+		$request->session()->regenerateToken();
+
+		return Redirect::route('schedules.login');
+	}
+
 	public function showLogin()
 	{
 		return view('pages.client.schedule.login');

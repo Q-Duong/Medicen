@@ -49,6 +49,8 @@
     <link href="{{ versionResource('backend/css/select2.min.css') }}" rel="stylesheet" as="style" />
     {{-- Khung trang (header + sidebar) theo giao diện mới: assets/css/support/org-shell.css --}}
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/shell.css') }}" type="text/css" as="style" />
+    {{-- Thông báo thành công / lỗi kiểu thẻ nổi góc phải: assets/css/support/org-notice.css --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/notice.css') }}" type="text/css" />
     {{-- Ô chọn ngày không tràn trên điện thoại (assets/css/support/org-form-fix.css) --}}
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/form-fix.css') }}" type="text/css" />
     @stack('css')

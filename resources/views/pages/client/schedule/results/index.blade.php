@@ -8,16 +8,16 @@
         as="style" />
 @endpush
 @section('content')
-@section('title', 'Lịch xe chi tiết kết quả - Medicen')
+@section('title', 'Lịch kết quả - Medicen')
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__text">
-                    <h4>Lịch xe chi tiết kết quả</h4>
+                    <h4>Lịch kết quả</h4>
                     <div class="breadcrumb__links">
                         <a href="{{ route('home.index') }}">Trang chủ</a>
-                        <span>Lịch xe chi tiết kết quả</span>
+                        <span>Lịch kết quả</span>
                     </div>
                 </div>
             </div>

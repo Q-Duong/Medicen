@@ -81,6 +81,7 @@ Route::prefix('contact')->group(function () {
 Route::prefix('schedules')->group(function () {
     Route::get('login', [ScheduleController::class, 'showLogin'])->name('schedules.login');
     Route::post('login', [ScheduleController::class, 'login'])->name('schedules.login.post');
+    Route::post('logout', [ScheduleController::class, 'logout'])->name('schedules.logout');
 
     //Drivers
     Route::prefix('drivers')->group(function () {

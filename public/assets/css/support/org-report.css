@@ -788,7 +788,22 @@
 .bk-table .is-due { color: var(--rp-bad); font-weight: 700; }
 .bk-table .is-strong { font-weight: 650; }
 .bk-table .is-month { color: var(--rp-muted); font-weight: 650; }
-.bk-table tr.is-group td { background: #fff; padding-top: 12px; font-weight: 700; }
+/* Dải tiêu đề tháng (Công nợ CT): nền xanh nhạt, chữ xanh, tách rõ từng tháng */
+.bk-table tr.is-group td {
+    padding: 9px 12px;
+    border-top: 8px solid #fff;
+    border-bottom: 0;
+    background: #ebf2fd;
+    color: #2f6fd1;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.bk-table tr.is-group td i { margin-right: 6px; }
+.bk-table tbody tr.is-group:hover td { background: #ebf2fd; }
+.bk-table tbody tr:first-child.is-group td { border-top: 0; }
 
 .bk-tag {
     display: inline-block;

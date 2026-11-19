@@ -6,16 +6,16 @@
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/file.css') }}" type="text/css" as="style" />
 @endpush
 @section('content')
-@section('title', 'Lịch xe chi tiết Sales - Medicen')
+@section('title', 'Lịch Sales - Medicen')
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__text">
-                    <h4>Lịch xe chi tiết Sales</h4>
+                    <h4>Lịch Sales</h4>
                     <div class="breadcrumb__links">
                         <a href="{{ route('home.index') }}">Trang chủ</a>
-                        <span>Lịch xe chi tiết Sales</span>
+                        <span>Lịch Sales</span>
                     </div>
                 </div>
             </div>

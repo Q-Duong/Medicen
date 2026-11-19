@@ -8,7 +8,7 @@
         <div class="notifications-icon">
         </div>
         <div class="notifications-message">
-            <span class="message-title">Thông báo !</span>
+            <span class="message-title">Thành công</span>
             <span class="message-text"></span>
         </div>
     </div>
@@ -19,7 +19,7 @@
         <div class="notifications-icon">
         </div>
         <div class="notifications-message">
-            <span class="message-title">Thông báo !</span>
+            <span class="message-title">Có lỗi</span>
             <span class="message-text"></span>
         </div>
     </div>

@@ -44,6 +44,12 @@
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/home.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/built/site.built.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ versionResource('assets/css/overview.built.css') }}" rel='stylesheet'>
+    {{-- Thông báo thành công / lỗi kiểu thẻ nổi góc phải: assets/css/support/org-notice.css --}}
+    <link rel="stylesheet" href="{{ versionResource('assets/css/support/notice.css') }}" type="text/css" />
+    @if (request()->routeIs('schedules.*') && !request()->routeIs('schedules.login*'))
+        {{-- Khung gọn cho trang lịch nội bộ: assets/css/support/org-schedule-shell.css --}}
+        <link rel="stylesheet" href="{{ versionResource('assets/css/support/schedule-shell.css') }}" type="text/css" />
+    @endif
     {{-- Font Awesome 6.7.2 Free (trước đây nạp qua kit fontawesome.com, kit chỉ cho phép localhost nên production mất icon) --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -52,14 +58,24 @@
     @stack('css')
 </head>
 
-<body>
-    @include('layouts.section.client.header')
+@php
+    // Trang lịch nội bộ (schedules.*, trừ trang đăng nhập): header nội bộ gọn, không chân trang website
+    $internalPage = request()->routeIs('schedules.*') && !request()->routeIs('schedules.login*');
+@endphp
+<body class="{{ $internalPage ? 'is-internal' : '' }}">
+    @if ($internalPage)
+        @include('layouts.section.client.internal_header')
+    @else
+        @include('layouts.section.client.header')
+    @endif
 
     <main class="main" role="main">
         @yield('content')
     </main>
 
-    @include('layouts.section.client.footer')
+    @unless ($internalPage)
+        @include('layouts.section.client.footer')
+    @endunless
     <div id="portal-notification">
         @include('layouts.section.essential.session_notification')
     </div>
@@ -82,6 +98,10 @@
         }
         </script>
     @stack('js')
+    @if ($internalPage)
+        {{-- Bảng lịch: thứ, cuối tuần, hôm nay, nút Hôm nay (assets/js/tool/org-schedule-enhance.js) --}}
+        <script src="{{ versionResource('assets/js/tool/schedule-enhance.js') }}" defer></script>
+    @endif
 </body>
 
 </html>

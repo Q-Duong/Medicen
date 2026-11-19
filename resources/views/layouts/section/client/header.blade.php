@@ -32,6 +32,8 @@
                         href="{{ route('contact.index') }}">@lang('master_pages.header.contact')</a>
                 </li>
 
+                @include('layouts.section.client.account')
+
                 {{-- <li class="nav-item ms-3">
                     <div class="globalnav-languages-item">
                         <button class="button-languages" dropdown="false">

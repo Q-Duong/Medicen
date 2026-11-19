@@ -270,12 +270,17 @@
                                         // Dòng lấy số tự động: VCB chú Lộc (Sổ VCB) / CT (Công nợ CT) — chỉ sửa được ngày dự kiến
                                         $auto = $item->auto_key;
                                         $lock = !$canEdit || $auto;
-                                        // Bấm "Tự động": VCB -> sổ VCB tháng trước (số dư cuối tháng đó là số đầu kỳ);
-                                        // CT -> Công nợ CT đúng bệnh viện, đánh dấu các kỳ tạo nên số của tháng báo cáo
+                                        // Bấm "Tự động":
+                                        // - VCB: sổ VCB tháng đang xem nếu tháng đó đã có dòng nhập (tay / thu CT / file / số dư chốt),
+                                        //   chưa có thì mở tháng trước (số dư cuối tháng trước là số đầu kỳ). Khoản cố định tự sinh không tính là "đã cập nhật".
+                                        // - CT: Công nợ CT đúng bệnh viện, đánh dấu các kỳ tạo nên số của tháng báo cáo
                                         $autoUrl = null;
                                         if ($auto === 'vcb') {
-                                            $prev = \Carbon\Carbon::create($year, (int) $month, 1)->subMonth();
-                                            $autoUrl = route('vcb.index', ['year' => $prev->year, 'month' => $prev->month]);
+                                            $cur = \Carbon\Carbon::create($year, (int) $month, 1);
+                                            $hasEntries = \App\Models\Accounting\VcbEntry::where('source', '!=', 'recurring')
+                                                ->whereBetween('entry_date', [$cur->toDateString(), $cur->copy()->endOfMonth()->toDateString()])->exists();
+                                            $target = $hasEntries ? $cur : $cur->copy()->subMonth();
+                                            $autoUrl = route('vcb.index', ['year' => $target->year, 'month' => $target->month]);
                                         } elseif ($auto) {
                                             [, $ctCode, $ctKind] = array_pad(explode(':', $auto), 3, 'thuong');
                                             $ctPartnerIds ??= \App\Models\Accounting\CtPartner::pluck('id', 'code');
@@ -293,7 +298,7 @@
                                                 <input type="text" class="item-name" name="items[{{ $index }}][name]" value="{{ $item->name }}"
                                                     @readonly($lock) aria-label="Hạng mục">
                                                 @if ($auto)
-                                                    <a href="{{ $autoUrl }}" class="rp-auto" title="{{ $auto === 'vcb' ? 'Số dư cuối tháng trước của Sổ VCB chú Lộc' : 'Dự thu = phần Medicen còn phải thu đến đầu tháng; Đã thu = tiền nhận trong tháng (Công nợ CT)' }}"><i class="fas fa-link"></i> Tự động</a>
+                                                    <a href="{{ $autoUrl }}" class="rp-auto" title="{{ $auto === 'vcb' ? 'Số dư đầu tháng = số dư cuối tháng trước của Sổ VCB chú Lộc. Mở sổ tháng này nếu đã có dòng nhập, chưa có thì mở tháng trước' : 'Dự thu = phần Medicen còn phải thu đến đầu tháng; Đã thu = tiền nhận trong tháng (Công nợ CT)' }}"><i class="fas fa-link"></i> Tự động</a>
                                                 @endif
                                             </div>
                                         </td>

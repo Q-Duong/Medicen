@@ -1,0 +1,165 @@
+/* ==========================================================================
+   Thông báo chung (layouts/section/admin/notification + essential/notification), nạp ở cả layout quản trị
+   (default_auth) và layout trang lịch / khách (default). Bản rút gọn: notice.css
+   cùng kiểu thẻ nổi góc phải của các trang mới — nền trắng, vạch màu bên trái, icon theo loại
+   (ghi đè kiểu cũ trong overview.built.css; JS successMsg / errorMsg và tự ẩn 3 giây giữ nguyên)
+   ========================================================================== */
+.notifications-popup-success,
+.notifications-popup-error {
+    --nt-tone: #0f7b52;
+    top: calc(var(--app-header, 64px) + 14px);
+    right: 20px;
+    width: min(420px, calc(100vw - 32px));
+    padding: 13px 44px 13px 16px;
+    border: 1px solid #e2ded3;
+    border-left: 4px solid var(--nt-tone);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 14px 36px rgba(30, 25, 15, .16);
+    transform: translateX(calc(100% + 40px));
+    transition: transform .35s cubic-bezier(.2, .9, .3, 1.1);
+}
+
+.notifications-popup-error { --nt-tone: #b42318; }
+
+.notifications-popup-success.active,
+.notifications-popup-error.active { transform: translateX(0); }
+
+.notifications-popup-success .notifications-content,
+.notifications-popup-error .notifications-content { align-items: flex-start; }
+
+.notifications-popup-success .notifications-success,
+.notifications-popup-error .notifications-error {
+    height: auto;
+    min-width: 0;
+    margin-top: 2px;
+    background: transparent;
+    color: var(--nt-tone);
+    font-size: 18px;
+}
+
+.notifications-popup-success .notifications-success::before { content: "\f058"; }
+.notifications-popup-error .notifications-error::before { content: "\f06a"; }
+
+.notifications-popup-success .notifications-message,
+.notifications-popup-error .notifications-message { margin: 0 0 0 12px; min-width: 0; }
+
+.notifications-popup-success .message-title,
+.notifications-popup-error .message-title {
+    color: var(--nt-tone);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.notifications-popup-success .message-text,
+.notifications-popup-error .message-text {
+    color: #1f1e1d;
+    font-size: 13.5px;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.notifications-popup-success .notifications-close,
+.notifications-popup-error .notifications-close {
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 8px;
+    color: #a3a19b;
+    line-height: 28px;
+    text-align: center;
+    opacity: 1;
+}
+
+.notifications-popup-success .notifications-close:hover,
+.notifications-popup-error .notifications-close:hover { background: #f5f4ef; color: #1f1e1d; }
+
+/* ==========================================================================
+   Nút tài khoản trên header các trang lịch (layouts/section/client/header): tên + phòng ban, menu Đăng xuất
+   ========================================================================== */
+.nav-account__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 260px;
+    padding: 5px 12px 5px 5px;
+    border: 1px solid #e2ded3;
+    border-radius: 999px;
+    background: #fff;
+    color: #1f1e1d;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.nav-account__btn:hover,
+.nav-account__btn[aria-expanded="true"] { border-color: #c96442; box-shadow: 0 0 0 3px rgba(201, 100, 66, .12); }
+.nav-account { position: relative; }
+.nav-account__caret { margin-left: 2px; color: #a3a19b; font-size: 11px; transition: transform .15s; }
+.nav-account__btn[aria-expanded="true"] .nav-account__caret { transform: rotate(180deg); }
+
+.nav-account__avatar {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fbefe9;
+    color: #c96442;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.nav-account__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.nav-account__text b { overflow: hidden; font-size: 14px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.nav-account__text small { overflow: hidden; color: #73716c; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+
+.nav-account__menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    z-index: 1050;
+    min-width: 260px;
+    margin-top: 8px !important;
+    padding: 8px;
+    border: 1px solid #e2ded3;
+    border-radius: 14px;
+    box-shadow: 0 14px 36px rgba(30, 25, 15, .14);
+}
+
+.nav-account__who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 10px;
+    border-bottom: 1px solid #eeebe3;
+}
+
+.nav-account__logout {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 6px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #b42318;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-account__logout:hover { background: #fdecea; }
+
+@media (max-width: 991px) {
+    .nav-account { margin: 8px 0; }
+    .nav-account__btn { max-width: 100%; }
+    .nav-account__menu { position: static; width: 100%; margin-top: 6px !important; box-shadow: none; }
+}

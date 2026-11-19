@@ -142,7 +142,7 @@
                                 @php $lastMonth = null; @endphp
                                 @foreach ($rows as $r)
                                     @if ($lastMonth !== $r->month)
-                                        <tr class="is-group"><td class="is-text" colspan="12">Tháng {{ $r->month }}/{{ $r->year }}</td></tr>
+                                        <tr class="is-group"><td class="is-text" colspan="12"><i class="far fa-calendar-alt"></i>Tháng {{ $r->month }}/{{ $r->year }}</td></tr>
                                         @php $lastMonth = $r->month; @endphp
                                     @endif
                                     <tr class="{{ $focusRow($r) ? 'is-focus' : '' }}">
