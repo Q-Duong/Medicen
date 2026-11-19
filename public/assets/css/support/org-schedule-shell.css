@@ -1002,3 +1002,12 @@ body.is-internal .sch-sec .main-file .download-file { flex: 0 0 auto; white-spac
 /* Ô Hình thức trả kết quả: nhãn canh giữa theo chiều dọc với 2 nút chọn */
 .sch-sec--form form > .sch-field-block.is-half > legend { display: flex; align-items: center; align-self: center; height: auto; margin: 0 !important; padding: 0 !important; line-height: 1.25; }
 .sch-sec--form form > .sch-field-block.is-half .rs-form-label-header { margin: 0 !important; padding: 0 !important; color: var(--sh-muted); font-size: 12.5px !important; font-weight: 500; line-height: 1.25 !important; }
+@media only screen and (max-width: 799px) {
+    /* Đáy popup trên điện thoại: vuông, nền trắng kéo tới hết màn hình */
+    body.is-internal .cd-schedule .event-modal { background: #fff; }
+    body.is-internal.is-internal .cd-schedule .event-modal .body-bg,
+    body.is-internal.is-internal .cd-schedule.modal-is-open .body-bg { border-radius: 0; }
+}
+/* Khối có tiêu đề trong form (Ghi chú, File kết quả tổng…): bỏ khoảng trống thừa giữa tiêu đề và ô nhập */
+.sch-sec--form .sch-field-block .rs-form-label-header { margin: 0 !important; padding: 0 !important; line-height: 1.3; }
+.sch-sec--form .sch-field-block textarea { margin: 0 !important; padding: 10px 13px !important; }
