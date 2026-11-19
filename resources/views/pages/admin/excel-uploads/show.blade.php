@@ -32,8 +32,7 @@
                             <a class="btn btn--ghost" href="{{ route('excel-uploads.edit', $upload) }}">
                                 @include('pages.admin.excel-uploads._icon', ['name' => 'edit']) Sửa
                             </a>
-                            <form method="POST" action="{{ route('excel-uploads.destroy', $upload) }}"
-                                onsubmit="return confirm('Xoá file này? Không khôi phục được.')">
+                            <form method="POST" action="{{ route('excel-uploads.destroy', $upload) }}" data-confirm="Xoá file này? Không khôi phục được." data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                 @csrf @method('DELETE')
                                 <button class="btn btn--danger-ghost" type="submit">@include('pages.admin.excel-uploads._icon', ['name' => 'trash'])
                                     Xoá</button>

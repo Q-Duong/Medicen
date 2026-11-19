@@ -32,10 +32,10 @@
                                 <a href="{{ route('slider.edit', $slider->id) }}" class="active style-edit"
                                     ui-toggle-class=""><i class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
-                                <form action="{{ route('slider.destroy', $slider->id) }}" method="POST">
+                                <form action="{{ route('slider.destroy', $slider->id) }}" method="POST" data-confirm="Bạn có chắc là muốn xóa slide này ko?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                     @method('delete')
                                     @csrf
-                                    <button onclick="return confirm('Bạn có chắc là muốn xóa slide này ko?')" href=""
+                                    <button href=""
                                         class="active styling-edit" ui-toggle-class="">
                                         <i class="fa fa-times text-danger text"></i>
                                     </button>

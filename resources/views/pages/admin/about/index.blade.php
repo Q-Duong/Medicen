@@ -26,10 +26,10 @@
                                 <a href="{{ route('about.edit', $about->id) }}" class="active style-edit"><i
                                         class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
-                                <form action="{{ route('about.destroy', $about->id) }} " method="POST">
+                                <form action="{{ route('about.destroy', $about->id) }} " method="POST" data-confirm="Bạn có chắc muốn xóa bài viết?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                     @method('DELETE')
                                     @csrf
-                                    <button type="submit" onclick="return confirm('Bạn có chắc muốn xóa bài viết?')"
+                                    <button type="submit"
                                         class="active style-edit">
                                         <i class="fa fa-times text-danger text"></i>
                                     </button>

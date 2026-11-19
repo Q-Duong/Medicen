@@ -29,10 +29,10 @@
                                 <a href="{{ route('service.edit', $service->id) }}" class="management-btn"><i
                                         class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
-                                <form action="{{ route('service.destroy', $service->id) }} " method="POST">
+                                <form action="{{ route('service.destroy', $service->id) }} " method="POST" data-confirm="Bạn có chắc muốn xóa bài viết?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                     @method('DELETE')
                                     @csrf
-                                    <button type="submit" onclick="return confirm('Bạn có chắc muốn xóa bài viết?')"
+                                    <button type="submit"
                                         class="management-btn button-submit">
                                         <i class="fa fa-times text-danger text"></i>
                                     </button>

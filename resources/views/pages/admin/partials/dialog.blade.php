@@ -89,6 +89,31 @@
             variant: o.type === 'info' ? 'info' : 'error', icon: o.type === 'info' ? 'fas fa-info-circle' : 'fas fa-exclamation-circle',
         });
 
+        // Ô tiền (class is-money): tự thêm dấu chấm ngăn cách khi gõ (giữ dấu âm), dùng chung mọi trang có ô tiền
+        document.addEventListener('input', e => {
+            const el = e.target;
+            if (!el.classList || !el.classList.contains('is-money') || el.readOnly) return;
+            const neg = el.value.trim().startsWith('-');
+            const digits = el.value.replace(/\D/g, '');
+            const next = digits ? (neg ? '-' : '') + new Intl.NumberFormat('vi-VN').format(digits) : (neg ? '-' : '');
+            if (next !== el.value) {
+                const fromEnd = el.value.length - (el.selectionEnd ?? el.value.length);
+                el.value = next;
+                const pos = Math.max(0, next.length - fromEnd);
+                try { el.setSelectionRange(pos, pos); } catch (_) {}
+            }
+        });
+
+        // Nút Hủy trong khung <details> (Sửa / Thêm…): trả các ô về giá trị cũ và đóng khung
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('[data-details-cancel]');
+            if (!btn) return;
+            e.preventDefault();
+            btn.closest('form')?.reset();
+            const d = btn.closest('details');
+            if (d) d.open = false;
+        });
+
         // <form data-confirm="..."> : hỏi trước khi gửi
         document.addEventListener('submit', async e => {
             const form = e.target;

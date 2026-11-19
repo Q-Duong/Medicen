@@ -67,6 +67,8 @@
             @include('layouts.section.admin.footer')
         </section>
         @include('layouts.section.admin.notification')
+        {{-- Hộp xác nhận / thông báo dùng chung (uiConfirm, form data-confirm, ô tiền is-money, nút Hủy trong khung sửa) --}}
+        @include('pages.admin.partials.dialog')
         <div id="portal-notification">
             @include('layouts.section.essential.session_notification')
         </div>

@@ -1545,3 +1545,27 @@ body.acc-filling * {
         scrollbar-color: rgba(60, 64, 67, .45) transparent;
     }
 }
+
+/* Thông báo: cùng kiểu thẻ nổi góc phải với toàn trang quản trị (nền trắng, vạch màu bên trái) */
+.acc-toast {
+    left: auto;
+    right: 20px;
+    bottom: auto;
+    top: calc(var(--app-header, 64px) + 14px);
+    width: min(440px, calc(100vw - 32px));
+    max-width: none;
+    padding: 12px 12px 12px 16px;
+    border: 1px solid #e2ded3;
+    border-left: 4px solid var(--acc-tone, #0f7b52);
+    border-radius: 14px;
+    background: #fff !important;
+    color: #1f1e1d !important;
+    box-shadow: 0 14px 36px rgba(30, 25, 15, .16);
+    transform: none;
+}
+
+.acc-toast.is-ok { --acc-tone: #0f7b52; }
+.acc-toast.is-bad { --acc-tone: #b42318; }
+.acc-toast.is-warn { --acc-tone: #b9740e; }
+.acc-toast__main { color: var(--acc-tone, #0f7b52); }
+.acc-toast__close { color: #a3a19b !important; }

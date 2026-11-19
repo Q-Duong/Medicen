@@ -1,12 +1,10 @@
-<div class="loader-over">
-    <span class="loader"></span>
-</div>
+{{-- Đã bỏ lớp phủ tối + vòng xoay khi mở trang (.loader-over): các lệnh $(".loader-over").fadeIn/fadeOut còn trong JS cũ không còn tác dụng --}}
 <div class="notifications-popup-success">
     <div class="notifications-content">
         <div class="notifications-icon">
         </div>
         <div class="notifications-message">
-            <span class="message-title">Thông báo !</span>
+            <span class="message-title">Thành công</span>
             <span class="message-text"></span>
         </div>
     </div>
@@ -17,7 +15,7 @@
         <div class="notifications-icon">
         </div>
         <div class="notifications-message">
-            <span class="message-title">Thông báo !</span>
+            <span class="message-title">Có lỗi</span>
             <span class="message-text"></span>
         </div>
     </div>
@@ -31,7 +29,7 @@
                 <i class="fas fa-solid fa-check notifications-success"></i>
             </div>
             <div class="notifications-message">
-                <span class="message-title">Thông báo !</span>
+                <span class="message-title">Thành công</span>
                 <span class="message-text">{!! session('success') !!}</span>
             </div>
         </div>
@@ -44,7 +42,7 @@
                 <i class="fas fa-times notifications-error"></i>
             </div>
             <div class="notifications-message">
-                <span class="message-title">Thông báo !</span>
+                <span class="message-title">Có lỗi</span>
                 <span class="message-text">{!! session('error') !!}</span>
             </div>
         </div>

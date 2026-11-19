@@ -26,6 +26,4 @@
     <i class="fas fa-times notifications-close"></i>
 </div>
 
-<div class="loader-over">
-    <span class="loader"></span>
-</div>
+{{-- Đã bỏ lớp phủ tối + vòng xoay khi mở trang (.loader-over): các lệnh $(".loader-over").fadeIn/fadeOut còn trong JS cũ không còn tác dụng --}}

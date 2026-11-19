@@ -214,11 +214,10 @@
                                         <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                 class="fa fa-pencil-square-o text-success text-active"></i>
                                         </a>
-                                        <form action="{{ route('order.destroy', $order->id) }}" method="POST">
+                                        <form action="{{ route('order.destroy', $order->id) }}" method="POST" data-confirm="Bạn có chắc muốn xóa đơn hàng?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                             @method('delete')
                                             @csrf
-                                            <button type="submit" class="management-btn button-submit"
-                                                onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
+                                            <button type="submit" class="management-btn button-submit"><i
                                                     class="fa fa-times text-danger text"></i></button>
                                         </form>
                                         <a href="{{ route('order.copy', $order->id) }}" class="management-btn">
@@ -237,11 +236,10 @@
                                             <a href="{{ route('order.edit', $order->id) }}" class="management-btn"><i
                                                     class="fa fa-pencil-square-o text-success text-active"></i>
                                             </a>
-                                            <form action="{{ route('order.destroy', $order->id) }}" method="POST">
+                                            <form action="{{ route('order.destroy', $order->id) }}" method="POST" data-confirm="Bạn có chắc muốn xóa đơn hàng?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                                 @method('delete')
                                                 @csrf
-                                                <button type="submit" class="management-btn button-submit"
-                                                    onclick="return confirm('Bạn có chắc muốn xóa đơn hàng?')"><i
+                                                <button type="submit" class="management-btn button-submit"><i
                                                         class="fa fa-times text-danger text"></i></button>
                                             </form>
                                             <a href="{{ route('order.copy', $order->id) }}" class="management-btn"><i

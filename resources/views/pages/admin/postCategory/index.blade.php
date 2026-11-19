@@ -25,11 +25,10 @@
                                 <a href="{{ route('post_category.edit', $post_category->id) }}" class="management-btn"><i
                                         class="fa fa-pencil-square-o text-success text-active"></i>
                                 </a>
-                                <form action="{{ route('post_category.destroy', $post_category->id) }}" method="POST">
+                                <form action="{{ route('post_category.destroy', $post_category->id) }}" method="POST" data-confirm="Nếu bạn xóa Danh mục tin tức thì tin túc thuộc danh mục cũng sẻ bị xóa. Bạn có chắc muốn xóa danh mục?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                     @method('delete')
                                     @csrf
                                     <button type="submit"
-                                        onclick="return confirm('Nếu bạn xóa Danh mục tin tức thì tin túc thuộc danh mục cũng sẻ bị xóa. Bạn có chắc muốn xóa danh mục?')"
                                         class="management-btn button-submit">
                                         <i class="fa fa-times text-danger text"></i>
                                     </button>

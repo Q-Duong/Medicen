@@ -182,8 +182,7 @@
                                                         'name' => 'edit',
                                                     ])
                                                 </a>
-                                                <form method="POST" action="{{ route('excel-uploads.destroy', $u) }}"
-                                                    onsubmit="return confirm('Xoá file “{{ addslashes($u->ten_file) }}”? Không khôi phục được.')">
+                                                <form method="POST" action="{{ route('excel-uploads.destroy', $u) }}" data-confirm="Xoá file “{{ $u->ten_file }}”? Không khôi phục được." data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                                     @csrf @method('DELETE')
                                                     <button class="icon-btn icon-btn--danger" type="submit"
                                                         title="Xoá" aria-label="Xoá {{ $u->ten_file }}">

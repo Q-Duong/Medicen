@@ -33,10 +33,10 @@
                                     <a href="{{ route('post.edit', $post->id) }}" class="management-btn"><i
                                             class="fa fa-pencil-square-o text-success text-active"></i>
                                     </a>
-                                    <form action="{{ route('post.destroy', $post->id) }}" method="POST">
+                                    <form action="{{ route('post.destroy', $post->id) }}" method="POST" data-confirm="Bạn có chắc muốn xóa bài viết?" data-confirm-title="Xác nhận xóa" data-confirm-ok="Xóa" data-confirm-danger>
                                         @method('delete')
                                         @csrf
-                                        <button onclick="return confirm('Bạn có chắc muốn xóa bài viết?')" href=""
+                                        <button href=""
                                             class="management-btn button-submit">
                                             <i class="fa fa-times text-danger text"></i>
                                         </button>

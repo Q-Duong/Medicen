@@ -1081,22 +1081,35 @@
     transition: opacity .35s, transform .35s;
 }
 
+/* Thông báo nhỏ: thẻ nổi góc phải, cùng kiểu thông báo chung của trang quản trị */
 .toast {
     position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 50;
-    max-width: 360px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: #1f1e1d;
-    color: #fff;
+    right: 20px;
+    top: calc(var(--app-header, 64px) + 14px);
+    z-index: 2000;
+    width: min(400px, calc(100vw - 32px));
+    padding: 12px 16px 12px 44px;
+    border: 1px solid #e2ded3;
+    border-left: 4px solid #2f6fd1;
+    border-radius: 14px;
+    background: #fff;
+    color: #1f1e1d;
     font-size: 13.5px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    line-height: 1.45;
+    box-shadow: 0 14px 36px rgba(30, 25, 15, .16);
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(-8px);
     transition: opacity .25s, transform .25s;
     pointer-events: none;
+}
+
+.toast::before {
+    content: "\f05a";
+    position: absolute;
+    left: 15px;
+    top: 12px;
+    color: #2f6fd1;
+    font: 900 17px/1.2 "Font Awesome 5 Free";
 }
 
 .toast.show {
