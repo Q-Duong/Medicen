@@ -13,6 +13,8 @@
     }, false);
 
     function hideURLbar() {
+        // Link có #mục (vd từ chuông thông báo) thì để trình duyệt cuộn tới mục đó
+        if (location.hash) return;
         window.scrollTo(0, 1);
     }
     </script>

@@ -27,6 +27,7 @@ return [
         'ct.index', 'ct.edit',
         'vcb.index',
         'accounting.index', 'accounting.documents.download',
+        'contracts.index', 'contracts.edit', 'contracts.download', 'contracts.orders',
         // Trợ lý AI (chỉ trợ lý trong config('claude.subadmin_assistants'))
         'assistant.*',
     ],
@@ -70,14 +71,10 @@ return [
         'roles' => [3],
     ],
 
-    // Hợp đồng: sửa (HR) và chỉ xem
-    'contract_edit' => [
-        'departments' => ['nhan_su'],
-        'names' => ['HR'],
-    ],
-    'contract_view' => [
-        'departments' => ['sales', 'ke_toan', 'nhan_su'],
-        'names' => ['Sale', 'Accountant', 'SubAdmin', 'HR'],
+    // Hợp đồng khách hàng (Hành chính): Sales và Kế toán tải lên / sửa; SubAdmin chỉ xem (subadmin_routes)
+    'customer_contracts' => [
+        'departments' => ['sales', 'ke_toan'],
+        'names' => ['Sale', 'Accountant'],
         'roles' => [3],
     ],
 

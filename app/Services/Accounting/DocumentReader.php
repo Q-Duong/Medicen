@@ -85,7 +85,8 @@ class DocumentReader
         ];
     }
 
-    private function fileBlock(string $path, string $ext): array
+    /** Khối nội dung gửi Claude cho một file (PDF / ảnh nguyên file, Excel / Word đổi ra chữ). Dùng chung với ContractReader */
+    public function fileBlock(string $path, string $ext): array
     {
         $b64 = fn () => base64_encode(file_get_contents($path));
 

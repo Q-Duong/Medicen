@@ -265,6 +265,23 @@ class AccountantTools implements DepartmentTools
                 ],
             ],
             [
+                'name' => 'hop_dong_khach_hang',
+                'description' => 'Hợp đồng khách hàng (Hành chính → Hợp đồng, Sales quản lý): bỏ trống tu_khoa = danh sách mọi hợp đồng (loại, hiệu lực, giá tóm tắt, số ngày thanh toán), '
+                    . 'hợp đồng sắp hết hạn và các ĐƠN THU THẤP HƠN GIÁ HỢP ĐỒNG (Thành tiền < giá hợp đồng). Ghi tu_khoa = chi tiết hợp đồng của đơn vị; thêm so_ca để tính '
+                    . 'giá theo hợp đồng, giá các đợt trước và giá sàn có lời (so bảng giá đã ký với chi phí thực).',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'tu_khoa' => ['type' => 'string', 'description' => 'Tên viết tắt / tên / mã đơn vị (Bên A trên hợp đồng); bỏ trống = tổng quan'],
+                        'so_ca' => ['type' => 'integer', 'minimum' => 1, 'description' => 'Số ca dự kiến để tính giá (tùy chọn)'],
+                        'so_ngay' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 60, 'description' => 'Số ngày chụp, mặc định 1 (nhiều ngày: bậc giá theo số ca bình quân / ngày)'],
+                        'km_khu_hoi' => ['type' => 'integer', 'minimum' => 0, 'description' => 'Khoảng cách KHỨ HỒI (km) để tính giá sàn; bỏ trống = chưa tính dầu'],
+                        'cong_ty' => ['type' => 'string', 'description' => 'Công ty được chụp (để ưu tiên giá các đợt trước của chính công ty đó)'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
                 'name' => 'duyet_gia',
                 'description' => 'Đơn giá thấp / chiết khấu cao cần kế toán duyệt (đơn chụp 30 ngày trước → 60 ngày tới): lỗ hoặc biên lãi ước tính dưới mức, chiết khấu cao; '
                     . 'giá / ca so với giá sàn ước tính, đã duyệt hay chưa, ai duyệt.',
@@ -320,6 +337,8 @@ class AccountantTools implements DepartmentTools
             'hoat_dong_nhan_vien' => $this->staffActivity($input, $user),
             'phan_tich_van_hanh' => $this->operations($input),
             'tuoi_no_tien_ket' => $this->aging(),
+            'hop_dong_khach_hang' => app(\App\Services\Accounting\ContractPricing::class)->forAssistant(
+                trim((string) ($input['tu_khoa'] ?? '')) ?: null, (int) ($input['so_ca'] ?? 0), max(1, (int) ($input['so_ngay'] ?? 1)), (int) ($input['km_khu_hoi'] ?? 0), trim((string) ($input['cong_ty'] ?? '')) ?: null),
             'duyet_gia' => ['quy_tac' => config('finance.price'), 'don' => app(\App\Services\Accounting\PriceGuard::class)->list()->map(fn ($p) => [
                 'ma_don' => $p['order_id'], 'don_vi' => $p['unit'], 'ngay_chup' => $p['date'], 'xe' => $p['car'], 'so_ca' => $p['qty'], 'km_khu_hoi' => $p['km'],
                 'gia_mot_ca' => $p['per_case'], 'gia_san_mot_ca' => $p['floor_per_case'], 'lai_uoc_tinh' => $p['profit'], 'bien_pct' => $p['margin'],

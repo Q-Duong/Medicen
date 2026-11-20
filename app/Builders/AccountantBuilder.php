@@ -156,32 +156,6 @@ final class AccountantBuilder extends Builder
     //     return $accountants->get();
     // }
 
-    public function getAllContractByFilter($year)
-    {
-        $contracts = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')
-            ->join('units', 'units.id', '=', 'orders.unit_id')
-            ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
-            ->orderBy('accountant_number', 'ASC')
-            ->select(
-                'accountants.id',
-                'accountants.order_id',
-                'accountant_number',
-                'accountant_date',
-                'unit_name',
-                'ord_start_day',
-                'liquidation_number',
-                'contract_type',
-                'contract_date',
-                'contract_status',
-            );
-        if ($year != 'all') {
-            $contracts->where(DB::raw('YEAR(ord_start_day)'), '=', $year);
-        }
-        return $contracts->get()->unique('accountant_number')
-            ->sortBy('accountant_number')
-            ->values();
-    }
-
     public function getStatistics($firstDayofThisMonth, $lastDayofThisMonth)
     {
         $statistics = Accountant::join('orders', 'orders.id', '=', 'accountants.order_id')

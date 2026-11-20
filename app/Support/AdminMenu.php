@@ -71,8 +71,7 @@ class AdminMenu
 
         // Hành chính
         $sections[] = ['title' => 'Hành chính', 'items' => array_filter([
-            $can('contract_edit') ? $item('Hợp đồng', 'fas fa-file-contract', 'contract.index', [], 'contract.*', 'Hợp đồng lao động, hợp đồng khách')
-                : ($can('contract_view') ? $item('Hợp đồng', 'fas fa-file-contract', 'contract.view_only.index', [], 'contract.*', 'Xem hợp đồng') : null),
+            $can('customer_contracts') ? $item('Hợp đồng', 'fas fa-file-signature', 'contracts.index', [], 'contracts.*', 'Hợp đồng khách hàng, giá theo hợp đồng') : null,
         ])];
 
         // Trợ lý AI

@@ -127,14 +127,25 @@ class EarlyWarnings
                 'lines' => $cars->sortBy('last_day')->map(fn ($c) => \App\Services\Accounting\CfoAnalytics::carLabel($c->car) . ' · chạy lần cuối ' . Carbon::parse($c->last_day)->format('d/m') . ' (' . Carbon::parse($c->last_day)->diffInDays($today) . ' ngày)')->values()->all()];
         }
 
-        // 6. Hợp đồng sắp hết hạn (tài liệu loại hợp đồng ở Dữ liệu kế toán)
-        $contracts = DB::table('acc_documents')->where('type', 'hop_dong')->whereNotNull('valid_to')
-            ->whereBetween('valid_to', [$today->toDateString(), $today->copy()->addDays($cfg['contract_days'])->toDateString()])
-            ->orderBy('valid_to')->get(['title', 'parties', 'valid_to']);
+        // 6. Hợp đồng sắp hết hạn: hợp đồng khách hàng (nguyên tắc, không tự gia hạn) + tài liệu loại hợp đồng ở Dữ liệu kế toán
+        $until = $today->copy()->addDays($cfg['contract_days'])->toDateString();
+        $contracts = \App\Models\CustomerContract::with('unit:id,unit_abbreviation')->where('type', 'nguyen_tac')->where('auto_renew', false)
+            ->whereBetween('valid_to', [$today->toDateString(), $until])->orderBy('valid_to')->get()
+            ->map(fn ($c) => 'HĐ ' . ($c->contract_no ?: '#' . $c->id) . ' · ' . ($c->unit->unit_abbreviation ?? $c->party_a) . ' · hết hạn ' . $c->valid_to->format('d/m/Y'))
+            ->merge(DB::table('acc_documents')->where('type', 'hop_dong')->whereNotNull('valid_to')->whereBetween('valid_to', [$today->toDateString(), $until])
+                ->orderBy('valid_to')->get(['title', 'parties', 'valid_to'])
+                ->map(fn ($c) => $c->title . ($c->parties ? ' · ' . $c->parties : '') . ' · hết hạn ' . Carbon::parse($c->valid_to)->format('d/m/Y')));
         if ($contracts->isNotEmpty()) {
             $alerts[] = ['level' => 'warn', 'title' => $contracts->count() . ' hợp đồng hết hạn trong ' . $cfg['contract_days'] . ' ngày',
-                'detail' => 'Cần gia hạn hoặc đàm phán lại.',
-                'lines' => $contracts->map(fn ($c) => $c->title . ($c->parties ? ' · ' . $c->parties : '') . ' · hết hạn ' . Carbon::parse($c->valid_to)->format('d/m/Y'))->all()];
+                'detail' => 'Cần gia hạn hoặc đàm phán lại.', 'lines' => $contracts->values()->all()];
+        }
+
+        // 6b. Đơn thu thấp hơn giá hợp đồng khách hàng (90 ngày qua → 60 ngày tới)
+        $under = app(\App\Services\Accounting\ContractPricing::class)->underBilled();
+        if ($under->isNotEmpty()) {
+            $alerts[] = ['level' => 'warn', 'title' => $under->count() . ' đơn thu thấp hơn giá hợp đồng, thiếu ' . $m(-$under->sum('diff')),
+                'detail' => 'Thành tiền trên đơn thấp hơn bảng giá đã ký. Kiểm tra số ca / đơn giá hoặc ghi lý do giảm giá. Xem Hành chính → Hợp đồng.',
+                'lines' => $under->take(6)->map(fn ($u) => '#' . $u['order_id'] . ' ' . $u['unit'] . ' · ' . Carbon::parse($u['date'])->format('d/m') . ' · ' . $u['qty'] . ' ca · thiếu ' . $m(-$u['diff']))->all()];
         }
 
         if ($saveSnapshot) {

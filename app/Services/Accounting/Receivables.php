@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Phải thu XQ (trang Công nợ): phân tuổi nợ theo hạn thanh toán và "tiền kẹt" (đã chụp xong nhưng chưa xuất hóa đơn).
- * Hạn thanh toán = ngày xuất hóa đơn + số ngày hạn. Đơn đã hủy (status 0) và đơn hết nợ không tính.
+ * Hạn thanh toán = ngày xuất hóa đơn + số ngày hạn (trống thì lấy số ngày thanh toán trong hợp đồng của đơn vị, xem ContractPricing).
+ * Đơn đã hủy (status 0) và đơn hết nợ không tính.
  */
 class Receivables
 {
@@ -27,6 +28,7 @@ class Receivables
     public function rows(): Collection
     {
         $today = Carbon::today();
+        $contracts = app(ContractPricing::class);
 
         return DB::table('accountants')
             ->join('orders', 'orders.id', '=', 'accountants.order_id')
@@ -36,9 +38,14 @@ class Receivables
             ->where('accountants.accountant_owe', '>', 0)
             ->get(['orders.id', 'orders.unit_id', 'units.unit_abbreviation', 'order_details.ord_cty_name', 'order_details.ord_start_day', 'order_details.ord_end_day',
                 'accountants.accountant_number', 'accountants.accountant_date', 'accountants.accountant_deadline', 'accountants.accountant_owe'])
-            ->map(function ($r) use ($today) {
+            ->map(function ($r) use ($today, $contracts) {
                 $issued = self::date($r->accountant_date);
-                $due = $issued && is_numeric($r->accountant_deadline) ? $issued->copy()->addDays((int) $r->accountant_deadline) : null;
+                $days = is_numeric($r->accountant_deadline) ? (int) $r->accountant_deadline : null;
+                $dueSource = $days !== null ? 'don' : null;
+                if ($days === null && $issued && ($c = $contracts->contractFor((int) $r->id, $r->unit_id ? (int) $r->unit_id : null, $r->ord_start_day)) && $c->payment_days) {
+                    [$days, $dueSource] = [(int) $c->payment_days, 'hop_dong'];
+                }
+                $due = $issued && $days !== null ? $issued->copy()->addDays($days) : null;
                 $shot = self::date($r->ord_end_day) ?? self::date($r->ord_start_day);
                 $overdue = $due && $due->lt($today) ? $due->diffInDays($today) : 0;
                 $bucket = !$issued ? 'chua_xuat_hd' : match (true) {
@@ -58,6 +65,7 @@ class Receivables
                     'invoice_no' => $r->accountant_number,
                     'issued' => $issued,
                     'due' => $due,
+                    'due_source' => $dueSource,
                     'owe' => (int) $r->accountant_owe,
                     'overdue_days' => $overdue,
                     'days_since_shot' => $shot ? $shot->diffInDays($today, false) : null,

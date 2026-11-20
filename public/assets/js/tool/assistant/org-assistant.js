@@ -39,7 +39,7 @@
         tim_but_toan: 'tìm bút toán', so_quy_ngan_hang: 'xem sổ quỹ / ngân hàng', cong_no_doi_tac: 'xem công nợ sổ sách',
         luong_thuc_tra: 'xem lương', cong_no_web: 'xem công nợ web', thu_chi_web: 'xem kế hoạch thu chi', tai_lieu: 'tra tài liệu',
         phan_tich_van_hanh: 'phân tích vận hành', hoat_dong_nhan_vien: 'xem hoạt động nhân viên',
-        tuoi_no_tien_ket: 'xem tuổi nợ, tiền kẹt', du_bao_dong_tien: 'dự báo dòng tiền', ke_hoach_nam: 'xem kế hoạch năm', theo_doi_thu_no: 'xem thu nợ', duyet_gia: 'xem đơn chờ duyệt giá'
+        tuoi_no_tien_ket: 'xem tuổi nợ, tiền kẹt', du_bao_dong_tien: 'dự báo dòng tiền', ke_hoach_nam: 'xem kế hoạch năm', theo_doi_thu_no: 'xem thu nợ', duyet_gia: 'xem đơn chờ duyệt giá', hop_dong_khach_hang: 'xem hợp đồng khách hàng', gia_hop_dong: 'xem giá theo hợp đồng'
     };
     const ICON_COPY = '<svg class="i-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
     const ICON_CHECK = '<svg class="i-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';

@@ -502,3 +502,141 @@ function filterByCardStatus(status) {
         });
     }
 })();
+
+// ==========================================================================
+// Giá theo hợp đồng khách hàng (Hành chính → Hợp đồng): nhắc ngay khi chọn đơn vị / ngày chụp / nhập số lượng, tổng tiền.
+// Cùng ngày nhiều đơn của một đơn vị thì bậc giá theo tổng số ca trong ngày (máy chủ tính). Chỉ nhắc, không chặn lưu.
+// ==========================================================================
+
+(function () {
+    const box = document.getElementById('order-contract-hint');
+    const form = box && box.closest('form.order-form');
+    if (!form) return;
+    const field = (name) => form.querySelector('[name="' + name + '"]');
+    const fmt = (n) => new Intl.NumberFormat('vi-VN').format(Math.round(n || 0));
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const val = (name) => (field(name) && field(name).value) || '';
+    let timer = null;
+    let seq = 0;
+    const digits = (v) => String(v || '').replace(/\D/g, '');
+    // Đơn đã khóa tiền (đã cập nhật doanh thu / đã chốt): không cho áp dụng
+    const moneyLocked = () => !!form.querySelector('[data-money-locked]') || (field('order_price') && field('order_price').readOnly);
+    const allInOne = () => { const a = form.querySelector('[name="order_all_in_one"]:checked') || form.querySelector('select[name="order_all_in_one"]'); return !!a && String(a.value) === '1'; };
+
+    function setAllInOne(v) {
+        form.querySelectorAll('[name="order_all_in_one"]').forEach((el) => {
+            if (el.type === 'radio') el.checked = String(el.value) === v;
+            else el.value = v;
+        });
+        const first = form.querySelector('[name="order_all_in_one"]');
+        if (first && window.jQuery) window.jQuery(first).trigger('change');
+        else if (first) first.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function setMoney(name, n) {
+        const el = field(name);
+        if (!el) return;
+        el.value = fmt(n);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        if (window.jQuery) window.jQuery(el).trigger('keyup');
+        el.classList.add('oc-filled');
+        setTimeout(() => el.classList.remove('oc-filled'), 1200);
+    }
+
+    // Điền giá: đúng đ/ca → Đơn giá (Tổng tiền tự tính); trọn gói / phần chia của ngày → chuyển "trọn gói" và điền Tổng tiền
+    function apply(perCase, total) {
+        const qty = Number(digits(val('order_quantity'))) || 0;
+        if (perCase && (!total || perCase * qty === total) && !allInOne()) {
+            setMoney('order_cost', perCase);
+            if (qty) setMoney('order_price', perCase * qty);
+        } else {
+            if (!allInOne()) setAllInOne('1');
+            setMoney('order_price', total || perCase * qty);
+        }
+        refresh();
+    }
+
+    box.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-oc-apply]');
+        if (!b) return;
+        e.preventDefault();
+        apply(Number(b.dataset.perCase) || 0, Number(b.dataset.total) || 0);
+    });
+
+    function applyBtn(perCase, total, label) {
+        return moneyLocked() ? '' : ' <button type="button" class="oc-apply" data-oc-apply data-per-case="' + (perCase || 0) + '" data-total="' + (total || 0) + '">'
+            + '<i class="fas fa-magic"></i> ' + label + '</button>';
+    }
+
+    function render(j) {
+        if (!j.contract) {
+            box.hidden = true;
+            return;
+        }
+        const c = j.contract;
+        const r = j.check;
+        let html = '<div class="oc-hint__head"><span><i class="fas fa-file-signature"></i> Hợp đồng ' + esc(c.type.toLowerCase()) + ' ' + esc(c.no) + '</span>'
+            + (c.url ? '<a href="' + esc(c.url) + '" target="_blank" rel="noopener">Xem hợp đồng</a>' : '') + '</div>'
+            + '<div class="oc-hint__price">' + esc(c.price) + (c.payment_days ? ' · thanh toán trong ' + c.payment_days + ' ngày' : '') + '</div>';
+        let cls = '';
+        if (r.expected !== null && r.expected !== undefined) {
+            html += '<div class="oc-hint__line">Giá theo hợp đồng: <b>' + fmt(r.expected) + ' đ</b>' + (j.per_case ? ' (' + fmt(j.per_case) + ' đ/ca)' : '')
+                + '<div class="oc-hint__sub">' + esc(r.basis) + '</div></div>';
+            const exact = j.per_case && r.expected === j.per_case * (Number(digits(val('order_quantity'))) || 0);
+            if (r.status !== 'khop' || !(r.actual > 0)) {
+                html += '<div class="oc-hint__line">' + applyBtn(exact ? j.per_case : 0, r.expected,
+                    exact ? 'Áp dụng ' + fmt(j.per_case) + ' đ/ca' : 'Áp dụng trọn gói ' + fmt(r.expected) + ' đ') + '</div>';
+            }
+            if (r.actual > 0) {
+                if (r.status === 'thieu') {
+                    cls = 'is-bad';
+                    html += '<div class="oc-hint__line"><b class="bad">Tổng tiền thấp hơn hợp đồng ' + fmt(-r.diff) + ' đ.</b> Nếu có giảm giá, ghi lý do vào Ghi chú để Kế toán biết.</div>';
+                } else if (r.status === 'du') {
+                    html += '<div class="oc-hint__line"><b class="info">Cao hơn hợp đồng ' + fmt(r.diff) + ' đ</b> <span class="oc-hint__sub">(có thể gồm in phim / phụ thu khoảng cách)</span></div>';
+                } else {
+                    cls = 'is-ok';
+                    html += '<div class="oc-hint__line"><b class="ok">✓ Khớp giá hợp đồng.</b></div>';
+                }
+            }
+        } else if (r.basis) {
+            html += '<div class="oc-hint__line">' + esc(r.basis) + '.</div>';
+            if (j.history && j.history.length) {
+                html += '<div class="oc-hint__sub">Các đợt trước của đơn vị:</div><ul>' + j.history.map((h) => '<li>' + esc(h.ngay.split('-').reverse().join('/')) + ' · '
+                    + esc(h.cong_ty || '—') + ' · ' + h.so_ca + ' ca · <b>' + fmt(h.gia_mot_ca) + ' đ/ca</b>' + applyBtn(h.gia_mot_ca, 0, 'Áp dụng') + '</li>').join('') + '</ul>';
+            }
+        }
+        box.className = 'oc-hint ' + cls;
+        box.innerHTML = html;
+        box.hidden = false;
+    }
+
+    function refresh() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            const unit = val('unit_id');
+            const date = val('ord_start_day');
+            if (!unit || !date) {
+                box.hidden = true;
+                return;
+            }
+            const q = new URLSearchParams({ unit_id: unit, date: date, qty: val('order_quantity'), price: val('order_price'),
+                company: val('ord_cty_name'), order_id: box.dataset.orderId || '0' });
+            const my = ++seq;
+            fetch(box.dataset.url + '?' + q.toString(), { headers: { Accept: 'application/json' } })
+                .then((res) => (res.ok ? res.json() : null))
+                .then((j) => { if (j && my === seq) render(j); })
+                .catch(() => {});
+        }, 400);
+    }
+
+    ['unit_id', 'ord_start_day', 'order_quantity', 'order_price', 'order_cost', 'ord_cty_name'].forEach((n) => {
+        const el = field(n);
+        if (el) {
+            el.addEventListener('input', refresh);
+            el.addEventListener('change', refresh);
+        }
+    });
+    // Đơn vị dùng select2, Tổng tiền do jQuery tính (SL × ĐG): nghe thêm sự kiện jQuery
+    if (window.jQuery) window.jQuery(form).on('change keyup', '.unit-id, .order_quantity, .order_cost, .order_price', refresh);
+    refresh();
+})();

@@ -75,8 +75,16 @@ class TodoList
     {
         $today = Carbon::today();
         $out = [];
+        $seen = [];
         foreach ($groups as $g) {
-            $items = array_values(array_filter($this->{'items' . str_replace('_', '', ucwords($g, '_'))}($today, $user), fn ($i) => $i['count'] > 0));
+            // Mục xuất hiện ở nhiều nhóm (vd hợp đồng: Kế toán + Sales) chỉ hiện một lần
+            $items = array_values(array_filter($this->{'items' . str_replace('_', '', ucwords($g, '_'))}($today, $user), function ($i) use (&$seen) {
+                if ($i['count'] <= 0 || isset($seen[$i['key']])) {
+                    return false;
+                }
+
+                return $seen[$i['key']] = true;
+            }));
             if ($items) {
                 $out[] = ['key' => $g] + self::GROUPS[$g] + ['items' => $items];
             }
@@ -123,7 +131,21 @@ class TodoList
             $this->item('debt_overdue', 'Công nợ quá hạn 45 ngày chưa thanh toán (1 năm gần đây)', $debt45,
                 route('accountant.index', ['todo' => 'overdue']), $debt60 > 0 ? 'urgent' : 'normal', $debt60 > 0 ? "Trong đó {$debt60} đơn quá 60 ngày" : null),
             $this->item('profit_pending', 'Phiếu tính lợi nhuận chờ duyệt', $profit, route('profit.index') . '#pf-history'),
-        ], $this->financeItems());
+        ], $this->financeItems(), $this->contractItems());
+    }
+
+    /** Hợp đồng khách hàng (Hành chính → Hợp đồng): hiện cho cả Sales và Kế toán */
+    private function contractItems(): array
+    {
+        $under = app(\App\Services\Accounting\ContractPricing::class)->underBilled();
+        $expiring = \App\Models\CustomerContract::where('type', 'nguyen_tac')->where('auto_renew', false)
+            ->whereBetween('valid_to', [Carbon::today()->toDateString(), Carbon::today()->addDays(\App\Http\Controllers\CustomerContractController::EXPIRING_DAYS)->toDateString()])->count();
+
+        return [
+            $this->item('contract_under', 'Đơn thu thấp hơn giá hợp đồng', $under->count(), route('contracts.index') . '#thu-thieu',
+                'normal', $under->count() ? 'Thiếu ' . number_format(-$under->sum('diff'), 0, ',', '.') . ' đ' : null),
+            $this->item('contract_expiring', 'Hợp đồng khách hàng hết hạn trong ' . \App\Http\Controllers\CustomerContractController::EXPIRING_DAYS . ' ngày', $expiring, route('contracts.index', ['tt' => 'sap_het_han'])),
+        ];
     }
 
     /** Việc kế toán từ Phân tích tài chính: duyệt giá, thu nợ, tiền kẹt (chỉ cảnh báo, không khóa gì) */
@@ -196,12 +218,12 @@ class TodoList
             ->whereExists(fn ($q) => $q->from('history_edits')->whereColumn('history_edits.order_id', 'orders.id')->where('history_edits.history_action', 'like', 'Hủy lịch%'))
             ->count();
 
-        return [
+        return array_merge([
             $this->item('unscheduled_soon', 'Đơn chụp trong 3 ngày tới chưa lên lịch xe', $unscheduledSoon,
                 route('order.index', ['status_id' => 5, 'from_date' => $today->toDateString(), 'to_date' => $soon]), 'urgent'),
             $this->item('cancelled', 'Đơn bị hủy lịch xe, cần xếp lại', $cancelled, route('order.index', ['status_id' => 5])),
             $this->item('incomplete', 'Đơn lưu "Chưa hoàn thành" (còn thiếu thông tin)', $incomplete, route('order.index', ['complete' => '0'])),
-        ];
+        ], $this->contractItems());
     }
 
     private function itemsXepLich(Carbon $today): array

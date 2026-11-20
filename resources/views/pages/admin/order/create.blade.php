@@ -685,6 +685,8 @@
                                 @enderror
                             </div>
 
+                            @include('pages.admin.order._contract_hint', ['orderId' => 0])
+
                             {{-- Tự tính theo cùng công thức trang Công nợ (máy chủ tính lại khi lưu) --}}
                             <div class="row order-money-calc">
                                 <div class="col-lg-6 col-md-6 centered">

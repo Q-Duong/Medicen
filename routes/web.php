@@ -18,7 +18,6 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ConfigController;
-use App\Http\Controllers\ContractController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExcelUploadController;
 use App\Http\Controllers\FileController;
@@ -285,6 +284,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
             Route::get('group-candidates', [OrderController::class, 'groupCandidates'])->name('order.group_candidates');
             Route::get('filter-options', [OrderController::class, 'filterOptions'])->name('order.filter_options');
             Route::get('customer-suggestions', [OrderController::class, 'customerSuggestions'])->name('order.customer_suggestions');
+            Route::get('contract-hint', [\App\Http\Controllers\CustomerContractController::class, 'orderHint'])->name('order.contract_hint');
             Route::post('save-copy', [OrderController::class, 'storeCopy'])->name('order.store_copy');
             Route::get('view/{code}', [OrderController::class, 'view'])->name('order.view');
             Route::get('print/{id}', [OrderController::class, 'print'])->name('order.print');
@@ -361,6 +361,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('phan-tich-tai-chinh/thu-no/giao', [\App\Http\Controllers\FinanceController::class, 'assignCollector'])->name('finance.collect.assign')->middleware('access:debt_accountant');
     Route::post('phan-tich-tai-chinh/thu-no/nhac', [\App\Http\Controllers\FinanceController::class, 'saveContact'])->name('finance.collect.contact')->middleware('access:debt_accountant');
     Route::post('phan-tich-tai-chinh/duyet-gia', [\App\Http\Controllers\FinanceController::class, 'approvePrice'])->name('finance.price.approve')->middleware('access:debt_accountant');
+    // Hợp đồng khách hàng (Hành chính, Sales quản lý): AI đọc file, giá theo hợp đồng, đối chiếu đơn
+    Route::prefix('hop-dong-khach-hang')->name('contracts.')->middleware('access:customer_contracts')->controller(\App\Http\Controllers\CustomerContractController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('them', 'create')->name('create');
+        Route::post('doc-bang-ai', 'extract')->name('extract')->middleware('throttle:20,1');
+        Route::get('don-hang', 'orders')->name('orders');
+        Route::post('/', 'store')->name('store');
+        Route::get('{contract}', 'edit')->name('edit')->whereNumber('contract');
+        Route::patch('{contract}', 'update')->name('update')->whereNumber('contract');
+        Route::delete('{contract}', 'destroy')->name('destroy')->whereNumber('contract');
+        Route::get('{contract}/tai-ve', 'download')->name('download')->whereNumber('contract');
+    });
     Route::prefix('so-vcb-chu-loc')->name('vcb.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\VcbLedgerController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
@@ -419,20 +431,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('/', [AccountantController::class, 'indexResult'])->name('accountant_result.index');
         Route::post('get-accountant', [AccountantController::class, 'getAccountantResult'])->name('accountant_result.get');
         Route::post('filter-options', [AccountantController::class, 'getFilterOptions'])->name('accountant_result.filter_options');
-    });
-
-    Route::prefix('contract')->group(function () {
-        Route::middleware('access:contract_edit')->group(function () {
-            Route::get('/', [ContractController::class, 'index'])->name('contract.index');
-            Route::post('get-contract', [ContractController::class, 'getContract'])->name('contract.get');
-            Route::patch('update', [ContractController::class, 'update'])->name('contract.update');
-            Route::post('filter', [ContractController::class, 'filter'])->name('contract.filter');
-        });
-        Route::prefix('view-only')->middleware('access:contract_view,contract_edit')->group(function () {
-            Route::get('/', [ContractController::class, 'indexViewOnly'])->name('contract.view_only.index');
-            Route::post('get-contract', [ContractController::class, 'getContractViewOnly'])->name('contract.view_only.get');
-            Route::post('filter', [ContractController::class, 'filterViewOnly'])->name('contract.view_only.filter');
-        });
     });
 
     Route::prefix('excel-uploads')->name('excel-uploads.')->middleware('access:orders')->group(function () {

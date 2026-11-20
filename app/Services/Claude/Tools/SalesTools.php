@@ -197,6 +197,24 @@ class SalesTools implements DepartmentTools
                 ],
             ],
             [
+                'name' => 'gia_hop_dong',
+                'description' => 'Giá theo HỢP ĐỒNG đã ký với một đơn vị (Hành chính → Hợp đồng): loại hợp đồng, bảng giá theo số ca / ngày hoặc trọn gói, cộng thêm in phim, '
+                    . 'phụ thu khoảng cách (chỉ tham khảo, chốt theo thực tế), số ngày thanh toán, điều khoản. Ghi so_ca để tính sẵn: giá theo hợp đồng, '
+                    . 'giá các đợt trước của đơn vị (hợp đồng "trọn gói theo đợt" không ghi số tiền thì dựa vào đây) và giá sàn có lời (khách mới / đơn vị chưa có hợp đồng). '
+                    . 'Dùng khi báo giá hoặc kiểm tra đơn giá trước khi lên đơn.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'tu_khoa' => ['type' => 'string', 'description' => 'Tên viết tắt / tên / mã đơn vị (Bên A trên hợp đồng) — bắt buộc'],
+                        'so_ca' => ['type' => 'integer', 'minimum' => 1, 'description' => 'Số ca dự kiến để tính giá (tùy chọn)'],
+                        'so_ngay' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 60, 'description' => 'Số ngày chụp, mặc định 1 (nhiều ngày: bậc giá theo số ca bình quân / ngày)'],
+                        'km_khu_hoi' => ['type' => 'integer', 'minimum' => 0, 'description' => 'Khoảng cách KHỨ HỒI (km) để tính giá sàn; bỏ trống = chưa tính dầu'],
+                        'cong_ty' => ['type' => 'string', 'description' => 'Công ty được chụp (để ưu tiên giá các đợt trước của chính công ty đó)'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
                 'name' => 'xem_cong_no',
                 'description' => 'Xem công nợ chưa thanh toán của một đơn vị: từng hóa đơn (số HĐ, ngày xuất, hạn thanh toán, số tiền, số ngày quá hạn), '
                     . 'tổng nợ, tổng nợ quá hạn và HẠN MỨC TÍN DỤNG (vượt hạn mức / quá hạn quá lâu = cần thu nợ hoặc xin Kế toán duyệt trước khi nhận đơn). Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ. '
@@ -225,6 +243,8 @@ class SalesTools implements DepartmentTools
             'xem_lich_xe' => $this->carSchedule($this->requireDate($input, 'tu_ngay'), $this->requireDate($input, 'den_ngay')),
             'xem_nguoi_di_don' => $this->crew($input),
             'xem_nhan_su' => $this->staffList($input),
+            'gia_hop_dong' => app(\App\Services\Accounting\ContractPricing::class)->forAssistant(
+                trim((string) ($input['tu_khoa'] ?? '')) ?: null, (int) ($input['so_ca'] ?? 0), max(1, (int) ($input['so_ngay'] ?? 1)), (int) ($input['km_khu_hoi'] ?? 0), trim((string) ($input['cong_ty'] ?? '')) ?: null),
             'xem_cong_no' => !empty($input['loc'])
                 ? app(\App\Services\Accountant\DebtList::class)->find((string) $input['loc'], (int) ($input['so_ngay'] ?? 7), trim((string) ($input['tu_khoa'] ?? '')) ?: null)
                 : $this->debts($this->requireString($input, 'tu_khoa')),
