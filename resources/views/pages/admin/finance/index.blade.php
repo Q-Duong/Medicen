@@ -430,7 +430,7 @@
                         <tbody>
                             @forelse ($a['don_lai_thap'] as $o)
                                 <tr>
-                                    <td class="is-text">#{{ $o['ma_don'] }} <span class="fn-sub">{{ $o['xe'] ? 'Xe ' . $o['xe'] : '' }}</span></td>
+                                    <td class="is-text">#{{ $o['ma_don'] }} <span class="fn-sub">{{ $o['xe'] ?? '' }}</span></td>
                                     <td class="is-text">{{ $o['don_vi'] }}</td>
                                     <td>{{ $d($o['ngay']) }}</td>
                                     <td>{{ $m($o['so_ca']) }}</td>

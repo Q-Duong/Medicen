@@ -1079,7 +1079,6 @@ details[open] > summary.bk-edit { border-color: #2f6fd1; background: #2f6fd1; co
 .fn-edit__form .fn-f { flex: 1 1 160px; max-width: none; }
 .fn-edit__form .fn-f--full { flex-basis: 100%; }
 .fn-edit__form .bk-actions { display: flex; justify-content: flex-end; gap: 8px; width: 100%; margin: 0; }
-.fn .rp-kpis:has(.fn-kpi--stuck) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* Kế hoạch năm */
 .fn-note { margin-bottom: 14px; border-color: #c9dcf7; background: #f3f8ff; color: #1f4f96; font-size: 13.5px; }
@@ -1087,5 +1086,21 @@ details[open] > summary.bk-edit { border-color: #2f6fd1; background: #2f6fd1; co
 .fn-budget__grid td input { width: 108px; height: 34px; padding: 0 8px; border: 1px solid var(--rp-line); border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
 .fn-budget__grid td input:focus { border-color: var(--rp-accent); outline: 0; box-shadow: 0 0 0 3px var(--rp-accent-soft); }
 .fn-budget__grid td { padding: 6px 4px; }
-.fn-budget__grid td:first-child { position: sticky; left: 0; z-index: 1; min-width: 210px; background: #fff; }
+.fn-budget__grid td:first-child { min-width: 200px; background: #fff; }
+/* Máy tính: cột tên khoản dính bên trái khi cuộn ngang. Điện thoại: không dính để khỏi che ô nhập */
+@media (min-width: 992px) {
+    .fn-budget__grid td:first-child, .fn-budget__grid th:first-child { position: sticky; left: 0; z-index: 2; background: #fff; box-shadow: 1px 0 0 var(--rp-line); }
+    .fn-budget__grid th:first-child { background: #faf9f5; }
+}
+@media (max-width: 991px) {
+    .fn-budget__grid td:first-child { min-width: 130px; white-space: normal; font-size: 13px; }
+    .fn-budget__grid td input { width: 96px; }
+}
 .fn-budget__sum { font-weight: 700; white-space: nowrap; }
+
+/* Điện thoại: thẻ số liệu 1 cột, số lớn tự thu nhỏ cho vừa */
+@media (max-width: 767px) {
+    .fn .rp-kpis { grid-template-columns: 1fr !important; }
+    .fn .rp-kpi__big { font-size: clamp(22px, 7vw, 30px); overflow-wrap: anywhere; }
+    .fn .rp-card__title { white-space: normal; }
+}

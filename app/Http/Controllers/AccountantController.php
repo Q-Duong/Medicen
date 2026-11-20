@@ -20,6 +20,16 @@ use Illuminate\Support\Facades\Session;
 
 class AccountantController extends Controller
 {
+	/** SubAdmin xem trang Công nợ kế toán ở chế độ chỉ xem: khóa mọi ô nhập / nút trong bảng (route lưu cũng bị SubAdminScope chặn) */
+	private static function readOnlyHtml(string $html): string
+	{
+		if (!\App\Services\Claude\AssistantAccess::isSubAdmin(\Illuminate\Support\Facades\Auth::user())) {
+			return $html;
+		}
+
+		return preg_replace('/<(input|select|textarea|button)\b/i', '<$1 disabled', $html);
+	}
+
 	public function index()
 	{
 		if (!Session::has('year')) {
@@ -135,7 +145,7 @@ class AccountantController extends Controller
 
 		$response = [
 			'success'       => true,
-			'html'          => view('pages.admin.accountant.data_render', ['accountantData' => $data, 'sttStart' => $sttStart])->render(),
+			'html'          => self::readOnlyHtml(view('pages.admin.accountant.data_render', ['accountantData' => $data, 'sttStart' => $sttStart])->render()),
 			'next_page_url' => $data->nextPageUrl(),
 		];
 

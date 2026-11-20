@@ -153,7 +153,8 @@ return [
                     'instruction' => 'Vai CFO (mục 7 skill nkl-ke-toan). Lấy đủ 3 lớp: phan_tich_van_hanh (vận hành XQ, lãi ước tính, so kỳ trước), ket_qua_kinh_doanh (lãi lỗ, chi phí), '
                         . 'tiền và nợ (du_bao_dong_tien, tuoi_no_tien_ket, so_quy_ngan_hang). Trình bày: tóm tắt điều hành, bảng chỉ số kỳ này / kỳ trước, '
                         . 'phân tích nguyên nhân bằng số cụ thể, rủi ro theo mức độ, khuyến nghị hành động có người làm, thời hạn và tác động bằng tiền. '
-                        . 'Kèm 1–3 biểu đồ ```bieu-do (doanh thu & lợi nhuận theo tháng, khách hàng / xe, cơ cấu chi phí).',
+                        . 'Kèm 1–3 biểu đồ ```bieu-do (doanh thu & lợi nhuận theo tháng, khách hàng / xe, cơ cấu chi phí). '
+                        . 'Kết thúc bằng mục "⚠️ Dữ liệu còn thiếu" (gom thieu_du_lieu từ các tool: thiếu gì, ảnh hưởng, ai bổ sung ở đâu).',
                     'suggestions' => [
                         'Báo cáo CFO tháng vừa rồi: tình hình, rủi ro và việc cần làm',
                         'Phân tích 6 tháng gần nhất: doanh thu đến từ đâu, khách nào đang giảm?',
@@ -169,7 +170,7 @@ return [
                     'instruction' => 'Vạch hướng kinh doanh ở vai CFO (mục 7 skill nkl-ke-toan): dựa trên số liệu 12 tháng gần nhất (phan_tich_van_hanh, ket_qua_kinh_doanh, '
                         . 'cong_no_ct, dòng tiền), xác định thế mạnh / điểm yếu, các lựa chọn và kịch bản cơ sở – tốt – xấu với giả định ghi rõ, '
                         . 'tác động lên lợi nhuận và tiền; kết thúc bằng 3–5 ưu tiên cụ thể. Số liệu ngoài web (giá đối thủ, giá máy mới) thì hỏi lại người dùng, không bịa. '
-                        . 'Vẽ biểu đồ ```bieu-do so sánh các kịch bản và xu hướng 12 tháng.',
+                        . 'Vẽ biểu đồ ```bieu-do so sánh các kịch bản và xu hướng 12 tháng. Kết thúc bằng mục "⚠️ Dữ liệu còn thiếu" để người dùng bổ sung.',
                     'suggestions' => [
                         'Năm 2027 công ty nên tập trung vào đâu để tăng lợi nhuận?',
                         'Có nên mua thêm 1 xe X-quang không? Cần bao nhiêu ca / tháng để hòa vốn?',

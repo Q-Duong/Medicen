@@ -331,11 +331,32 @@ class AccountantTools implements DepartmentTools
             'theo_don_vi' => $r['by_unit']->take(25)->all(),
             'don_ket_lon_nhat' => $r['stuck']->take(20)->map($row)->all(),
             'qua_han_lau_nhat' => $r['overdue_rows']->take(20)->map($row)->all(),
+            'thieu_du_lieu' => $this->agingGaps($r),
             // Hạn mức tín dụng: đơn vị vượt hạn mức hoặc quá hạn quá lâu (kế toán đặt ở trang Phân tích tài chính; chưa đặt = gợi ý 2,5 tháng doanh thu)
             'vi_pham_han_muc' => app(\App\Services\Accounting\CreditPolicy::class)->all()->whereIn('status', ['vuot_han_muc', 'qua_han_lau'])->take(20)
                 ->map(fn ($c) => ['don_vi' => $c['unit'], 'dang_no' => $c['owe'], 'han_muc' => $c['limit'], 'nguon_han_muc' => $c['is_manual'] ? 'kế toán đặt' : 'gợi ý',
                     'da_dung_pct' => $c['used_pct'], 'qua_han_lau_nhat_ngay' => $c['max_overdue_days'], 'qua_han_toi_da_ngay' => $c['max_days'], 'trang_thai' => $c['status_label']])->values()->all(),
         ];
+    }
+
+    private function agingGaps(array $r): array
+    {
+        $gaps = [];
+        $noDeadline = DB::table('accountants')->join('orders', 'orders.id', '=', 'accountants.order_id')->where('orders.status_id', '!=', 0)
+            ->where('accountants.accountant_owe', '>', 0)->whereNotNull('accountants.accountant_date')
+            ->where(fn ($q) => $q->whereNull('accountants.accountant_deadline')->orWhere('accountants.accountant_deadline', ''))->count();
+        if ($noDeadline) {
+            $gaps[] = ['thieu' => $noDeadline . ' hóa đơn còn nợ chưa có Số ngày hạn', 'anh_huong' => 'không biết hạn thanh toán nên không xếp được vào quá hạn / sắp đến hạn',
+                'bo_sung' => 'Kế toán nhập ô hạn thanh toán (số ngày) ở trang Công nợ; sau này lấy theo hợp đồng'];
+        }
+        if ($r['dso'] === null) {
+            $gaps[] = ['thieu' => 'Ngày thanh toán của các đơn đã thu', 'anh_huong' => 'không tính được số ngày thu tiền bình quân', 'bo_sung' => 'Nhập Ngày TT ở trang Công nợ khi khách trả'];
+        }
+        if (!DB::table('unit_credit_limits')->exists()) {
+            $gaps[] = ['thieu' => 'Hạn mức tín dụng do kế toán đặt', 'anh_huong' => 'đang dùng hạn mức gợi ý (2,5 tháng doanh thu)', 'bo_sung' => 'Kế toán đặt hạn mức cho khách lớn ở Phân tích tài chính → Hạn mức tín dụng'];
+        }
+
+        return $gaps;
     }
 
     private function budget(int $year): array
@@ -345,8 +366,18 @@ class AccountantTools implements DepartmentTools
             return ['nam' => $year, 'ket_qua' => 'Chưa có kế hoạch năm ' . $year . '. Gợi ý người dùng nhập ở trang Phân tích tài chính → Kế hoạch năm (có nút gợi ý từ thực tế năm trước).'];
         }
 
+        $gaps = [];
+        for ($mm = 1; $mm <= $c['up_to_month']; $mm++) {
+            $chi = array_sum(array_map(fn ($l) => $l['type'] === 'chi' ? $l['actual'][$mm] : 0, $c['lines']));
+            if ($chi <= 0) {
+                $gaps[] = $mm;
+            }
+        }
+
         return [
             'nam' => $year,
+            'thieu_du_lieu' => $gaps ? [['thieu' => 'Số đã chi thực tế trong Báo cáo thu chi tháng ' . implode(', ', $gaps) . '/' . $year,
+                'anh_huong' => 'phần chi thực tế các tháng này = 0, % đạt kế hoạch chi bị sai', 'bo_sung' => 'Kế toán nhập cột Thực tế (số đã chi) trong Báo cáo thu chi']] : [],
             'luy_ke_den_het_thang' => $c['up_to_month'],
             'nguon' => 'Kế hoạch: trang Phân tích tài chính. Thực tế: doanh thu / số ca từ đơn hàng, CT từ Công nợ CT, chi = số đã chi trong Báo cáo thu chi.',
             'tong' => $c['totals'],

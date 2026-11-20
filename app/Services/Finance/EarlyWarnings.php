@@ -85,7 +85,7 @@ class EarlyWarnings
                 'lines' => $idle->map(fn ($c) => $c->u . ' · ' . $c->n . ' đơn / 6 tháng · ' . $m($c->rev) . ' · đơn cuối ' . Carbon::parse($c->last_day)->format('d/m/Y'))->all()];
         }
 
-        // 5. Xe công ty nằm không (tên xe là số)
+        // 5. Xe nhà nằm không
         $cars = DB::table('car_ktvs')->join('orders', 'orders.id', '=', 'car_ktvs.order_id')
             ->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
             ->where('car_ktvs.car_active', 1)->where('orders.status_id', '!=', 0)
@@ -95,11 +95,12 @@ class EarlyWarnings
                 . 'SUM(CASE WHEN order_details.ord_start_day BETWEEN ? AND ? THEN 1 ELSE 0 END) upcoming',
                 [$today->toDateString(), $today->toDateString(), $today->copy()->addDays(3)->toDateString()])
             ->get()
-            ->filter(fn ($c) => ctype_digit((string) $c->car) && !$c->upcoming && $c->last_day && Carbon::parse($c->last_day)->diffInDays($today) > $cfg['car_idle_days']);
+            // Chỉ xe nhà (1–5) và xe siêu âm; xe thuê / tăng cường chỉ dùng khi cần nên không cảnh báo nằm không
+            ->filter(fn ($c) => in_array((string) $c->car, array_merge(config('schedule.own_cars', []), [(string) config('schedule.ultrasound_car')]), true) && !$c->upcoming && $c->last_day && Carbon::parse($c->last_day)->diffInDays($today) > $cfg['car_idle_days']);
         if ($cars->isNotEmpty()) {
             $alerts[] = ['level' => 'warn', 'title' => $cars->count() . ' xe nằm không quá ' . $cfg['car_idle_days'] . ' ngày',
                 'detail' => 'Không chạy từ lâu và chưa có lịch trong 3 ngày tới.',
-                'lines' => $cars->sortBy('last_day')->map(fn ($c) => 'Xe ' . $c->car . ' · chạy lần cuối ' . Carbon::parse($c->last_day)->format('d/m') . ' (' . Carbon::parse($c->last_day)->diffInDays($today) . ' ngày)')->values()->all()];
+                'lines' => $cars->sortBy('last_day')->map(fn ($c) => \App\Services\Accounting\CfoAnalytics::carLabel($c->car) . ' · chạy lần cuối ' . Carbon::parse($c->last_day)->format('d/m') . ' (' . Carbon::parse($c->last_day)->diffInDays($today) . ' ngày)')->values()->all()];
         }
 
         // 6. Hợp đồng sắp hết hạn (tài liệu loại hợp đồng ở Dữ liệu kế toán)

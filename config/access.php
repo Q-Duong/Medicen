@@ -20,8 +20,13 @@ return [
         'accountant_sales.index', 'accountant_sales.get', 'accountant_sales.filter_options', 'export.excel', 'export.misa',
         // Báo cáo thu chi: chỉ xem + xuất PDF (không lưu / sửa / tạo khung)
         'reports.index', 'reports.export_pdf',
-        // Phân tích tài chính (chỉ xem)
+        // Toàn bộ mục Kế toán, chỉ xem (các route lưu / sửa / xóa không có trong danh sách nên bị chặn):
+        // Phân tích tài chính, Công nợ kế toán, Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán
         'finance.index',
+        'accountant.index', 'accountant.get', 'accountant.filter_options',
+        'ct.index', 'ct.edit',
+        'vcb.index',
+        'accounting.index', 'accounting.documents.download',
         // Trợ lý AI (chỉ trợ lý trong config('claude.subadmin_assistants'))
         'assistant.*',
     ],

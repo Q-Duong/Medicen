@@ -51,6 +51,9 @@
         </div>
         <div class="alert alert-success" style="display:none"></div>
         @include('pages.admin.accountant._credit_banner')
+        @if (\App\Services\Claude\AssistantAccess::isSubAdmin(Auth::user()))
+            <div style="margin:0 0 14px;padding:9px 14px;border:1px solid #c9dcf7;border-radius:12px;background:#f3f8ff;color:#1f4f96;font-size:13.5px;"><i class="fas fa-eye"></i> Chế độ chỉ xem: tài khoản này xem được toàn bộ công nợ nhưng không sửa được.</div>
+        @endif
 
         {{-- Tổng theo bộ lọc đang dùng (accountant.js điền số vào các id total-*) --}}
         <div class="acc-stats">

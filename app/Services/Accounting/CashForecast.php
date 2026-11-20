@@ -198,7 +198,37 @@ class CashForecast
                 'ct_binh_quan_thang' => (int) round($ctMonthly),
             ],
             'ghi_chu' => array_values(array_unique($notes)),
+            'thieu_du_lieu' => $this->gaps($openingNote, $notes, $today, $end),
         ];
+    }
+
+    /** Dữ liệu còn thiếu làm dự báo kém chính xác — trợ lý nêu ra để người dùng bổ sung */
+    private function gaps(string $openingNote, array $notes, Carbon $today, Carbon $end): array
+    {
+        $gaps = [];
+        if (str_starts_with($openingNote, 'Chưa có')) {
+            $gaps[] = ['thieu' => 'Báo cáo thu chi tháng ' . $today->month . '/' . $today->year, 'anh_huong' => 'tiền đầu kỳ đang = 0, cả dự báo lệch',
+                'bo_sung' => 'Kế toán lập Báo cáo thu chi tháng này (dòng Tiền hiện có), hoặc người dùng nói số tiền đang có để chạy lại (so_du)'];
+        }
+        $missing = [];
+        for ($m = $today->copy()->addMonthNoOverflow()->startOfMonth(); $m->lte($end); $m->addMonth()) {
+            if (!DB::table('reports')->where('year', $m->year)->where('month', (string) $m->month)->exists()) {
+                $missing[] = $m->month . '/' . $m->year;
+            }
+        }
+        if ($missing) {
+            $gaps[] = ['thieu' => 'Báo cáo thu chi các tháng ' . implode(', ', $missing), 'anh_huong' => 'chi các tháng này đang lặp lại khoản định kỳ của tháng cũ (có thể thiếu khoản một lần như thuế, trả NCC, đáo hạn)',
+                'bo_sung' => 'Kế toán lập trước Báo cáo thu chi các tháng tới với số chi dự kiến'];
+        }
+        $undated = array_values(array_filter($notes, fn ($n) => str_contains($n, 'chưa có ngày dự kiến')));
+        if ($undated) {
+            $gaps[] = ['thieu' => count($undated) . ' khoản thu chưa có ngày dự kiến', 'anh_huong' => 'chưa được tính vào dự báo', 'bo_sung' => 'Nhập Ngày dự kiến cho các khoản thu ở Báo cáo thu chi', 'chi_tiet' => array_slice($undated, 0, 5)];
+        }
+        if ($this->receivables->dso() === null) {
+            $gaps[] = ['thieu' => 'Lịch sử ngày thanh toán của khách', 'anh_huong' => 'đang giả định khách trả sau 45 ngày', 'bo_sung' => 'Nhập Ngày TT khi khách trả (trang Công nợ)'];
+        }
+
+        return $gaps;
     }
 
     /** [số tiền, nguồn] */

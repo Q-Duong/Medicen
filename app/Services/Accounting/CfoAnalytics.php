@@ -20,6 +20,16 @@ class CfoAnalytics
     {
     }
 
+    /** Tên xe hiển thị: 1–5 là "Xe 1"…; 6, 7, 8 là Xe Thuê / Xe Tăng Cường / Xe Siêu Âm (config/schedule.php car_labels) */
+    public static function carLabel($car): ?string
+    {
+        if ($car === null || $car === '') {
+            return null;
+        }
+
+        return config('schedule.car_labels')[(string) $car] ?? 'Xe ' . $car;
+    }
+
     public function analyze(Carbon $from, Carbon $to, bool $compare = true): array
     {
         $cur = $this->orders($from, $to);
@@ -39,17 +49,58 @@ class CfoAnalytics
             'thu_tien' => $this->collection($cur),
             // Đơn lãi ước tính thấp nhất (kể cả lỗ) — để xem lại giá / điều kiện nhận đơn
             'don_lai_thap' => $cur->where('order_surcharge', 0)->where('net', '>', 0)->sortBy('profit')->take(15)->map(fn ($r) => [
-                'ma_don' => $r->id, 'don_vi' => $r->unit_abbreviation, 'ngay' => $r->ord_start_day, 'xe' => $r->car_name, 'so_ca' => $r->qty,
+                'ma_don' => $r->id, 'don_vi' => $r->unit_abbreviation, 'ngay' => $r->ord_start_day, 'xe' => self::carLabel($r->car_name), 'so_ca' => $r->qty,
                 'km_khu_hoi' => (int) preg_replace('/\D/', '', (string) $r->accountant_distance), 'doanh_thu' => $r->net, 'chi_phi_uoc_tinh' => $r->cost,
                 'lai_uoc_tinh' => $r->profit, 'bien_lai_pct' => $r->net ? round($r->profit / $r->net * 100, 1) : null,
             ])->values()->all(),
         ];
+        $result['thieu_du_lieu'] = $this->gaps($cur, $from, $to, $result['thu_tien']);
         if ($compare) {
             $result['ky_truoc'] = ['ky' => $prevFrom->format('d/m/Y') . ' – ' . $prevTo->format('d/m/Y'), 'tong' => $this->totals($prev)];
             $result['thay_doi_so_voi_ky_truoc'] = $this->delta($result['tong'], $result['ky_truoc']['tong']);
         }
 
         return $result;
+    }
+
+    /** Dữ liệu còn thiếu làm số phân tích chưa chính xác — trợ lý nêu ra để người dùng bổ sung */
+    private function gaps(Collection $o, Carbon $from, Carbon $to, array $collection): array
+    {
+        $main = $o->where('order_surcharge', 0);
+        $gaps = [];
+        $noKm = $main->filter(fn ($r) => trim((string) $r->accountant_distance) === '' || (float) $r->accountant_distance <= 0);
+        if ($noKm->count()) {
+            $gaps[] = ['thieu' => $noKm->count() . ' đơn chưa có Khoảng cách (km khứ hồi)', 'anh_huong' => 'chưa tính tiền dầu, lãi ước tính các đơn này cao hơn thực tế',
+                'bo_sung' => 'Kế toán nhập ô Khoảng cách ở trang Công nợ', 'vi_du_ma_don' => $noKm->pluck('id')->take(10)->values()->all()];
+        }
+        $noQty = $main->filter(fn ($r) => (int) $r->order_quantity <= 0);
+        if ($noQty->count()) {
+            $gaps[] = ['thieu' => $noQty->count() . ' đơn có số ca = 0', 'anh_huong' => 'giá bình quân / ca và chi phí theo ca bị sai',
+                'bo_sung' => 'Cập nhật số ca thực tế (trang Công nợ / Lịch kết quả)', 'vi_du_ma_don' => $noQty->pluck('id')->take(10)->values()->all()];
+        }
+        $noCar = $main->filter(fn ($r) => !$r->car_name);
+        if ($noCar->count()) {
+            $gaps[] = ['thieu' => $noCar->count() . ' đơn chưa xếp xe', 'anh_huong' => 'không tính vào hiệu quả xe nào; chi phí KTV / tài xế ước theo mặc định',
+                'bo_sung' => 'Điều phối xếp xe cho đơn (trang Xếp lịch xe)', 'vi_du_ma_don' => $noCar->pluck('id')->take(10)->values()->all()];
+        }
+        $hired = $o->filter(fn ($r) => in_array((string) $r->car_name, config('schedule.hired_cars', ['6', '7']), true));
+        if ($hired->count()) {
+            $gaps[] = ['thieu' => 'Tiền thuê Xe Thuê / Xe Tăng Cường (' . $hired->count() . ' đơn) chưa có trong lãi ước tính',
+                'anh_huong' => 'lãi của 2 xe này cao hơn thực tế',
+                'bo_sung' => 'Trợ lý tìm chi phí thuê xe trong sổ MISA (tim_but_toan, tài khoản 632 / 642x, từ khóa "thuê xe", tên nhà xe) rồi trừ; nếu sổ chưa có kỳ này thì kế toán tải sổ MISA mới'];
+        }
+        if ($collection['ngay_thu_tien_binh_quan'] === null) {
+            $gaps[] = ['thieu' => 'Không có đơn nào đủ ngày xuất hóa đơn + ngày thanh toán trong kỳ', 'anh_huong' => 'không tính được số ngày thu tiền bình quân',
+                'bo_sung' => 'Kế toán nhập Ngày HĐ và Ngày TT khi khách trả tiền (trang Công nợ)'];
+        }
+        $misaTo = DB::table('acc_journal_entries')->max('posted_on');
+        if (!$misaTo || $misaTo < $to->toDateString()) {
+            $gaps[] = ['thieu' => 'Sổ MISA ' . ($misaTo ? 'chỉ có đến ' . Carbon::parse($misaTo)->format('d/m/Y') : 'chưa được tải lên'),
+                'anh_huong' => 'chi phí / lãi lỗ thật (khấu hao, lãi vay, lương văn phòng, thuê xe) chưa có cho phần sau ngày đó',
+                'bo_sung' => 'Kế toán xuất sổ từ MISA và tải lên trang Dữ liệu kế toán'];
+        }
+
+        return $gaps;
     }
 
     private function orders(Carbon $from, Carbon $to): Collection
@@ -175,7 +226,7 @@ class CfoAnalytics
 
     private function cars(Collection $o): array
     {
-        return $o->groupBy(fn ($r) => $r->car_name ? 'Xe ' . $r->car_name : '(chưa xếp xe)')->map(function ($g, $car) {
+        return $o->groupBy(fn ($r) => self::carLabel($r->car_name) ?? '(chưa xếp xe)')->map(function ($g, $car) {
             $days = $g->pluck('ord_start_day')->unique()->count();
 
             return [

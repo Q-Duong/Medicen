@@ -29,6 +29,8 @@
         $d = fn ($v) => $v ? \Carbon\Carbon::parse($v)->format('d/m/Y') : '—';
         $bankName = ['TIEN_MAT' => 'Tiền mặt', 'HDB' => 'HDBank', 'VCB' => 'Vietcombank', 'AGRI' => 'Agribank'];
         $results = session('import_results');
+        // SubAdmin chỉ xem: ẩn nhập sổ, thêm / sửa / xóa tài liệu
+        $canEdit = !\App\Services\Claude\AssistantAccess::isSubAdmin(Auth::user());
     @endphp
     <div class="sf">
         <div class="sf-head">
@@ -47,6 +49,7 @@
         </nav>
 
         @if ($tab === 'so-sach')
+            @if ($canEdit)
             <section class="sf-card" style="margin-bottom:16px">
                 <form method="POST" action="{{ route('accounting.import') }}" enctype="multipart/form-data" class="ktd-upload" id="ktd-import">
                     @csrf
@@ -80,6 +83,7 @@
                     @endforeach
                 @endif
             </section>
+            @endif
 
             <h2 class="sf-section">Đang có</h2>
             <div class="ktd-grid" style="margin-bottom:18px">
@@ -128,7 +132,7 @@
                     </select></label>
                 <div class="sf-filters__actions">
                     <button type="submit" class="sf-btn sf-btn--dark">Lọc</button>
-                    <a href="{{ route('accounting.documents.create') }}" class="sf-btn sf-btn--primary"><i class="fas fa-plus"></i> Thêm tài liệu</a>
+                    @if ($canEdit)<a href="{{ route('accounting.documents.create') }}" class="sf-btn sf-btn--primary"><i class="fas fa-plus"></i> Thêm tài liệu</a>@endif
                 </div>
             </form>
             <div class="sf-table">
@@ -147,6 +151,7 @@
                                     @if ($doc->file_path)
                                         <a href="{{ route('accounting.documents.download', $doc->id) }}" class="sf-icon-btn" title="Tải file gốc"><i class="fas fa-download"></i></a>
                                     @endif
+                                    @if ($canEdit)
                                     <a href="{{ route('accounting.documents.edit', $doc->id) }}" class="sf-icon-btn" title="Sửa"><i class="fas fa-pen"></i></a>
                                     <form action="{{ route('accounting.documents.destroy', $doc->id) }}" method="POST"
                                         data-confirm="Xóa tài liệu &quot;{{ $doc->title }}&quot; và file gốc? Trợ lý sẽ không tra được tài liệu này nữa."
@@ -154,6 +159,7 @@
                                         @method('DELETE') @csrf
                                         <button type="submit" class="sf-icon-btn sf-icon-btn--danger" title="Xóa"><i class="far fa-trash-alt"></i></button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
