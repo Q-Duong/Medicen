@@ -252,6 +252,25 @@ class AccountantTools implements DepartmentTools
                 ],
             ],
             [
+                'name' => 'theo_doi_thu_no',
+                'description' => 'Thu nợ: các đơn vị đang có nợ quá hạn / tiền kẹt, ai phụ trách thu, lần nhắc gần nhất (ngày, kênh, nội dung), '
+                    . 'khách hẹn trả ngày nào / bao nhiêu, trạng thái (quá hẹn, chưa ai phụ trách, lâu chưa nhắc, đã hẹn). Lọc theo người phụ trách hoặc đơn vị.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'nguoi_phu_trach' => ['type' => 'string', 'description' => 'Tên người phụ trách (tùy chọn)'],
+                        'tu_khoa' => ['type' => 'string', 'description' => 'Tên / mã đơn vị (tùy chọn)'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'duyet_gia',
+                'description' => 'Đơn giá thấp / chiết khấu cao cần kế toán duyệt (đơn chụp 30 ngày trước → 60 ngày tới): lỗ hoặc biên lãi ước tính dưới mức, chiết khấu cao; '
+                    . 'giá / ca so với giá sàn ước tính, đã duyệt hay chưa, ai duyệt.',
+                'input_schema' => ['type' => 'object', 'properties' => new \stdClass(), 'additionalProperties' => false],
+            ],
+            [
                 'name' => 'hoat_dong_nhan_vien',
                 'description' => 'CHỈ ADMIN / SUBADMIN. Nhân viên đã làm gì trên web Medicen trong một ngày / khoảng ngày: thao tác ở Báo cáo thu chi, Công nợ, '
                     . 'Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán (thêm / sửa / xóa, số cũ → số mới), lịch sử chỉnh sửa đơn hàng (thêm đơn, xếp lịch, '
@@ -301,6 +320,11 @@ class AccountantTools implements DepartmentTools
             'hoat_dong_nhan_vien' => $this->staffActivity($input, $user),
             'phan_tich_van_hanh' => $this->operations($input),
             'tuoi_no_tien_ket' => $this->aging(),
+            'duyet_gia' => ['quy_tac' => config('finance.price'), 'don' => app(\App\Services\Accounting\PriceGuard::class)->list()->map(fn ($p) => [
+                'ma_don' => $p['order_id'], 'don_vi' => $p['unit'], 'ngay_chup' => $p['date'], 'xe' => $p['car'], 'so_ca' => $p['qty'], 'km_khu_hoi' => $p['km'],
+                'gia_mot_ca' => $p['per_case'], 'gia_san_mot_ca' => $p['floor_per_case'], 'lai_uoc_tinh' => $p['profit'], 'bien_pct' => $p['margin'],
+                'ly_do' => $p['flags'], 'da_duyet' => $p['approved'], 'nguoi_duyet' => $p['approved_by'], 'ghi_chu_duyet' => $p['approval_note']])->all()],
+            'theo_doi_thu_no' => $this->collection($this->optString($input, 'nguoi_phu_trach'), $this->optString($input, 'tu_khoa')),
             'ke_hoach_nam' => $this->budget((int) ($input['nam'] ?? now()->year)),
             'du_bao_dong_tien' => app(\App\Services\Accounting\CashForecast::class)->build($input),
             'tai_lieu' => $this->documents((string) ($input['loai'] ?? 'tat_ca'), $this->optString($input, 'tu_khoa')),
@@ -357,6 +381,31 @@ class AccountantTools implements DepartmentTools
         }
 
         return $gaps;
+    }
+
+    private function collection(?string $who, ?string $unit): array
+    {
+        $list = app(\App\Services\Accounting\DebtCollection::class)->list()
+            ->when($who, fn ($c) => $c->filter(fn ($r) => str_contains(mb_strtolower((string) $r['assignee']), mb_strtolower($who))))
+            ->when($unit, fn ($c) => $c->filter(fn ($r) => str_contains(mb_strtolower($r['unit']), mb_strtolower($unit))));
+
+        return [
+            'ngay' => now()->toDateString(),
+            'nguon' => 'Phân tích tài chính → Thu nợ (người phụ trách, lịch sử nhắc nợ do kế toán / sales ghi)',
+            'so_don_vi' => $list->count(),
+            'theo_trang_thai' => $list->countBy('status_label')->all(),
+            'tong_can_thu' => $list->sum(fn ($r) => $r['overdue'] + $r['stuck']),
+            'don_vi' => $list->take(40)->map(fn ($r) => [
+                'don_vi' => $r['unit'], 'qua_han' => $r['overdue'], 'tien_ket_chua_xuat_hd' => $r['stuck'], 'qua_han_lau_nhat_ngay' => $r['max_overdue_days'],
+                'phu_trach' => $r['assignee'], 'trang_thai' => $r['status_label'],
+                'lan_nhac_gan_nhat' => $r['last'] ? ['ngay' => $r['last']['date']->toDateString(), 'kenh' => $r['last']['channel'], 'noi_dung' => $r['last']['note'], 'nguoi' => $r['last']['by']] : null,
+                'hen_tra' => $r['promise'] ? ['ngay' => $r['promise']['date']->toDateString(), 'so_tien' => $r['promise']['amount']] : null,
+                'so_lan_nhac' => $r['contact_count'],
+            ])->values()->all(),
+            'thieu_du_lieu' => $list->where('status', 'chua_phu_trach')->isNotEmpty()
+                ? [['thieu' => $list->where('status', 'chua_phu_trach')->count() . ' đơn vị chưa có người phụ trách thu nợ', 'anh_huong' => 'không ai chịu trách nhiệm nhắc nợ',
+                    'bo_sung' => 'Kế toán giao người phụ trách ở Phân tích tài chính → Thu nợ']] : [],
+        ];
     }
 
     private function budget(int $year): array

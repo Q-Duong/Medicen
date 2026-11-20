@@ -20,6 +20,12 @@ return [
         'contract_days' => 30,      // hợp đồng hết hạn trong số ngày này
     ],
 
+    // Kiểm soát giá (Phân tích tài chính → Duyệt giá): đơn lỗ / biên lãi ước tính dưới mức / chiết khấu cao cần kế toán duyệt
+    'price' => [
+        'min_margin_pct' => (float) env('FINANCE_MIN_MARGIN_PCT', 10),
+        'max_discount_pct' => (float) env('FINANCE_MAX_DISCOUNT_PCT', 10),
+    ],
+
     // Báo cáo CFO tự động (ngày 3 hằng tháng 08:00): chạy dưới tài khoản này (email); để trống = tài khoản tên "Admin"
     'cfo_user' => env('FINANCE_CFO_USER'),
 ];

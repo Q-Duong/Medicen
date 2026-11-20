@@ -4,7 +4,7 @@
     <div style="display:flex;align-items:flex-start;gap:10px;margin:0 0 14px;padding:10px 14px;border:1px solid #f3c6bf;border-radius:12px;background:#fdf1ef;color:#7a1d14;font-size:13.5px;line-height:1.5;">
         <i class="fas fa-shield-alt" style="margin-top:3px;color:#b42318"></i>
         <div style="flex:1;min-width:0">
-            <b>{{ $creditBad->count() }} đơn vị vượt hạn mức tín dụng hoặc quá hạn quá lâu</b> — nên thu nợ / xin duyệt trước khi nhận lịch mới:
+            <b>{{ $creditBad->count() }} đơn vị vượt hạn mức tín dụng hoặc quá hạn quá lâu</b> — nên thu nợ / xin Kế toán duyệt trước khi nhận lịch mới:
             {{ $creditBad->take(8)->map(fn ($c) => $c['unit'] . ' (' . ($c['status'] === 'vuot_han_muc' ? number_format($c['used_pct'], 0, ',', '.') . '% hạn mức' : 'quá hạn ' . $c['max_overdue_days'] . ' ngày') . ')')->implode(', ') }}{{ $creditBad->count() > 8 ? '…' : '' }}
         </div>
         @if (\Illuminate\Support\Facades\Route::has('finance.index') && \App\Http\Middleware\PageAccess::allows(auth()->user(), ['debt_accountant']))

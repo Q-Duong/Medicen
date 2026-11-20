@@ -398,7 +398,9 @@ class OrderController extends Controller
 		$groupId = Order::whereKey($order_id)->value('order_group_id');
 		$groupCode = $groupId ? \App\Models\OrderGroup::whereKey($groupId)->value('code') : null;
 		$groupMembers = $groupId ? Order::where('order_group_id', $groupId)->where('id', '!=', $order_id)->pluck('id')->all() : [];
-		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files', 'schedule', 'scheduleKept', 'orderClosed', 'qtyLocked', 'moneyLocked', 'adminOverride', 'groupCode', 'groupMembers'));
+		// Kiểm soát giá: đơn lỗ / biên thấp / chiết khấu cao cần kế toán duyệt (Phân tích tài chính → Duyệt giá)
+		$priceCheck = app(\App\Services\Accounting\PriceGuard::class)->forOrder((int) $order_id);
+		return view('pages.admin.order.edit', compact('order', 'getAllUnit', 'files', 'schedule', 'scheduleKept', 'orderClosed', 'qtyLocked', 'moneyLocked', 'adminOverride', 'groupCode', 'groupMembers', 'priceCheck'));
 	}
 
 	public function update(OrderRequestForm $request, $order_id)

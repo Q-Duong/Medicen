@@ -199,7 +199,7 @@ class SalesTools implements DepartmentTools
             [
                 'name' => 'xem_cong_no',
                 'description' => 'Xem công nợ chưa thanh toán của một đơn vị: từng hóa đơn (số HĐ, ngày xuất, hạn thanh toán, số tiền, số ngày quá hạn), '
-                    . 'tổng nợ, tổng nợ quá hạn và HẠN MỨC TÍN DỤNG (vượt hạn mức / quá hạn quá lâu = cần thu nợ hoặc xin duyệt trước khi nhận đơn). Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ. '
+                    . 'tổng nợ, tổng nợ quá hạn và HẠN MỨC TÍN DỤNG (vượt hạn mức / quá hạn quá lâu = cần thu nợ hoặc xin Kế toán duyệt trước khi nhận đơn). Dùng trước khi nhận đơn mới (không nhận đơn khi đang nợ quá hạn) hoặc khi soạn tin nhắc nợ. '
                     . 'Ghi loc (không cần tu_khoa) để lấy danh sách đơn của MỌI đơn vị: qua_han (đã quá hạn), sap_den_han (đến hạn trong so_ngay ngày tới), '
                     . 'chua_xuat_hd (còn nợ nhưng chưa xuất hóa đơn).',
                 'input_schema' => [
@@ -754,6 +754,7 @@ class SalesTools implements DepartmentTools
             $overdueItems = $invoices->where('so_ngay_qua_han', '>', 0);
 
             $credit = app(\App\Services\Accounting\CreditPolicy::class)->forUnit((int) $unit->id);
+            $follow = app(\App\Services\Accounting\DebtCollection::class)->list()->firstWhere('unit_id', (int) $unit->id);
 
             return [
                 'ten_viet_tat' => $unit->unit_abbreviation,
@@ -768,6 +769,12 @@ class SalesTools implements DepartmentTools
                     'trang_thai' => $credit['status_label'],
                     'can_xu_ly_truoc_khi_nhan_don' => in_array($credit['status'], ['vuot_han_muc', 'qua_han_lau'], true),
                 ],
+                // Thu nợ: ai phụ trách, lần nhắc gần nhất, khách hẹn trả (Phân tích tài chính → Thu nợ)
+                'thu_no' => $follow ? [
+                    'phu_trach' => $follow['assignee'], 'trang_thai' => $follow['status_label'],
+                    'lan_nhac_gan_nhat' => $follow['last'] ? $follow['last']['date']->format('d/m/Y') . ' · ' . $follow['last']['channel'] . ($follow['last']['note'] ? ': ' . $follow['last']['note'] : '') : null,
+                    'hen_tra' => $follow['promise'] ? $follow['promise']['date']->format('d/m/Y') . ($follow['promise']['amount'] ? ' · ' . number_format($follow['promise']['amount'], 0, ',', '.') . ' đ' : '') : null,
+                ] : null,
                 'tong_con_no' => $invoices->sum('con_no'),
                 'tong_qua_han' => $overdueItems->sum('con_no'),
                 'qua_han_lau_nhat_ngay' => (int) $overdueItems->max('so_ngay_qua_han'),

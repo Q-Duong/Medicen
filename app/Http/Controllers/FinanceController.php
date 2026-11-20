@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
  */
 class FinanceController extends Controller
 {
-    public const TABS = ['tien-ket' => 'Tiền kẹt & tuổi nợ', 'han-muc' => 'Hạn mức tín dụng', 'lai-uoc-tinh' => 'Lãi ước tính', 'dong-tien' => 'Dòng tiền 13 tuần', 'ke-hoach' => 'Kế hoạch năm'];
+    public const TABS = ['tien-ket' => 'Tiền kẹt & tuổi nợ', 'thu-no' => 'Thu nợ', 'han-muc' => 'Hạn mức tín dụng', 'lai-uoc-tinh' => 'Lãi ước tính', 'duyet-gia' => 'Duyệt giá', 'dong-tien' => 'Dòng tiền 13 tuần', 'ke-hoach' => 'Kế hoạch năm'];
 
     /** Sửa hạn mức / kế hoạch: Admin (trừ SubAdmin) và Kế toán */
     public static function canEdit(): bool
@@ -39,6 +39,23 @@ class FinanceController extends Controller
 
         if ($tab === 'tien-ket') {
             $data['r'] = app(Receivables::class)->summary();
+        } elseif ($tab === 'thu-no') {
+            $dc = app(\App\Services\Accounting\DebtCollection::class);
+            $all = $dc->list();
+            $filter = (string) $request->query('loc', '');
+            $data['collect'] = match ($filter) {
+                'cua-toi' => $all->where('assignee_id', Auth::id())->values(),
+                'qua-hen' => $all->where('status', 'qua_hen')->values(),
+                'chua-phu-trach' => $all->where('status', 'chua_phu_trach')->values(),
+                'can-nhac' => $all->where('status', 'can_nhac')->values(),
+                default => $all,
+            };
+            $data['collectAll'] = $all;
+            $data['filter'] = $filter;
+            $data['people'] = $dc->people();
+        } elseif ($tab === 'duyet-gia') {
+            $data['prices'] = app(\App\Services\Accounting\PriceGuard::class)->list();
+            $data['canApprove'] = self::canEdit();
         } elseif ($tab === 'han-muc') {
             $data['credits'] = app(CreditPolicy::class)->all();
         } elseif ($tab === 'ke-hoach') {
@@ -127,5 +144,69 @@ class FinanceController extends Controller
         ActivityLog::record('bao_cao_thu_chi', 'sua', 'Sửa kế hoạch năm ' . $data['year'], null, $changes ?: null);
 
         return redirect()->route('finance.index', ['tab' => 'ke-hoach', 'nam' => $data['year']])->with('bk_success', 'Đã lưu kế hoạch năm ' . $data['year'] . '.');
+    }
+
+    /** Đổi người phụ trách thu nợ của một đơn vị */
+    public function assignCollector(Request $request)
+    {
+        abort_unless(self::canEdit(), 403);
+        $data = $request->validate(['unit_id' => ['required', 'integer', 'exists:units,id'], 'assignee_id' => ['nullable', 'integer', 'exists:users,id']]);
+        $old = DB::table('unit_collectors')->where('unit_id', $data['unit_id'])->value('assignee_id');
+        DB::table('unit_collectors')->updateOrInsert(['unit_id' => $data['unit_id']],
+            ['assignee_id' => $data['assignee_id'] ?? null, 'updated_by' => Auth::id(), 'updated_at' => now(), 'created_at' => now()]);
+        $names = app(\App\Services\Accounting\DebtCollection::class)->people()->pluck('name', 'id');
+        $unit = DB::table('units')->where('id', $data['unit_id'])->value('unit_abbreviation');
+        ActivityLog::record('cong_no', 'sua', 'Giao thu nợ ' . $unit, null, ['Người phụ trách' => [$names[$old] ?? null, $names[$data['assignee_id'] ?? 0] ?? null]]);
+
+        return redirect()->route('finance.index', ['tab' => 'thu-no', 'loc' => $request->input('loc')])->with('bk_success', 'Đã giao thu nợ ' . $unit . '.');
+    }
+
+    /** Ghi một lần nhắc nợ (kèm hẹn trả nếu có) */
+    public function saveContact(Request $request)
+    {
+        abort_unless(self::canEdit(), 403);
+        $data = $request->validate([
+            'unit_id' => ['required', 'integer', 'exists:units,id'],
+            'contacted_on' => ['required', 'date', 'before_or_equal:today'],
+            'channel' => ['nullable', 'in:' . implode(',', array_keys(\App\Services\Accounting\DebtCollection::CHANNELS))],
+            'note' => ['nullable', 'string', 'max:2000'],
+            'promised_date' => ['nullable', 'date'],
+            'promised_amount' => ['nullable', 'string', 'max:20'],
+        ], ['contacted_on.before_or_equal' => 'Ngày nhắc không được sau hôm nay.']);
+        $amount = preg_replace('/\D/', '', (string) ($data['promised_amount'] ?? ''));
+        DB::table('debt_contacts')->insert([
+            'unit_id' => $data['unit_id'], 'contacted_on' => $data['contacted_on'], 'channel' => $data['channel'] ?? null, 'note' => $data['note'] ?? null,
+            'promised_date' => $data['promised_date'] ?? null, 'promised_amount' => $amount === '' ? null : (int) $amount,
+            'created_by' => Auth::id(), 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        // Chưa có người phụ trách thì người ghi nhận lần nhắc đầu tiên nhận luôn
+        if (!DB::table('unit_collectors')->where('unit_id', $data['unit_id'])->whereNotNull('assignee_id')->exists()) {
+            DB::table('unit_collectors')->updateOrInsert(['unit_id' => $data['unit_id']], ['assignee_id' => Auth::id(), 'updated_by' => Auth::id(), 'updated_at' => now(), 'created_at' => now()]);
+        }
+        $unit = DB::table('units')->where('id', $data['unit_id'])->value('unit_abbreviation');
+        ActivityLog::record('cong_no', 'them', 'Nhắc nợ ' . $unit . (!empty($data['promised_date']) ? ', khách hẹn trả ' . \Carbon\Carbon::parse($data['promised_date'])->format('d/m/Y') : ''), null,
+            array_filter(['Kênh' => [null, \App\Services\Accounting\DebtCollection::CHANNELS[$data['channel'] ?? ''] ?? null], 'Nội dung' => [null, $data['note'] ?? null],
+                'Số tiền hẹn' => [null, $amount === '' ? null : (int) $amount]], fn ($p) => $p[1] !== null));
+
+        return redirect()->route('finance.index', ['tab' => 'thu-no', 'loc' => $request->input('loc')])->with('bk_success', 'Đã ghi lần nhắc nợ ' . $unit . '.');
+    }
+
+    /** Kế toán (và Admin, không gồm SubAdmin) duyệt / bỏ duyệt đơn giá thấp / chiết khấu cao */
+    public function approvePrice(Request $request)
+    {
+        abort_unless(self::canEdit(), 403, 'Chỉ Kế toán / Admin được duyệt giá.');
+        $data = $request->validate(['order_id' => ['required', 'integer', 'exists:orders,id'], 'note' => ['nullable', 'string', 'max:255'], 'undo' => ['nullable', 'boolean']]);
+        if (!empty($data['undo'])) {
+            DB::table('price_approvals')->where('order_id', $data['order_id'])->delete();
+            ActivityLog::record('cong_no', 'xoa', 'Bỏ duyệt giá đơn #' . $data['order_id']);
+            $msg = 'Đã bỏ duyệt giá đơn #' . $data['order_id'] . '.';
+        } else {
+            DB::table('price_approvals')->updateOrInsert(['order_id' => $data['order_id']],
+                ['approved_by' => Auth::id(), 'approved_at' => now(), 'note' => $data['note'] ?? null, 'updated_at' => now(), 'created_at' => now()]);
+            ActivityLog::record('cong_no', 'them', 'Duyệt giá đơn #' . $data['order_id'] . (!empty($data['note']) ? ': ' . $data['note'] : ''));
+            $msg = 'Đã duyệt giá đơn #' . $data['order_id'] . '.';
+        }
+
+        return back()->with('bk_success', $msg);
     }
 }

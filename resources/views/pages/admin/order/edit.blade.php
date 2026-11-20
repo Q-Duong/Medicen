@@ -18,6 +18,22 @@
                     </span>
                 </header>
                 <div class="panel-body">
+                    @if (!empty($priceCheck['flags']))
+                        <div style="margin:0 0 16px;padding:10px 14px;border:1px solid {{ $priceCheck['approved'] ? '#b8e2cd' : '#f3c6bf' }};border-radius:12px;background:{{ $priceCheck['approved'] ? '#effaf3' : '#fdf1ef' }};color:{{ $priceCheck['approved'] ? '#18794e' : '#7a1d14' }};font-size:14px;line-height:1.5;">
+                            <i class="fas fa-tags"></i>
+                            @if ($priceCheck['approved'])
+                                <b>Giá đã được duyệt</b> bởi {{ $priceCheck['approved_by'] }}{{ $priceCheck['approval_note'] ? ' (' . $priceCheck['approval_note'] . ')' : '' }}.
+                            @else
+                                <b>Đơn cần kế toán duyệt giá:</b>
+                            @endif
+                            {{ implode(' · ', $priceCheck['flags']) }}.
+                            Giá {{ $priceCheck['per_case'] ? number_format($priceCheck['per_case'], 0, ',', '.') . ' đ/ca' : '—' }}, giá sàn ước tính {{ $priceCheck['floor_per_case'] ? number_format($priceCheck['floor_per_case'], 0, ',', '.') . ' đ/ca' : '—' }}
+                            (chi phí chuyến ước tính {{ number_format($priceCheck['cost'], 0, ',', '.') }} đ cho {{ $priceCheck['qty'] }} ca, {{ $priceCheck['km'] ?: '?' }} km khứ hồi).
+                            @if (!$priceCheck['approved'] && \App\Http\Middleware\PageAccess::allows(auth()->user(), ['debt_accountant']))
+                                <a href="{{ route('finance.index', ['tab' => 'duyet-gia']) }}" style="font-weight:600;color:inherit;text-decoration:underline">Mở trang Duyệt giá</a>
+                            @endif
+                        </div>
+                    @endif
                     <div class="position-center">
                         <form role="form" class="order-form" data-customer-url="{{ route('order.customer_suggestions') }}" action="{{ route('order.update', $order->order_id) }}" method="post"
                             enctype="multipart/form-data" id="order-edit-form"

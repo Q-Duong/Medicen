@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Cache;
  * Chuông thông báo trên header: "việc cần làm" của từng tài khoản, ĐẾM TRỰC TIẾP từ dữ liệu (không có bảng thông báo,
  * không có đã đọc / chưa đọc): làm xong việc thì số tự giảm. Mỗi dòng có link sang đúng trang, lọc sẵn.
  *
- * Ai thấy nhóm nào: Admin (role 0/1) thấy tất cả; Kế toán (role 3 hoặc phòng ban ke_toan); Sales (sales);
+ * Ai thấy nhóm nào: Admin (role 0/1) thấy tất cả; SubAdmin chỉ nhóm Tài chính; Kế toán (role 3 hoặc phòng ban ke_toan); Sales (sales);
+ * "Thu nợ bạn phụ trách": kế toán / sales được giao thu nợ (Phân tích tài chính → Thu nợ).
  * Xếp lịch (config schedule.user_departments: phòng Điều phối xếp lịch); Kết quả (ket_qua).
  * Kết quả lưu cache 60 giây mỗi tài khoản (trang hỏi lại mỗi phút).
  */
@@ -25,6 +26,10 @@ class TodoList
         'sales' => ['label' => 'Sales', 'icon' => 'fas fa-clipboard-list'],
         'xep_lich' => ['label' => 'Xếp lịch / Kỹ thuật', 'icon' => 'fas fa-shuttle-van'],
         'ket_qua' => ['label' => 'Kết quả', 'icon' => 'fas fa-file-medical'],
+        // Khoản thu nợ được giao cho chính tài khoản này (Phân tích tài chính → Thu nợ)
+        'thu_no_cua_toi' => ['label' => 'Thu nợ bạn phụ trách', 'icon' => 'fas fa-phone-volume'],
+        // Tổng quan tài chính cho Admin / SubAdmin (chỉ xem)
+        'tai_chinh' => ['label' => 'Tài chính', 'icon' => 'fas fa-chart-pie'],
     ];
 
     /** Nhóm thông báo tài khoản được xem */
@@ -34,7 +39,7 @@ class TodoList
             return array_keys(self::GROUPS);
         }
         if (AssistantAccess::isSubAdmin($user)) {
-            return []; // việc trên chuông dẫn tới trang đơn hàng / xếp lịch / công nợ kế toán — SubAdmin không vào được
+            return ['tai_chinh']; // SubAdmin chỉ xem: tổng quan tài chính (trang Phân tích tài chính)
         }
         $dept = (string) $user->department;
         $groups = [];
@@ -43,6 +48,9 @@ class TodoList
         }
         if ($dept === 'sales') {
             $groups[] = 'sales';
+        }
+        if ((int) $user->role === 3 || in_array($dept, ['ke_toan', 'sales'], true)) {
+            $groups[] = 'thu_no_cua_toi';
         }
         if (in_array($dept, config('schedule.user_departments', []), true)) {
             $groups[] = 'xep_lich';
@@ -68,7 +76,7 @@ class TodoList
         $today = Carbon::today();
         $out = [];
         foreach ($groups as $g) {
-            $items = array_values(array_filter($this->{'items' . str_replace('_', '', ucwords($g, '_'))}($today), fn ($i) => $i['count'] > 0));
+            $items = array_values(array_filter($this->{'items' . str_replace('_', '', ucwords($g, '_'))}($today, $user), fn ($i) => $i['count'] > 0));
             if ($items) {
                 $out[] = ['key' => $g] + self::GROUPS[$g] + ['items' => $items];
             }
@@ -107,7 +115,7 @@ class TodoList
 
         $profit = ProfitReport::where('status', 0)->count();
 
-        return [
+        return array_merge([
             $this->item('qty_changed', 'Đơn có số ca thay đổi sau khi cập nhật doanh thu', $qtyChanged,
                 route('accountant.index', ['qty_changed' => 1]), 'urgent', 'Tính lại tiền theo số ca mới hoặc giữ tiền cũ'),
             $this->item('wait_revenue', 'Đơn đã có số ca thực tế, chờ cập nhật doanh thu', $waitRevenue,
@@ -115,6 +123,61 @@ class TodoList
             $this->item('debt_overdue', 'Công nợ quá hạn 45 ngày chưa thanh toán (1 năm gần đây)', $debt45,
                 route('accountant.index', ['todo' => 'overdue']), $debt60 > 0 ? 'urgent' : 'normal', $debt60 > 0 ? "Trong đó {$debt60} đơn quá 60 ngày" : null),
             $this->item('profit_pending', 'Phiếu tính lợi nhuận chờ duyệt', $profit, route('profit.index') . '#pf-history'),
+        ], $this->financeItems());
+    }
+
+    /** Việc kế toán từ Phân tích tài chính: duyệt giá, thu nợ, tiền kẹt (chỉ cảnh báo, không khóa gì) */
+    private function financeItems(): array
+    {
+        $prices = app(\App\Services\Accounting\PriceGuard::class)->list()->where('approved', false);
+        $lossCount = $prices->where('profit', '<', 0)->count();
+        $collect = app(\App\Services\Accounting\DebtCollection::class)->list();
+        $late = $collect->where('status', 'qua_hen');
+        $noOwner = $collect->where('status', 'chua_phu_trach');
+        $stuck = app(\App\Services\Accounting\Receivables::class)->rows()
+            ->filter(fn ($r) => $r->bucket === 'chua_xuat_hd' && ($r->days_since_shot ?? 0) >= \App\Services\Accounting\Receivables::STUCK_DAYS);
+        $fin = fn (string $tab, array $q = []) => route('finance.index', ['tab' => $tab] + $q);
+
+        return [
+            $this->item('price_pending', 'Đơn giá thấp / chiết khấu cao chờ duyệt giá', $prices->count(), $fin('duyet-gia'),
+                $lossCount ? 'urgent' : 'normal', $lossCount ? "Trong đó {$lossCount} đơn lỗ ước tính" : null),
+            $this->item('promise_late', 'Khách quá ngày hẹn trả nợ', $late->count(), $fin('thu-no', ['loc' => 'qua-hen']), 'urgent',
+                $late->take(3)->pluck('unit')->implode(', ') ?: null),
+            $this->item('debt_no_owner', 'Nợ quá hạn / tiền kẹt chưa ai phụ trách thu', $noOwner->count(), $fin('thu-no', ['loc' => 'chua-phu-trach'])),
+            $this->item('stuck_invoice', 'Đơn chụp xong ≥ ' . \App\Services\Accounting\Receivables::STUCK_DAYS . ' ngày chưa xuất hóa đơn', $stuck->count(), $fin('tien-ket'),
+                'normal', $stuck->count() ? 'Tổng ' . number_format($stuck->sum('owe'), 0, ',', '.') . ' đ' : null),
+        ];
+    }
+
+    /** Khoản thu nợ giao cho chính tài khoản đang đăng nhập */
+    private function itemsThuNoCuaToi(Carbon $today, User $user): array
+    {
+        $mine = app(\App\Services\Accounting\DebtCollection::class)->list()->where('assignee_id', $user->id);
+        $late = $mine->where('status', 'qua_hen');
+        $remind = $mine->where('status', 'can_nhac');
+        // Sales không vào được Phân tích tài chính: mở trang Công nợ Sales
+        $canFinance = \App\Http\Middleware\PageAccess::allows($user, ['debt_accountant']);
+        $url = $canFinance ? route('finance.index', ['tab' => 'thu-no', 'loc' => 'cua-toi']) : route('accountant_sales.index');
+
+        return [
+            $this->item('my_promise_late', 'Khách bạn phụ trách đã quá ngày hẹn trả', $late->count(), $url, 'urgent', $late->take(3)->pluck('unit')->implode(', ') ?: null),
+            $this->item('my_need_remind', 'Khách bạn phụ trách lâu chưa nhắc nợ (> ' . \App\Services\Accounting\DebtCollection::REMIND_DAYS . ' ngày)', $remind->count(), $url, 'normal',
+                $remind->take(3)->pluck('unit')->implode(', ') ?: null),
+        ];
+    }
+
+    /** Tổng quan tài chính (Admin, SubAdmin): tuần sắp thiếu tiền, khách vượt hạn mức */
+    private function itemsTaiChinh(Carbon $today): array
+    {
+        $f = app(\App\Services\Accounting\CashForecast::class)->build(['nguong' => config('finance.alerts.cash_threshold')]);
+        $openingMissing = str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có');
+        $credit = app(\App\Services\Accounting\CreditPolicy::class)->all()->whereIn('status', ['vuot_han_muc', 'qua_han_lau']);
+
+        return [
+            $this->item('cash_low', 'Tuần sắp thiếu tiền trong 13 tuần tới', $openingMissing ? 0 : $f['so_tuan_duoi_nguong'], route('finance.index', ['tab' => 'dong-tien']), 'urgent',
+                $f['tuan_thap_nhat'] ? 'Thấp nhất ' . number_format($f['tuan_thap_nhat']['so_du'], 0, ',', '.') . ' đ (tuần ' . $f['tuan_thap_nhat']['tuan'] . ')' : null),
+            $this->item('no_cash_report', 'Chưa có Báo cáo thu chi tháng ' . $today->month . ' (dự báo dòng tiền chưa tính được)', $openingMissing ? 1 : 0, route('reports.index')),
+            $this->item('credit_over', 'Khách vượt hạn mức tín dụng / quá hạn quá lâu', $credit->count(), route('finance.index', ['tab' => 'han-muc'])),
         ];
     }
 

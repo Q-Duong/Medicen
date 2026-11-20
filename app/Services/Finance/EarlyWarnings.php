@@ -64,9 +64,33 @@ class EarlyWarnings
         $credit = app(\App\Services\Accounting\CreditPolicy::class)->all()->whereIn('status', ['vuot_han_muc', 'qua_han_lau'])->values();
         if ($credit->isNotEmpty()) {
             $alerts[] = ['level' => 'bad', 'title' => $credit->count() . ' khách vượt hạn mức tín dụng / quá hạn quá lâu',
-                'detail' => 'Tổng nợ của nhóm này ' . $m($credit->sum('owe')) . '. Nên thu nợ hoặc duyệt trước khi nhận lịch mới.',
+                'detail' => 'Tổng nợ của nhóm này ' . $m($credit->sum('owe')) . '. Nên thu nợ, hoặc Kế toán duyệt trước khi nhận lịch mới.',
                 'lines' => $credit->take(6)->map(fn ($c) => $c['unit'] . ' · nợ ' . $m($c['owe']) . ' / hạn mức ' . $m($c['limit'])
                     . ($c['max_overdue_days'] > $c['max_days'] ? ' · quá hạn ' . $c['max_overdue_days'] . ' ngày' : ''))->all()];
+        }
+
+        // 3c. Thu nợ: khách quá ngày hẹn trả, nợ chưa ai phụ trách
+        $collect = app(\App\Services\Accounting\DebtCollection::class)->list();
+        $late = $collect->where('status', 'qua_hen');
+        if ($late->isNotEmpty()) {
+            $alerts[] = ['level' => 'bad', 'title' => $late->count() . ' khách quá ngày hẹn trả nợ',
+                'detail' => 'Đã hẹn nhưng chưa trả, người phụ trách cần nhắc lại.',
+                'lines' => $late->take(6)->map(fn ($c) => $c['unit'] . ' · hẹn ' . $c['promise']['date']->format('d/m') . ($c['promise']['amount'] ? ' (' . $m($c['promise']['amount']) . ')' : '')
+                    . ' · phụ trách: ' . ($c['assignee'] ?? 'chưa giao'))->values()->all()];
+        }
+        $noOwner = $collect->where('status', 'chua_phu_trach');
+        if ($noOwner->isNotEmpty()) {
+            $alerts[] = ['level' => 'warn', 'title' => $noOwner->count() . ' khách nợ quá hạn / tiền kẹt chưa ai phụ trách thu',
+                'detail' => 'Tổng ' . $m($noOwner->sum(fn ($c) => $c['overdue'] + $c['stuck'])) . '. Giao người phụ trách ở Phân tích tài chính → Thu nợ.',
+                'lines' => $noOwner->sortByDesc(fn ($c) => $c['overdue'] + $c['stuck'])->take(5)->map(fn ($c) => $c['unit'] . ' · ' . $m($c['overdue'] + $c['stuck']))->values()->all()];
+        }
+
+        // 3d. Đơn giá thấp / chiết khấu cao chưa duyệt
+        $prices = app(\App\Services\Accounting\PriceGuard::class)->list()->where('approved', false);
+        if ($prices->isNotEmpty()) {
+            $alerts[] = ['level' => 'warn', 'title' => $prices->count() . ' đơn giá thấp / chiết khấu cao chờ kế toán duyệt',
+                'detail' => 'Lỗ hoặc biên lãi ước tính dưới mức, hoặc chiết khấu cao. Duyệt ở Phân tích tài chính → Duyệt giá.',
+                'lines' => $prices->take(6)->map(fn ($p) => '#' . $p['order_id'] . ' ' . $p['unit'] . ' · ' . Carbon::parse($p['date'])->format('d/m') . ' · ' . implode(', ', $p['flags']))->values()->all()];
         }
 
         // 4. Khách quen ngưng đặt lịch: ≥ 3 đơn trong 180 ngày, đơn gần nhất cách quá N ngày, chưa có lịch sắp tới

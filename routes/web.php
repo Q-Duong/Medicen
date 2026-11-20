@@ -358,6 +358,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('phan-tich-tai-chinh', [\App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index')->middleware('access:debt_accountant');
     Route::post('phan-tich-tai-chinh/han-muc', [\App\Http\Controllers\FinanceController::class, 'saveCredit'])->name('finance.credit.save')->middleware('access:debt_accountant');
     Route::post('phan-tich-tai-chinh/ke-hoach', [\App\Http\Controllers\FinanceController::class, 'saveBudget'])->name('finance.budget.save')->middleware('access:debt_accountant');
+    Route::post('phan-tich-tai-chinh/thu-no/giao', [\App\Http\Controllers\FinanceController::class, 'assignCollector'])->name('finance.collect.assign')->middleware('access:debt_accountant');
+    Route::post('phan-tich-tai-chinh/thu-no/nhac', [\App\Http\Controllers\FinanceController::class, 'saveContact'])->name('finance.collect.contact')->middleware('access:debt_accountant');
+    Route::post('phan-tich-tai-chinh/duyet-gia', [\App\Http\Controllers\FinanceController::class, 'approvePrice'])->name('finance.price.approve')->middleware('access:debt_accountant');
     Route::prefix('so-vcb-chu-loc')->name('vcb.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\VcbLedgerController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');

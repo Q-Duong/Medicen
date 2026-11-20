@@ -28,11 +28,207 @@
         <nav class="bk-tabs">
             @foreach ($tabs as $k => $label)
                 <a href="{{ route('finance.index', ['tab' => $k]) }}" class="{{ $tab === $k ? 'is-active' : '' }}">
-                    <i class="fas {{ ['tien-ket' => 'fa-hourglass-half', 'han-muc' => 'fa-shield-alt', 'lai-uoc-tinh' => 'fa-coins', 'dong-tien' => 'fa-water', 'ke-hoach' => 'fa-bullseye'][$k] }}"></i>{{ $label }}
+                    <i class="fas {{ ['tien-ket' => 'fa-hourglass-half', 'thu-no' => 'fa-phone-volume', 'han-muc' => 'fa-shield-alt', 'duyet-gia' => 'fa-tags', 'lai-uoc-tinh' => 'fa-coins', 'dong-tien' => 'fa-water', 'ke-hoach' => 'fa-bullseye'][$k] }}"></i>{{ $label }}
                 </a>
             @endforeach
         </nav>
         @include('pages.admin.ct._toast')
+
+        {{-- ============================== THU NỢ ============================== --}}
+        @if ($tab === 'thu-no')
+            @php
+                $cs = $collectAll->countBy('status');
+                $chips = ['' => ['Tất cả', $collectAll->count()], 'cua-toi' => ['Của tôi', $collectAll->where('assignee_id', auth()->id())->count()],
+                    'qua-hen' => ['Quá hẹn', $cs['qua_hen'] ?? 0], 'chua-phu-trach' => ['Chưa ai phụ trách', $cs['chua_phu_trach'] ?? 0], 'can-nhac' => ['Lâu chưa nhắc', $cs['can_nhac'] ?? 0]];
+            @endphp
+            <div class="rp-kpis">
+                <section class="rp-card rp-kpi rp-card--debt">
+                    <h2 class="rp-card__title"><i class="fas fa-hand-holding-usd"></i> Cần thu (quá hạn + tiền kẹt)</h2>
+                    <p class="rp-kpi__big">{{ $m($collectAll->sum('overdue') + $collectAll->sum('stuck')) }}</p>
+                    <p class="rp-kpi__note">{{ $collectAll->count() }} đơn vị · quá hạn {{ $tr($collectAll->sum('overdue')) }} · chưa xuất HĐ {{ $tr($collectAll->sum('stuck')) }}</p>
+                </section>
+                <section class="rp-card rp-kpi rp-card--neg">
+                    <h2 class="rp-card__title"><i class="fas fa-calendar-times"></i> Quá ngày hẹn trả</h2>
+                    <p class="rp-kpi__big is-neg">{{ $cs['qua_hen'] ?? 0 }} đơn vị</p>
+                    <p class="rp-kpi__note">Khách đã hẹn nhưng chưa trả, cần nhắc lại</p>
+                </section>
+                <section class="rp-card rp-kpi fn-kpi--stuck">
+                    <h2 class="rp-card__title"><i class="fas fa-user-slash"></i> Chưa ai phụ trách</h2>
+                    <p class="rp-kpi__big">{{ $cs['chua_phu_trach'] ?? 0 }} đơn vị</p>
+                    <p class="rp-kpi__note">Giao người phụ trách ở cột "Phụ trách"</p>
+                </section>
+            </div>
+
+            <nav class="fn-chips">
+                @foreach ($chips as $k => [$label, $n])
+                    <a href="{{ route('finance.index', array_filter(['tab' => 'thu-no', 'loc' => $k])) }}" class="{{ $filter === $k ? 'is-active' : '' }}">{{ $label }} <b>{{ $n }}</b></a>
+                @endforeach
+            </nav>
+
+            <section class="rp-card">
+                <div class="rp-scroll">
+                    <table class="bk-table fn-collect">
+                        <thead>
+                            <tr>
+                                <th class="is-text">Đơn vị</th>
+                                <th>Cần thu</th>
+                                <th class="is-text">Phụ trách</th>
+                                <th class="is-text">Lần nhắc gần nhất</th>
+                                <th class="is-text">Hẹn trả</th>
+                                <th class="is-text">Trạng thái</th>
+                                @if ($canEdit)<th></th>@endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($collect as $c)
+                                <tr>
+                                    <td class="is-text"><b>{{ $c['unit'] }}</b><div class="fn-sub">{{ $c['max_overdue_days'] ? 'quá hạn lâu nhất ' . $c['max_overdue_days'] . ' ngày' : 'chưa xuất hóa đơn' }}</div></td>
+                                    <td><b>{{ $m($c['overdue'] + $c['stuck']) }}</b><div class="fn-sub">{{ $c['overdue'] ? 'QH ' . $tr($c['overdue']) : '' }}{{ $c['overdue'] && $c['stuck'] ? ' · ' : '' }}{{ $c['stuck'] ? 'kẹt ' . $tr($c['stuck']) : '' }}</div></td>
+                                    <td class="is-text">
+                                        @if ($canEdit)
+                                            <form method="post" action="{{ route('finance.collect.assign') }}">
+                                                @csrf
+                                                <input type="hidden" name="unit_id" value="{{ $c['unit_id'] }}"><input type="hidden" name="loc" value="{{ $filter }}">
+                                                <select name="assignee_id" class="fn-select" onchange="this.form.submit()">
+                                                    <option value="">— Chưa giao —</option>
+                                                    @foreach ($people->groupBy('group') as $g => $ps)
+                                                        <optgroup label="{{ $g }}">@foreach ($ps as $p)<option value="{{ $p->id }}" @selected($c['assignee_id'] == $p->id)>{{ $p->name }}</option>@endforeach</optgroup>
+                                                    @endforeach
+                                                </select>
+                                            </form>
+                                        @else
+                                            {{ $c['assignee'] ?? '—' }}
+                                        @endif
+                                    </td>
+                                    <td class="is-text is-wrap">
+                                        @if ($c['last'])
+                                            <b>{{ $c['last']['date']->format('d/m') }}</b> <span class="fn-sub">({{ $c['last']['days_ago'] }} ngày trước · {{ $c['last']['channel'] }}{{ $c['last']['by'] ? ' · ' . $c['last']['by'] : '' }})</span>
+                                            @if ($c['last']['note'])<div class="fn-sub">{{ \Illuminate\Support\Str::limit($c['last']['note'], 90) }}</div>@endif
+                                        @else
+                                            <span class="fn-sub">Chưa nhắc lần nào</span>
+                                        @endif
+                                    </td>
+                                    <td class="is-text">
+                                        @if ($c['promise'])
+                                            <b class="{{ $c['status'] === 'qua_hen' ? 'fn-bad' : '' }}">{{ $c['promise']['date']->format('d/m/Y') }}</b>
+                                            @if ($c['promise']['amount'])<div class="fn-sub">{{ $m($c['promise']['amount']) }}</div>@endif
+                                        @else
+                                            <span class="fn-sub">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="is-text"><span class="fn-status fn-status--c-{{ $c['status'] }}">{{ $c['status_label'] }}</span></td>
+                                    @if ($canEdit)
+                                        <td class="is-text">
+                                            <details class="fn-edit">
+                                                <summary class="bk-edit" title="Ghi lần nhắc nợ"><i class="fas fa-phone"></i> Nhắc</summary>
+                                                <form method="post" action="{{ route('finance.collect.contact') }}" class="fn-edit__form">
+                                                    @csrf
+                                                    <h3 class="fn-edit__title">Nhắc nợ · {{ $c['unit'] }} <small class="fn-sub">cần thu {{ $m($c['overdue'] + $c['stuck']) }}</small></h3>
+                                                    <input type="hidden" name="unit_id" value="{{ $c['unit_id'] }}"><input type="hidden" name="loc" value="{{ $filter }}">
+                                                    <label class="fn-f"><span>Ngày nhắc</span><input type="date" name="contacted_on" value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" required></label>
+                                                    <label class="fn-f"><span>Kênh</span><select name="channel">@foreach (\App\Services\Accounting\DebtCollection::CHANNELS as $ck => $cl)<option value="{{ $ck }}">{{ $cl }}</option>@endforeach</select></label>
+                                                    <label class="fn-f fn-f--full"><span>Nội dung / khách trả lời</span><input type="text" name="note" maxlength="2000" placeholder="Vd: kế toán BV hẹn trình ký tuần sau"></label>
+                                                    <label class="fn-f"><span>Khách hẹn trả ngày</span><input type="date" name="promised_date"></label>
+                                                    <label class="fn-f"><span>Số tiền hẹn</span><input type="text" name="promised_amount" class="is-money" inputmode="numeric" placeholder="để trống nếu trả hết"></label>
+                                                    @if ($c['contacts'])
+                                                        <div class="fn-hist">
+                                                            <b>Đã nhắc {{ $c['contact_count'] }} lần</b>
+                                                            @foreach ($c['contacts'] as $h)
+                                                                <div>{{ $h['date']->format('d/m/Y') }} · {{ $h['channel'] }}{{ $h['by'] ? ' · ' . $h['by'] : '' }}{{ $h['note'] ? ': ' . $h['note'] : '' }}{{ $h['promised_date'] ? ' → hẹn ' . $h['promised_date']->format('d/m') . ($h['promised_amount'] ? ' (' . $m($h['promised_amount']) . ')' : '') : '' }}</div>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                    <div class="bk-actions"><button type="button" class="rp-btn" data-details-cancel>Hủy</button><button class="rp-btn rp-btn--primary" type="submit">Lưu lần nhắc</button></div>
+                                                </form>
+                                            </details>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @empty
+                                <tr><td colspan="7" class="is-text">Không có đơn vị nào trong mục này.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <p class="bk-hint">Danh sách gồm các đơn vị có nợ quá hạn hoặc đơn đã chụp ≥ 7 ngày chưa xuất hóa đơn. "Lâu chưa nhắc" = quá {{ \App\Services\Accounting\DebtCollection::REMIND_DAYS }} ngày chưa nhắc. Người ghi lần nhắc đầu tiên tự thành người phụ trách nếu chưa giao.</p>
+            </section>
+        @endif
+
+        {{-- ============================== DUYỆT GIÁ ============================== --}}
+        @if ($tab === 'duyet-gia')
+            @php
+                $pending = $prices->where('approved', false);
+                $pc = config('finance.price');
+            @endphp
+            <div class="rp-kpis">
+                <section class="rp-card rp-kpi {{ $pending->count() ? 'rp-card--neg' : 'rp-card--thu' }}">
+                    <h2 class="rp-card__title"><i class="fas fa-tags"></i> Chờ duyệt</h2>
+                    <p class="rp-kpi__big {{ $pending->count() ? 'is-neg' : '' }}">{{ $pending->count() }} đơn</p>
+                    <p class="rp-kpi__note">Lỗ ước tính {{ $tr(-$pending->where('profit', '<', 0)->sum('profit')) }} · {{ $pending->where('profit', '<', 0)->count() }} đơn lỗ</p>
+                </section>
+                <section class="rp-card rp-kpi rp-card--thu">
+                    <h2 class="rp-card__title"><i class="fas fa-check-circle"></i> Đã duyệt</h2>
+                    <p class="rp-kpi__big">{{ $prices->where('approved', true)->count() }} đơn</p>
+                    <p class="rp-kpi__note">Đơn chụp từ 30 ngày trước đến 60 ngày tới</p>
+                </section>
+                <section class="rp-card rp-kpi">
+                    <h2 class="rp-card__title"><i class="fas fa-ruler"></i> Quy tắc</h2>
+                    <p class="rp-kpi__note" style="margin-top:2px">Cần duyệt khi: <b>lỗ ước tính</b>, <b>biên lãi &lt; {{ $pc['min_margin_pct'] }}%</b> hoặc <b>chiết khấu &gt; {{ $pc['max_discount_pct'] }}%</b>. Giá sàn / ca = chi phí chuyến ước tính / số ca + phí quản lý, VAT và biên {{ $pc['min_margin_pct'] }}%.</p>
+                </section>
+            </div>
+            <section class="rp-card">
+                <div class="rp-scroll">
+                    <table class="bk-table fn-collect">
+                        <thead>
+                            <tr>
+                                <th class="is-text">Đơn</th><th class="is-text">Đơn vị</th><th>Ngày chụp</th><th>Số ca · km</th>
+                                <th>Giá / ca</th><th>Giá sàn / ca</th><th>Lãi ƯT</th><th class="is-text">Lý do</th><th class="is-text">Duyệt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($prices as $p)
+                                <tr>
+                                    <td class="is-text"><a href="{{ route('order.edit', $p['order_id']) }}"><b>#{{ $p['order_id'] }}</b></a><div class="fn-sub">{{ $p['car'] ?? 'chưa xếp xe' }}</div></td>
+                                    <td class="is-text is-wrap"><b>{{ $p['unit'] }}</b><div class="fn-sub">{{ \Illuminate\Support\Str::limit($p['company'], 50) }}</div></td>
+                                    <td>{{ $d($p['date']) }}</td>
+                                    <td>{{ $m($p['qty']) }}<div class="fn-sub">{{ $p['km'] ? $p['km'] . ' km' : 'chưa có km' }}</div></td>
+                                    <td><b class="{{ $p['floor_per_case'] && $p['per_case'] < $p['floor_per_case'] ? 'fn-bad' : '' }}">{{ $p['per_case'] ? $m($p['per_case']) : '—' }}</b></td>
+                                    <td>{{ $p['floor_per_case'] ? $m($p['floor_per_case']) : '—' }}</td>
+                                    <td class="{{ $p['profit'] < 0 ? 'fn-bad' : '' }}">{{ $m($p['profit']) }}<div class="fn-sub">biên {{ $pct($p['margin']) }}</div></td>
+                                    <td class="is-text is-wrap">{{ implode(' · ', $p['flags']) }}</td>
+                                    <td class="is-text">
+                                        @if ($p['approved'])
+                                            <span class="fn-status fn-status--ok">Đã duyệt</span>
+                                            <div class="fn-sub">{{ $p['approved_by'] }} · {{ \Carbon\Carbon::parse($p['approved_at'])->format('d/m') }}{{ $p['approval_note'] ? ' · ' . $p['approval_note'] : '' }}</div>
+                                            @if ($canApprove)
+                                                <form method="post" action="{{ route('finance.price.approve') }}" data-confirm="Bỏ duyệt giá đơn #{{ $p['order_id'] }}?">@csrf<input type="hidden" name="order_id" value="{{ $p['order_id'] }}"><input type="hidden" name="undo" value="1"><button class="fn-link" type="submit">Bỏ duyệt</button></form>
+                                            @endif
+                                        @elseif ($canApprove)
+                                            <details class="fn-edit">
+                                                <summary class="bk-edit"><i class="fas fa-check"></i> Duyệt</summary>
+                                                <form method="post" action="{{ route('finance.price.approve') }}" class="fn-edit__form">
+                                                    @csrf
+                                                    <h3 class="fn-edit__title">Duyệt giá đơn #{{ $p['order_id'] }} · {{ $p['unit'] }}</h3>
+                                                    <p class="bk-hint" style="flex-basis:100%;margin:0">{{ implode(' · ', $p['flags']) }}. Giá {{ $p['per_case'] ? $m($p['per_case']) . ' đ/ca' : '—' }}, giá sàn {{ $p['floor_per_case'] ? $m($p['floor_per_case']) . ' đ/ca' : '—' }}.</p>
+                                                    <input type="hidden" name="order_id" value="{{ $p['order_id'] }}">
+                                                    <label class="fn-f fn-f--full"><span>Lý do chấp nhận (tùy chọn)</span><input type="text" name="note" maxlength="255" placeholder="Vd: khách lớn, ghép chuyến với đơn khác"></label>
+                                                    <div class="bk-actions"><button type="button" class="rp-btn" data-details-cancel>Hủy</button><button class="rp-btn rp-btn--primary" type="submit">Duyệt</button></div>
+                                                </form>
+                                            </details>
+                                        @else
+                                            <span class="fn-status fn-status--c-chua_phu_trach">Chờ kế toán duyệt</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="9" class="is-text">Không có đơn nào cần duyệt giá.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <p class="bk-hint">Chi phí là ước tính theo đơn giá mặc định (Bảng tính hiệu quả kinh doanh), chưa gồm khấu hao xe, lãi vay; đơn chưa có số ca không kiểm tra được. Khi có hợp đồng từng đơn vị sẽ so thêm với giá đã ký.</p>
+            </section>
+        @endif
 
         {{-- ============================== HẠN MỨC TÍN DỤNG ============================== --}}
         @if ($tab === 'han-muc')
