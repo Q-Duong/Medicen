@@ -719,6 +719,25 @@
     text-align: left;
 }
 
+.chips button.chip--mode {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.chip--mode i {
+    align-self: center;
+    color: var(--accent);
+    font-size: 12px;
+}
+
+.chip--mode small {
+    color: var(--muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 .chips button:hover {
     background: var(--hover);
     color: var(--ink);

@@ -455,13 +455,37 @@
         setFormOpen(true);
         chips.innerHTML = '';
         chips.classList.remove('is-hidden');
-        (m.suggestions || []).forEach(text => {
+        const addChip = (text, key) => {
             const b = document.createElement('button');
             b.type = 'button';
-            b.textContent = text;
-            b.addEventListener('click', () => { if (!send.disabled) ask(text); });
+            if (key) {
+                // Gợi ý của chức năng khác: ghi tên chức năng, bấm là chuyển sang chức năng đó rồi hỏi luôn
+                b.className = 'chip--mode';
+                b.innerHTML = '<i class="' + esc(modes[key].icon) + '"></i><small>' + esc(modes[key].label) + '</small>' + esc(text);
+            } else {
+                b.textContent = text;
+            }
+            b.addEventListener('click', () => {
+                if (send.disabled) return;
+                if (key) {
+                    setMode(key);
+                    if (activeForm()) setFormOpen(false);
+                }
+                ask(text);
+            });
             chips.appendChild(b);
-        });
+        };
+        if (current === 'auto') {
+            const shown = (m.suggestions || []).slice(0, 2);
+            shown.forEach(text => addChip(text));
+            // Mỗi chức năng một câu, bỏ câu đã hiện ở trên
+            Object.keys(modes).filter(k => k !== 'auto').forEach(k => {
+                const text = (modes[k].suggestions || []).find(t => !shown.includes(t));
+                if (text) { shown.push(text); addChip(text, k); }
+            });
+        } else {
+            (m.suggestions || []).forEach(text => addChip(text));
+        }
         try { localStorage.setItem(storageKey, current); } catch (e) {}
     }
 
@@ -598,7 +622,11 @@
     // ---------- Hội thoại ----------
     function scrollDown() { log.scrollTop = log.scrollHeight; }
 
-    function addUser(text, modeLabel) {
+    // Chức năng của câu hỏi gần nhất: câu trả lời theo sau dùng để biết có hiện nút PDF không
+    let lastMode = 'auto';
+
+    function addUser(text, modeLabel, modeKey) {
+        lastMode = modeKey || 'auto';
         emptyState.hidden = true;
         // Gợi ý chỉ hiện khi bắt đầu hoặc vừa đổi chức năng, để dành chỗ cho hội thoại
         chips.classList.add('is-hidden');
@@ -615,14 +643,15 @@
         scrollDown();
     }
 
-    function addBot(markdown, tools) {
+    function addBot(markdown, tools, modeKey) {
+        const pdfOk = !!(modes[modeKey || lastMode] || {}).pdf;
         const el = document.createElement('div');
         el.className = 'msg msg--bot';
         el._raw = markdown;
         el.innerHTML = '<div class="md">' + renderMarkdown(markdown) + '</div>'
             + '<div class="msg__actions"><button type="button" class="icon-btn" data-copy-all title="Sao chép câu trả lời" aria-label="Sao chép câu trả lời">'
             + ICON_COPY + ICON_CHECK + '</button>'
-            + '<button type="button" class="icon-btn" data-pdf title="Xuất PDF câu trả lời này" aria-label="Xuất PDF"><i class="far fa-file-pdf" style="font-size:14px"></i></button>'
+            + (pdfOk ? '<button type="button" class="icon-btn" data-pdf title="Xuất PDF câu trả lời này" aria-label="Xuất PDF"><i class="far fa-file-pdf" style="font-size:14px"></i></button>' : '')
             + (tools && tools.length ? '<span>Đã ' + esc(tools.map(n => toolNames[n] || n).join(', ')) + '</span>' : '')
             + '</div>';
         thread.appendChild(el);
@@ -716,7 +745,7 @@
 
     async function ask(text) {
         const mode = current;
-        addUser(text, mode !== 'auto' ? modes[mode].label : null);
+        addUser(text, mode !== 'auto' ? modes[mode].label : null, mode);
         const typing = addTyping();
         const seq = viewSeq;
         // Người dùng đã chuyển sang cuộc trò chuyện khác trong lúc chờ: chỉ cập nhật danh sách
@@ -732,7 +761,7 @@
             typing.remove();
             if (!stillHere()) { loadList(); return true; }
             if (data.reply == null) { openConversation(data.conversation.id); return true; }
-            addBot(data.reply, data.tools);
+            addBot(data.reply, data.tools, mode);
             setConversation(data.conversation);
             return true;
         } catch (e) {
@@ -933,7 +962,7 @@
             chips.classList.add('is-hidden');
             convHeading.textContent = data.conversation.title + (data.conversation.readonly ? ' · ' + data.conversation.user_name : '');
             data.messages.forEach(m => {
-                if (m.role === 'user') addUser(m.content, m.mode_label);
+                if (m.role === 'user') addUser(m.content, m.mode_label, m.mode);
                 else if (m.role === 'assistant') addBot(m.content, m.tools);
                 else addNote(m.content, 'msg--error');
             });

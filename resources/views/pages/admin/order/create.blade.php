@@ -25,6 +25,21 @@
                             @if (old('excel_upload_id'))
                                 <input type="hidden" name="excel_upload_id" value="{{ old('excel_upload_id') }}">
                             @endif
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Đơn vị thuê xe</label>
+                                <select name="unit_id" class="select-2 unit-id">
+                                    @foreach ($getAllUnit as $key => $unit)
+                                        <option value="{{ $unit->id }}"
+                                            {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->unit_abbreviation }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="suggest hidden">
+                                <img src="{{ asset('assets/images/suggest.jpg') }}" class="suggest-img">
+                            </div>
+
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 centered">
                                     <div class="form-group @error('customer_name') has-error @enderror">
@@ -49,21 +64,6 @@
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="exampleInputPassword1">Đơn vị thuê xe</label>
-                                <select name="unit_id" class="select-2 unit-id">
-                                    @foreach ($getAllUnit as $key => $unit)
-                                        <option value="{{ $unit->id }}"
-                                            {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->unit_abbreviation }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="suggest hidden">
-                                <img src="{{ asset('assets/images/suggest.jpg') }}" class="suggest-img">
                             </div>
 
                             <div class="form-group @error('ord_cty_name') has-error @enderror">
@@ -727,6 +727,7 @@
     </div>
 @endsection
 @push('js')
+    @include('pages.admin.partials.dialog')
     <script src="{{ versionResource('assets/js/support/file/filepond.js') }}" defer></script>
     <script src="{{ versionResource('assets/js/support/file/filepond-preview.js') }}" defer></script>
     <script src="{{ versionResource('assets/js/tool/order/order.js') }}" defer></script>

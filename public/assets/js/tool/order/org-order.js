@@ -518,6 +518,7 @@ function filterByCardStatus(status) {
     const val = (name) => (field(name) && field(name).value) || '';
     let timer = null;
     let seq = 0;
+    let groupUpdates = [];
     const digits = (v) => String(v || '').replace(/\D/g, '');
     // Đơn đã khóa tiền (đã cập nhật doanh thu / đã chốt): không cho áp dụng
     const moneyLocked = () => !!form.querySelector('[data-money-locked]') || (field('order_price') && field('order_price').readOnly);
@@ -546,7 +547,9 @@ function filterByCardStatus(status) {
     // Điền giá: đúng đ/ca → Đơn giá (Tổng tiền tự tính); trọn gói / phần chia của ngày → chuyển "trọn gói" và điền Tổng tiền
     function apply(perCase, total) {
         const qty = Number(digits(val('order_quantity'))) || 0;
-        if (perCase && (!total || perCase * qty === total) && !allInOne()) {
+        if (perCase && (!total || perCase * qty === total)) {
+            // Giá theo ca: về lại "đơn giá" (kể cả khi trước đó đã chuyển trọn gói), Tổng tiền = SL × ĐG
+            if (allInOne()) setAllInOne('0');
             setMoney('order_cost', perCase);
             if (qty) setMoney('order_price', perCase * qty);
         } else {
@@ -605,6 +608,14 @@ function filterByCardStatus(status) {
                     + esc(h.cong_ty || '—') + ' · ' + h.so_ca + ' ca · <b>' + fmt(h.gia_mot_ca) + ' đ/ca</b>' + applyBtn(h.gia_mot_ca, 0, 'Áp dụng') + '</li>').join('') + '</ul>';
             }
         }
+        // Đơn khác trong nhóm đi chung lệch giá khi tính theo tổng số ca của nhóm: hỏi khi bấm lưu
+        groupUpdates = (j.group_updates || []);
+        if (groupUpdates.length) {
+            html += '<div class="oc-hint__line oc-hint__group"><b>Đơn chung nhóm cũng đổi giá theo hợp đồng:</b><ul>' + groupUpdates.map((u) => '<li>#' + u.id
+                + (u.company ? ' · ' + esc(u.company) : '') + ' · ' + u.qty + ' ca: ' + fmt(u.price) + ' → <b>' + fmt(u.new_price) + ' đ</b>'
+                + (u.new_cost ? ' (' + fmt(u.new_cost) + ' đ/ca)' : ' (trọn gói)') + (u.locked ? ' <span class="oc-hint__sub">— đã khóa tiền, kế toán sửa</span>' : '') + '</li>').join('')
+                + '</ul><span class="oc-hint__sub">Khi bấm lưu sẽ hỏi có sửa giá các đơn này luôn không.</span></div>';
+        }
         box.className = 'oc-hint ' + cls;
         box.innerHTML = html;
         box.hidden = false;
@@ -621,6 +632,10 @@ function filterByCardStatus(status) {
             }
             const q = new URLSearchParams({ unit_id: unit, date: date, qty: val('order_quantity'), price: val('order_price'),
                 company: val('ord_cty_name'), order_id: box.dataset.orderId || '0' });
+            // Nhóm đi chung đang tích trên form: bậc giá theo tổng số ca của nhóm
+            if (form.querySelector('#order-group')) {
+                q.set('group', [...form.querySelectorAll('input[name="group_with[]"]:checked')].map((c) => c.value).join(','));
+            }
             const my = ++seq;
             fetch(box.dataset.url + '?' + q.toString(), { headers: { Accept: 'application/json' } })
                 .then((res) => (res.ok ? res.json() : null))
@@ -636,6 +651,44 @@ function filterByCardStatus(status) {
             el.addEventListener('change', refresh);
         }
     });
+    // Bấm lưu: các đơn chung nhóm lệch giá → hỏi có sửa giá luôn không (đồng ý thì gửi reprice_group, máy chủ tính lại và sửa)
+    let asked = false;
+    form.addEventListener('submit', async (e) => {
+        const todo = groupUpdates.filter((u) => !u.locked);
+        if (asked || !todo.length || box.hidden) return;
+        const submitter = e.submitter;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const msg = 'Theo tổng số ca của nhóm đi chung, giá hợp đồng của các đơn chung nhóm thay đổi:\n'
+            + todo.map((u) => '• #' + u.id + (u.company ? ' ' + u.company : '') + ' (' + u.qty + ' ca): ' + fmt(u.price) + ' → ' + fmt(u.new_price) + ' đ'
+                + (u.new_cost ? ' (' + fmt(u.new_cost) + ' đ/ca)' : ' (trọn gói)')).join('\n')
+            + '\n\nSửa giá các đơn này luôn?';
+        const ok = window.uiConfirm
+            ? await window.uiConfirm(msg, { title: 'Sửa giá đơn chung nhóm', ok: 'Sửa giá các đơn này', cancel: 'Không, chỉ lưu đơn này' })
+            : window.confirm(msg);
+        let input = form.querySelector('input[name="reprice_group"]');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'reprice_group';
+            form.appendChild(input);
+        }
+        input.value = ok ? todo.map((u) => u.id).join(',') : '';
+        asked = true;
+        if (submitter && form.requestSubmit) {
+            form.requestSubmit(submitter);
+        } else {
+            if (submitter && submitter.name) {
+                const h = document.createElement('input');
+                h.type = 'hidden'; h.name = submitter.name; h.value = submitter.value;
+                form.appendChild(h);
+            }
+            form.submit();
+        }
+    }, true);
+
+    // Tích / bỏ tích đơn đi chung → tính lại bậc giá theo nhóm
+    form.addEventListener('change', (e) => { if (e.target.matches('input[name="group_with[]"]')) refresh(); });
     // Đơn vị dùng select2, Tổng tiền do jQuery tính (SL × ĐG): nghe thêm sự kiện jQuery
     if (window.jQuery) window.jQuery(form).on('change keyup', '.unit-id, .order_quantity, .order_cost, .order_price', refresh);
     refresh();

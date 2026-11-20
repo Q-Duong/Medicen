@@ -14,6 +14,7 @@
     .oc-hint__line b.info { color: #0b5cad; }
     .oc-hint__sub { color: #73716c; font-size: 12.5px; }
     .oc-hint ul { margin: 4px 0 0; padding-left: 18px; }
+    .oc-hint__group { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2ded3; }
     .oc-hint li + li { margin-top: 3px; }
     .oc-apply { margin-left: 6px; padding: 3px 10px; border: 1px solid #e7c3b4; border-radius: 8px; background: #fff; color: #8a3a1f; font-size: 12.5px; font-weight: 600; cursor: pointer; }
     .oc-hint__line > .oc-apply { margin-left: 0; }

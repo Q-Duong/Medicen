@@ -46,6 +46,8 @@ return [
              * Chức năng chọn trong khung chat. Không giới hạn tool: chỉ gợi ý cho người
              * dùng và báo trợ lý biết đang làm việc gì ('instruction' gửi kèm câu hỏi).
              * 'form': hiện form nhập (xem resources/views/pages/admin/assistant/forms).
+             * 'pdf' => true: hiện nút xuất PDF dưới câu trả lời (hiện chỉ Phân tích CFO của Kế toán).
+             * Ở "Tự động", ngoài gợi ý riêng còn hiện câu gợi ý đầu tiên của từng chức năng khác (bấm là chuyển sang chức năng đó và hỏi luôn).
              */
             'modes' => [
                 'auto' => [
@@ -163,6 +165,8 @@ return [
                 'cfo' => [
                     'label' => 'Phân tích CFO',
                     'icon' => 'fas fa-user-tie',
+                    // Chỉ chức năng có 'pdf' => true mới hiện nút xuất PDF dưới câu trả lời (báo cáo đủ bảng, biểu đồ)
+                    'pdf' => true,
                     'placeholder' => 'Kỳ cần phân tích hoặc vấn đề, vd: tháng 10/2026, 6 tháng gần nhất, vì sao lợi nhuận giảm…',
                     'instruction' => 'Vai CFO (mục 7 skill nkl-ke-toan). Lấy đủ 3 lớp: phan_tich_van_hanh (vận hành XQ, lãi ước tính, so kỳ trước), ket_qua_kinh_doanh (lãi lỗ, chi phí), '
                         . 'tiền và nợ (du_bao_dong_tien, tuoi_no_tien_ket, so_quy_ngan_hang). Trình bày: tóm tắt điều hành, bảng chỉ số kỳ này / kỳ trước, '

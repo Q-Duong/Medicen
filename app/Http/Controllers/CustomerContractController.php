@@ -232,6 +232,10 @@ class CustomerContractController extends Controller
         $num = fn ($v) => (int) preg_replace('/\D/', '', (string) $v);
         $o = (object) ['id' => (int) $request->query('order_id'), 'unit_id' => $unit, 'order_quantity' => $num($request->query('qty')),
             'order_price' => $num($request->query('price')), 'ord_start_day' => $date, 'ord_end_day' => $date, 'ord_cty_name' => (string) $request->query('company')];
+        // Các đơn đang tích "Đi chung với đơn khác" trên form (bậc giá theo tổng số ca của nhóm)
+        if ($request->has('group')) {
+            $o->group_ids = array_filter(array_map('intval', explode(',', (string) $request->query('group'))));
+        }
         $r = $pricing->checkOrder($o);
         if (!$r) {
             return response()->json(['contract' => null]);
@@ -240,7 +244,10 @@ class CustomerContractController extends Controller
         $history = $r['expected'] === null
             ? collect($pricing->suggest($unit, max(1, $o->order_quantity))['history'])->reject(fn ($h) => $h['ma_don'] === $o->id)->take(3)->values()->all() : [];
 
-        return response()->json(['contract' => [
+        // Các đơn khác trong nhóm đi chung lệch giá khi tính theo nhóm hiện tại (form hỏi có sửa luôn không)
+        $groupUpdates = isset($o->group_ids) && $o->group_ids ? $pricing->groupRepricing($o, $o->group_ids) : [];
+
+        return response()->json(['group_updates' => $groupUpdates, 'contract' => [
             'no' => $c->contract_no ?: '#' . $c->id,
             'type' => CustomerContract::TYPES[$c->type] ?? $c->type,
             'price' => $c->priceSummary(),

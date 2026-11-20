@@ -105,25 +105,32 @@ class ContractPricing
 
         return ($t['unit'] ?? 'ca') === 'ngay'
             ? ['amount' => (int) $t['price'] * $days, 'basis' => 'Bậc ' . $range . ': trọn gói ' . number_format($t['price'], 0, ',', '.') . ' đ/ngày × ' . $days . ' ngày']
-            : ['amount' => (int) $t['price'] * $qty, 'basis' => 'Bậc ' . $range . ': ' . number_format($t['price'], 0, ',', '.') . ' đ/ca × ' . $qty . ' ca'];
+            : ['amount' => (int) $t['price'] * $qty, 'basis' => 'Bậc ' . $range . ': ' . number_format($t['price'], 0, ',', '.') . ' đ/ca × ' . $qty . ' ca', 'per_case' => (int) $t['price']];
     }
 
-    /** Đơn cùng đơn vị, cùng ngày chụp (nhớ trong lần chạy) */
-    private array $dayCache = [];
+    /** Đơn trong cùng nhóm đi chung (orders.order_group_id), nhớ trong lần chạy */
+    private array $groupCache = [];
 
-    private function sameDay(object $o): Collection
+    private function groupMembers(object $o): Collection
     {
-        $key = (int) $o->unit_id . '|' . $o->ord_start_day;
+        // Form đơn gửi danh sách đơn đang tích "đi chung" (có thể khác nhóm đang lưu)
+        if (isset($o->group_ids)) {
+            $ids = array_values(array_filter(array_map('intval', (array) $o->group_ids)));
 
-        return $this->dayCache[$key] ??= $this->orders(fn ($q) => $q->where('orders.unit_id', (int) $o->unit_id)->where('order_details.ord_start_day', $o->ord_start_day));
+            return $ids ? $this->orders(fn ($q) => $q->whereIn('orders.id', $ids)) : collect();
+        }
+        $gid = (int) ($o->order_group_id ?? 0);
+
+        return $gid ? ($this->groupCache[$gid] ??= $this->orders(fn ($q) => $q->where('orders.order_group_id', $gid))) : collect();
     }
 
     /**
      * Đối chiếu một đơn với hợp đồng; null nếu đơn vị chưa có hợp đồng.
-     * Một ngày chụp tách nhiều đơn (cùng đơn vị, cùng ngày, cùng hợp đồng): bậc giá theo TỔNG số ca trong ngày, giá trọn gói của đợt / ngày
-     * chia cho các đơn theo tỷ lệ số ca; mỗi đơn so với phần của mình.
+     * Đơn thuộc NHÓM ĐI CHUNG (cùng đơn vị, cùng ngày, cùng chuyến — Sales tích ở form đơn): bậc giá theo TỔNG số ca của cả nhóm;
+     * giá trọn gói của ngày / đợt chia cho các đơn theo tỷ lệ số ca; mỗi đơn so với phần của mình.
+     * Đơn không thuộc nhóm nào thì tính riêng theo số ca của chính đơn đó.
      */
-    public function checkOrder(object $o): ?array
+    public function checkOrder(object $o, ?Collection $members = null): ?array
     {
         $c = $this->contractFor((int) $o->id, $o->unit_id ? (int) $o->unit_id : null, $o->ord_start_day ?? null, $o->ord_cty_name ?? null);
         if (!$c) {
@@ -134,12 +141,9 @@ class ContractPricing
         $days = $start && $end ? max(1, $start->diffInDays($end) + 1) : 1;
         $qty = (int) $o->order_quantity;
 
-        $group = collect([$o]);
-        if ($o->unit_id && $o->ord_start_day) {
-            // Các đơn khác cùng ngày + chính đơn này (dùng số đang nhập trên form nếu đang sửa)
-            $group = $this->sameDay($o)->filter(fn ($x) => (int) $x->id !== (int) $o->id && (string) $x->ord_end_day === (string) ($o->ord_end_day ?? '')
-                && optional($this->contractFor((int) $x->id, (int) $x->unit_id, $x->ord_start_day, $x->ord_cty_name))->id === $c->id)->values()->push($o);
-        }
+        // Các đơn khác trong nhóm (cùng hợp đồng) + chính đơn này (dùng số đang nhập trên form nếu đang sửa)
+        $group = ($members ?? $this->groupMembers($o))->filter(fn ($x) => (int) $x->id !== (int) ($o->id ?? 0)
+            && optional($this->contractFor((int) $x->id, (int) $x->unit_id, $x->ord_start_day, $x->ord_cty_name))->id === $c->id)->values()->push($o);
         $totalQty = max($qty, (int) $group->sum('order_quantity'));
         $n = $group->count();
 
@@ -149,7 +153,7 @@ class ContractPricing
         if ($exp) {
             $share = $n > 1 && $totalQty > 0 ? (int) round($exp['amount'] * $qty / $totalQty) : $exp['amount'];
             if ($n > 1) {
-                $basis = 'Cả ngày ' . $n . ' đơn, ' . $totalQty . ' ca → ' . $exp['basis'] . ' = ' . number_format($exp['amount'], 0, ',', '.') . ' đ; phần đơn này ' . $qty . '/' . $totalQty . ' ca';
+                $basis = 'Nhóm đi chung ' . $n . ' đơn, ' . $totalQty . ' ca → ' . $exp['basis'] . ' = ' . number_format($exp['amount'], 0, ',', '.') . ' đ; phần đơn này ' . $qty . '/' . $totalQty . ' ca';
             }
         }
         $actual = (int) $o->order_price;
@@ -167,8 +171,79 @@ class ContractPricing
             'actual' => $actual,
             'diff' => $share !== null ? $actual - $share : null,
             'status' => $status,
+            // Giá theo ca của bậc (null nếu bậc trọn gói / giá trọn gói): điền được "Đơn giá" thay vì trọn gói
+            'per_case' => $exp['per_case'] ?? null,
             'group' => $n > 1 ? ['so_don' => $n, 'tong_ca' => $totalQty, 'ma_don' => $group->pluck('id')->map(fn ($i) => (int) $i)->sort()->values()->all()] : null,
         ];
+    }
+
+    /**
+     * Các đơn KHÁC trong nhóm đi chung lệch giá hợp đồng khi tính theo nhóm hiện tại ($o là đơn đang nhập trên form,
+     * $groupIds là các đơn đang tích "đi chung"). Dùng để hỏi Sales có sửa giá các đơn đó luôn không.
+     * Đơn đã khóa tiền (kế toán đã cập nhật doanh thu / đã chốt) chỉ báo, không sửa.
+     */
+    public function groupRepricing(object $o, array $groupIds): array
+    {
+        $ids = array_values(array_diff(array_filter(array_map('intval', $groupIds)), [(int) ($o->id ?? 0)]));
+        if (!$ids) {
+            return [];
+        }
+        $others = $this->orders(fn ($q) => $q->whereIn('orders.id', $ids));
+        $group = $others->values()->push($o);
+        $statuses = \Illuminate\Support\Facades\DB::table('orders')->whereIn('id', $ids)->pluck('status_id', 'id');
+        $out = [];
+        foreach ($others as $x) {
+            $r = $this->checkOrder($x, $group);
+            if (!$r || $r['expected'] === null || $r['status'] === 'khop' || $r['status'] === 'khong_tinh') {
+                continue;
+            }
+            $qty = (int) $x->order_quantity;
+            $perCase = $r['per_case'] && $qty && $r['per_case'] * $qty === $r['expected'] ? $r['per_case'] : null;
+            $out[] = [
+                'id' => (int) $x->id, 'company' => $x->ord_cty_name, 'qty' => $qty, 'price' => (int) $x->order_price,
+                'new_price' => $r['expected'], 'new_cost' => $perCase, 'all_in_one' => $perCase ? 0 : 1, 'basis' => $r['basis'],
+                'locked' => in_array((int) ($statuses[$x->id] ?? 0), \App\Services\Accountant\OrderMoney::LOCKED_STATUSES, true),
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Sales đồng ý trên form: sửa giá các đơn chung nhóm theo hợp đồng (sau khi đã lưu đơn đang sửa và nhóm).
+     * Tính lại ở máy chủ, chỉ sửa đơn trong $confirmedIds còn thuộc cùng nhóm và chưa khóa tiền; cập nhật Công nợ như khi sửa đơn.
+     *
+     * @return list<string> mô tả các đơn đã sửa
+     */
+    public function applyGroupRepricing(\App\Models\Order $order, array $confirmedIds, string $by): array
+    {
+        $order->refresh();
+        if (!$order->order_group_id) {
+            return [];
+        }
+        $memberIds = \App\Models\Order::where('order_group_id', $order->order_group_id)->pluck('id')->map(fn ($i) => (int) $i)->all();
+        $current = $this->orders(fn ($q) => $q->where('orders.id', $order->id))->first();
+        if (!$current) {
+            return [];
+        }
+        $todo = collect($this->groupRepricing($current, $memberIds))->whereIn('id', array_map('intval', $confirmedIds))->where('locked', false);
+        $done = [];
+        foreach ($todo as $u) {
+            $x = \App\Models\Order::find($u['id']);
+            $before = \App\Services\Accountant\OrderMoney::snapshot($x);
+            $x->order_all_in_one = $u['all_in_one'];
+            $x->order_cost = $u['new_cost'] ?? 0;
+            $x->order_price = $u['new_price'];
+            $x->save();
+            \App\Services\Accountant\OrderMoney::sync($x, \App\Models\Accountant::where('order_id', $x->id)->first(), \App\Services\Accountant\OrderMoney::changedFields($before, $x));
+            $line = '#' . $x->id . ': ' . number_format($u['price'], 0, ',', '.') . ' → ' . number_format($u['new_price'], 0, ',', '.') . ' đ'
+                . ($u['new_cost'] ? ' (' . number_format($u['new_cost'], 0, ',', '.') . ' đ/ca)' : ' (trọn gói)');
+            \App\Models\HistoryEdit::create(['order_id' => $x->id, 'user_name' => $by,
+                'history_action' => 'Sửa giá theo hợp đồng (nhóm đi chung với đơn #' . $order->id . '): ' . $line]);
+            $done[] = $line;
+        }
+
+        return $done;
     }
 
     /** Các dòng đơn cần cho đối chiếu (đơn không hủy, không phải dòng phụ thu / 0 ca) */
@@ -179,7 +254,7 @@ class ContractPricing
             ->where('orders.status_id', '!=', 0)->where('orders.order_surcharge', 0)->where('orders.order_quantity', '>', 0);
         $scope($q);
 
-        return $q->get(['orders.id', 'orders.unit_id', 'orders.order_quantity', 'orders.order_price', 'order_details.ord_start_day', 'order_details.ord_end_day',
+        return $q->get(['orders.id', 'orders.unit_id', 'orders.order_group_id', 'orders.order_quantity', 'orders.order_price', 'order_details.ord_start_day', 'order_details.ord_end_day',
             'order_details.ord_cty_name', 'units.unit_abbreviation']);
     }
 

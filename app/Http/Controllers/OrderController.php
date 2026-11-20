@@ -366,8 +366,10 @@ class OrderController extends Controller
 			$history->save();
 			// Nhóm đi chung: Sale tích các đơn cùng đơn vị, cùng ngày ở form
 			$group = $request->filled('group_touched') ? app(\App\Services\OrderGroups::class)->sync($order, (array) $request->input('group_with', [])) : null;
+			// Sales đồng ý sửa giá các đơn chung nhóm theo hợp đồng (bậc giá theo tổng số ca của nhóm)
+			$repriced = $this->repriceGroup($request, $order);
 			DB::commit();
-			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công' . ($group ? " · nhóm đi chung {$group->code}" : ''));
+			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công' . ($group ? " · nhóm đi chung {$group->code}" : '') . $repriced);
 		} catch (\Exception $e) {
 			DB::rollback();
 			return Redirect()->back()->withInput()->with('error', 'Thêm đơn hàng thất bại');
@@ -561,9 +563,23 @@ class OrderController extends Controller
 				'đổi ngày chụp ' . date('d/m', strtotime($oldStart)) . " {$oldSession} → " . date('d/m', strtotime($orderDetail->ord_start_day)) . " {$newSession}");
 		}
 
+		$repriced = $this->repriceGroup($request, $order);
+
 		return Redirect::route('order.index')->with('success', 'Cập nhật thông tin đơn hàng thành công'
-			. ($group ? " · nhóm đi chung {$group->code}" : '')
+			. ($group ? " · nhóm đi chung {$group->code}" : '') . $repriced
 			. ($cancelled ? '. Đơn đổi ngày / buổi chụp nên lịch xe cũ (' . \App\Services\Schedule\ScheduleBoard::carLabel($cancelled['car']) . ', TX ' . ($cancelled['driver'] ?: '—') . ') đã được hủy; đơn chuyển về Chưa lên lịch, cần xếp lại.' : ''));
+	}
+
+	/** Form gửi reprice_group = các đơn chung nhóm Sales đồng ý sửa giá theo hợp đồng; trả về đoạn thông báo */
+	private function repriceGroup(Request $request, Order $order): string
+	{
+		$ids = array_filter(array_map('intval', explode(',', (string) $request->input('reprice_group', ''))));
+		if (!$ids) {
+			return '';
+		}
+		$done = app(\App\Services\Accounting\ContractPricing::class)->applyGroupRepricing($order, $ids, Auth::user()->email);
+
+		return $done ? '. Đã sửa giá theo hợp đồng cho ' . count($done) . ' đơn chung nhóm: ' . implode('; ', $done) : '';
 	}
 
 	/** Người liên hệ (họ tên + SĐT) từng dùng ở các đơn cũ của một đơn vị, mới nhất trước (ô chọn trên form lên đơn) */
@@ -723,8 +739,10 @@ class OrderController extends Controller
 			$history->save();
 			// Nhóm đi chung: Sale tích các đơn cùng đơn vị, cùng ngày ở form
 			$group = $request->filled('group_touched') ? app(\App\Services\OrderGroups::class)->sync($order, (array) $request->input('group_with', [])) : null;
+			// Sales đồng ý sửa giá các đơn chung nhóm theo hợp đồng (bậc giá theo tổng số ca của nhóm)
+			$repriced = $this->repriceGroup($request, $order);
 			DB::commit();
-			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công' . ($group ? " · nhóm đi chung {$group->code}" : ''));
+			return Redirect::route('order.index')->with('success', 'Thêm đơn hàng thành công' . ($group ? " · nhóm đi chung {$group->code}" : '') . $repriced);
 		} catch (\Exception $e) {
 			DB::rollback();
 			return Redirect()->back()->withInput()->with('error', 'Thêm đơn hàng thất bại');
