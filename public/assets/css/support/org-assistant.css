@@ -958,6 +958,50 @@
     font-weight: 600;
 }
 
+.af__field--full {
+    grid-column: 1 / -1;
+}
+
+.af__check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.af__check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+}
+
+.af__field[hidden] {
+    display: none;
+}
+
+.af__field textarea {
+    min-height: 54px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 13.5px;
+    line-height: 1.45;
+    background: #fdfcfa;
+    color: var(--ink);
+    resize: vertical;
+}
+
+.af__field textarea:focus {
+    outline: none;
+    border-color: #cfc8b8;
+    background: #fff;
+}
+
 .af__field input,
 .af__field select {
     height: 36px;

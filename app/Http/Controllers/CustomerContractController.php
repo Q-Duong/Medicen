@@ -190,6 +190,15 @@ class CustomerContractController extends Controller
         return redirect()->route('contracts.index')->with('success', 'Đã xóa hợp đồng ' . $label . '.');
     }
 
+    /** Tải file Word hợp đồng do trợ lý AI soạn */
+    public function draftDownload(string $file)
+    {
+        $path = \App\Services\Contracts\ContractDrafter::DIR . '/' . basename($file);
+        abort_unless(Storage::disk('local')->exists($path), 404, 'File đã hết hạn (giữ ' . config('contract_templates.keep_days') . ' ngày) — nhờ trợ lý soạn lại.');
+
+        return Storage::disk('local')->download($path, 'Hop-dong-' . substr(basename($file), 16));
+    }
+
     public function download(CustomerContract $contract)
     {
         abort_unless($contract->file_path && Storage::disk('local')->exists($contract->file_path), 404, 'Không còn file gốc.');

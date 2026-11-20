@@ -197,6 +197,49 @@ class SalesTools implements DepartmentTools
                 ],
             ],
             [
+                'name' => 'soan_hop_dong',
+                'description' => 'Soạn hợp đồng (file Word theo mẫu công ty: nguyên tắc hoặc thời vụ) và trả về link tải. Dùng khi Sales nhờ "làm hợp đồng cho đơn vị X", '
+                    . '"làm lại hợp đồng của X nhưng đổi giá", "làm hợp đồng cho khách mới giống hợp đồng của Y". Mặc định lấy bảng giá / điều khoản từ hợp đồng đã lưu của '
+                    . 'dua_theo (hoặc của chính don_vi) rồi thay các trường được ghi. Phần chữ hợp đồng giữ đúng mẫu, chỉ điền thông tin. Trả về canh_bao (bậc giá dưới giá sàn, '
+                    . 'thiếu thông tin Bên A) — luôn nói lại cho Sales. Thông tin Bên A không có thì để dòng chấm cho Sales điền tay.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'loai' => ['type' => 'string', 'enum' => ['nguyen_tac', 'thoi_vu'], 'description' => 'Bỏ trống = theo hợp đồng làm mẫu, không có thì nguyên tắc'],
+                        'don_vi' => ['type' => 'string', 'description' => 'Đơn vị Bên A trên web (tên / tên viết tắt / mã). Khách mới chưa có trên web thì bỏ trống và ghi ben_a'],
+                        'dua_theo' => ['type' => 'string', 'description' => 'Đơn vị có hợp đồng dùng làm mẫu (giá, điều khoản). Bỏ trống = hợp đồng của chính don_vi'],
+                        'ben_a' => ['type' => 'object', 'description' => 'Thông tin Bên A (ghi đè dữ liệu trên web)', 'properties' => [
+                            'ten' => ['type' => 'string'], 'dia_chi' => ['type' => 'string'], 'ma_so_thue' => ['type' => 'string'], 'dien_thoai' => ['type' => 'string'],
+                            'fax' => ['type' => 'string'], 'tai_khoan' => ['type' => 'string'], 'ngan_hang' => ['type' => 'string'],
+                            'dai_dien' => ['type' => 'string', 'description' => 'Vd "Ông Nguyễn Văn A"'], 'chuc_vu' => ['type' => 'string'],
+                            'uy_quyen' => ['type' => 'string', 'description' => 'Dòng giấy ủy quyền nếu người ký không phải đại diện pháp luật'],
+                        ]],
+                        'cach_tinh' => ['type' => 'string', 'enum' => ['theo_ca', 'tron_goi_ngay', 'tron_goi_dot']],
+                        'gia_tron_goi' => ['type' => 'integer', 'description' => 'Đồng (đã gồm VAT): thời vụ = trọn gói đợt; nguyên tắc trọn gói ngày'],
+                        'bac_gia' => ['type' => 'array', 'description' => 'THAY TOÀN BỘ bảng giá theo số ca / ngày', 'items' => ['type' => 'object', 'properties' => ['tu_ca' => ['type' => 'integer', 'description' => '0 = từ 0'], 'den_ca' => ['type' => 'integer', 'description' => '0 = trở lên'], 'tinh_theo' => ['type' => 'string', 'enum' => ['ca', 'ngay'], 'description' => 'ca = đồng/ca; ngay = trọn gói đồng/ngày'], 'gia' => ['type' => 'integer']], 'required' => ['gia']]],
+                        'doi_gia_bac' => ['type' => 'array', 'description' => 'Chỉ đổi giá vài bậc của bảng giá mẫu: tu_ca (mức bắt đầu của bậc, bậc thấp nhất ghi 0) + gia mới', 'items' => ['type' => 'object',
+                            'properties' => ['tu_ca' => ['type' => 'integer'], 'gia' => ['type' => 'integer']], 'required' => ['tu_ca', 'gia']]],
+                        'cong_them' => ['type' => 'array', 'description' => 'Thay danh sách cộng thêm theo ca (in phim…)', 'items' => ['type' => 'object',
+                            'properties' => ['ten' => ['type' => 'string'], 'gia_moi_ca' => ['type' => 'integer']], 'required' => ['ten', 'gia_moi_ca']]],
+                        'phu_thu' => ['type' => 'array', 'description' => 'Thay khung phụ thu khoảng cách', 'items' => ['type' => 'object', 'properties' => [
+                            'tu_km' => ['type' => 'integer'], 'den_km' => ['type' => 'integer'], 'tu_tien' => ['type' => 'integer'], 'den_tien' => ['type' => 'integer'], 'gom_vat' => ['type' => 'boolean']]]],
+                        'ban_kinh_km' => ['type' => 'integer'],
+                        'tra_ket_qua' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Hình thức trả kết quả, mỗi ý một dòng'],
+                        'so_ngay_thanh_toan' => ['type' => 'integer'],
+                        'thoi_han_thang' => ['type' => 'integer', 'description' => '0 = hiệu lực đến khi một bên thanh lý'],
+                        'tu_gia_han' => ['type' => 'boolean'],
+                        'ngay_ky' => ['type' => 'string', 'description' => 'YYYY-MM-DD, mặc định hôm nay'],
+                        'so_hd' => ['type' => 'string', 'description' => 'Bỏ trống = tự đặt dd.mm.yyyy/MEDICEN-<mã>/HĐNT|HĐXQ'],
+                        'ma_viet_tat' => ['type' => 'string', 'description' => 'Mã trong số hợp đồng, vd YD115, SANTE'],
+                        'ngay_chup' => ['type' => 'string', 'description' => 'Thời vụ: YYYY-MM-DD'],
+                        'dia_diem' => ['type' => 'string', 'description' => 'Thời vụ: địa điểm chụp'],
+                        'cong_ty_duoc_chup' => ['type' => 'string', 'description' => 'Thời vụ: công ty được chụp (nếu khác Bên A)'],
+                        'km_khu_hoi' => ['type' => 'integer', 'description' => 'Để kiểm tra giá sàn (tính dầu)'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
                 'name' => 'gia_hop_dong',
                 'description' => 'Giá theo HỢP ĐỒNG đã ký với một đơn vị (Hành chính → Hợp đồng): loại hợp đồng, bảng giá theo số ca / ngày hoặc trọn gói, cộng thêm in phim, '
                     . 'phụ thu khoảng cách (chỉ tham khảo, chốt theo thực tế), số ngày thanh toán, điều khoản. Ghi so_ca để tính sẵn: giá theo hợp đồng, '
@@ -245,6 +288,7 @@ class SalesTools implements DepartmentTools
             'xem_nhan_su' => $this->staffList($input),
             'gia_hop_dong' => app(\App\Services\Accounting\ContractPricing::class)->forAssistant(
                 trim((string) ($input['tu_khoa'] ?? '')) ?: null, (int) ($input['so_ca'] ?? 0), max(1, (int) ($input['so_ngay'] ?? 1)), (int) ($input['km_khu_hoi'] ?? 0), trim((string) ($input['cong_ty'] ?? '')) ?: null),
+            'soan_hop_dong' => $this->draftContract($input),
             'xem_cong_no' => !empty($input['loc'])
                 ? app(\App\Services\Accountant\DebtList::class)->find((string) $input['loc'], (int) ($input['so_ngay'] ?? 7), trim((string) ($input['tu_khoa'] ?? '')) ?: null)
                 : $this->debts($this->requireString($input, 'tu_khoa')),
@@ -723,6 +767,114 @@ class SalesTools implements DepartmentTools
         }
 
         return $phone !== '' ? $phone : null;
+    }
+
+    // ------------------------------------------------------------------
+    // soan_hop_dong
+    // ------------------------------------------------------------------
+
+    private function draftContract(array $in): array
+    {
+        $pricing = app(\App\Services\Accounting\ContractPricing::class);
+        $pick = function (?string $kw) use ($pricing) {
+            $kw = trim((string) $kw);
+            if ($kw === '') {
+                return null;
+            }
+            $units = $pricing->findUnits($kw, 5);
+
+            return $units->first(fn ($u) => mb_strtolower((string) $u->unit_abbreviation) === mb_strtolower($kw) || (string) $u->unit_code === $kw) ?? $units->first();
+        };
+        $unit = $pick($in['don_vi'] ?? null);
+        if (!empty($in['don_vi']) && !$unit) {
+            return ['loi' => 'Không tìm thấy đơn vị "' . $in['don_vi'] . '" trên web. Nếu là khách mới, bỏ don_vi và ghi ben_a (tên, MST, địa chỉ…).'];
+        }
+        $refUnit = !empty($in['dua_theo']) ? $pick($in['dua_theo']) : $unit;
+        if (!empty($in['dua_theo']) && !$refUnit) {
+            return ['loi' => 'Không tìm thấy đơn vị mẫu "' . $in['dua_theo'] . '".'];
+        }
+        $wantType = $in['loai'] ?? null;
+        $ref = $refUnit ? \App\Models\CustomerContract::where('unit_id', $refUnit->id)->when($wantType, fn ($q) => $q->where('type', $wantType))
+            ->orderByRaw("type = 'nguyen_tac' DESC")->orderByDesc('signed_on')->orderByDesc('id')->first() : null;
+        if (!empty($in['dua_theo']) && !$ref) {
+            return ['loi' => ($refUnit->unit_abbreviation ?: $refUnit->unit_name) . ' chưa có hợp đồng ' . ($wantType === 'thoi_vu' ? 'thời vụ ' : '') . 'trên web để làm mẫu. Ghi bac_gia / gia_tron_goi trực tiếp.'];
+        }
+        $d = $ref ? \App\Services\Contracts\ContractDrafter::fromContract($ref) : [];
+        $d['type'] = $wantType ?: ($d['type'] ?? 'nguyen_tac');
+
+        // Bên A: dữ liệu web (đơn vị + hợp đồng cũ của chính đơn vị) rồi ghi đè theo ben_a
+        $own = $unit ? \App\Models\CustomerContract::where('unit_id', $unit->id)->orderByDesc('signed_on')->first() : null;
+        $a = $in['ben_a'] ?? [];
+        $d['party_a'] = [
+            'name' => $a['ten'] ?? ($own->party_a ?? $unit->unit_name ?? ''),
+            'address' => $a['dia_chi'] ?? ($unit->unit_address ?? ''),
+            'tax_code' => $a['ma_so_thue'] ?? ($own->party_a_tax_code ?? $unit->unit_tax_code ?? ''),
+            'phone' => $a['dien_thoai'] ?? '', 'fax' => $a['fax'] ?? '', 'account' => $a['tai_khoan'] ?? '', 'bank' => $a['ngan_hang'] ?? '',
+            'representative' => $a['dai_dien'] ?? '', 'title' => $a['chuc_vu'] ?? '', 'authorization' => $a['uy_quyen'] ?? '',
+            'abbreviation' => $unit->unit_abbreviation ?? ($a['ten'] ?? ''),
+        ];
+        // Mã trong số hợp đồng: dùng lại mã của hợp đồng cũ của đơn vị (vd MEDICEN-YD115) nếu có
+        if ($own && preg_match('/MEDICEN-([A-Z0-9]+)/u', (string) $own->contract_no, $mm)) {
+            $d['code'] = $mm[1];
+        }
+        if (!$d['party_a']['name']) {
+            return ['loi' => 'Cần don_vi (đơn vị trên web) hoặc ben_a.ten.'];
+        }
+        if ($unit && empty($d['party_a']['address'])) {
+            $d['party_a']['address'] = DB::table('units')->where('id', $unit->id)->value('unit_address') ?? '';
+        }
+
+        // Giá
+        $map = ['cach_tinh' => 'price_mode', 'gia_tron_goi' => 'package_price', 'ban_kinh_km' => 'radius_km', 'so_ngay_thanh_toan' => 'payment_days',
+            'thoi_han_thang' => 'valid_months', 'tu_gia_han' => 'auto_renew', 'ngay_ky' => 'signed_on', 'so_hd' => 'contract_no', 'ma_viet_tat' => 'code',
+            'ngay_chup' => 'service_date', 'dia_diem' => 'service_location', 'cong_ty_duoc_chup' => 'end_company', 'km_khu_hoi' => 'km', 'tra_ket_qua' => 'result_delivery'];
+        foreach ($map as $k => $f) {
+            if (array_key_exists($k, $in) && $in[$k] !== '' && $in[$k] !== null) {
+                $d[$f] = $in[$k];
+            }
+        }
+        if (!empty($in['bac_gia'])) {
+            $d['tiers'] = array_map(fn ($t) => ['min_cases' => $t['tu_ca'] ?? 0, 'max_cases' => $t['den_ca'] ?? 0, 'unit' => $t['tinh_theo'] ?? 'ca', 'price' => $t['gia']], $in['bac_gia']);
+            $d['price_mode'] = $in['cach_tinh'] ?? 'theo_ca';
+        }
+        $changed = [];
+        foreach ($in['doi_gia_bac'] ?? [] as $chg) {
+            foreach ($d['tiers'] ?? [] as $i => $t) {
+                if ((int) ($t['min_cases'] ?? 0) === (int) $chg['tu_ca']) {
+                    $changed[] = 'bậc từ ' . (int) $chg['tu_ca'] . ' ca: ' . number_format((int) $t['price'], 0, ',', '.') . ' → ' . number_format((int) $chg['gia'], 0, ',', '.');
+                    $d['tiers'][$i]['price'] = (int) $chg['gia'];
+                }
+            }
+        }
+        if (!empty($in['doi_gia_bac']) && count($changed) < count($in['doi_gia_bac'])) {
+            return ['loi' => 'Có bậc trong doi_gia_bac không khớp mức "từ ca" của bảng giá mẫu.', 'bac_gia_mau' => $d['tiers'] ?? []];
+        }
+        if (isset($in['cong_them'])) {
+            $d['addons'] = array_map(fn ($x) => ['name' => $x['ten'], 'price_per_case' => $x['gia_moi_ca']], $in['cong_them']);
+        }
+        if (isset($in['phu_thu'])) {
+            $d['surcharges'] = array_map(fn ($x) => ['from_km' => $x['tu_km'] ?? null, 'to_km' => $x['den_km'] ?? null, 'min_amount' => $x['tu_tien'] ?? null,
+                'max_amount' => $x['den_tien'] ?? null, 'vat_included' => $x['gom_vat'] ?? false], $in['phu_thu']);
+        }
+        if ($d['type'] === 'thoi_vu' && $ref && $ref->type !== 'thoi_vu') {
+            unset($d['tiers'], $d['addons'], $d['surcharges']);
+        }
+
+        try {
+            $r = app(\App\Services\Contracts\ContractDrafter::class)->draft($d);
+        } catch (\InvalidArgumentException $e) {
+            return ['loi' => $e->getMessage()];
+        }
+
+        return [
+            'tai_file_word' => route('contracts.draft_download', $r['file']),
+            'so_hd' => $r['so_hd'],
+            'dua_theo_hop_dong' => $ref ? (($ref->contract_no ?: '#' . $ref->id) . ' của ' . ($refUnit->unit_abbreviation ?? '')) : 'không có (dùng giá ghi trực tiếp)',
+            'da_doi_gia' => $changed ?: null,
+            'tom_tat' => $r['tom_tat'],
+            'canh_bao' => $r['canh_bao'],
+            'luu_y' => 'File giữ ' . config('contract_templates.keep_days') . ' ngày. Sales mở Word kiểm tra, điền chỗ còn dòng chấm. Khách ký xong thì tải bản đã ký lên Hành chính → Hợp đồng.',
+        ];
     }
 
     // ------------------------------------------------------------------

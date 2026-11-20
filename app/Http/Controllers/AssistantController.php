@@ -42,6 +42,8 @@ class AssistantController extends Controller
             // Gợi ý tên đơn vị + giá mặc định cho form báo giá / tính lợi nhuận
             'units' => Unit::orderBy('unit_abbreviation')->pluck('unit_abbreviation')->filter()->unique()->values(),
             'profitDefaults' => $calculator->defaults(),
+            'contractUnits' => $department === 'sales' ? \App\Models\CustomerContract::join('units', 'units.id', '=', 'customer_contracts.unit_id')
+                ->orderBy('units.unit_abbreviation')->pluck('units.unit_abbreviation')->filter()->unique()->values() : collect(),
             'canViewAll' => AssistantConversation::canViewAll(Auth::user()),
             'initialConversation' => $request->integer('c') ?: null,
         ]);

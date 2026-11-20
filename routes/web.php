@@ -372,6 +372,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::patch('{contract}', 'update')->name('update')->whereNumber('contract');
         Route::delete('{contract}', 'destroy')->name('destroy')->whereNumber('contract');
         Route::get('{contract}/tai-ve', 'download')->name('download')->whereNumber('contract');
+        // File Word do trợ lý AI soạn (storage/app/hop-dong/soan, tự xóa sau vài ngày)
+        Route::get('soan/{file}', 'draftDownload')->name('draft_download')->where('file', '[0-9]{8}-[0-9]{6}-[a-z0-9-]+\\.docx');
     });
     Route::prefix('so-vcb-chu-loc')->name('vcb.')->middleware('access:debt_accountant')->controller(\App\Http\Controllers\VcbLedgerController::class)->group(function () {
         Route::get('/', 'index')->name('index');

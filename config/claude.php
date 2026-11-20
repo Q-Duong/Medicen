@@ -84,6 +84,20 @@ return [
                         'Đơn 2 ngày ở Cần Thơ, 340km đi về, 400 cas phổi, ngủ lại 1 đêm, 3 người: lãi bao nhiêu?',
                     ],
                 ],
+                'hop_dong' => [
+                    'label' => 'Soạn hợp đồng',
+                    'icon' => 'fas fa-file-signature',
+                    'placeholder' => 'Ghi thêm yêu cầu (không bắt buộc), vd: bỏ phần phụ thu, thanh toán 30 ngày…',
+                    'form' => 'contract',
+                    'instruction' => 'Soạn hợp đồng ra file Word bằng tool soan_hop_dong (theo mẫu công ty, không tự viết lại điều khoản). Đơn vị mẫu chưa rõ bảng giá thì gọi '
+                        . 'gia_hop_dong trước. Đổi giá vài bậc thì dùng doi_gia_bac. Trả lời: link [Tải hợp đồng Word](...), số hợp đồng, hợp đồng làm mẫu, các giá đã đổi, '
+                        . 'tóm tắt bảng giá, và nêu rõ MỌI cảnh báo (bậc giá dưới giá sàn, thông tin Bên A còn trống). Nhắc kiểm tra trong Word trước khi gửi khách.',
+                    'suggestions' => [
+                        'Làm lại hợp đồng nguyên tắc cho PK 115 Y DƯỢC, bậc 100–149 ca giảm còn 21.000/ca',
+                        'Làm hợp đồng cho khách mới giống hợp đồng của BV SANTE',
+                        'Làm hợp đồng thời vụ cho BV TÂM TRÍ NHA TRANG ngày 15/12, trọn gói 14.000.000',
+                    ],
+                ],
                 'lich_xe' => [
                     'label' => 'Lịch xe / chốt lịch',
                     'icon' => 'fas fa-shuttle-van',

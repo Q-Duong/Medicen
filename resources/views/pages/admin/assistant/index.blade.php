@@ -87,6 +87,7 @@
                 <form class="composer" id="assistant-form" novalidate>
                     @include('pages.admin.assistant.forms.quote')
                     @include('pages.admin.assistant.forms.profit')
+                    @include('pages.admin.assistant.forms.contract')
 
                     <textarea id="assistant-input" rows="1" maxlength="4000" aria-label="Tin nhắn"></textarea>
 
@@ -119,6 +120,12 @@
         </div>
     </div>
 
+    {{-- Đơn vị đã có hợp đồng (làm mẫu khi soạn hợp đồng) --}}
+    <datalist id="assistant-contract-units">
+        @foreach ($contractUnits ?? [] as $unit)
+            <option value="{{ $unit }}"></option>
+        @endforeach
+    </datalist>
     <datalist id="assistant-units">
         @foreach ($units as $unit)
             <option value="{{ $unit }}"></option>

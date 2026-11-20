@@ -39,7 +39,7 @@
         tim_but_toan: 'tìm bút toán', so_quy_ngan_hang: 'xem sổ quỹ / ngân hàng', cong_no_doi_tac: 'xem công nợ sổ sách',
         luong_thuc_tra: 'xem lương', cong_no_web: 'xem công nợ web', thu_chi_web: 'xem kế hoạch thu chi', tai_lieu: 'tra tài liệu',
         phan_tich_van_hanh: 'phân tích vận hành', hoat_dong_nhan_vien: 'xem hoạt động nhân viên',
-        tuoi_no_tien_ket: 'xem tuổi nợ, tiền kẹt', du_bao_dong_tien: 'dự báo dòng tiền', ke_hoach_nam: 'xem kế hoạch năm', theo_doi_thu_no: 'xem thu nợ', duyet_gia: 'xem đơn chờ duyệt giá', hop_dong_khach_hang: 'xem hợp đồng khách hàng', gia_hop_dong: 'xem giá theo hợp đồng'
+        tuoi_no_tien_ket: 'xem tuổi nợ, tiền kẹt', du_bao_dong_tien: 'dự báo dòng tiền', ke_hoach_nam: 'xem kế hoạch năm', theo_doi_thu_no: 'xem thu nợ', duyet_gia: 'xem đơn chờ duyệt giá', hop_dong_khach_hang: 'xem hợp đồng khách hàng', gia_hop_dong: 'xem giá theo hợp đồng', soan_hop_dong: 'soạn hợp đồng Word'
     };
     const ICON_COPY = '<svg class="i-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
     const ICON_CHECK = '<svg class="i-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -526,13 +526,54 @@
             if (v.chiet_khau) lines.push(`- Chiết khấu ${fmt(v.chiet_khau)}đ`);
             return lines.join('\n');
         },
+        contract(v) {
+            const seasonal = v.loai === 'thoi_vu';
+            const isNew = v.khach_moi === '1';
+            const who = isNew ? v.ten_ben_a : v.don_vi;
+            let head = `Soạn hợp đồng ${seasonal ? 'thời vụ' : 'nguyên tắc'} cho ${who}`;
+            if (v.dua_theo && v.dua_theo !== v.don_vi) head += `, làm giống hợp đồng của ${v.dua_theo}`;
+            const lines = [head + '.'];
+            if (isNew) {
+                lines.push(`- Khách mới (chưa có trên web): ${v.ten_ben_a}` + (v.mst ? `, MST ${v.mst}` : '') + (v.dia_chi ? `, địa chỉ ${v.dia_chi}` : '')
+                    + (v.ma ? `, mã trong số HĐ: ${v.ma}` : ''));
+            }
+            const rep = [v.dai_dien && `đại diện ${v.dai_dien}`, v.chuc_vu && `chức vụ ${v.chuc_vu}`, v.dien_thoai && `điện thoại ${v.dien_thoai}`].filter(Boolean);
+            if (rep.length) lines.push('- Bên A: ' + rep.join(', '));
+            if (v.ngay_ky) lines.push(`- Ngày ký: ${dmy(v.ngay_ky)}`);
+            if (seasonal) {
+                lines.push(`- Ngày chụp ${dmy(v.ngay_chup)}, trọn gói ${fmt(v.gia_tron_goi)}đ (đã gồm VAT)`);
+                if (v.cong_ty) lines.push(`- Chụp cho: ${v.cong_ty}`);
+                if (v.dia_diem_chup) lines.push(`- Địa điểm: ${v.dia_diem_chup}`);
+            } else {
+                lines.push(v.doi_gia ? `- Đổi giá: ${v.doi_gia}` : '- Giữ nguyên bảng giá của hợp đồng mẫu');
+                if (v.thanh_toan) lines.push(`- Thanh toán trong ${v.thanh_toan} ngày`);
+                if (v.thoi_han === '0') lines.push('- Thời hạn: đến khi một bên thanh lý');
+                else if (v.thoi_han === '12') lines.push('- Thời hạn: 12 tháng, tự động gia hạn');
+                else if (v.thoi_han === '12-khong') lines.push('- Thời hạn: 12 tháng, không tự gia hạn');
+            }
+            return lines.join('\n');
+        },
     };
+
+    // Form hợp đồng: đổi loại thì hiện ô của loại đó (ô ẩn không bắt buộc)
+    function syncFormSwitch(f) {
+        if (!f || !f.querySelector('[data-af-switch]')) return;
+        const type = f.querySelector('select[data-af-switch]');
+        const isNew = f.querySelector('input[type=checkbox][data-af-switch]');
+        f.querySelectorAll('[data-af-only], [data-af-new]').forEach((el) => {
+            el.hidden = (el.dataset.afOnly && type && el.dataset.afOnly !== type.value)
+                || (el.dataset.afNew && isNew && el.dataset.afNew !== (isNew.checked ? '1' : '0'));
+            el.querySelectorAll('[data-af-required]').forEach((inp) => { inp.required = !el.hidden; });
+        });
+    }
+    document.querySelectorAll('[data-af-switch]').forEach((sw) => sw.addEventListener('change', () => syncFormSwitch(sw.closest('.af'))));
+    document.querySelectorAll('.af').forEach(syncFormSwitch);
 
     function composeFromForm() {
         const f = activeForm();
         // Form đang thu gọn = người dùng chỉ gõ câu hỏi tự do
         if (!f || f.classList.contains('is-collapsed')) return { ok: true, text: '' };
-        const fields = [...f.querySelectorAll('input, select')];
+        const fields = [...f.querySelectorAll('input, select, textarea')].filter(el => !el.closest('[hidden]'));
         fields.forEach(el => el.classList.add('touched'));
         const invalid = fields.find(el => !el.checkValidity());
         if (invalid) { invalid.focus(); invalid.reportValidity(); return { ok: false }; }
@@ -541,15 +582,17 @@
             el.setCustomValidity('Nhập số cas XQ phổi hoặc CSTL'); el.reportValidity(); el.setCustomValidity('');
             return { ok: false };
         }
-        const v = Object.fromEntries(fields.map(el => [el.name, el.value.trim()]));
+        const v = Object.fromEntries(fields.map(el => [el.name, el.type === 'checkbox' ? (el.checked ? '1' : '') : el.value.trim()]));
         return { ok: true, text: composers[f.dataset.form](v) };
     }
 
     function resetForm() {
         const f = activeForm();
         if (!f) return;
-        f.querySelectorAll('input').forEach(el => { el.value = el.defaultValue; el.classList.remove('touched'); });
+        f.querySelectorAll('input').forEach(el => { if (el.type === 'checkbox') el.checked = false; else el.value = el.defaultValue; el.classList.remove('touched'); });
+        f.querySelectorAll('textarea').forEach(el => { el.value = ''; el.classList.remove('touched'); });
         f.querySelectorAll('select').forEach(el => { el.selectedIndex = 0; el.classList.remove('touched'); });
+        syncFormSwitch(f);
     }
 
     // ---------- Hội thoại ----------
