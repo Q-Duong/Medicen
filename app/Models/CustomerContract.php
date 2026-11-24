@@ -68,7 +68,7 @@ class CustomerContract extends Model
     // ---- Nhật ký thao tác ----
     public function activityArea(): string
     {
-        return 'du_lieu_ke_toan';
+        return 'hop_dong';
     }
 
     public function activityTitle(): string

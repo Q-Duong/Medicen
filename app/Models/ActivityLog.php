@@ -24,11 +24,14 @@ class ActivityLog extends Model
         'so_vcb' => 'Sổ VCB chú Lộc',
         'du_lieu_ke_toan' => 'Dữ liệu kế toán',
         'tro_ly_ai' => 'Trợ lý AI',
+        'dang_nhap' => 'Đăng nhập',
+        // Các trang khác: tên lấy theo config('activity.areas')
     ];
 
-    public const ACTIONS = ['them' => 'Thêm', 'sua' => 'Sửa', 'xoa' => 'Xóa', 'tai_len' => 'Tải lên', 'nhap' => 'Nhập file'];
+    public const ACTIONS = ['them' => 'Thêm', 'sua' => 'Sửa', 'xoa' => 'Xóa', 'tai_len' => 'Tải lên', 'nhap' => 'Nhập file', 'tai_ve' => 'Tải / xuất file',
+        'thao_tac' => 'Thao tác', 'dang_nhap' => 'Đăng nhập', 'dang_xuat' => 'Đăng xuất', 'dang_nhap_sai' => 'Đăng nhập sai'];
 
-    protected $fillable = ['user_id', 'user_name', 'area', 'action', 'subject_type', 'subject_id', 'summary', 'changes', 'ip'];
+    protected $fillable = ['user_id', 'user_name', 'area', 'action', 'route', 'subject_type', 'subject_id', 'summary', 'changes', 'ip', 'user_agent'];
 
     protected $casts = ['changes' => 'array', 'created_at' => 'datetime'];
 
@@ -62,8 +65,11 @@ class ActivityLog extends Model
         if (self::$muted > 0 || !$user) {
             return;
         }
+        // Trang đã tự ghi nhật ký chi tiết: RecordActivity không ghi thêm dòng chung cho request này
+        app(\App\Services\Activity\ActivityRecorder::class)->markExplicit();
         try {
             static::create([
+                'route' => request()?->route()?->getName(),
                 'user_id' => $user->id,
                 'user_name' => $user->display_name ?? $user->name,
                 'area' => $area,
@@ -82,7 +88,16 @@ class ActivityLog extends Model
 
     public function areaLabel(): string
     {
-        return self::AREAS[$this->area] ?? $this->area;
+        if (isset(self::AREAS[$this->area])) {
+            return self::AREAS[$this->area];
+        }
+        foreach (config('activity.areas', []) as [$key, $label]) {
+            if ($key === $this->area) {
+                return $label;
+            }
+        }
+
+        return $this->area === 'khac' ? 'Khác' : $this->area;
     }
 
     public function actionLabel(): string
@@ -94,7 +109,8 @@ class ActivityLog extends Model
     public function changeLines(): array
     {
         $lines = [];
-        foreach ((array) $this->changes as $field => $pair) {
+        // getAttribute: trong model, $this->changes là thuộc tính nội bộ của Eloquent (các cột vừa đổi), không phải cột changes
+        foreach ((array) $this->getAttribute('changes') as $field => $pair) {
             [$old, $new] = array_pad((array) $pair, 2, null);
             $lines[] = $field . ': ' . self::show($old) . ' → ' . self::show($new);
         }

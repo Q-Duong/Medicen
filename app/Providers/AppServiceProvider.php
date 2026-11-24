@@ -16,6 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Nhật ký hoạt động: gom thay đổi cũ → mới trong một request (RecordActivity ghi một dòng)
+        $this->app->scoped(\App\Services\Activity\ActivityRecorder::class);
         view()->composer('*',function($view) {
             $getAllBlogCategory = BlogCategory::orderBy('id', 'ASC')->get();
 		    $getAllService = Service::orderBy('id','ASC')->get();
@@ -38,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Theo dõi thay đổi các model chính cho nhật ký hoạt động (App\Services\Activity\TrackedModels)
+        foreach (array_keys(\App\Services\Activity\TrackedModels::config()) as $model) {
+            $model::observe(\App\Services\Activity\ModelChangeObserver::class);
+        }
+
         try {
             Storage::extend('google', function ($app, $config) {
                 $options = [];

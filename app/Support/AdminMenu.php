@@ -72,6 +72,7 @@ class AdminMenu
         // Hành chính
         $sections[] = ['title' => 'Hành chính', 'items' => array_filter([
             $can('customer_contracts') ? $item('Hợp đồng', 'fas fa-file-signature', 'contracts.index', [], 'contracts.*', 'Hợp đồng khách hàng, giá theo hợp đồng') : null,
+            \App\Services\Claude\AssistantAccess::isFullAdmin($user) ? $item('Nhật ký hoạt động', 'fas fa-history', 'activity.index', [], 'activity.*', 'Ai làm gì, lúc nào; lịch sử từng đơn') : null,
         ])];
 
         // Trợ lý AI
@@ -94,7 +95,6 @@ class AdminMenu
                 $item('Nhân viên (TX, KTV)', 'fas fa-id-badge', 'staff.index', [], 'staff.*'),
                 $item('Tài khoản', 'fas fa-users-cog', 'accounts.index', [], 'accounts.*'),
                 $item('Phân quyền phòng ban', 'fas fa-user-shield', 'user-departments.index', [], 'user-departments.*'),
-                $item('Lịch sử chỉnh sửa', 'fas fa-history', 'history.index', [], 'history.*'),
             ]];
         }
 

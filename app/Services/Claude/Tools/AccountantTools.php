@@ -289,15 +289,21 @@ class AccountantTools implements DepartmentTools
             ],
             [
                 'name' => 'hoat_dong_nhan_vien',
-                'description' => 'CHỈ ADMIN / SUBADMIN. Nhân viên đã làm gì trên web Medicen trong một ngày / khoảng ngày: thao tác ở Báo cáo thu chi, Công nợ, '
-                    . 'Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán (thêm / sửa / xóa, số cũ → số mới), lịch sử chỉnh sửa đơn hàng (thêm đơn, xếp lịch, '
-                    . 'hủy lịch, cập nhật số ca / tiền…) và số câu hỏi đã hỏi trợ lý AI. Dùng khi hỏi "hôm nay nhân viên làm gì", "chị X sửa gì ở công nợ"...',
+                'description' => 'CHỈ ADMIN / SUBADMIN. Nhân viên đã làm gì trên web Medicen theo DÒNG THỜI GIAN: mỗi ngày vào lúc mấy giờ, thao tác cuối lúc mấy giờ, '
+                    . 'thời gian hoạt động, đăng nhập (IP, thiết bị), trang đã mở, từng thao tác (giờ, trang, việc, thay đổi số cũ → số mới) ở mọi trang (đơn hàng, '
+                    . 'lịch xe, kết quả, công nợ, báo cáo thu chi, hợp đồng, đơn vị, nhân sự, tài khoản…), tải / xuất file, số câu hỏi trợ lý AI, và mục dang_chu_y '
+                    . '(xóa dữ liệu, sửa tiền lớn, làm ngoài giờ, đăng nhập sai, IP mới). Lọc theo người, trang, loại việc (vd chỉ xóa, chỉ sửa tiền). '
+                    . 'SubAdmin không xem được hoạt động của tài khoản Admin.',
                 'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'tu_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = hôm nay'],
-                        'den_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = bằng tu_ngay'],
+                        'den_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = bằng tu_ngay (tối đa 31 ngày)'],
                         'nhan_vien' => ['type' => 'string', 'description' => 'Tên / email nhân viên để lọc (tùy chọn)'],
+                        'trang' => ['type' => 'string', 'description' => 'Lọc theo trang, vd "Đơn hàng", "Công nợ", "Xếp lịch xe", "Hợp đồng", "Đăng nhập" (tùy chọn)'],
+                        'ma_don' => ['type' => 'integer', 'description' => 'Chỉ lịch sử của một đơn hàng (ai đã thêm / sửa / xếp lịch / cập nhật tiền đơn này) — bỏ qua giới hạn ngày'],
+                        'loai' => ['type' => 'string', 'enum' => array_keys(\App\Services\Activity\ActivityTimeline::TYPES),
+                            'description' => 'xoa = chỉ việc xóa; sua_tien = chỉ sửa tiền; them / sua; tai_ve = tải / xuất file; dang_nhap; bat_thuong = chỉ việc đáng chú ý'],
                     ],
                     'additionalProperties' => false,
                 ],
@@ -478,8 +484,9 @@ class AccountantTools implements DepartmentTools
 
     private function staffActivity(array $input, ?User $user): array
     {
-        // Admin và SubAdmin (role 0 / 1) được xem; nhân viên khác không
-        if (!\App\Services\Claude\AssistantAccess::isAdmin($user)) {
+        $timeline = app(\App\Services\Activity\ActivityTimeline::class);
+        // Chỉ Admin / SubAdmin (role 0 / 1); SubAdmin không xem được tài khoản Admin đầy đủ quyền
+        if (!$timeline->canView($user)) {
             return ['loi' => 'Chỉ Admin / SubAdmin được xem hoạt động của nhân viên. Hãy trả lời người hỏi là họ không có quyền xem thông tin này.'];
         }
         $from = ($this->parseDate((string) ($input['tu_ngay'] ?? '')) ?? Carbon::today())->startOfDay();
@@ -488,80 +495,33 @@ class AccountantTools implements DepartmentTools
             throw new InvalidArgumentException('Khoảng ngày không hợp lệ (tối đa 31 ngày).');
         }
         $who = $this->optString($input, 'nhan_vien');
-
-        // Tên hiển thị theo user (profile), tra cả theo email vì lịch sử đơn lưu email
-        $users = User::with('profile:id,profile_firstname,profile_lastname')->get(['id', 'name', 'email', 'profile_id', 'department']);
-        $nameOf = $users->mapWithKeys(fn ($u) => [$u->id => $u->display_name ?? $u->name]);
-        $byEmail = $users->keyBy('email');
-        $match = function (?string $name, ?string $email = null) use ($who): bool {
-            if (!$who) {
-                return true;
+        $hidden = $timeline->hiddenUsers($user);
+        if ($who && $hidden->contains(fn ($u) => str_contains(mb_strtolower($timeline->nameOf($u) . ' ' . $u->email), mb_strtolower($who))
+            || in_array(mb_strtolower($who), ['admin', 'quản trị', 'quan tri'], true))) {
+            return ['loi' => 'Tài khoản đang hỏi (SubAdmin) không được xem hoạt động của tài khoản Admin. Hãy trả lời ngắn gọn là không có quyền xem, không đoán.'];
+        }
+        $order = !empty($input['ma_don']) ? (int) $input['ma_don'] : null;
+        if ($order) {
+            [$from, $to] = [Carbon::create(2015, 1, 1), Carbon::now()->endOfDay()];
+        }
+        $r = $timeline->build($user, $from, $to, ['nguoi' => $who, 'trang' => $this->optString($input, 'trang'), 'loai' => $this->optString($input, 'loai'), 'don' => $order]);
+        // Bỏ mốc thời gian nội bộ (ts) khỏi kết quả gửi trợ lý
+        $r['nguoi'] = array_map(function ($p) {
+            if (isset($p['dong_thoi_gian'])) {
+                $p['dong_thoi_gian'] = array_map(fn ($it) => array_diff_key($it, ['ts' => 1]), $p['dong_thoi_gian']);
             }
-            $needle = mb_strtolower($who);
-
-            return str_contains(mb_strtolower((string) $name), $needle) || str_contains(mb_strtolower((string) $email), $needle);
-        };
-
-        $people = [];
-        $push = function (string $person, array $item) use (&$people) {
-            $people[$person]['nguoi'] = $person;
-            $people[$person]['so_thao_tac'] = ($people[$person]['so_thao_tac'] ?? 0) + 1;
-            $people[$person]['theo_trang'][$item['trang']] = ($people[$person]['theo_trang'][$item['trang']] ?? 0) + 1;
-            $people[$person]['chi_tiet'][] = $item;
-        };
-
-        // 1. Nhật ký trang kế toán / trợ lý
-        \App\Models\ActivityLog::whereBetween('created_at', [$from, $to])->orderBy('id')->get()
-            ->each(function ($log) use ($push, $match, $nameOf) {
-                $name = $nameOf[$log->user_id] ?? $log->user_name ?? 'Không rõ';
-                if (!$match($name)) {
-                    return;
-                }
-                $push($name, ['luc' => $log->created_at->format('d/m H:i'), 'trang' => $log->areaLabel(), 'viec' => $log->summary,
-                    'thay_doi' => array_slice($log->changeLines(), 0, 6)]);
-            });
-
-        // 2. Lịch sử chỉnh sửa đơn hàng
-        \App\Models\HistoryEdit::whereBetween('created_at', [$from, $to])->orderBy('id')->get(['order_id', 'user_name', 'history_action', 'created_at'])
-            ->each(function ($h) use ($push, $match, $byEmail) {
-                $u = $byEmail[$h->user_name] ?? null;
-                $name = $u ? ($u->display_name ?? $u->name) : $h->user_name;
-                if (!$match($name, $h->user_name)) {
-                    return;
-                }
-                $push($name, ['luc' => $h->created_at->format('d/m H:i'), 'trang' => 'Đơn hàng', 'viec' => 'Đơn #' . $h->order_id . ': ' . $h->history_action]);
-            });
-
-        // 3. Số câu hỏi trợ lý AI (không đưa nội dung)
-        DB::table('assistant_messages')->join('assistant_conversations', 'assistant_conversations.id', '=', 'assistant_messages.conversation_id')
-            ->where('assistant_messages.role', 'user')->whereBetween('assistant_messages.created_at', [$from, $to])
-            ->groupBy('assistant_conversations.user_id', 'assistant_conversations.department')
-            ->get([DB::raw('assistant_conversations.user_id as uid'), 'assistant_conversations.department', DB::raw('count(*) as n')])
-            ->each(function ($r) use (&$people, $match, $nameOf) {
-                $name = $nameOf[$r->uid] ?? 'Không rõ';
-                if (!$match($name)) {
-                    return;
-                }
-                $people[$name]['nguoi'] = $name;
-                $people[$name]['cau_hoi_tro_ly'][$r->department] = (int) $r->n;
-            });
-
-        $list = collect($people)->map(function ($p) {
-            $items = $p['chi_tiet'] ?? [];
-            $p['so_thao_tac'] = $p['so_thao_tac'] ?? 0;
-            // Nhiều thao tác: giữ 60 việc gần nhất cho mỗi người
-            $p['chi_tiet'] = count($items) > 60 ? array_slice($items, -60) : $items;
-            $p['bi_cat_bot'] = count($items) > 60;
 
             return $p;
-        })->sortByDesc('so_thao_tac')->values();
+        }, $r['nguoi']);
 
-        return [
-            'pham_vi' => $from->isSameDay($to) ? 'Ngày ' . $from->format('d/m/Y') : 'Từ ' . $from->format('d/m/Y') . ' đến ' . $to->format('d/m/Y'),
-            'nguon' => 'Nhật ký thao tác trang kế toán (chỉ có từ khi cài bản cập nhật ghi nhật ký), lịch sử chỉnh sửa đơn hàng, số câu hỏi trợ lý AI. '
-                . 'Không gồm việc làm ngoài web (gọi điện, MISA trên máy…).',
-            'so_nguoi' => $list->count(),
-            'nhan_vien' => $list->all(),
+        return $r + [
+            // Trang Nhật ký hoạt động chỉ Admin đầy đủ quyền vào được
+            'xem_tren_web' => \App\Services\Claude\AssistantAccess::isFullAdmin($user) ? route('activity.index', array_filter(['tu' => $order ? null : $from->toDateString(),
+                'den' => $order ? null : $to->toDateString(), 'q' => $who, 'trang' => $this->optString($input, 'trang'), 'loai' => $this->optString($input, 'loai'), 'don' => $order])) : null,
+            'nguon' => 'Nhật ký hoạt động trên web (mọi thao tác thay đổi dữ liệu, tải file, đăng nhập, lượt mở trang' . ($r['nhat_ky_tu'] ? ', có từ ' . $r['nhat_ky_tu'] : '')
+                . '); trước đó chỉ có lịch sử chỉnh sửa đơn hàng. Không gồm việc làm ngoài web (gọi điện, Zalo, MISA trên máy…). '
+                . 'Thời gian hoạt động = tổng các quãng giữa hai thao tác / lượt mở trang cách nhau không quá ' . config('activity.idle_minutes') . ' phút (ước tính).',
+            'an_bot' => $r['bi_an'] ? 'Đã ẩn hoạt động của ' . $r['bi_an'] . ' tài khoản Admin (người hỏi không có quyền xem). Không nhắc tới tên các tài khoản này.' : null,
         ];
     }
 

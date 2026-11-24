@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('reports:remind')->dailyAt('10:00');
         $schedule->command('assistant:prune')->dailyAt('02:00');
+        // Nhật ký hoạt động: giữ 12 tháng
+        $schedule->command('activity:prune')->monthlyOn(1, '02:30');
         // Nhắc người xếp lịch: đơn sắp chạy chưa xếp xe, giữ chỗ chưa lên đơn
         $schedule->command('schedule:remind')->dailyAt(config('schedule.remind_at', '16:00'));
         // Tài chính: cảnh báo sớm sáng thứ Hai, báo cáo CFO tự động ngày 3 hằng tháng (người nhận: config/finance.php)

@@ -38,6 +38,8 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             // SubAdmin loại Admin chỉ vào các route trong config('access.subadmin_routes')
             \App\Http\Middleware\SubAdminScope::class,
+            // Nhật ký hoạt động: mọi thao tác thay đổi dữ liệu, tải file, lượt mở trang (config/activity.php)
+            \App\Http\Middleware\RecordActivity::class,
         ],
 
         'api' => [
