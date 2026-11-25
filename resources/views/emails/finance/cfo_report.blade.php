@@ -5,6 +5,7 @@
 <div style="max-width:720px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2ded3;">
     @include('emails.finance._layout_head', ['heading' => 'Báo cáo CFO tháng ' . $label, 'sub' => 'Trợ lý Kế toán (vai CFO) lập tự động lúc ' . now()->format('H:i d/m/Y')])
     <div style="padding:22px 24px;font-size:14.5px;line-height:1.6;">
+        @if (!empty($pdf))<p style="margin:0 0 14px;padding:8px 12px;border-radius:9px;background:#f4f2eb;font-size:13px;">📎 Bản PDF đính kèm: <b>{{ $pdf }}</b> (biểu đồ chỉ xem được trên web).</p>@endif
         {!! $html !!}
         <div style="margin-top:22px;">
             <a href="{{ $url }}" style="display:inline-block;padding:10px 18px;border-radius:9px;background:#c96442;color:#fff;text-decoration:none;font-weight:600;">Xem trên web (biểu đồ, xuất PDF, hỏi tiếp)</a>

@@ -22,7 +22,8 @@ use Illuminate\Http\Request;
  */
 class FinanceController extends Controller
 {
-    public const TABS = ['tien-ket' => 'Tiền kẹt & tuổi nợ', 'thu-no' => 'Thu nợ', 'han-muc' => 'Hạn mức tín dụng', 'lai-uoc-tinh' => 'Lãi ước tính', 'duyet-gia' => 'Duyệt giá', 'dong-tien' => 'Dòng tiền 13 tuần', 'ke-hoach' => 'Kế hoạch năm'];
+    public const TABS = ['tien-ket' => 'Tiền kẹt & tuổi nợ', 'thu-no' => 'Thu nợ', 'han-muc' => 'Hạn mức tín dụng', 'lai-uoc-tinh' => 'Lãi ước tính', 'duyet-gia' => 'Duyệt giá', 'dong-tien' => 'Dòng tiền 13 tuần', 'ke-hoach' => 'Kế hoạch năm',
+        'quan-tri' => 'Báo cáo quản trị', 'ghi-nho' => 'Ghi nhớ CFO'];
 
     /** Sửa hạn mức / kế hoạch: Admin (trừ SubAdmin) và Kế toán */
     public static function canEdit(): bool
@@ -32,10 +33,16 @@ class FinanceController extends Controller
         return AssistantAccess::isFullAdmin($u) || (int) ($u->role ?? -1) === 3 || ($u->department ?? null) === 'ke_toan';
     }
 
+    /** Ghi nhớ CFO: thêm cả SubAdmin (tài khoản giám đốc) — ghi nhớ là quyết định / tình hình, không sửa số liệu kế toán */
+    public static function canEditNotes(): bool
+    {
+        return self::canEdit() || AssistantAccess::isSubAdmin(Auth::user());
+    }
+
     public function index(Request $request)
     {
         $tab = array_key_exists($request->query('tab'), self::TABS) ? $request->query('tab') : 'tien-ket';
-        $data = ['tab' => $tab, 'tabs' => self::TABS, 'canEdit' => self::canEdit()];
+        $data = ['tab' => $tab, 'tabs' => self::TABS, 'canEdit' => self::canEdit(), 'canEditNotes' => self::canEditNotes()];
 
         if ($tab === 'tien-ket') {
             $data['r'] = app(Receivables::class)->summary();
@@ -58,6 +65,18 @@ class FinanceController extends Controller
             $data['canApprove'] = self::canEdit();
         } elseif ($tab === 'han-muc') {
             $data['credits'] = app(CreditPolicy::class)->all();
+        } elseif ($tab === 'quan-tri') {
+            // Báo cáo quản trị lãi / lỗ theo tháng (cùng công thức tool trợ lý bao_cao_quan_tri)
+            $to = $this->date($request->query('den')) ?? Carbon::today();
+            $from = $this->date($request->query('tu')) ?? $to->copy()->startOfYear();
+            if ($from->gt($to)) {
+                [$from, $to] = [$to, $from];
+            }
+            $data['mr'] = app(\App\Services\Accounting\ManagementReport::class)->build($from, $to);
+            $data['mrFrom'] = $from;
+            $data['mrTo'] = $to;
+        } elseif ($tab === 'ghi-nho') {
+            $data['notes'] = \App\Models\CfoNote::with('author:id,name')->orderBy('done')->orderByRaw('remind_on IS NULL')->orderBy('remind_on')->orderByDesc('id')->limit(200)->get();
         } elseif ($tab === 'ke-hoach') {
             $budget = app(\App\Services\Accounting\Budget::class);
             $year = (int) $request->query('nam', now()->month >= 11 ? now()->year + 1 : now()->year);
@@ -192,6 +211,31 @@ class FinanceController extends Controller
     }
 
     /** Kế toán (và Admin, không gồm SubAdmin) duyệt / bỏ duyệt đơn giá thấp / chiết khấu cao */
+    /** Ghi nhớ CFO: thêm / sửa / đánh dấu xong / xóa (Admin, Kế toán) */
+    public function saveNote(Request $request, ?int $id = null)
+    {
+        abort_unless(self::canEditNotes(), 403, 'Chỉ Kế toán / Admin / giám đốc được sửa ghi nhớ.');
+        $note = $id ? \App\Models\CfoNote::findOrFail($id) : new \App\Models\CfoNote(['created_by' => Auth::id(), 'source' => 'web']);
+        if ($request->has('toggle_done')) {
+            $note->update(['done' => !$note->done]);
+
+            return back()->with('bk_success', $note->done ? 'Đã đánh dấu xong.' : 'Đã mở lại ghi nhớ.');
+        }
+        $data = $request->validate(['content' => ['required', 'string', 'max:2000'], 'topic' => ['nullable', 'string', 'max:120'], 'remind_on' => ['nullable', 'date']],
+            ['content.required' => 'Nhập nội dung ghi nhớ.']);
+        $note->fill($data)->save();
+
+        return redirect()->route('finance.index', ['tab' => 'ghi-nho'])->with('bk_success', $id ? 'Đã sửa ghi nhớ.' : 'Đã thêm ghi nhớ.');
+    }
+
+    public function deleteNote(int $id)
+    {
+        abort_unless(self::canEditNotes(), 403);
+        \App\Models\CfoNote::findOrFail($id)->delete();
+
+        return back()->with('bk_success', 'Đã xóa ghi nhớ.');
+    }
+
     public function approvePrice(Request $request)
     {
         abort_unless(self::canEdit(), 403, 'Chỉ Kế toán / Admin được duyệt giá.');

@@ -49,3 +49,5 @@ Câu trả lời được hiển thị dạng Markdown trên khung chat. Trình 
 Dạ chào anh/chị, bên em xin xác nhận lịch chụp…
 ```
   Bên trong khối là văn bản thuần như khi gửi qua Zalo: không dùng ký hiệu Markdown (**, #, -). Khung chat sẽ hiện nút Sao chép cho khối này.
+
+**Quy ước công nợ:** NỢ chỉ gồm hóa đơn ĐÃ CÓ SỐ hóa đơn, chưa thanh toán. Đơn chưa xuất hóa đơn không phải nợ (khách chưa có nghĩa vụ trả) — luôn nêu riêng là "chưa xuất hóa đơn", không cộng vào nợ, nợ quá hạn, hạn mức hay danh sách thu nợ.

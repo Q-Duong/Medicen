@@ -8,7 +8,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Thu nợ: đơn vị đang có nợ quá hạn hoặc tiền kẹt (chưa xuất HĐ ≥ 7 ngày), người phụ trách, lần nhắc gần nhất, khách hẹn trả.
+ * Thu nợ: đơn vị đang có NỢ QUÁ HẠN (chỉ hóa đơn đã có số, chưa thanh toán — Receivables is_debt), người phụ trách, lần nhắc gần nhất, khách hẹn trả.
+ * Đơn chưa xuất hóa đơn không phải nợ (khách chưa có nghĩa vụ trả): không đưa vào danh sách thu nợ, chỉ ghi kèm ở 'stuck' để biết.
  * Dữ liệu: unit_collectors (phụ trách), debt_contacts (lịch sử nhắc nợ). Trang: Phân tích tài chính → Thu nợ.
  */
 class DebtCollection
@@ -38,10 +39,11 @@ class DebtCollection
         $people = $this->people()->keyBy('id');
         $contacts = DB::table('debt_contacts')->orderByDesc('contacted_on')->orderByDesc('id')->get()->groupBy('unit_id');
 
-        return $rows->map(function (Collection $g, $unitId) use ($today, $collectors, $people, $contacts) {
+        return $rows->map(function (Collection $all, $unitId) use ($today, $collectors, $people, $contacts) {
+            $g = $all->where('is_debt', true);
             $overdue = (int) $g->where('overdue_days', '>', 0)->sum('owe');
-            $stuck = (int) $g->filter(fn ($r) => $r->bucket === 'chua_xuat_hd' && ($r->days_since_shot ?? 0) >= Receivables::STUCK_DAYS)->sum('owe');
-            if ($overdue <= 0 && $stuck <= 0) {
+            $stuck = (int) $all->filter(fn ($r) => $r->bucket === 'chua_xuat_hd' && ($r->days_since_shot ?? 0) >= Receivables::STUCK_DAYS)->sum('owe');
+            if ($overdue <= 0) {
                 return null;
             }
             $assigneeId = $collectors[$unitId]->assignee_id ?? null;
@@ -60,7 +62,7 @@ class DebtCollection
 
             return [
                 'unit_id' => (int) $unitId,
-                'unit' => $g->first()->unit,
+                'unit' => $all->first()->unit,
                 'owe' => (int) $g->sum('owe'),
                 'overdue' => $overdue,
                 'stuck' => $stuck,
@@ -81,7 +83,7 @@ class DebtCollection
                 'status' => $status,
                 'status_label' => self::STATUS[$status],
             ];
-        })->filter()->sortBy(fn ($r) => [array_search($r['status'], array_keys(self::STATUS)), -($r['overdue'] + $r['stuck'])])->values();
+        })->filter()->sortBy(fn ($r) => [array_search($r['status'], array_keys(self::STATUS)), -$r['overdue']])->values();
     }
 
     /** Người có thể phụ trách thu nợ: Admin, phòng Kế toán, phòng Sales (tên hiển thị theo hồ sơ) */

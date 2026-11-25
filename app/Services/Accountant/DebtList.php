@@ -34,6 +34,7 @@ class DebtList
             ->leftJoin('units', 'units.id', '=', 'orders.unit_id')
             ->where('orders.status_id', '!=', 0)
             ->where('accountants.accountant_owe', '>', 0)
+            ->where(fn ($q) => $q->whereNull('accountants.accountant_status')->orWhere('accountants.accountant_status', '!=', 1))
             ->when($year, fn ($q) => $q->whereYear('order_details.ord_start_day', $year))
             ->when($like, fn ($q) => $q->where(fn ($w) => $w->where('units.unit_abbreviation', 'like', $like)
                 ->orWhere('units.unit_name', 'like', $like)->orWhere('units.unit_code', 'like', $like)))
@@ -41,7 +42,9 @@ class DebtList
                 'accountants.accountant_number', 'accountants.accountant_date', 'accountants.accountant_deadline', 'accountants.accountant_owe')
             ->get()
             ->map(function ($r) use ($today) {
-                $issued = self::date($r->accountant_date);
+                // Nợ chỉ tính khi đã có số hóa đơn; chưa có số = chưa xuất hóa đơn (không phải nợ)
+                $invoiced = trim((string) $r->accountant_number) !== '';
+                $issued = $invoiced ? self::date($r->accountant_date) : null;
                 $due = $issued && is_numeric($r->accountant_deadline) ? $issued->copy()->addDays((int) $r->accountant_deadline) : null;
 
                 return [
@@ -57,6 +60,7 @@ class DebtList
                     'con_ngay_den_han' => $due && $due->gte($today) ? $today->diffInDays($due) : null,
                     '_due' => $due,
                     '_issued' => $issued,
+                    '_invoiced' => $invoiced,
                 ];
             });
 
@@ -65,10 +69,10 @@ class DebtList
             'qua_han' => [$rows->filter(fn ($r) => $r['qua_han_ngay'] > 0)->sortByDesc('qua_han_ngay'), 'Đơn đã quá hạn thanh toán (quá hạn lâu nhất trước)'],
             'sap_den_han' => [$rows->filter(fn ($r) => $r['_due'] && $r['_due']->betweenIncluded($today, $until))->sortBy(fn ($r) => $r['_due']->timestamp),
                 'Đơn đến hạn thanh toán từ hôm nay đến ' . $until->format('d/m/Y') . " ({$days} ngày tới)"],
-            'chua_xuat_hd' => [$rows->filter(fn ($r) => !$r['_issued'])->sortBy('ngay_chup'), 'Đơn còn nợ nhưng chưa xuất hóa đơn (chưa có hạn thanh toán)'],
+            'chua_xuat_hd' => [$rows->filter(fn ($r) => !$r['_invoiced'])->sortBy('ngay_chup'), 'Đơn chưa xuất hóa đơn (chưa có số HĐ): CHƯA PHẢI NỢ, khách chưa có nghĩa vụ trả'],
         };
 
-        $list = $picked->values()->map(fn ($r) => array_diff_key($r, ['_due' => 1, '_issued' => 1]));
+        $list = $picked->values()->map(fn ($r) => array_diff_key($r, ['_due' => 1, '_issued' => 1, '_invoiced' => 1]));
 
         return [
             'ngay_tinh' => $today->toDateString(),
@@ -76,7 +80,8 @@ class DebtList
             'loc' => $scope,
             'don_vi_loc' => $keyword,
             'so_don' => $list->count(),
-            'tong_con_no' => $list->sum('con_no'),
+            ($filter === 'chua_xuat_hd' ? 'tong_chua_xuat_hd' : 'tong_con_no') => $list->sum('con_no'),
+            'quy_uoc' => 'Nợ = hóa đơn đã có số, chưa thanh toán. Đơn chưa có số hóa đơn không phải nợ (tiền chưa xuất hóa đơn), không cộng vào nợ.',
             'theo_don_vi' => $list->groupBy('don_vi')->map(fn ($g, $u) => ['don_vi' => $u ?: '(chưa có đơn vị)', 'so_don' => $g->count(), 'con_no' => $g->sum('con_no')])
                 ->sortByDesc('con_no')->values()->take(30)->all(),
             'don' => $list->take(self::LIMIT)->all(),

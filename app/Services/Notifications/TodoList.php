@@ -122,16 +122,21 @@ class TodoList
         $debt60 = $acc(['todo' => 'overdue'])->where('order_details.ord_start_day', '<=', $today->copy()->subDays(60)->toDateString())->count();
 
         $profit = ProfitReport::where('status', 0)->count();
+        $misaEnd = \Illuminate\Support\Facades\DB::table('acc_journal_entries')->max('posted_on');
+        $misaStale = $misaEnd && Carbon::parse($misaEnd)->lt($today->copy()->subDays(45));
 
         return array_merge([
             $this->item('qty_changed', 'Đơn có số ca thay đổi sau khi cập nhật doanh thu', $qtyChanged,
                 route('accountant.index', ['qty_changed' => 1]), 'urgent', 'Tính lại tiền theo số ca mới hoặc giữ tiền cũ'),
             $this->item('wait_revenue', 'Đơn đã có số ca thực tế, chờ cập nhật doanh thu', $waitRevenue,
                 route('accountant.index', ['todo' => 'wait_revenue'])),
-            $this->item('debt_overdue', 'Công nợ quá hạn 45 ngày chưa thanh toán (1 năm gần đây)', $debt45,
+            $this->item('debt_overdue', 'Hóa đơn đã xuất quá 45 ngày chưa thanh toán (1 năm gần đây)', $debt45,
                 route('accountant.index', ['todo' => 'overdue']), $debt60 > 0 ? 'urgent' : 'normal', $debt60 > 0 ? "Trong đó {$debt60} đơn quá 60 ngày" : null),
             $this->item('profit_pending', 'Phiếu tính lợi nhuận chờ duyệt', $profit, route('profit.index') . '#pf-history'),
-        ], $this->financeItems(), $this->contractItems());
+            // Sổ MISA trễ quá 45 ngày: báo cáo CFO / BCTC phải ước tính → nhắc kế toán tải sổ mới
+            $this->item('misa_stale', 'Sổ MISA trên web mới có đến ' . ($misaEnd ? Carbon::parse($misaEnd)->format('d/m/Y') : '—') . ', cần tải sổ các tháng sau',
+                $misaStale ? 1 : 0, route('accounting.index'), 'normal', 'Báo cáo CFO / BCTC đang phải ước tính các tháng chưa có sổ'),
+        ], $this->financeItems(), $this->contractItems(), [$this->noteItem($today)]);
     }
 
     /** Hợp đồng khách hàng (Hành chính → Hợp đồng): hiện cho cả Sales và Kế toán */
@@ -165,7 +170,7 @@ class TodoList
                 $lossCount ? 'urgent' : 'normal', $lossCount ? "Trong đó {$lossCount} đơn lỗ ước tính" : null),
             $this->item('promise_late', 'Khách quá ngày hẹn trả nợ', $late->count(), $fin('thu-no', ['loc' => 'qua-hen']), 'urgent',
                 $late->take(3)->pluck('unit')->implode(', ') ?: null),
-            $this->item('debt_no_owner', 'Nợ quá hạn / tiền kẹt chưa ai phụ trách thu', $noOwner->count(), $fin('thu-no', ['loc' => 'chua-phu-trach'])),
+            $this->item('debt_no_owner', 'Nợ quá hạn (hóa đơn đã xuất) chưa ai phụ trách thu', $noOwner->count(), $fin('thu-no', ['loc' => 'chua-phu-trach'])),
             $this->item('stuck_invoice', 'Đơn chụp xong ≥ ' . \App\Services\Accounting\Receivables::STUCK_DAYS . ' ngày chưa xuất hóa đơn', $stuck->count(), $fin('tien-ket'),
                 'normal', $stuck->count() ? 'Tổng ' . number_format($stuck->sum('owe'), 0, ',', '.') . ' đ' : null),
         ];
@@ -192,15 +197,27 @@ class TodoList
     private function itemsTaiChinh(Carbon $today): array
     {
         $f = app(\App\Services\Accounting\CashForecast::class)->build(['nguong' => config('finance.alerts.cash_threshold')]);
-        $openingMissing = str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có');
+        // Chưa có báo cáo tháng này (tiền đầu kỳ = 0 hoặc đang ước tính từ tháng trước): vẫn nhắc kế toán lập báo cáo
+        $openingMissing = str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có') || str_starts_with($f['nguon_tien_dau_ky'], 'Ước tính');
+        $openingZero = str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có');
         $credit = app(\App\Services\Accounting\CreditPolicy::class)->all()->whereIn('status', ['vuot_han_muc', 'qua_han_lau']);
 
         return [
-            $this->item('cash_low', 'Tuần sắp thiếu tiền trong 13 tuần tới', $openingMissing ? 0 : $f['so_tuan_duoi_nguong'], route('finance.index', ['tab' => 'dong-tien']), 'urgent',
+            $this->item('cash_low', 'Tuần sắp thiếu tiền trong 13 tuần tới', $openingZero ? 0 : $f['so_tuan_duoi_nguong'], route('finance.index', ['tab' => 'dong-tien']), 'urgent',
                 $f['tuan_thap_nhat'] ? 'Thấp nhất ' . number_format($f['tuan_thap_nhat']['so_du'], 0, ',', '.') . ' đ (tuần ' . $f['tuan_thap_nhat']['tuan'] . ')' : null),
             $this->item('no_cash_report', 'Chưa có Báo cáo thu chi tháng ' . $today->month . ' (dự báo dòng tiền chưa tính được)', $openingMissing ? 1 : 0, route('reports.index')),
             $this->item('credit_over', 'Khách vượt hạn mức tín dụng / quá hạn quá lâu', $credit->count(), route('finance.index', ['tab' => 'han-muc'])),
+            $this->noteItem($today),
         ];
+    }
+
+    /** Ghi nhớ CFO đã tới ngày xem lại mà chưa đánh dấu xong (Kế toán + Admin / SubAdmin) */
+    private function noteItem(Carbon $today): array
+    {
+        $due = \App\Models\CfoNote::where('done', false)->whereNotNull('remind_on')->where('remind_on', '<=', $today->toDateString())->orderBy('remind_on')->get(['content', 'topic']);
+
+        return $this->item('cfo_note_due', 'Ghi nhớ CFO tới ngày xem lại', $due->count(), route('finance.index', ['tab' => 'ghi-nho']), 'normal',
+            $due->count() ? \Illuminate\Support\Str::limit($due->map(fn ($n) => $n->topic ?: $n->content)->take(2)->implode(' · '), 90) : null);
     }
 
     private function itemsSales(Carbon $today): array

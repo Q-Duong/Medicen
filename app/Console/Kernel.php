@@ -21,6 +21,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('schedule:remind')->dailyAt(config('schedule.remind_at', '16:00'));
         // Tài chính: cảnh báo sớm sáng thứ Hai, báo cáo CFO tự động ngày 3 hằng tháng (người nhận: config/finance.php)
         $schedule->command('finance:alerts')->weeklyOn(1, '07:30');
+        // Tiền gấp: mỗi sáng, chỉ gửi khi số dư dự báo 14 ngày tới dưới ngưỡng
+        $schedule->command('finance:cash-alert')->dailyAt('07:00');
         $schedule->command('finance:cfo-report')->monthlyOn(3, '08:00')->withoutOverlapping(60);
     }
 

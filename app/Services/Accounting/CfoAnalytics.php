@@ -103,6 +103,12 @@ class CfoAnalytics
         return $gaps;
     }
 
+    /** Đơn kèm doanh thu, chi phí và lãi ước tính (dùng chung cho WhatIf) */
+    public function orderRows(Carbon $from, Carbon $to): Collection
+    {
+        return $this->orders($from, $to);
+    }
+
     private function orders(Carbon $from, Carbon $to): Collection
     {
         return DB::table('orders')
@@ -117,7 +123,7 @@ class CfoAnalytics
             ->get([
                 'orders.id', 'orders.order_quantity', 'orders.order_price', 'orders.order_discount', 'orders.order_profit', 'orders.order_surcharge',
                 'order_details.ord_start_day', 'units.unit_abbreviation', 'units.id as unit_id', 'car_ktvs.car_name',
-                'accountants.accountant_amount_paid', 'accountants.accountant_owe', 'accountants.accountant_date', 'accountants.accountant_day_payment',
+                'accountants.accountant_amount_paid', 'accountants.accountant_owe', 'accountants.accountant_date', 'accountants.accountant_day_payment', 'accountants.accountant_number',
                 // cho giá vốn ước tính (OrderCostEstimator)
                 'order_details.ord_select', 'order_details.ord_end_day', 'order_details.ord_doctor_read', 'orders.order_vat',
                 'accountants.accountant_distance', 'accountants.accountant_10X12', 'car_ktvs.car_driver_name', 'car_ktvs.car_ktv_name_1', 'car_ktvs.car_ktv_name_2', 'car_ktvs.work_over_250',
@@ -160,7 +166,9 @@ class CfoAnalytics
             'ca_binh_quan_don' => $main->count() ? round($qty / $main->count(), 1) : null,
             'so_khach' => $o->pluck('unit_id')->filter()->unique()->count(),
             'da_thu' => $o->sum(fn ($r) => (int) $r->accountant_amount_paid),
-            'con_no' => $o->sum(fn ($r) => max(0, (int) $r->accountant_owe)),
+            // Nợ = đã có số hóa đơn; chưa có số = chưa xuất hóa đơn (không phải nợ)
+            'con_no' => $o->filter(fn ($r) => trim((string) $r->accountant_number) !== '')->sum(fn ($r) => max(0, (int) $r->accountant_owe)),
+            'chua_xuat_hd' => $o->filter(fn ($r) => trim((string) $r->accountant_number) === '')->sum(fn ($r) => max(0, (int) $r->accountant_owe)),
         ];
     }
 
@@ -200,7 +208,8 @@ class CfoAnalytics
                 'gia_binh_quan_ca' => $qty ? (int) round($main->sum('price') / $qty) : null,
                 'lai_uoc_tinh' => $g->sum('profit'),
                 'bien_lai_pct' => $g->sum('net') ? round($g->sum('profit') / $g->sum('net') * 100, 1) : null,
-                'con_no' => $g->sum(fn ($r) => max(0, (int) $r->accountant_owe)),
+                'con_no' => $g->filter(fn ($r) => trim((string) $r->accountant_number) !== '')->sum(fn ($r) => max(0, (int) $r->accountant_owe)),
+                'chua_xuat_hd' => $g->filter(fn ($r) => trim((string) $r->accountant_number) === '')->sum(fn ($r) => max(0, (int) $r->accountant_owe)),
                 'don_gan_nhat' => $g->max('ord_start_day'),
             ];
         })->sortByDesc('doanh_thu')->values();
@@ -258,7 +267,7 @@ class CfoAnalytics
 
         return [
             'ty_le_da_thu_pct' => round($o->sum(fn ($r) => (int) $r->accountant_amount_paid) / $price * 100, 1),
-            'so_don_chua_xuat_hd' => $o->filter(fn ($r) => !$r->accountant_date && (int) $r->accountant_owe > 0)->count(),
+            'so_don_chua_xuat_hd' => $o->filter(fn ($r) => trim((string) $r->accountant_number) === '' && (int) $r->accountant_owe > 0)->count(),
             'ngay_thu_tien_binh_quan' => $days->count() ? (int) round($days->avg()) : null,
             'ngay_thu_tien_trung_vi' => $days->count() ? (int) $days->sort()->values()[intdiv($days->count(), 2)] : null,
             'so_don_tinh' => $days->count(),

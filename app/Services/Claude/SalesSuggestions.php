@@ -124,7 +124,9 @@ class SalesSuggestions
             ->where('accountants.accountant_status', 0)
             ->where('orders.status_id', '!=', 0)
             ->whereNotNull('accountants.accountant_date')
-            ->whereRaw('accountants.accountant_owe > COALESCE(accountants.accountant_amount_paid, 0)')
+            // Nợ = đã có số hóa đơn, còn nợ (accountant_owe đã là số còn lại sau khi trừ đã thanh toán)
+            ->whereNotNull('accountants.accountant_number')->where('accountants.accountant_number', '!=', '')
+            ->where('accountants.accountant_owe', '>', 0)
             ->select('accountants.accountant_date', 'accountants.accountant_deadline',
                 DB::raw("COALESCE(NULLIF(units.unit_abbreviation, ''), order_details.ord_cty_name) as unit"))
             ->get()

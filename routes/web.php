@@ -360,6 +360,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('phan-tich-tai-chinh/ke-hoach', [\App\Http\Controllers\FinanceController::class, 'saveBudget'])->name('finance.budget.save')->middleware('access:debt_accountant');
     Route::post('phan-tich-tai-chinh/thu-no/giao', [\App\Http\Controllers\FinanceController::class, 'assignCollector'])->name('finance.collect.assign')->middleware('access:debt_accountant');
     Route::post('phan-tich-tai-chinh/thu-no/nhac', [\App\Http\Controllers\FinanceController::class, 'saveContact'])->name('finance.collect.contact')->middleware('access:debt_accountant');
+    Route::post('phan-tich-tai-chinh/ghi-nho', [\App\Http\Controllers\FinanceController::class, 'saveNote'])->name('finance.notes.store')->middleware('access:debt_accountant');
+    Route::patch('phan-tich-tai-chinh/ghi-nho/{id}', [\App\Http\Controllers\FinanceController::class, 'saveNote'])->name('finance.notes.update')->middleware('access:debt_accountant')->whereNumber('id');
+    Route::delete('phan-tich-tai-chinh/ghi-nho/{id}', [\App\Http\Controllers\FinanceController::class, 'deleteNote'])->name('finance.notes.destroy')->middleware('access:debt_accountant')->whereNumber('id');
     Route::post('phan-tich-tai-chinh/duyet-gia', [\App\Http\Controllers\FinanceController::class, 'approvePrice'])->name('finance.price.approve')->middleware('access:debt_accountant');
     // Nhật ký hoạt động nhân viên (chỉ Admin đầy đủ quyền; gộp cả Lịch sử chỉnh sửa cũ)
     Route::get('nhat-ky-hoat-dong', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index')->middleware('access:activity_log');

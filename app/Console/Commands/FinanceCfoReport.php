@@ -43,10 +43,13 @@ class FinanceCfoReport extends Command
 
         $prompt = "Lập BÁO CÁO CFO THÁNG {$label} để gửi email cho giám đốc (báo cáo tự động đầu tháng).\n"
             . "- Kỳ: {$month->format('01/m/Y')} – {$month->copy()->endOfMonth()->format('d/m/Y')}, so với tháng trước và cùng kỳ năm trước nếu có số.\n"
+            . "- Bắt đầu bằng ghi_nho (xem) để dùng các quyết định / tình hình đã ghi nhớ; lãi lỗ quản trị lấy đúng từ bao_cao_quan_tri (tháng này và lũy kế năm).\n"
             . "- Đủ 3 lớp số liệu: vận hành XQ và lãi ước tính (phan_tich_van_hanh), lãi lỗ theo sổ MISA nếu đã có sổ tháng này (ket_qua_kinh_doanh), "
             . "CT (cong_no_ct), tiền và nợ (du_bao_dong_tien, tuoi_no_tien_ket), so với kế hoạch năm (ke_hoach_nam) nếu đã có.\n"
             . "- Bố cục: Tóm tắt điều hành (3–5 ý) → Bảng chỉ số chính (kèm cột kế hoạch nếu có) → Phân tích → Rủi ro → 3–5 việc cần làm tháng này (ai làm, hạn, tác động bằng tiền) → Dòng tiền 13 tuần tới → ⚠️ Dữ liệu còn thiếu (ai cần bổ sung gì, ở trang nào).\n"
-            . "- Kèm 2–3 biểu đồ bieu-do. Viết để giám đốc đọc trên điện thoại: ngắn, rõ số, không hỏi lại.";
+            . "- Kèm 2–3 biểu đồ bieu-do. Viết để giám đốc đọc trên điện thoại: ngắn, rõ số, không hỏi lại.\n"
+            . "- Cuối báo cáo bắt buộc 3 mục: Nguồn số liệu, Cách ước tính (số nào là ước tính, dựa trên gì), Cần bổ sung để hoàn thiện (ai, file gì, trang nào). "
+            . "Gọi tong_quan_du_lieu với tu_ngay / den_ngay của kỳ để biết dữ liệu nào thiếu.";
 
         $to = FinanceAlerts::recipients();
         if ($this->option('dry-run')) {
@@ -94,13 +97,22 @@ class FinanceCfoReport extends Command
 
             return self::SUCCESS;
         }
+        $pdfName = 'Bao-cao-CFO-' . $month->format('Y-m') . '.pdf';
+        $files = [];
+        try {
+            $files[] = ['data' => self::pdf($result['reply'], $label), 'name' => $pdfName];
+        } catch (Throwable $e) {
+            Log::warning('Tạo PDF báo cáo CFO lỗi, gửi email không kèm PDF', ['error' => $e->getMessage()]);
+            $this->warn('Tạo PDF lỗi: ' . $e->getMessage());
+        }
         try {
             Mail::to($to)->send(new FinanceMail("📊 Báo cáo CFO tháng {$label}", 'emails.finance.cfo_report', [
                 'label' => $label,
                 'html' => self::emailHtml($result['reply']),
                 'url' => $url,
                 'user' => $user->display_name ?? $user->name,
-            ]));
+                'pdf' => $files ? $pdfName : null,
+            ], $files));
         } catch (Throwable $e) {
             Log::error('Gửi email báo cáo CFO lỗi', ['error' => $e->getMessage()]);
             $this->error('Gửi email lỗi: ' . $e->getMessage());
@@ -110,6 +122,15 @@ class FinanceCfoReport extends Command
         $this->info('Đã gửi cho: ' . implode(', ', $to));
 
         return self::SUCCESS;
+    }
+
+    /** PDF của báo cáo (đính kèm email): cùng nội dung email, font DejaVu Sans để có dấu tiếng Việt, bỏ emoji (font không có) */
+    public static function pdf(string $markdown, string $label): string
+    {
+        $html = preg_replace('/[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{200D}]/u', '', str_replace(' (nút bên dưới)', '', self::emailHtml($markdown)));
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.finance.cfo_report_pdf', ['label' => $label, 'html' => $html])
+            ->setPaper('a4')->output();
     }
 
     /** Markdown trả lời → HTML cho email: biểu đồ thay bằng ghi chú (email không chạy được JS), bảng / tiêu đề có style inline */

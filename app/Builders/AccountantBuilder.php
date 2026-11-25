@@ -255,7 +255,9 @@ final class AccountantBuilder extends Builder
         if ($todo === 'wait_revenue') {
             $query->where('orders.status_id', 2);
         } elseif ($todo === 'overdue') {
+            // Nợ = đã có số hóa đơn, chưa thanh toán (đơn chưa xuất HĐ không phải nợ — xem "chưa xuất hóa đơn")
             $query->where('accountants.accountant_status', 0)
+                ->whereNotNull('accountants.accountant_number')->where('accountants.accountant_number', '!=', '')
                 ->where('orders.order_price', '>', 0)
                 ->whereBetween('order_details.ord_start_day', [now()->subYear()->toDateString(), now()->subDays(45)->toDateString()]);
         }

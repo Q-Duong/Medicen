@@ -23,6 +23,7 @@ return [
         // Toàn bộ mục Kế toán, chỉ xem (các route lưu / sửa / xóa không có trong danh sách nên bị chặn):
         // Phân tích tài chính, Công nợ kế toán, Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán
         'finance.index',
+        'finance.notes.*', // Ghi nhớ CFO: giám đốc được thêm / sửa / xóa
         'accountant.index', 'accountant.get', 'accountant.filter_options',
         'ct.index', 'ct.edit',
         'vcb.index',

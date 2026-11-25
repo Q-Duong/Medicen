@@ -2,6 +2,18 @@
 @section('title', 'Phân tích tài chính - Medicen')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/report.css') }}" type="text/css" as="style" />
+    {{-- Xuất PDF (in trang): chỉ in nội dung tab đang xem, bỏ khung web, ô lọc / nút / form sửa --}}
+    <style media="print">
+        @page { size: A4 landscape; margin: 12mm 10mm; }
+        html, body { background: #fff !important; }
+        header.app-header, aside, #sidebar, .bk-tabs, .rp-head__actions, .fn-chips, form, button, .notification, .fn-edit, .no-print { display: none !important; }
+        #main-content { margin: 0 !important; padding: 0 !important; }
+        .wrapper, .container-fluid { margin: 0 !important; padding: 0 !important; }
+        .rp-scroll { overflow: visible !important; max-height: none !important; }
+        .rp-card, table, tr { break-inside: avoid; }
+        .rp-head .print-only { display: block !important; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    </style>
 @endpush
 @section('admin_content')
     @php
@@ -19,8 +31,11 @@
             <div class="rp-head__title">
                 <h1>Phân tích tài chính</h1>
                 <p>Tiền đang kẹt ở đâu, đơn nào lãi / lỗ, tiền 13 tuần tới có đủ chi không · số liệu mới nhất trên web</p>
+                <p class="print-only" style="display:none">{{ $tabs[$tab] ?? '' }} · in lúc {{ now()->format('d/m/Y H:i') }} · Medicen · tài liệu nội bộ</p>
             </div>
             <div class="rp-head__actions">
+                {{-- Xuất PDF: hộp thoại in của trình duyệt → chọn "Lưu thành PDF" --}}
+                <button type="button" class="rp-btn" onclick="(function(){var t=document.title;document.title='Phan tich tai chinh - {{ $tabs[$tab] ?? '' }} - {{ now()->format('d-m-Y') }}';window.print();document.title=t;})()"><i class="far fa-file-pdf"></i> Xuất PDF</button>
                 <a href="{{ route('assistant.show', 'ke_toan') }}" class="rp-btn"><i class="fas fa-user-tie"></i> Hỏi CFO AI</a>
             </div>
         </div>
@@ -28,7 +43,7 @@
         <nav class="bk-tabs">
             @foreach ($tabs as $k => $label)
                 <a href="{{ route('finance.index', ['tab' => $k]) }}" class="{{ $tab === $k ? 'is-active' : '' }}">
-                    <i class="fas {{ ['tien-ket' => 'fa-hourglass-half', 'thu-no' => 'fa-phone-volume', 'han-muc' => 'fa-shield-alt', 'duyet-gia' => 'fa-tags', 'lai-uoc-tinh' => 'fa-coins', 'dong-tien' => 'fa-water', 'ke-hoach' => 'fa-bullseye'][$k] }}"></i>{{ $label }}
+                    <i class="fas {{ ['tien-ket' => 'fa-hourglass-half', 'thu-no' => 'fa-phone-volume', 'han-muc' => 'fa-shield-alt', 'duyet-gia' => 'fa-tags', 'lai-uoc-tinh' => 'fa-coins', 'dong-tien' => 'fa-water', 'ke-hoach' => 'fa-bullseye', 'quan-tri' => 'fa-file-invoice', 'ghi-nho' => 'fa-sticky-note'][$k] ?? 'fa-circle' }}"></i>{{ $label }}
                 </a>
             @endforeach
         </nav>
@@ -43,9 +58,9 @@
             @endphp
             <div class="rp-kpis">
                 <section class="rp-card rp-kpi rp-card--debt">
-                    <h2 class="rp-card__title"><i class="fas fa-hand-holding-usd"></i> Cần thu (quá hạn + tiền kẹt)</h2>
-                    <p class="rp-kpi__big">{{ $m($collectAll->sum('overdue') + $collectAll->sum('stuck')) }}</p>
-                    <p class="rp-kpi__note">{{ $collectAll->count() }} đơn vị · quá hạn {{ $tr($collectAll->sum('overdue')) }} · chưa xuất HĐ {{ $tr($collectAll->sum('stuck')) }}</p>
+                    <h2 class="rp-card__title"><i class="fas fa-hand-holding-usd"></i> Cần thu: nợ quá hạn</h2>
+                    <p class="rp-kpi__big">{{ $m($collectAll->sum('overdue')) }}</p>
+                    <p class="rp-kpi__note">{{ $collectAll->count() }} đơn vị · chỉ hóa đơn đã có số, chưa thanh toán, đã quá hạn</p>
                 </section>
                 <section class="rp-card rp-kpi rp-card--neg">
                     <h2 class="rp-card__title"><i class="fas fa-calendar-times"></i> Quá ngày hẹn trả</h2>
@@ -82,8 +97,8 @@
                         <tbody>
                             @forelse ($collect as $c)
                                 <tr>
-                                    <td class="is-text"><b>{{ $c['unit'] }}</b><div class="fn-sub">{{ $c['max_overdue_days'] ? 'quá hạn lâu nhất ' . $c['max_overdue_days'] . ' ngày' : 'chưa xuất hóa đơn' }}</div></td>
-                                    <td><b>{{ $m($c['overdue'] + $c['stuck']) }}</b><div class="fn-sub">{{ $c['overdue'] ? 'QH ' . $tr($c['overdue']) : '' }}{{ $c['overdue'] && $c['stuck'] ? ' · ' : '' }}{{ $c['stuck'] ? 'kẹt ' . $tr($c['stuck']) : '' }}</div></td>
+                                    <td class="is-text"><b>{{ $c['unit'] }}</b><div class="fn-sub">quá hạn lâu nhất {{ $c['max_overdue_days'] }} ngày</div></td>
+                                    <td><b>{{ $m($c['overdue']) }}</b><div class="fn-sub">tổng nợ {{ $tr($c['owe']) }}{{ $c['stuck'] ? ' · chưa xuất HĐ ' . $tr($c['stuck']) . ' (không tính)' : '' }}</div></td>
                                     <td class="is-text">
                                         @if ($canEdit)
                                             <form method="post" action="{{ route('finance.collect.assign') }}">
@@ -123,7 +138,7 @@
                                                 <summary class="bk-edit" title="Ghi lần nhắc nợ"><i class="fas fa-phone"></i> Nhắc</summary>
                                                 <form method="post" action="{{ route('finance.collect.contact') }}" class="fn-edit__form">
                                                     @csrf
-                                                    <h3 class="fn-edit__title">Nhắc nợ · {{ $c['unit'] }} <small class="fn-sub">cần thu {{ $m($c['overdue'] + $c['stuck']) }}</small></h3>
+                                                    <h3 class="fn-edit__title">Nhắc nợ · {{ $c['unit'] }} <small class="fn-sub">nợ quá hạn {{ $m($c['overdue']) }}</small></h3>
                                                     <input type="hidden" name="unit_id" value="{{ $c['unit_id'] }}"><input type="hidden" name="loc" value="{{ $filter }}">
                                                     <label class="fn-f"><span>Ngày nhắc</span><input type="date" name="contacted_on" value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" required></label>
                                                     <label class="fn-f"><span>Kênh</span><select name="channel">@foreach (\App\Services\Accounting\DebtCollection::CHANNELS as $ck => $cl)<option value="{{ $ck }}">{{ $cl }}</option>@endforeach</select></label>
@@ -150,7 +165,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="bk-hint">Danh sách gồm các đơn vị có nợ quá hạn hoặc đơn đã chụp ≥ 7 ngày chưa xuất hóa đơn. "Lâu chưa nhắc" = quá {{ \App\Services\Accounting\DebtCollection::REMIND_DAYS }} ngày chưa nhắc. Người ghi lần nhắc đầu tiên tự thành người phụ trách nếu chưa giao.</p>
+                <p class="bk-hint">Danh sách gồm các đơn vị có nợ quá hạn: chỉ hóa đơn đã có số hóa đơn, chưa thanh toán. Đơn chưa xuất hóa đơn không phải nợ (xem tab Tiền kẹt). "Lâu chưa nhắc" = quá {{ \App\Services\Accounting\DebtCollection::REMIND_DAYS }} ngày chưa nhắc. Người ghi lần nhắc đầu tiên tự thành người phụ trách nếu chưa giao.</p>
             </section>
         @endif
 
@@ -423,14 +438,15 @@
         @if ($tab === 'tien-ket')
             <div class="rp-kpis">
                 <section class="rp-card rp-kpi rp-card--debt">
-                    <h2 class="rp-card__title"><i class="fas fa-file-invoice-dollar"></i> Tổng phải thu XQ</h2>
+                    <h2 class="rp-card__title"><i class="fas fa-file-invoice-dollar"></i> Nợ phải thu XQ (đã xuất HĐ)</h2>
                     <p class="rp-kpi__big">{{ $m($r['total']) }}</p>
+                    <p class="rp-kpi__note">{{ $r['debt_count'] }} hóa đơn đã có số, chưa thanh toán</p>
                     <p class="rp-kpi__note">Số ngày thu tiền bình quân 6 tháng: <b>{{ $r['dso'] !== null ? $r['dso'] . ' ngày' : 'chưa đủ dữ liệu' }}</b></p>
                 </section>
                 <section class="rp-card rp-kpi rp-card--neg">
                     <h2 class="rp-card__title"><i class="fas fa-exclamation-triangle"></i> Đã quá hạn</h2>
                     <p class="rp-kpi__big is-neg">{{ $m($r['overdue']) }}</p>
-                    <p class="rp-kpi__note">{{ $pct($r['overdue_pct']) }} tổng phải thu · {{ $r['overdue_rows']->count() }} hóa đơn</p>
+                    <p class="rp-kpi__note">{{ $pct($r['overdue_pct']) }} nợ phải thu · {{ $r['overdue_rows']->count() }} hóa đơn</p>
                 </section>
                 <section class="rp-card rp-kpi fn-kpi--stuck">
                     <h2 class="rp-card__title"><i class="fas fa-hourglass-half"></i> Tiền kẹt: chưa xuất hóa đơn</h2>
@@ -442,7 +458,7 @@
             <section class="rp-card">
                 <h2 class="rp-card__title"><i class="fas fa-layer-group"></i> Phân tuổi nợ</h2>
                 <div class="fn-aging">
-                    @php($max = max(1, $r['buckets']->max('amount')))
+                    @php $max = max(1, $r['buckets']->max('amount')); @endphp
                     @foreach ($r['buckets'] as $b)
                         <div class="fn-aging__row fn-aging__row--{{ $b['key'] }}">
                             <span class="fn-aging__label">{{ $b['label'] }}</span>
@@ -461,7 +477,7 @@
                         <thead>
                             <tr>
                                 <th class="is-text">Đơn vị</th>
-                                <th>Tổng nợ</th>
+                                <th>Nợ (đã xuất HĐ)</th>
                                 <th>Chưa đến hạn</th>
                                 <th>1–30</th>
                                 <th>31–60</th>
@@ -474,7 +490,7 @@
                         <tbody>
                             @forelse ($r['by_unit']->take(40) as $u)
                                 <tr>
-                                    <td class="is-text"><b>{{ $u['unit'] }}</b> <span class="fn-sub">{{ $u['count'] }} đơn</span></td>
+                                    <td class="is-text"><b>{{ $u['unit'] }}</b> <span class="fn-sub">{{ $u['count'] }} hóa đơn{{ $u['uninvoiced_count'] ? ' · ' . $u['uninvoiced_count'] . ' đơn chưa xuất HĐ' : '' }}</span></td>
                                     <td><b>{{ $m($u['total']) }}</b></td>
                                     <td>{{ $u['chua_den_han'] ? $m($u['chua_den_han']) : '' }}</td>
                                     <td class="fn-warn">{{ $u['qh_1_30'] ? $m($u['qh_1_30']) : '' }}</td>
@@ -542,7 +558,7 @@
 
         {{-- ============================== LÃI ƯỚC TÍNH ============================== --}}
         @if ($tab === 'lai-uoc-tinh')
-            @php($t = $a['tong'])
+            @php $t = $a['tong']; @endphp
             <form method="get" class="rp-card fn-filter">
                 <input type="hidden" name="tab" value="lai-uoc-tinh">
                 <label class="fn-f"><span>Từ ngày</span><input type="date" name="tu" value="{{ $from->toDateString() }}"></label>
@@ -643,9 +659,9 @@
                     </table>
                 </div>
             </section>
-            @php($chartMonth = ['labels' => array_map(fn ($r) => substr($r['thang'], 5) . '/' . substr($r['thang'], 2, 2), $a['theo_thang']),
+            @php $chartMonth = ['labels' => array_map(fn ($r) => substr($r['thang'], 5) . '/' . substr($r['thang'], 2, 2), $a['theo_thang']),
                 'revenue' => array_column($a['theo_thang'], 'doanh_thu_thuan'), 'profit' => array_column($a['theo_thang'], 'lai_uoc_tinh'),
-                'margin' => array_column($a['theo_thang'], 'bien_lai_pct')])
+                'margin' => array_column($a['theo_thang'], 'bien_lai_pct')]; @endphp
             <script type="application/json" id="fn-month-data">@json($chartMonth)</script>
         @endif
 
@@ -723,10 +739,111 @@
                     @foreach ($f['ghi_chu'] as $n)<li>{{ $n }}</li>@endforeach
                 </ul>
             </section>
-            @php($chartCash = ['labels' => array_map(fn ($w) => 'T' . $w['tuan'] . ' ' . \Carbon\Carbon::parse($w['tu'])->format('d/m'), $f['tuan']),
+            @php $chartCash = ['labels' => array_map(fn ($w) => 'T' . $w['tuan'] . ' ' . \Carbon\Carbon::parse($w['tu'])->format('d/m'), $f['tuan']),
                 'in' => array_column($f['tuan'], 'tong_thu'), 'out' => array_map(fn ($w) => -$w['tong_chi'], $f['tuan']),
-                'balance' => array_column($f['tuan'], 'cuoi_ky'), 'threshold' => $f['nguong_canh_bao']])
+                'balance' => array_column($f['tuan'], 'cuoi_ky'), 'threshold' => $f['nguong_canh_bao']]; @endphp
             <script type="application/json" id="fn-cash-data">@json($chartCash)</script>
+        @endif
+
+        {{-- ============================== BÁO CÁO QUẢN TRỊ ============================== --}}
+        @if ($tab === 'quan-tri')
+            @php
+                $mt = $mr['thang'];
+                $cell = function ($d) use ($m) {
+                    if (!$d || $d['so_tien'] === null) return '<span class="fn-sub">—</span>';
+                    return e($m($d['so_tien'])) . ($d['uoc_tinh'] ? '<sup class="mr-est" title="' . e($d['nguon']) . '">*</sup>' : '');
+                };
+            @endphp
+            <form method="GET" action="{{ route('finance.index') }}" class="fn-filter">
+                <input type="hidden" name="tab" value="quan-tri">
+                <label class="fn-f"><span>Từ ngày</span><input type="date" name="tu" value="{{ $mrFrom->toDateString() }}"></label>
+                <label class="fn-f"><span>Đến ngày</span><input type="date" name="den" value="{{ $mrTo->toDateString() }}"></label>
+                <button type="submit" class="rp-btn rp-btn--primary">Xem</button>
+            </form>
+            <div class="rp-kpis">
+                <section class="rp-card rp-kpi">
+                    <h2 class="rp-card__title"><i class="fas fa-coins"></i> Tổng doanh thu</h2>
+                    <p class="rp-kpi__big">{{ $m($mr['tong']['tong_doanh_thu']) }}</p>
+                    <p class="rp-kpi__note">XQ {{ $tr($mr['tong']['dong']['dt_xq']) }} · CT thu về {{ $tr($mr['tong']['dong']['dt_ct']) }}</p>
+                </section>
+                <section class="rp-card rp-kpi {{ $mr['tong']['lai_lo_quan_tri'] < 0 ? 'rp-card--neg' : 'rp-card--thu' }}">
+                    <h2 class="rp-card__title"><i class="fas fa-balance-scale"></i> Lãi / lỗ quản trị</h2>
+                    <p class="rp-kpi__big {{ $mr['tong']['lai_lo_quan_tri'] < 0 ? 'is-neg' : '' }}">{{ $m($mr['tong']['lai_lo_quan_tri']) }}</p>
+                    <p class="rp-kpi__note">Chưa gồm thu nhập / chi phí khác (thanh lý tài sản) và thuế</p>
+                </section>
+                <section class="rp-card rp-kpi">
+                    <h2 class="rp-card__title"><i class="fas fa-database"></i> Dữ liệu</h2>
+                    <p class="rp-kpi__note" style="margin-top:2px">Sổ MISA đến <b>{{ $mr['du_lieu']['so_misa_den'] ? \Carbon\Carbon::parse($mr['du_lieu']['so_misa_den'])->format('d/m/Y') : '—' }}</b> · lương đến <b>{{ $mr['du_lieu']['luong_den'] ?? '—' }}</b> · CT đến <b>{{ $mr['du_lieu']['ct_den'] ?? '—' }}</b>.
+                        Số có dấu <b>*</b> là ước tính (rê chuột để xem cách tính).</p>
+                </section>
+            </div>
+            <section class="rp-card">
+                <div class="rp-scroll">
+                    <table class="bk-table">
+                        <thead><tr><th class="is-text">Khoản</th>@foreach ($mt as $t)<th>{{ $t['thang'] }}</th>@endforeach<th>Cộng</th></tr></thead>
+                        <tbody>
+                            @foreach (['dt_xq', 'dt_ct'] as $k)
+                                <tr><td class="is-text">{{ $mr['nhan'][$k] }}</td>@foreach ($mt as $t)<td>{!! $cell($t['dong'][$k] ?? null) !!}</td>@endforeach<td><b>{{ $m($mr['tong']['dong'][$k]) }}</b></td></tr>
+                            @endforeach
+                            <tr class="mr-sum"><td class="is-text"><b>Tổng doanh thu</b></td>@foreach ($mt as $t)<td><b>{{ $m($t['tong_doanh_thu']) }}</b></td>@endforeach<td><b>{{ $m($mr['tong']['tong_doanh_thu']) }}</b></td></tr>
+                            @foreach (['cp_ct', 'luong_xq', 'vat_tu', 'luong_vp', 'khau_hao', 'ql_khac', 'tai_chinh'] as $k)
+                                <tr><td class="is-text">{{ $mr['nhan'][$k] }}</td>@foreach ($mt as $t)<td>{!! $cell($t['dong'][$k] ?? null) !!}</td>@endforeach<td>{{ $m($mr['tong']['dong'][$k]) }}</td></tr>
+                            @endforeach
+                            <tr class="mr-sum"><td class="is-text"><b>Tổng chi phí</b></td>@foreach ($mt as $t)<td><b>{{ $m($t['tong_chi_phi']) }}</b></td>@endforeach<td><b>{{ $m($mr['tong']['tong_chi_phi']) }}</b></td></tr>
+                            <tr class="mr-sum"><td class="is-text"><b>Lãi / lỗ quản trị</b></td>@foreach ($mt as $t)<td class="{{ $t['lai_lo_quan_tri'] < 0 ? 'fn-bad' : '' }}"><b>{{ $m($t['lai_lo_quan_tri']) }}</b>{!! $t['co_so_uoc_tinh'] ? '<sup class="mr-est">*</sup>' : '' !!}</td>@endforeach<td class="{{ $mr['tong']['lai_lo_quan_tri'] < 0 ? 'fn-bad' : '' }}"><b>{{ $m($mr['tong']['lai_lo_quan_tri']) }}</b></td></tr>
+                            <tr><td class="is-text fn-sub">Trong đó lãi CT (thu về − chi phí CT)</td>@foreach ($mt as $t)<td class="fn-sub">{{ $m($t['lai_ct']) }}</td>@endforeach<td class="fn-sub">{{ $m($mr['tong']['lai_ct']) }}</td></tr>
+                            <tr><td class="is-text fn-sub">Thu nhập − chi phí khác theo sổ (thanh lý…)</td>@foreach ($mt as $t)<td class="fn-sub">{{ $t['thu_nhap_tru_chi_phi_khac_theo_so'] === null ? 'chưa có sổ' : $m($t['thu_nhap_tru_chi_phi_khac_theo_so']) }}</td>@endforeach<td class="fn-sub">{{ $m($mr['tong']['thu_nhap_tru_chi_phi_khac_theo_so']) }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <ul class="bk-hint" style="margin:10px 0 0;padding-left:18px">@foreach ($mr['cach_tinh'] as $l)<li>{{ $l }}</li>@endforeach</ul>
+            </section>
+            <style>.mr-est{color:#b54708;font-weight:700;margin-left:1px;cursor:help}.mr-sum td{background:#faf9f5}</style>
+        @endif
+
+        {{-- ============================== GHI NHỚ CFO ============================== --}}
+        @if ($tab === 'ghi-nho')
+            <p class="bk-hint">Quyết định / tình hình đã chốt để Trợ lý CFO dùng ở các lần hỏi sau (vd "tiền máy Bloc đã về 20/11", "Á Châu dừng hợp đồng từ 12/2026").
+                Có thể thêm ở đây hoặc nói với trợ lý "ghi nhớ …". Việc đã xử lý thì đánh dấu xong để trợ lý không dùng nữa.</p>
+            @if ($canEditNotes)
+                <section class="rp-card no-print">
+                    <form method="post" action="{{ route('finance.notes.store') }}" class="fn-filter" style="align-items:flex-end">
+                        @csrf
+                        <label class="fn-f" style="flex:2 1 320px"><span>Nội dung</span><input type="text" name="content" maxlength="2000" required placeholder="Vd: Tiền bán máy Bloc 746 tr đã về TK HDB ngày 20/11"></label>
+                        <label class="fn-f"><span>Chủ đề</span><input type="text" name="topic" maxlength="120" placeholder="Vd: Bán máy Bloc"></label>
+                        <label class="fn-f"><span>Ngày xem lại</span><input type="date" name="remind_on"></label>
+                        <button type="submit" class="rp-btn rp-btn--primary"><i class="fas fa-plus"></i> Thêm ghi nhớ</button>
+                    </form>
+                </section>
+            @endif
+            <section class="rp-card">
+                <div class="rp-scroll">
+                    <table class="bk-table">
+                        <thead><tr><th class="is-text">Ghi nhớ</th><th class="is-text">Chủ đề</th><th>Ghi ngày</th><th>Xem lại</th><th class="is-text">Người ghi</th>@if ($canEditNotes)<th></th>@endif</tr></thead>
+                        <tbody>
+                            @forelse ($notes as $n)
+                                <tr style="{{ $n->done ? 'opacity:.55' : '' }}">
+                                    <td class="is-text">{{ $n->content }} @if ($n->done)<span class="fn-sub">(đã xong)</span>@endif @if ($n->source === 'tro_ly')<span class="fn-sub">· trợ lý ghi</span>@endif</td>
+                                    <td class="is-text">{{ $n->topic }}</td>
+                                    <td>{{ $n->created_at->format('d/m/Y') }}</td>
+                                    <td class="{{ !$n->done && $n->remind_on && $n->remind_on->lte(today()) ? 'fn-bad' : '' }}">{{ $n->remind_on?->format('d/m/Y') }}</td>
+                                    <td class="is-text">{{ $n->author->name ?? '' }}</td>
+                                    @if ($canEditNotes)
+                                        <td style="white-space:nowrap">
+                                            <form method="post" action="{{ route('finance.notes.update', $n->id) }}" style="display:inline">@csrf @method('patch')<input type="hidden" name="toggle_done" value="1">
+                                                <button type="submit" class="rp-btn" title="{{ $n->done ? 'Mở lại' : 'Đánh dấu xong' }}"><i class="fas fa-{{ $n->done ? 'undo' : 'check' }}"></i></button></form>
+                                            <form method="post" action="{{ route('finance.notes.destroy', $n->id) }}" style="display:inline" onsubmit="return confirm('Xóa ghi nhớ này?')">@csrf @method('delete')
+                                                <button type="submit" class="rp-btn" title="Xóa"><i class="far fa-trash-alt"></i></button></form>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @empty
+                                <tr><td colspan="6" class="is-text">Chưa có ghi nhớ nào.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         @endif
     </div>
 @endsection

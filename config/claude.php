@@ -183,6 +183,7 @@ return [
                 ],
                 'chien_luoc' => [
                     'label' => 'Hướng kinh doanh',
+                    'pdf' => true,
                     'icon' => 'fas fa-compass',
                     'placeholder' => 'Vd: năm 2027 nên tập trung vào đâu? Có nên mua thêm xe? Tăng giá được không?',
                     'instruction' => 'Vạch hướng kinh doanh ở vai CFO (mục 7 skill nkl-ke-toan): dựa trên số liệu 12 tháng gần nhất (phan_tich_van_hanh, ket_qua_kinh_doanh, '
@@ -197,6 +198,7 @@ return [
                 ],
                 'bao_cao' => [
                     'label' => 'Kết quả kinh doanh',
+                    'pdf' => true,
                     'icon' => 'fas fa-chart-line',
                     'placeholder' => 'Kỳ cần xem, vd: quý 2/2026, năm 2025 so với 2024…',
                     'instruction' => 'Kết quả kinh doanh. Dùng ket_qua_kinh_doanh (chia theo kỳ phù hợp), so sánh kỳ trước nếu hợp lý, chỉ ra khoản chi phí tăng / giảm mạnh. '
@@ -208,6 +210,7 @@ return [
                 ],
                 'dong_tien' => [
                     'label' => 'Dòng tiền',
+                    'pdf' => true,
                     'icon' => 'fas fa-coins',
                     'placeholder' => 'Vd: tiền mặt tháng 5/2026 chi những gì…',
                     'instruction' => 'Dòng tiền. Dùng so_quy_ngan_hang và thu_chi_web: số dư đầu / cuối, thu chi theo tháng, khoản chi lớn, các khoản sắp đến hạn; cảnh báo nếu thiếu tiền.',
@@ -218,6 +221,7 @@ return [
                 ],
                 'cong_no' => [
                     'label' => 'Công nợ',
+                    'pdf' => true,
                     'icon' => 'fas fa-receipt',
                     'placeholder' => 'Tên khách / nhà cung cấp…',
                     'instruction' => 'Công nợ. Khách XQ: cong_no_web (hóa đơn, quá hạn); đối chiếu cong_no_doi_tac (sổ MISA) nếu cần. Nhà cung cấp / vay: cong_no_doi_tac phai_tra, phat_sinh_tai_khoan 341. '
@@ -229,6 +233,7 @@ return [
                 ],
                 'tai_lieu' => [
                     'label' => 'BCTC / Hợp đồng',
+                    'pdf' => true,
                     'icon' => 'far fa-file-alt',
                     'placeholder' => 'Vd: hợp đồng máy CT Lagi hết hạn khi nào?',
                     'instruction' => 'Tra tài liệu bằng tool tai_lieu (báo cáo tài chính, hợp đồng). Trả lời kèm tên tài liệu nguồn.',

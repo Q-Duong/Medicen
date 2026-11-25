@@ -107,6 +107,8 @@ class CashForecast
 
         // ---------- Báo cáo thu chi (tháng này + các tháng tới) ----------
         $notes = [];
+        // Khoản có số nhưng chưa có ngày: thường là theo biên bản thỏa thuận, chưa chốt thật → số ƯỚC TÍNH
+        $pending = ['thu' => [], 'chi' => []];
         $template = $this->recurringTemplate();
         $ctMonthly = $this->avgMonthlyCt($today);
         for ($m = $today->copy()->startOfMonth(); $m->lte($end); $m->addMonth()) {
@@ -125,12 +127,17 @@ class CashForecast
                     $date = $it->expected_date ? Carbon::parse($it->expected_date) : null;
                     if ($it->type === 'thu') {
                         if (!$date) {
+                            $pending['thu'][] = ['khoan' => trim($it->name, '- '), 'nhom' => $group, 'so_tien' => (int) $remaining, 'thang' => $m->month . '/' . $m->year];
                             $notes[] = 'Khoản thu "' . trim($it->name, '- ') . '" (' . number_format($remaining, 0, ',', '.') . ' đ, tháng ' . $m->month . ') chưa có ngày dự kiến nên chưa tính.';
                             continue;
                         }
                         $line = $it->auto_key && str_starts_with($it->auto_key, 'ct') ? 'CT' : 'Thu khác';
                         $add('in', $line, $date->lt($today) ? $today : $date, $remaining, trim($it->name, '- '));
                     } else {
+                        if (!$date) {
+                            $pending['chi'][] = ['khoan' => trim($it->name, '- '), 'nhom' => $group, 'so_tien' => (int) $remaining, 'thang' => $m->month . '/' . $m->year,
+                                'tam_tinh_ngay' => '15/' . $m->month];
+                        }
                         $date ??= $m->copy()->day(15);
                         $add('out', $group ?: 'Chi khác', $date->lt($today) ? $today : $date, $remaining, trim($it->name, '- '));
                     }
@@ -147,6 +154,12 @@ class CashForecast
                     $notes[] = 'Tháng ' . $m->month . '/' . $m->year . ' chưa có Báo cáo thu chi: chi lặp lại các khoản định kỳ của tháng ' . $template['from'] . '.';
                 }
             }
+        }
+
+        // ---------- Giả định thêm (tool gia_dinh_neu): [{loai: thu|chi, ngay, so_tien, ten}] ----------
+        foreach ((array) ($opt['khoan_them'] ?? []) as $k) {
+            $date = !empty($k['ngay']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $k['ngay']) ? Carbon::parse($k['ngay']) : $today->copy();
+            $add(($k['loai'] ?? 'chi') === 'thu' ? 'in' : 'out', 'Giả định', $date->lt($today) ? $today : $date, (float) ($k['so_tien'] ?? 0), trim((string) ($k['ten'] ?? 'Khoản giả định')) . ' (giả định)');
         }
 
         // ---------- Cộng dồn ----------
@@ -198,6 +211,14 @@ class CashForecast
                 'ct_binh_quan_thang' => (int) round($ctMonthly),
             ],
             'ghi_chu' => array_values(array_unique($notes)),
+            'khoan_chua_chot' => ($pending['thu'] || $pending['chi']) ? [
+                'ghi_chu' => 'Các khoản trên Báo cáo thu chi đã có số nhưng CHƯA CÓ NGÀY (thường là theo biên bản thỏa thuận, chưa chốt thật trên web): '
+                    . 'số là ƯỚC TÍNH. Khoản THU chưa tính vào dòng tiền theo tuần (nếu về thì số dư tăng thêm tong_thu); khoản CHI tạm tính vào ngày 15 của tháng.',
+                'tong_thu' => array_sum(array_column($pending['thu'], 'so_tien')),
+                'tong_chi' => array_sum(array_column($pending['chi'], 'so_tien')),
+                'thu' => $pending['thu'],
+                'chi' => $pending['chi'],
+            ] : null,
             'thieu_du_lieu' => $this->gaps($openingNote, $notes, $today, $end),
         ];
     }
@@ -206,7 +227,10 @@ class CashForecast
     private function gaps(string $openingNote, array $notes, Carbon $today, Carbon $end): array
     {
         $gaps = [];
-        if (str_starts_with($openingNote, 'Chưa có')) {
+        if (str_starts_with($openingNote, 'Ước tính')) {
+            $gaps[] = ['thieu' => 'Báo cáo thu chi tháng ' . $today->month . '/' . $today->year, 'anh_huong' => 'tiền đầu kỳ đang là SỐ ƯỚC TÍNH từ số dư cuối tháng trước (chưa gồm thu chi từ đầu tháng này)',
+                'bo_sung' => 'Kế toán lập Báo cáo thu chi tháng này (dòng Tiền hiện có, đã thu / đã chi), hoặc người dùng nói số tiền đang có để chạy lại (so_du)'];
+        } elseif (str_starts_with($openingNote, 'Chưa có')) {
             $gaps[] = ['thieu' => 'Báo cáo thu chi tháng ' . $today->month . '/' . $today->year, 'anh_huong' => 'tiền đầu kỳ đang = 0, cả dự báo lệch',
                 'bo_sung' => 'Kế toán lập Báo cáo thu chi tháng này (dòng Tiền hiện có), hoặc người dùng nói số tiền đang có để chạy lại (so_du)'];
         }
@@ -222,7 +246,8 @@ class CashForecast
         }
         $undated = array_values(array_filter($notes, fn ($n) => str_contains($n, 'chưa có ngày dự kiến')));
         if ($undated) {
-            $gaps[] = ['thieu' => count($undated) . ' khoản thu chưa có ngày dự kiến', 'anh_huong' => 'chưa được tính vào dự báo', 'bo_sung' => 'Nhập Ngày dự kiến cho các khoản thu ở Báo cáo thu chi', 'chi_tiet' => array_slice($undated, 0, 5)];
+            $gaps[] = ['thieu' => count($undated) . ' khoản thu đã có số nhưng chưa có ngày (theo biên bản thỏa thuận, chưa chốt)', 'anh_huong' => 'số là ước tính; chưa tính vào dòng tiền theo tuần (xem khoan_chua_chot)',
+                'bo_sung' => 'Khi chốt được ngày / ký biên bản chính thức thì kế toán nhập Ngày dự kiến ở Báo cáo thu chi', 'chi_tiet' => array_slice($undated, 0, 5)];
         }
         if ($this->receivables->dso() === null) {
             $gaps[] = ['thieu' => 'Lịch sử ngày thanh toán của khách', 'anh_huong' => 'đang giả định khách trả sau 45 ngày', 'bo_sung' => 'Nhập Ngày TT khi khách trả (trang Công nợ)'];
@@ -235,10 +260,26 @@ class CashForecast
     private function opening(Carbon $today): array
     {
         $items = $this->reportItems((int) $today->year, (int) $today->month);
-        if ($items->isEmpty()) {
-            return [0, 'Chưa có Báo cáo thu chi tháng ' . $today->month . '/' . $today->year . ' — nhập số dư tay để dự báo đúng'];
-        }
         $isOpening = fn ($it) => str_starts_with((string) $it->summary_group, 'Tiền hiện có');
+        if ($items->isEmpty()) {
+            // Kế toán chưa lập báo cáo tháng này: ƯỚC TÍNH bằng số dư cuối tháng gần nhất có báo cáo (số dư đầu + đã thu − đã chi tháng đó)
+            for ($i = 1; $i <= 6; $i++) {
+                $m = $today->copy()->startOfMonth()->subMonthsNoOverflow($i);
+                $prev = $this->reportItems((int) $m->year, (int) $m->month);
+                if ($prev->isEmpty()) {
+                    continue;
+                }
+                $sdk = $prev->filter($isOpening)->sum(fn ($it) => (float) $it->estimated_amount);
+                $thu = $prev->where('type', 'thu')->reject($isOpening)->sum(fn ($it) => (float) $it->actual_amount);
+                $chi = $prev->where('type', 'chi')->sum(fn ($it) => (float) $it->actual_amount);
+
+                return [(int) round($sdk + $thu - $chi), 'Ước tính: chưa có Báo cáo thu chi tháng ' . $today->month . '/' . $today->year
+                    . ', lấy số dư cuối tháng ' . $m->month . '/' . $m->year . ' theo báo cáo tháng đó (số dư đầu ' . number_format($sdk, 0, ',', '.')
+                    . ' + đã thu ' . number_format($thu, 0, ',', '.') . ' − đã chi ' . number_format($chi, 0, ',', '.') . '); chưa gồm thu chi từ đầu tháng này'];
+            }
+
+            return [0, 'Chưa có Báo cáo thu chi tháng ' . $today->month . '/' . $today->year . ' (và 6 tháng trước) — nhập số dư tay để dự báo đúng'];
+        }
         $sdk = $items->filter($isOpening)->sum(fn ($it) => (float) $it->estimated_amount);
         $thu = $items->where('type', 'thu')->reject($isOpening)->sum(fn ($it) => (float) $it->actual_amount);
         $chi = $items->where('type', 'chi')->sum(fn ($it) => (float) $it->actual_amount);

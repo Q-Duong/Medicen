@@ -59,6 +59,9 @@ class CreditPolicy
         $suggested = (int) max(self::MIN_LIMIT, round($avgMonth * self::MONTHS_OF_REVENUE / 1000000) * 1000000);
         $limit = $manual && $manual->limit_amount !== null ? (int) $manual->limit_amount : $suggested;
         $days = $manual && $manual->max_overdue_days !== null ? (int) $manual->max_overdue_days : self::DEFAULT_DAYS;
+        // Nợ = đơn đã có số hóa đơn (Receivables is_debt); đơn chưa xuất HĐ không tính vào hạn mức, chỉ hiện ở cột "Chưa xuất HĐ"
+        $all = $debts;
+        $debts = $all->where('is_debt', true);
         $owe = (int) $debts->sum('owe');
         $maxOverdue = (int) $debts->max('overdue_days');
         $used = $limit > 0 ? round($owe / $limit * 100, 1) : null;
@@ -76,7 +79,7 @@ class CreditPolicy
             'owe' => $owe,
             'overdue' => (int) $debts->where('overdue_days', '>', 0)->sum('owe'),
             'max_overdue_days' => $maxOverdue,
-            'uninvoiced' => (int) $debts->where('bucket', 'chua_xuat_hd')->sum('owe'),
+            'uninvoiced' => (int) $all->where('bucket', 'chua_xuat_hd')->sum('owe'),
             'avg_month_revenue' => (int) round($avgMonth),
             'suggested_limit' => $suggested,
             'limit' => $limit,

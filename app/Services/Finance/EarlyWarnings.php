@@ -33,10 +33,14 @@ class EarlyWarnings
 
         // 1. Dòng tiền 13 tuần
         $f = $this->forecast->build(['nguong' => $cfg['cash_threshold']]);
-        if (str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có')) {
+        // Chưa có báo cáo tháng này: tiền đầu kỳ đang ước tính từ tháng trước (hoặc = 0 nếu không có báo cáo nào gần đây)
+        $estimated = str_starts_with($f['nguon_tien_dau_ky'], 'Ước tính');
+        if (str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có') || $estimated) {
             $alerts[] = ['level' => 'info', 'title' => 'Chưa có Báo cáo thu chi tháng ' . $today->month,
-                'detail' => 'Dự báo dòng tiền đang tính từ số dư 0 nên chưa đáng tin. Kế toán cần lập Báo cáo thu chi tháng này (có dòng "Tiền hiện có").', 'lines' => []];
-        } elseif ($f['so_tuan_duoi_nguong'] > 0) {
+                'detail' => ($estimated ? $f['nguon_tien_dau_ky'] . '. Dự báo dòng tiền dùng số ước tính này.'
+                    : 'Dự báo dòng tiền đang tính từ số dư 0 nên chưa đáng tin.') . ' Kế toán cần lập Báo cáo thu chi tháng này (có dòng "Tiền hiện có").', 'lines' => []];
+        }
+        if (!str_starts_with($f['nguon_tien_dau_ky'], 'Chưa có') && $f['so_tuan_duoi_nguong'] > 0) {
             $low = collect($f['tuan'])->filter(fn ($w) => $w['canh_bao']);
             $first = $low->first();
             $alerts[] = ['level' => 'bad', 'title' => 'Có ' . $low->count() . ' tuần tiền dưới ngưỡng ' . $m($cfg['cash_threshold']),
@@ -80,8 +84,8 @@ class EarlyWarnings
         }
         $noOwner = $collect->where('status', 'chua_phu_trach');
         if ($noOwner->isNotEmpty()) {
-            $alerts[] = ['level' => 'warn', 'title' => $noOwner->count() . ' khách nợ quá hạn / tiền kẹt chưa ai phụ trách thu',
-                'detail' => 'Tổng ' . $m($noOwner->sum(fn ($c) => $c['overdue'] + $c['stuck'])) . '. Giao người phụ trách ở Phân tích tài chính → Thu nợ.',
+            $alerts[] = ['level' => 'warn', 'title' => $noOwner->count() . ' khách nợ quá hạn (hóa đơn đã xuất) chưa ai phụ trách thu',
+                'detail' => 'Nợ quá hạn ' . $m($noOwner->sum('overdue')) . '. Giao người phụ trách ở Phân tích tài chính → Thu nợ.',
                 'lines' => $noOwner->sortByDesc(fn ($c) => $c['overdue'] + $c['stuck'])->take(5)->map(fn ($c) => $c['unit'] . ' · ' . $m($c['overdue'] + $c['stuck']))->values()->all()];
         }
 
@@ -127,6 +131,14 @@ class EarlyWarnings
                 'lines' => $cars->sortBy('last_day')->map(fn ($c) => \App\Services\Accounting\CfoAnalytics::carLabel($c->car) . ' · chạy lần cuối ' . Carbon::parse($c->last_day)->format('d/m') . ' (' . Carbon::parse($c->last_day)->diffInDays($today) . ' ngày)')->values()->all()];
         }
 
+        // 5b. Sổ MISA trễ: báo cáo CFO / BCTC đang phải ước tính
+        $misaEnd = DB::table('acc_journal_entries')->max('posted_on');
+        if ($misaEnd && Carbon::parse($misaEnd)->lt($today->copy()->subDays(45))) {
+            $alerts[] = ['level' => 'warn', 'title' => 'Sổ MISA trên web mới có đến ' . Carbon::parse($misaEnd)->format('d/m/Y'),
+                'detail' => 'Kết quả kinh doanh / BCTC các tháng sau đang là số ƯỚC TÍNH. Kế toán xuất sổ nhật ký chung, sổ quỹ, sổ ngân hàng, công nợ từ '
+                    . Carbon::parse($misaEnd)->addDay()->format('d/m/Y') . ' đến nay và tải lên Dữ liệu kế toán.', 'lines' => []];
+        }
+
         // 6. Hợp đồng sắp hết hạn: hợp đồng khách hàng (nguyên tắc, không tự gia hạn) + tài liệu loại hợp đồng ở Dữ liệu kế toán
         $until = $today->copy()->addDays($cfg['contract_days'])->toDateString();
         $contracts = \App\Models\CustomerContract::with('unit:id,unit_abbreviation')->where('type', 'nguyen_tac')->where('auto_renew', false)
@@ -158,9 +170,9 @@ class EarlyWarnings
             'overview' => [
                 'Tiền hiện có' => $m($f['tien_dau_ky']),
                 'Số dư dự kiến sau 13 tuần' => $m($f['tien_cuoi_13_tuan']),
-                'Tổng phải thu XQ' => $m($r['total']),
+                'Nợ phải thu XQ (đã xuất HĐ)' => $m($r['total']) . ' (' . $r['debt_count'] . ' hóa đơn)',
                 'Nợ quá hạn' => $m($r['overdue']) . ' (' . $r['overdue_pct'] . '%)',
-                'Tiền kẹt chưa xuất HĐ' => $m($r['stuck_total']),
+                'Chưa xuất HĐ (không phải nợ)' => $m($r['uninvoiced']) . ', trong đó chụp xong ≥ ' . \App\Services\Accounting\Receivables::STUCK_DAYS . ' ngày ' . $m($r['stuck_total']),
                 'Số ngày thu tiền bình quân' => $r['dso'] !== null ? $r['dso'] . ' ngày' : 'chưa đủ dữ liệu',
             ],
         ];

@@ -43,8 +43,73 @@ class AccountantTools implements DepartmentTools
             [
                 'name' => 'tong_quan_du_lieu',
                 'description' => 'Xem dữ liệu sổ sách đang có: mỗi loại sổ có từ ngày nào đến ngày nào, lần nhập gần nhất, có báo cáo tài chính / hợp đồng nào. '
-                    . 'Gọi đầu tiên khi không chắc kỳ hỏi đã có số liệu chưa.',
-                'input_schema' => ['type' => 'object', 'properties' => new \stdClass(), 'additionalProperties' => false],
+                    . 'Ghi tu_ngay / den_ngay của kỳ cần làm báo cáo (BCTC, báo cáo CFO, dòng tiền…) để có kiem_tra_ky: từng nguồn số liệu dùng cho mục nào, '
+                    . 'có đến ngày nào, đủ cho kỳ chưa, thiếu thì cần FILE / VIỆC gì (ai làm, tải ở đâu) và trong lúc chờ thì ƯỚC TÍNH thế nào. '
+                    . 'Gọi đầu tiên khi làm báo cáo hoặc khi không chắc kỳ hỏi đã có số liệu chưa.',
+                'input_schema' => ['type' => 'object', 'properties' => [
+                    'tu_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD: đầu kỳ cần làm báo cáo (tùy chọn)'],
+                    'den_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD: cuối kỳ (tùy chọn, mặc định hôm nay)'],
+                ], 'additionalProperties' => false],
+            ],
+            [
+                'name' => 'ghi_nho',
+                'description' => 'Ghi nhớ của CFO: quyết định / tình hình giám đốc, kế toán đã nói để dùng ở các lần hỏi sau (vd "tiền máy Bloc đã về 20/11", '
+                    . '"Á Châu dừng hợp đồng từ 12/2026", "khoản vay cô Hồng giãn đến tháng 2"). hanh_dong: xem (mặc định — GỌI ĐẦU MỖI BÁO CÁO / PHÂN TÍCH), '
+                    . 'them (khi người dùng nói "ghi nhớ…", "nhớ giúp…" hoặc báo một sự việc đã chốt làm thay đổi số liệu), xong (việc đã xử lý), xoa.',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'hanh_dong' => ['type' => 'string', 'enum' => ['xem', 'them', 'xong', 'xoa']],
+                        'noi_dung' => ['type' => 'string', 'description' => 'Với them: nội dung ngắn, có ngày / số tiền nếu có'],
+                        'chu_de' => ['type' => 'string', 'description' => 'Với them: chủ đề ngắn (vd "Bán máy Bloc", "CT Á Châu")'],
+                        'nhac_ngay' => ['type' => 'string', 'description' => 'Với them: YYYY-MM-DD cần xem lại (tùy chọn)'],
+                        'id' => ['type' => 'integer', 'description' => 'Với xong / xoa: mã ghi nhớ'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'bao_cao_quan_tri',
+                'description' => 'BÁO CÁO QUẢN TRỊ lãi / lỗ theo tháng theo MỘT công thức cố định (dùng cho câu hỏi "công ty lãi lỗ thế nào", báo cáo CFO, BCTC quản trị): '
+                    . 'doanh thu XQ (đơn web, giá trên đơn) + Medicen thu về từ CT; trừ chi phí CT Medicen chịu, lương XQ thực trả, vật tư (632), lương văn phòng, '
+                    . 'khấu hao, chi phí quản lý khác, lãi vay (theo sổ MISA). Mỗi dòng mỗi tháng có nguon và uoc_tinh (tháng thiếu dữ liệu → bình quân 3 tháng gần nhất). '
+                    . 'DÙNG ĐÚNG SỐ NÀY, không tự ghép lại từ các tool khác. Khác ket_qua_kinh_doanh (chỉ theo sổ MISA, thiếu CT ngoài sổ).',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'tu_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = đầu năm nay'],
+                        'den_ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = hôm nay'],
+                    ],
+                    'additionalProperties' => false,
+                ],
+            ],
+            [
+                'name' => 'gia_dinh_neu',
+                'description' => 'Giả định "NẾU… THÌ…" tính từ số liệu thật (bình quân N tháng gần nhất): '
+                    . 'tang_gia = tăng / giảm them_moi_ca đ/ca (theo giá trên đơn) cho don_vi → doanh thu và lãi tăng mỗi tháng / năm; '
+                    . 'bo_khach = thôi nhận đơn của don_vi → doanh thu và lãi đóng góp mất (âm = đang lỗ, bỏ thì lãi tăng); '
+                    . 'bo_xe = thôi chạy xe → lãi đóng góp mất, cộng tiet_kiem_co_dinh_thang nếu người dùng cho biết; '
+                    . 'dong_tien = thêm khoản thu / chi (vay thêm, bán tài sản, trả nợ lớn) → so số dư 13 tuần hiện tại và giả định. '
+                    . 'Luôn nói rõ đây là giả định và các giả thiết đi kèm (luu_y, giai_thich).',
+                'input_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'loai' => ['type' => 'string', 'enum' => ['tang_gia', 'bo_khach', 'bo_xe', 'dong_tien']],
+                        'don_vi' => ['type' => 'string', 'description' => 'tang_gia / bo_khach: tên viết tắt đơn vị, nhiều đơn vị cách nhau dấu phẩy; tang_gia bỏ trống = tất cả'],
+                        'them_moi_ca' => ['type' => 'integer', 'description' => 'tang_gia: số đ/ca thêm (theo giá trên đơn), âm nếu giảm giá'],
+                        'xe' => ['type' => 'string', 'description' => 'bo_xe: tên xe (vd "3", "Xe 3")'],
+                        'tiet_kiem_co_dinh_thang' => ['type' => 'integer', 'description' => 'bo_xe: chi phí cố định / tháng tiết kiệm được nếu bỏ xe (tùy chọn)'],
+                        'khoan' => ['type' => 'array', 'description' => 'dong_tien: các khoản giả định', 'items' => ['type' => 'object', 'properties' => [
+                            'loai' => ['type' => 'string', 'enum' => ['thu', 'chi']],
+                            'ngay' => ['type' => 'string', 'description' => 'YYYY-MM-DD; bỏ trống = tuần này'],
+                            'so_tien' => ['type' => 'number'],
+                            'ten' => ['type' => 'string'],
+                        ], 'required' => ['loai', 'so_tien']]],
+                        'so_thang_tham_chieu' => ['type' => 'integer', 'description' => 'Số tháng gần nhất làm cơ sở (mặc định 3)'],
+                    ],
+                    'required' => ['loai'],
+                    'additionalProperties' => false,
+                ],
             ],
             [
                 'name' => 'ket_qua_kinh_doanh',
@@ -148,7 +213,7 @@ class AccountantTools implements DepartmentTools
                 'description' => 'Công nợ XQ đang theo dõi trên web Medicen (trang Công nợ, cập nhật từng ngày): từng hóa đơn chưa thu đủ của một đơn vị, '
                     . 'hoặc danh sách đơn vị đang nợ (tổng nợ, quá hạn) nếu không ghi tu_khoa. Có thêm số đơn chưa xuất hóa đơn. '
                     . 'Ghi loc để lấy danh sách từng đơn của MỌI đơn vị: qua_han (đơn đã quá hạn), sap_den_han (đến hạn trong so_ngay ngày tới), '
-                    . 'chua_xuat_hd (còn nợ nhưng chưa xuất hóa đơn).',
+                    . 'chua_xuat_hd (đơn chưa xuất hóa đơn — chưa phải nợ). Nợ chỉ tính hóa đơn đã có số, chưa thanh toán.',
                 'input_schema' => [
                     'type' => 'object',
                     'properties' => [
@@ -253,7 +318,7 @@ class AccountantTools implements DepartmentTools
             ],
             [
                 'name' => 'theo_doi_thu_no',
-                'description' => 'Thu nợ: các đơn vị đang có nợ quá hạn / tiền kẹt, ai phụ trách thu, lần nhắc gần nhất (ngày, kênh, nội dung), '
+                'description' => 'Thu nợ: các đơn vị đang có nợ quá hạn (chỉ hóa đơn đã có số, chưa thanh toán), ai phụ trách thu, lần nhắc gần nhất (ngày, kênh, nội dung), '
                     . 'khách hẹn trả ngày nào / bao nhiêu, trạng thái (quá hẹn, chưa ai phụ trách, lâu chưa nhắc, đã hẹn). Lọc theo người phụ trách hoặc đơn vị.',
                 'input_schema' => [
                     'type' => 'object',
@@ -327,7 +392,12 @@ class AccountantTools implements DepartmentTools
     public function call(string $name, array $input, ?User $user = null): array
     {
         return match ($name) {
-            'tong_quan_du_lieu' => $this->overview(),
+            'tong_quan_du_lieu' => $this->overview() + (!empty($input['tu_ngay'])
+                ? ['kiem_tra_ky' => $this->periodChecklist($this->date($input, 'tu_ngay'), $this->parseDate((string) ($input['den_ngay'] ?? '')) ?? Carbon::today())] : []),
+            'ghi_nho' => $this->notes($input, $user),
+            'gia_dinh_neu' => app(\App\Services\Accounting\WhatIf::class)->run($input),
+            'bao_cao_quan_tri' => app(\App\Services\Accounting\ManagementReport::class)->build(
+                $this->parseDate((string) ($input['tu_ngay'] ?? '')) ?? Carbon::today()->startOfYear(), $this->parseDate((string) ($input['den_ngay'] ?? '')) ?? Carbon::today()),
             'ket_qua_kinh_doanh' => $this->incomeStatement($this->date($input, 'tu_ngay'), $this->date($input, 'den_ngay'), (string) ($input['chia_theo'] ?? 'tong')),
             'phat_sinh_tai_khoan' => $this->accountActivity($this->account($input), $this->date($input, 'tu_ngay'), $this->date($input, 'den_ngay'), $this->optString($input, 'tu_khoa')),
             'tim_but_toan' => $this->searchEntries($input),
@@ -370,7 +440,9 @@ class AccountantTools implements DepartmentTools
         return [
             'ngay_tinh' => $r['today']->toDateString(),
             'nguon' => 'Trang Công nợ trên web (mảng XQ), cùng số với trang Phân tích tài chính → Tiền kẹt & tuổi nợ',
-            'tong_phai_thu' => $r['total'],
+            'quy_uoc' => 'Nợ phải thu = hóa đơn đã có số, chưa thanh toán. Đơn chưa xuất hóa đơn KHÔNG phải nợ (khách chưa có nghĩa vụ trả): tách riêng ở chua_xuat_hd, không cộng vào nợ.',
+            'no_phai_thu' => $r['total'],
+            'so_hoa_don_no' => $r['debt_count'],
             'qua_han' => $r['overdue'],
             'qua_han_pct' => $r['overdue_pct'],
             'chua_xuat_hd' => $r['uninvoiced'],
@@ -393,6 +465,7 @@ class AccountantTools implements DepartmentTools
         $gaps = [];
         $noDeadline = DB::table('accountants')->join('orders', 'orders.id', '=', 'accountants.order_id')->where('orders.status_id', '!=', 0)
             ->where('accountants.accountant_owe', '>', 0)->whereNotNull('accountants.accountant_date')
+            ->whereNotNull('accountants.accountant_number')->where('accountants.accountant_number', '!=', '')
             ->where(fn ($q) => $q->whereNull('accountants.accountant_deadline')->orWhere('accountants.accountant_deadline', ''))->count();
         if ($noDeadline) {
             $gaps[] = ['thieu' => $noDeadline . ' hóa đơn còn nợ chưa có Số ngày hạn', 'anh_huong' => 'không biết hạn thanh toán nên không xếp được vào quá hạn / sắp đến hạn',
@@ -419,9 +492,11 @@ class AccountantTools implements DepartmentTools
             'nguon' => 'Phân tích tài chính → Thu nợ (người phụ trách, lịch sử nhắc nợ do kế toán / sales ghi)',
             'so_don_vi' => $list->count(),
             'theo_trang_thai' => $list->countBy('status_label')->all(),
-            'tong_can_thu' => $list->sum(fn ($r) => $r['overdue'] + $r['stuck']),
+            // Cần thu = nợ quá hạn (hóa đơn đã có số); tiền chưa xuất HĐ không phải nợ, chỉ ghi kèm
+            'tong_can_thu_no_qua_han' => $list->sum('overdue'),
+            'chua_xuat_hd_kem_theo' => $list->sum('stuck'),
             'don_vi' => $list->take(40)->map(fn ($r) => [
-                'don_vi' => $r['unit'], 'qua_han' => $r['overdue'], 'tien_ket_chua_xuat_hd' => $r['stuck'], 'qua_han_lau_nhat_ngay' => $r['max_overdue_days'],
+                'don_vi' => $r['unit'], 'qua_han' => $r['overdue'], 'tong_no' => $r['owe'], 'chua_xuat_hd_khong_tinh' => $r['stuck'], 'qua_han_lau_nhat_ngay' => $r['max_overdue_days'],
                 'phu_trach' => $r['assignee'], 'trang_thai' => $r['status_label'],
                 'lan_nhac_gan_nhat' => $r['last'] ? ['ngay' => $r['last']['date']->toDateString(), 'kenh' => $r['last']['channel'], 'noi_dung' => $r['last']['note'], 'nguoi' => $r['last']['by']] : null,
                 'hen_tra' => $r['promise'] ? ['ngay' => $r['promise']['date']->toDateString(), 'so_tien' => $r['promise']['amount']] : null,
@@ -622,6 +697,149 @@ class AccountantTools implements DepartmentTools
         ];
     }
 
+    /** Ghi nhớ của CFO (bảng cfo_notes). Thêm / xong / xóa: Admin đầy đủ quyền hoặc phòng Kế toán; SubAdmin chỉ xem */
+    private function notes(array $in, ?User $user): array
+    {
+        $act = (string) ($in['hanh_dong'] ?? 'xem');
+        $canEdit = $user && (\App\Services\Claude\AssistantAccess::isAdmin($user) || (int) $user->role === 3 || $user->department === 'ke_toan'); // Admin gồm cả SubAdmin (giám đốc)
+        if ($act !== 'xem' && !$canEdit) {
+            return ['loi' => 'Tài khoản này chỉ được xem ghi nhớ, không thêm / sửa được.'];
+        }
+        if ($act === 'them') {
+            $text = trim((string) ($in['noi_dung'] ?? ''));
+            if ($text === '') {
+                return ['loi' => 'Cần noi_dung.'];
+            }
+            $n = \App\Models\CfoNote::create(['content' => mb_substr($text, 0, 2000), 'topic' => mb_substr(trim((string) ($in['chu_de'] ?? '')), 0, 120) ?: null,
+                'remind_on' => $this->parseDate((string) ($in['nhac_ngay'] ?? ''))?->toDateString(), 'created_by' => $user?->id, 'source' => 'tro_ly']);
+
+            return ['da_ghi' => ['id' => $n->id, 'noi_dung' => $n->content, 'chu_de' => $n->topic], 'xem_sua' => route('finance.index', ['tab' => 'ghi-nho'])];
+        }
+        if (in_array($act, ['xong', 'xoa'], true)) {
+            $n = \App\Models\CfoNote::find((int) ($in['id'] ?? 0));
+            if (!$n) {
+                return ['loi' => 'Không thấy ghi nhớ mã ' . ($in['id'] ?? '?') . '. Gọi xem để lấy mã.'];
+            }
+            $act === 'xong' ? $n->update(['done' => true]) : $n->delete();
+
+            return ['ok' => true, 'id' => $n->id, 'hanh_dong' => $act];
+        }
+        $people = User::pluck('name', 'id');
+        $fmt = fn ($n) => array_filter(['id' => $n->id, 'chu_de' => $n->topic, 'noi_dung' => $n->content, 'ghi_ngay' => $n->created_at->format('d/m/Y'),
+            'nguoi_ghi' => $n->created_by ? ($people[$n->created_by] ?? null) : null, 'nhac_ngay' => $n->remind_on?->format('d/m/Y'),
+            'den_han_xem_lai' => $n->remind_on && $n->remind_on->lte(Carbon::today()) ? true : null]);
+
+        return [
+            'ghi_chu' => 'Dùng các ghi nhớ đang mở khi tính / phân tích (vd khoản đã về thì không coi là chưa thu). Ghi nhớ cũ có thể đã lỗi thời: nêu ngày ghi khi dùng.',
+            'dang_mo' => \App\Models\CfoNote::where('done', false)->orderByRaw('remind_on IS NULL')->orderBy('remind_on')->orderByDesc('id')->limit(50)->get()->map($fmt)->all(),
+            'da_xong_30_ngay' => \App\Models\CfoNote::where('done', true)->where('updated_at', '>=', now()->subDays(30))->orderByDesc('updated_at')->limit(15)->get()->map($fmt)->all(),
+        ];
+    }
+
+    /**
+     * Kiểm tra dữ liệu cho một kỳ báo cáo: mỗi nguồn → dùng cho mục nào, có đến đâu, đủ chưa, thiếu thì cần file / việc gì, tạm ước tính thế nào.
+     * Trợ lý dùng để ghi rõ "Nguồn số liệu", "Cách ước tính", "Cần bổ sung để hoàn thiện" trong báo cáo.
+     */
+    private function periodChecklist(Carbon $from, Carbon $to): array
+    {
+        $to = $to->copy()->min(Carbon::today());
+        $d = fn ($v) => $v ? Carbon::parse($v)->format('d/m/Y') : 'chưa có';
+        $status = fn (?string $until) => !$until ? 'chưa có' : (Carbon::parse($until)->gte($to->copy()->startOfDay()) ? 'đủ' : (Carbon::parse($until)->lt($from) ? 'chưa có cho kỳ này' : 'thiếu một phần'));
+        $nextDay = fn (?string $until) => $until ? Carbon::parse($until)->addDay()->max($from)->format('d/m/Y') : $from->format('d/m/Y');
+        $upload = 'Kế toán tải lên ở Kế toán → Dữ liệu kế toán → Sổ sách MISA (file Excel xuất từ MISA, nhập lại cùng kỳ thì thay số cũ)';
+        $items = [];
+
+        $nkc = DB::table('acc_journal_entries')->max('posted_on');
+        $items[] = ['nguon' => 'Sổ nhật ký chung MISA', 'dung_cho' => 'Kết quả kinh doanh B02: doanh thu, giá vốn, chi phí quản lý, khấu hao, lãi vay, thu nhập / chi phí khác',
+            'co_den' => $d($nkc), 'tinh_trang' => $status($nkc),
+            'can_bo_sung' => $status($nkc) === 'đủ' ? null : 'File "Sổ nhật ký chung" từ ' . $nextDay($nkc) . ' đến ' . $to->format('d/m/Y') . '. ' . $upload,
+            'tam_uoc_tinh' => 'Bình quân 3 tháng gần nhất có sổ × hệ số doanh thu đơn trên web (ket_qua_kinh_doanh → uoc_tinh); khấu hao, lãi vay, chi phí quản lý theo bình quân; thu nhập khác không ghi nhận'];
+
+        $books = DB::table('acc_cash_entries')->whereNotNull('posted_on')->selectRaw('book, MAX(posted_on) d')->groupBy('book')->pluck('d', 'book');
+        foreach (self::BOOKS as $code => $name) {
+            $until = $books[$code] ?? null;
+            $items[] = ['nguon' => $code === 'TIEN_MAT' ? 'Sổ quỹ tiền mặt (TK 111)' : 'Sổ tiền gửi ngân hàng ' . $name, 'dung_cho' => 'Tiền cuối kỳ (B01 mã 110), lưu chuyển tiền',
+                'co_den' => $d($until), 'tinh_trang' => $status($until),
+                'can_bo_sung' => $status($until) === 'đủ' ? null : 'File sổ ' . ($code === 'TIEN_MAT' ? 'chi tiết TK 111' : 'tiền gửi ngân hàng (sheet đặt tên ' . $code . ')') . ' từ ' . $nextDay($until) . ' đến ' . $to->format('d/m/Y') . '. ' . $upload,
+                'tam_uoc_tinh' => 'Tiền hiện có theo Báo cáo thu chi tháng gần nhất (số dư đầu + đã thu − đã chi) và Sổ VCB chú Lộc'];
+        }
+
+        $parties = DB::table('acc_party_balances')->selectRaw('kind, MAX(period_to) d')->groupBy('kind')->pluck('d', 'kind');
+        foreach (['receivable' => ['Tổng hợp công nợ phải thu MISA', 'Phải thu khách hàng (B01 mã 131)', 'Phải thu = Công nợ trên web (hóa đơn đã có số, chưa thanh toán; cong_no_web)'],
+            'payable' => ['Tổng hợp công nợ phải trả MISA', 'Phải trả người bán (B01 mã 311 / 331)', 'Phải trả = các khoản chi chưa trả trên Báo cáo thu chi (NCC, thuê máy…); số dư BCTC gần nhất']] as $k => [$name, $use, $est]) {
+            $until = $parties[$k] ?? null;
+            $items[] = ['nguon' => $name, 'dung_cho' => $use, 'co_den' => $d($until), 'tinh_trang' => $status($until),
+                'can_bo_sung' => $status($until) === 'đủ' ? null : 'File "' . $name . '" kỳ đến ' . $to->format('d/m/Y') . '. ' . $upload, 'tam_uoc_tinh' => $est];
+        }
+
+        $items[] = ['nguon' => 'Bảng cân đối tài khoản MISA (số dư từng tài khoản)', 'dung_cho' => 'Bảng cân đối kế toán B01 đầy đủ: TSCĐ, khấu hao lũy kế, hàng tồn kho, vay, thuế, vốn chủ sở hữu',
+            'co_den' => 'web chưa nhập được loại file này', 'tinh_trang' => 'chưa có',
+            'can_bo_sung' => 'Kế toán xuất "Bảng cân đối tài khoản" kỳ đến ' . $to->format('d/m/Y') . ' từ MISA; trong lúc web chưa nhập được thì tải lên dạng Tài liệu (Dữ liệu kế toán → Tài liệu → loại Báo cáo tài chính) để trợ lý đọc',
+            'tam_uoc_tinh' => 'Lấy số cuối kỳ của BCTC gần nhất (tai_lieu loai bctc) cộng / trừ phát sinh đã biết; ghi "thiếu dữ liệu" cho chỉ tiêu không suy ra được (TSCĐ sau thanh lý, vay sau đáo hạn)'];
+
+        $sal = DB::table('acc_salaries')->where('kind', 'luong')->selectRaw("MAX(CONCAT(year,'-',LPAD(month,2,'0'))) m")->value('m');
+        $salEnd = $sal ? Carbon::parse($sal . '-01')->endOfMonth()->toDateString() : null;
+        $items[] = ['nguon' => 'File lương thực trả', 'dung_cho' => 'Chi phí nhân công (giá vốn XQ / CT, chi phí quản lý)', 'co_den' => $sal ? 'tháng ' . Carbon::parse($sal . '-01')->format('m/Y') : 'chưa có',
+            'tinh_trang' => $salEnd && Carbon::parse($salEnd)->gte($to->copy()->startOfMonth()->subDay()) ? 'đủ' : $status($salEnd),
+            'can_bo_sung' => $salEnd && Carbon::parse($salEnd)->gte($to->copy()->startOfMonth()->subDay()) ? null
+                : 'File lương thực trả (Excel, mỗi sheet một năm, cột Tháng | CT | XQ) có đến tháng ' . $to->copy()->subMonthNoOverflow()->format('m/Y')
+                    . '. Kế toán tải lên ở Kế toán → Dữ liệu kế toán → Sổ sách MISA (cùng ô tải file sổ sách)',
+            'tam_uoc_tinh' => 'Bình quân lương 3 tháng gần nhất có file'];
+
+        $ct = DB::table('ct_receivables')->selectRaw("MAX(CONCAT(year,'-',LPAD(month,2,'0'))) m")->value('m');
+        $ctEnd = $ct ? Carbon::parse($ct . '-01')->endOfMonth()->toDateString() : null;
+        $items[] = ['nguon' => 'Công nợ CT (trang Công nợ CT)', 'dung_cho' => 'Doanh thu, chi phí, phần chia CT từng bệnh viện', 'co_den' => $ct ? 'tháng ' . Carbon::parse($ct . '-01')->format('m/Y') : 'chưa có',
+            'tinh_trang' => $status($ctEnd), 'can_bo_sung' => $status($ctEnd) === 'đủ' ? null : 'Kế toán nhập số CT các tháng còn thiếu ở Kế toán → Công nợ CT',
+            'tam_uoc_tinh' => 'Bình quân 3 tháng CT gần nhất (theo từng bệnh viện)'];
+
+        $months = [];
+        for ($m = $from->copy()->startOfMonth(); $m->lte($to); $m->addMonth()) {
+            $months[] = [$m->year, $m->month];
+        }
+        $missingReports = collect($months)->reject(fn ($ym) => DB::table('reports')->where('year', $ym[0])->where('month', (string) $ym[1])
+            ->whereExists(fn ($q) => $q->select(DB::raw(1))->from('report_items')->whereColumn('report_items.report_id', 'reports.id'))->exists())
+            ->map(fn ($ym) => $ym[1] . '/' . $ym[0])->values()->all();
+        $itemsIn = DB::table('report_items')->join('reports', 'reports.id', '=', 'report_items.report_id')
+            ->whereRaw("STR_TO_DATE(CONCAT(reports.year,'-',reports.month,'-01'), '%Y-%m-%d') BETWEEN ? AND ?", [$from->copy()->startOfMonth()->toDateString(), $to->toDateString()]);
+        $undated = (clone $itemsIn)->whereNull('report_items.expected_date')->where('report_items.estimated_amount', '>', 0)
+            ->where(fn ($q) => $q->whereNull('report_items.summary_group')->orWhere('report_items.summary_group', 'not like', 'Tiền hiện có%'))->count();
+        $notMarked = (clone $itemsIn)->where('report_items.type', 'chi')->whereNotNull('report_items.expected_date')->where('report_items.expected_date', '<', Carbon::today()->toDateString())
+            ->where('report_items.estimated_amount', '>', 0)->where(fn ($q) => $q->whereNull('report_items.actual_amount')->orWhere('report_items.actual_amount', 0))->count();
+        $items[] = ['nguon' => 'Báo cáo thu chi trên web', 'dung_cho' => 'Tiền hiện có, các khoản thu / chi đã và sẽ phát sinh, dự báo dòng tiền',
+            'co_den' => $missingReports ? 'thiếu tháng ' . implode(', ', $missingReports) : 'có đủ các tháng trong kỳ',
+            'tinh_trang' => $missingReports || $undated || $notMarked ? 'thiếu một phần' : 'đủ',
+            'can_bo_sung' => trim(($missingReports ? 'Lập Báo cáo thu chi tháng ' . implode(', ', $missingReports) . '. ' : '')
+                . ($notMarked ? $notMarked . ' khoản chi đã qua ngày dự kiến nhưng chưa nhập số thực chi → kế toán cập nhật cột Thực tế. ' : '')
+                . ($undated ? $undated . ' khoản có số nhưng chưa có ngày (theo biên bản thỏa thuận, chưa chốt) → khi chốt thì nhập Ngày dự kiến.' : '')) ?: null,
+            'tam_uoc_tinh' => 'Khoản chưa có ngày: số theo biên bản thỏa thuận là ƯỚC TÍNH (thu chưa tính vào dòng tiền theo tuần, chi tạm tính ngày 15); tháng chưa có báo cáo: lấy số dư cuối tháng trước và lặp lại chi định kỳ'];
+
+        $vcb = DB::table('vcb_entries')->max('entry_date');
+        $items[] = ['nguon' => 'Sổ VCB chú Lộc (trên web)', 'dung_cho' => 'Tiền công ty đi qua TK cá nhân (thu CT, trả nợ…)', 'co_den' => $d($vcb), 'tinh_trang' => $status($vcb),
+            'can_bo_sung' => $status($vcb) === 'đủ' ? null : 'Kế toán nhập các dòng thu / chi VCB chú Lộc đến ' . $to->format('d/m/Y') . ' ở Kế toán → Sổ VCB chú Lộc',
+            'tam_uoc_tinh' => 'Số dư chốt gần nhất'];
+
+        $items[] = ['nguon' => 'Sao kê / xác nhận số dư vay ngân hàng', 'dung_cho' => 'Vay (B01 mã 320 / 338), lãi vay', 'co_den' => 'chưa có trên web', 'tinh_trang' => 'chưa có',
+            'can_bo_sung' => 'Sao kê hoặc giấy xác nhận số dư nợ vay tại ' . $to->format('d/m/Y') . ' (HDBank…), tải lên Dữ liệu kế toán → Tài liệu (loại Tài liệu khác)',
+            'tam_uoc_tinh' => 'Số dư vay của BCTC gần nhất; lãi vay = bình quân theo sổ MISA'];
+        $items[] = ['nguon' => 'Biên bản thanh lý / hóa đơn bán, mua tài sản', 'dung_cho' => 'Thu nhập / chi phí khác, giảm / tăng TSCĐ', 'co_den' => 'theo tài liệu đã tải', 'tinh_trang' => 'kiểm tra',
+            'can_bo_sung' => 'Biên bản thanh lý, hóa đơn bán máy (vd máy đã bán nhưng chưa thu tiền) trong kỳ, tải lên Dữ liệu kế toán → Tài liệu',
+            'tam_uoc_tinh' => 'Chưa có biên bản / chưa thu tiền thì KHÔNG ghi nhận thu nhập khác, chỉ nêu là khoản dự kiến'];
+
+        $q = DB::table('orders')->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')->where('orders.status_id', '!=', 0)
+            ->whereBetween('order_details.ord_start_day', [$from->toDateString(), $to->toDateString()]);
+        $zeroQty = (clone $q)->where('orders.order_surcharge', 0)->where('order_details.ord_start_day', '<', Carbon::today()->toDateString())->where(fn ($w) => $w->whereNull('orders.order_quantity')->orWhere('orders.order_quantity', 0))->count();
+        $items[] = ['nguon' => 'Đơn hàng XQ trên web', 'dung_cho' => 'Doanh thu XQ theo đơn, lãi ước tính theo khách / xe, phải thu', 'co_den' => 'cập nhật liên tục',
+            'tinh_trang' => $zeroQty ? 'thiếu một phần' : 'đủ',
+            'can_bo_sung' => $zeroQty ? $zeroQty . ' đơn đã chụp nhưng số ca = 0 → bộ phận Kết quả / kế toán cập nhật số ca thực tế' : null,
+            'tam_uoc_tinh' => 'Doanh thu XQ = Thành tiền − chiết khấu theo đơn (chưa tách VAT: cột VAT của đơn chỉ ghi có / không)'];
+
+        return [
+            'ky' => $from->format('d/m/Y') . ' – ' . $to->format('d/m/Y'),
+            'nguon' => $items,
+            'can_bo_sung' => collect($items)->filter(fn ($i) => $i['can_bo_sung'])->map(fn ($i) => $i['nguon'] . ': ' . $i['can_bo_sung'])->values()->all(),
+        ];
+    }
+
     // ------------------------------------------------------------------
     // ket_qua_kinh_doanh
     // ------------------------------------------------------------------
@@ -684,13 +902,98 @@ class AccountantTools implements DepartmentTools
             ];
         }
 
-        return [
+        $dataEnd = DB::table('acc_journal_entries')->max('posted_on');
+
+        return array_filter([
             'nguon' => 'Sổ nhật ký chung MISA (không tính bút toán kết chuyển 911)',
             'tu_ngay' => $from->toDateString(), 'den_ngay' => $to->toDateString(),
-            'du_lieu_so_den_ngay' => DB::table('acc_journal_entries')->max('posted_on'),
+            'du_lieu_so_den_ngay' => $dataEnd,
             'ket_qua' => $out,
+            // Kỳ hỏi vượt quá ngày cuối có sổ MISA (kế toán chưa nhập kịp): ước tính từ số cũ, ghi rõ cách tính
+            'uoc_tinh' => $dataEnd ? $this->estimateIncome(Carbon::parse($dataEnd), $from, $to) : null,
             'luu_y' => 'Đây là số theo sổ sách. Báo cáo tài chính đã nộp có thể khác do bút toán điều chỉnh khi lập báo cáo (vd năm 2025: '
                 . 'chi phí quản lý, thu nhập khác, chi phí khác khác sổ). Muốn số chính thức thì xem tai_lieu loai bctc.',
+        ], fn ($v) => $v !== null);
+    }
+
+    /**
+     * Ước tính kết quả kinh doanh cho các tháng SAU ngày cuối có sổ MISA (đến hôm nay, trong kỳ hỏi):
+     * doanh thu = bình quân 511 của 3 tháng gần nhất có sổ × (doanh thu đơn XQ trên web tháng đó / bình quân web 3 tháng đó);
+     * giá vốn = doanh thu ước tính × tỷ lệ giá vốn bình quân 3 tháng; chi phí quản lý = bình quân 3 tháng (chi phí cố định).
+     * Tháng hiện tại chưa hết thì chi phí quản lý tính theo số ngày đã qua.
+     */
+    private function estimateIncome(Carbon $dataEnd, Carbon $from, Carbon $to): ?array
+    {
+        $today = Carbon::today();
+        $lastFull = $dataEnd->copy()->endOfMonth()->isSameDay($dataEnd) ? $dataEnd->copy()->startOfMonth() : $dataEnd->copy()->startOfMonth()->subMonth();
+        $firstEst = $dataEnd->copy()->addMonthNoOverflow()->startOfMonth();
+        $estEnd = $to->copy()->min($today);
+        if ($firstEst->gt($estEnd)) {
+            return null;
+        }
+        $baseFrom = $lastFull->copy()->subMonths(2)->startOfMonth();
+        $baseTo = $lastFull->copy()->endOfMonth();
+        $base = DB::select("
+            SELECT DATE_FORMAT(posted_on, '%Y-%m') AS ky, LEFT(acc, 3) AS g, SUM(no) AS no, SUM(co) AS co FROM (
+                SELECT posted_on, debit_account AS acc, amount AS no, 0 AS co FROM acc_journal_entries
+                    WHERE posted_on BETWEEN ? AND ? AND credit_account NOT LIKE '911%' AND debit_account REGEXP '^(511|515|632|635|642)'
+                UNION ALL
+                SELECT posted_on, credit_account AS acc, 0 AS no, amount AS co FROM acc_journal_entries
+                    WHERE posted_on BETWEEN ? AND ? AND debit_account NOT LIKE '911%' AND credit_account REGEXP '^(511|515|632|635|642)'
+            ) x GROUP BY ky, g", [$baseFrom->toDateString(), $baseTo->toDateString(), $baseFrom->toDateString(), $baseTo->toDateString()]);
+        $m = [];
+        foreach ($base as $r) {
+            $m[$r->ky][$r->g] = in_array($r->g, ['511', '515'], true) ? $r->co - $r->no : $r->no - $r->co;
+        }
+        if (!$m) {
+            return null;
+        }
+        $months = count($m);
+        $avgDt = array_sum(array_map(fn ($x) => $x['511'] ?? 0, $m)) / $months;
+        $avgGvRatio = $avgDt > 0 ? array_sum(array_map(fn ($x) => $x['632'] ?? 0, $m)) / $months / $avgDt : 0;
+        $avgQl = array_sum(array_map(fn ($x) => $x['642'] ?? 0, $m)) / $months;
+        // Lãi vay / chi phí tài chính và doanh thu tài chính: bình quân (khoản cố định, không theo doanh thu)
+        $avgTc = array_sum(array_map(fn ($x) => ($x['635'] ?? 0) - ($x['515'] ?? 0), $m)) / $months;
+        $web = fn (Carbon $a, Carbon $b) => (float) DB::table('orders')->join('order_details', 'order_details.id', '=', 'orders.order_detail_id')
+            ->where('orders.status_id', '!=', 0)->whereBetween('order_details.ord_start_day', [$a->toDateString(), $b->toDateString()])
+            ->sum(DB::raw('COALESCE(orders.order_price,0) - COALESCE(orders.order_discount,0)'));
+        $webBase = $web($baseFrom, $baseTo) / $months;
+
+        $rows = [];
+        for ($mo = $firstEst->copy(); $mo->lte($estEnd); $mo->addMonthNoOverflow()) {
+            $end = $mo->copy()->endOfMonth()->min($estEnd);
+            $partial = !$end->isSameDay($mo->copy()->endOfMonth());
+            // Hệ số theo doanh thu đơn trên web (quy ra cả tháng); giới hạn 0,5–2 để đơn chưa nhập đủ / bất thường không làm số nhảy quá xa
+            $raw = $webBase > 0 ? $web($mo, $end) / $webBase * ($partial ? $mo->daysInMonth / max(1, $end->day) : 1) : null;
+            $factor = $raw === null ? 1.0 : max(0.5, min(2.0, $raw));
+            $factor = $partial ? $factor * $end->day / $mo->daysInMonth : $factor;
+            $dt = round($avgDt * $factor);
+            $gv = round($dt * $avgGvRatio);
+            $ql = round($avgQl * ($partial ? ($end->day / $mo->daysInMonth) : 1));
+            $tc = round($avgTc * ($partial ? ($end->day / $mo->daysInMonth) : 1));
+            $xqWeb = round(app(\App\Services\Accounting\ManagementReport::class)->xqRevenue($mo, $end));
+            $rows[] = [
+                'ky' => $mo->format('Y-m') . ($partial ? ' (đến ' . $end->format('d/m') . ')' : ''),
+                'doanh_thu_511' => $dt, 'gia_von_632' => $gv, 'loi_nhuan_gop' => $dt - $gv, 'chi_phi_quan_ly_642' => $ql,
+                'chi_phi_tai_chinh_lai_vay_rong' => $tc,
+                'loi_nhuan_truoc_thue_uoc_tinh' => $dt - $gv - $ql - $tc,
+                'he_so_doanh_thu_web' => $raw === null ? 'không có số web' : (($raw < 0.5 || $raw > 2) ? round($raw, 2) . ' (bất thường, đã giới hạn về ' . max(0.5, min(2.0, round($raw, 2))) . ')' : round($raw, 2)),
+                // Để đối chiếu với số quản trị: doanh thu XQ trên web, cùng cách tính với bao_cao_quan_tri (CT xem cong_no_ct)
+                'doanh_thu_xq_web' => $xqWeb,
+            ];
+        }
+
+        return [
+            'ghi_chu' => 'SỐ ƯỚC TÍNH (sổ MISA mới có đến ' . $dataEnd->format('d/m/Y') . '). Khi trình bày phải ghi rõ "ước tính" và cách tính bên dưới; '
+                . 'kế toán nhập sổ MISA các tháng này thì dùng số thật.',
+            'cach_tinh' => 'Doanh thu = bình quân doanh thu 511 của ' . $months . ' tháng ' . $baseFrom->format('m/Y') . '–' . $baseTo->format('m/Y')
+                . ' (' . number_format($avgDt, 0, ',', '.') . ' đ/tháng) × hệ số doanh thu đơn XQ trên web tháng đó so với bình quân web cùng 3 tháng (chỉ dùng khi hệ số trong khoảng 0,5–2); '
+                . 'tháng chưa hết tính theo số ngày đã qua; '
+                . 'giá vốn = doanh thu × tỷ lệ giá vốn bình quân ' . round($avgGvRatio * 100, 1) . '%; chi phí quản lý = bình quân '
+                . number_format($avgQl, 0, ',', '.') . ' đ/tháng; chi phí tài chính (lãi vay − doanh thu tài chính) = bình quân ' . number_format($avgTc, 0, ',', '.')
+                . ' đ/tháng (tháng chưa hết tính theo số ngày đã qua). Chưa gồm thu nhập / chi phí khác (thanh lý tài sản), thuế. '
+                . 'Đây là số THEO SỔ; doanh thu CT ngoài sổ (qua TK chú Lộc) không có ở đây — số quản trị xem bao_cao_quan_tri (doanh_thu_xq_web ở đây cùng cách tính).',
+            'ky' => $rows,
         ];
     }
 
@@ -919,6 +1222,7 @@ class AccountantTools implements DepartmentTools
             ->leftJoin('units', 'units.id', '=', 'orders.unit_id')
             ->where('orders.status_id', '!=', 0)
             ->where('accountants.accountant_owe', '>', 0)
+            ->where(fn ($q) => $q->whereNull('accountants.accountant_status')->orWhere('accountants.accountant_status', '!=', 1))
             ->when($year, fn ($q) => $q->whereYear('order_details.ord_start_day', $year))
             ->when($keyword, fn ($q) => $q->where(fn ($q) => $q->where('units.unit_abbreviation', 'like', $this->like($keyword))
                 ->orWhere('units.unit_name', 'like', $this->like($keyword))->orWhere('units.unit_code', 'like', $this->like($keyword))));
@@ -926,7 +1230,9 @@ class AccountantTools implements DepartmentTools
         $rows = $base->select('orders.id', 'units.unit_abbreviation', 'order_details.ord_start_day', 'order_details.ord_cty_name', 'accountants.accountant_number',
             'accountants.accountant_date', 'accountants.accountant_deadline', 'accountants.accountant_owe', 'orders.order_price')->get()
             ->map(function ($r) use ($today) {
-                $issued = $this->parseDate($r->accountant_date);
+                // Nợ chỉ khi đã có số hóa đơn; chưa có số = chưa xuất hóa đơn (không phải nợ)
+                $invoiced = trim((string) $r->accountant_number) !== '';
+                $issued = $invoiced ? $this->parseDate($r->accountant_date) : null;
                 $due = $issued && is_numeric($r->accountant_deadline) ? $issued->copy()->addDays((int) $r->accountant_deadline) : null;
 
                 return [
@@ -934,19 +1240,22 @@ class AccountantTools implements DepartmentTools
                     'so_hd' => $r->accountant_number, 'ngay_hd' => $issued?->toDateString(), 'han_tt' => $due?->toDateString(),
                     'thanh_tien' => (float) $r->order_price, 'con_no' => (float) $r->accountant_owe,
                     'qua_han_ngay' => $due && $due->lt($today) ? $due->diffInDays($today) : 0,
-                    'chua_xuat_hd' => !$issued,
+                    'chua_xuat_hd' => !$invoiced,
                 ];
             });
+        $debtRows = $rows->where('chua_xuat_hd', false);
 
         $summary = $rows->groupBy('don_vi')->map(fn ($g, $u) => [
-            'don_vi' => $u ?: '(chưa có đơn vị)', 'tong_no' => $g->sum('con_no'), 'qua_han' => $g->where('qua_han_ngay', '>', 0)->sum('con_no'),
-            'chua_xuat_hd' => $g->where('chua_xuat_hd', true)->sum('con_no'), 'so_don' => $g->count(), 'qua_han_lau_nhat_ngay' => (int) $g->max('qua_han_ngay'),
+            'don_vi' => $u ?: '(chưa có đơn vị)', 'tong_no' => $g->where('chua_xuat_hd', false)->sum('con_no'), 'qua_han' => $g->where('qua_han_ngay', '>', 0)->sum('con_no'),
+            'chua_xuat_hd' => $g->where('chua_xuat_hd', true)->sum('con_no'), 'so_hoa_don_no' => $g->where('chua_xuat_hd', false)->count(),
+            'so_don_chua_xuat_hd' => $g->where('chua_xuat_hd', true)->count(), 'qua_han_lau_nhat_ngay' => (int) $g->max('qua_han_ngay'),
         ])->sortByDesc('tong_no')->values();
 
         return [
             'ngay_tinh' => $today->toDateString(),
             'nguon' => 'Trang Công nợ trên web Medicen (mảng XQ, cập nhật liên tục)',
-            'tong_con_no' => $rows->sum('con_no'),
+            'quy_uoc' => 'Nợ = hóa đơn đã có số, chưa thanh toán. Đơn chưa xuất hóa đơn không phải nợ, không cộng vào tong_con_no.',
+            'tong_con_no' => $debtRows->sum('con_no'),
             'tong_qua_han' => $rows->where('qua_han_ngay', '>', 0)->sum('con_no'),
             'tong_chua_xuat_hd' => $rows->where('chua_xuat_hd', true)->sum('con_no'),
             'theo_don_vi' => $summary->take(30)->all(),

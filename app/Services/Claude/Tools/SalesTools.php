@@ -905,7 +905,9 @@ class SalesTools implements DepartmentTools
             $invoices = $rows->map(function ($r) use ($today) {
                 // accountant_owe đã là "Còn nợ" (= Thành tiền − Đã thanh toán), không trừ thêm lần nữa
                 $remaining = max(0, (int) $r->accountant_owe);
-                $issued = $this->parseDate($r->accountant_date);
+                // Nợ chỉ tính khi đã có số hóa đơn; chưa có số = chưa xuất hóa đơn, chưa phải nợ
+                $invoiced = trim((string) $r->accountant_number) !== '';
+                $issued = $invoiced ? $this->parseDate($r->accountant_date) : null;
                 $due = $issued && is_numeric($r->accountant_deadline)
                     ? $issued->copy()->addDays((int) $r->accountant_deadline)
                     : null;
@@ -919,9 +921,12 @@ class SalesTools implements DepartmentTools
                     'han_thanh_toan' => $due?->toDateString(),
                     'con_no' => $remaining,
                     'so_ngay_qua_han' => $overdue,
-                    'tinh_trang' => !$issued ? 'chưa xuất hóa đơn' : ($overdue > 0 ? 'quá hạn' : 'trong hạn'),
+                    'tinh_trang' => !$invoiced ? 'chưa xuất hóa đơn' : ($overdue > 0 ? 'quá hạn' : ($issued ? 'trong hạn' : 'đã có số HĐ, chưa có ngày xuất')),
+                    '_invoiced' => $invoiced,
                 ];
             })->filter(fn ($i) => $i['con_no'] > 0)->values();
+            $uninvoiced = $invoices->where('_invoiced', false)->map(fn ($i) => array_diff_key($i, ['_invoiced' => 1, 'so_hoa_don' => 1, 'ngay_xuat_hd' => 1, 'han_thanh_toan' => 1, 'so_ngay_qua_han' => 1]))->values();
+            $invoices = $invoices->where('_invoiced', true)->map(fn ($i) => array_diff_key($i, ['_invoiced' => 1]))->values();
 
             $overdueItems = $invoices->where('so_ngay_qua_han', '>', 0);
 
@@ -935,7 +940,7 @@ class SalesTools implements DepartmentTools
                 'han_muc' => [
                     'han_muc_no' => $credit['limit'],
                     'nguon' => $credit['is_manual'] ? 'kế toán đặt' : 'gợi ý tự động',
-                    'dang_no_ke_ca_chua_xuat_hd' => $credit['owe'],
+                    'dang_no' => $credit['owe'],
                     'da_dung_pct' => $credit['used_pct'],
                     'qua_han_toi_da_ngay' => $credit['max_days'],
                     'trang_thai' => $credit['status_label'],
@@ -947,10 +952,13 @@ class SalesTools implements DepartmentTools
                     'lan_nhac_gan_nhat' => $follow['last'] ? $follow['last']['date']->format('d/m/Y') . ' · ' . $follow['last']['channel'] . ($follow['last']['note'] ? ': ' . $follow['last']['note'] : '') : null,
                     'hen_tra' => $follow['promise'] ? $follow['promise']['date']->format('d/m/Y') . ($follow['promise']['amount'] ? ' · ' . number_format($follow['promise']['amount'], 0, ',', '.') . ' đ' : '') : null,
                 ] : null,
+                'quy_uoc' => 'Nợ = hóa đơn đã có số, chưa thanh toán. Đơn chưa xuất hóa đơn không phải nợ, không cộng vào nợ.',
                 'tong_con_no' => $invoices->sum('con_no'),
                 'tong_qua_han' => $overdueItems->sum('con_no'),
                 'qua_han_lau_nhat_ngay' => (int) $overdueItems->max('so_ngay_qua_han'),
                 'hoa_don' => $invoices->take(20)->all(),
+                // Không phải nợ: đơn đã chụp nhưng kế toán chưa xuất hóa đơn
+                'chua_xuat_hoa_don' => $uninvoiced->isEmpty() ? null : ['so_don' => $uninvoiced->count(), 'tong_tien' => $uninvoiced->sum('con_no'), 'don' => $uninvoiced->take(10)->all()],
             ];
         })->values()->all();
 
