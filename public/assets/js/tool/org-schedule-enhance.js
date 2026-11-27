@@ -240,7 +240,7 @@
             var first = items[0] ? (items[0].querySelector('.item-title') || {}).textContent || '' : '';
             var title = form && !items.length ? 'Cập nhật' : sectionTitle(first.trim().toLowerCase());
             var sec = document.createElement('section');
-            sec.className = 'sch-sec' + (form ? ' sch-sec--form' : '');
+            sec.className = 'sch-sec' + (form ? ' sch-sec--form' : '') + (title === 'Phim & phiếu' ? ' sch-sec--film' : '');
             if (title) sec.innerHTML = '<h5 class="sch-sec__title">' + title + '</h5>';
             var grid = document.createElement('div');
             grid.className = 'sch-sec__grid';
@@ -262,7 +262,8 @@
         });
     }
 
-    // Trong form: các ô nhập ngắn lên trước cho đều 2 cột; khối có tiêu đề (hình thức trả, file, ghi chú) xuống cuối, ghi chú sau cùng
+    // Trong form: các ô nhập ngắn lên trước cho đều 2 cột; rồi các khối có tiêu đề: hình thức trả, GHI CHÚ, file kết quả tổng;
+    // ô Số Cas xuống cuối cùng, ngay trên nút Cập nhật (bộ phận Kết quả góp ý)
     function tidyForm(form) {
         var end = form.querySelector(':scope > .rs-overlay-change');
         var blocks = [];
@@ -271,14 +272,22 @@
             var pair = [lg];
             if (next && next.tagName !== 'LEGEND' && !next.classList.contains('rs-overlay-change')) pair.push(next);
             var isNote = pair.some(function (el) { return el.querySelector && el.querySelector('textarea'); });
-            blocks.push({ els: pair, note: isNote });
+            var isFile = pair.some(function (el) { return el.querySelector && el.querySelector('input[type=file], .filepond'); });
+            blocks.push({ els: pair, note: isNote, file: isFile });
         });
-        blocks.filter(function (b) { return !b.note; }).concat(blocks.filter(function (b) { return b.note; })).forEach(function (b) {
+        var rank = function (b) { return b.file ? 2 : (b.note ? 1 : 0); };
+        blocks.slice().sort(function (a, b) { return rank(a) - rank(b); }).forEach(function (b) {
             var wrap = document.createElement('div');
             wrap.className = 'sch-field-block' + (b.els.some(function (el) { return el.classList.contains('block-order-send-result'); }) ? ' is-half' : '');
             b.els.forEach(function (el) { wrap.appendChild(el); });
             form.insertBefore(wrap, end);
         });
+        var qty = form.querySelector('.order-quantity');
+        var qtyBox = qty && qty.closest('.form-textbox');
+        if (qtyBox && qtyBox.parentNode === form) {
+            qtyBox.classList.add('sch-qty-last');
+            form.insertBefore(qtyBox, end);
+        }
     }
 
     function decorateModals() {

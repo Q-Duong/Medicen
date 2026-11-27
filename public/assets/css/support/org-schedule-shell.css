@@ -545,12 +545,18 @@ body.is-internal .cd-schedule .event-modal .close svg { width: 14px; height: 14p
 body.is-internal .cd-schedule .event-modal .event-info { padding: 6px 24px 24px; color: var(--sh-ink); font-size: 14.5px; }
 .sch-sec { padding: 16px 0 4px; border-top: 1px solid #eeebe3; }
 .sch-sec:first-child { border-top: 0; }
-.sch-sec__title { margin: 0 0 10px; color: var(--sh-muted); font-size: 12px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
+.sch-sec__title { margin: 0 0 10px; color: #3d3b37; font-size: 12.5px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; }
 .sch-sec__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; }
 .sch-sec .event-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; margin: 0; line-height: 1.4; overflow-wrap: anywhere; }
 .sch-sec .event-item.is-wide { grid-column: 1 / -1; }
 .sch-sec .event-item.hidden, .sch-sec .hidden { display: none !important; }
-.sch-sec .event-item .item-title { color: var(--sh-muted); font-size: 12.5px; font-weight: 500; }
+/* Nhãn: đậm, màu xanh xám để tách với giá trị (đen) — bộ phận Kết quả góp ý nhãn cũ nhạt khó phân biệt */
+.sch-sec .event-item .item-title { color: #2f5a86; font-size: 13px; font-weight: 700; }
+/* Nhóm Phim & phiếu: mỗi mục một dòng, nhãn bên trái, giá trị bên phải */
+.sch-sec--film .sch-sec__grid { grid-template-columns: 1fr; gap: 0; }
+.sch-sec--film .event-item { flex-direction: row; align-items: baseline; gap: 12px; padding: 7px 0; border-bottom: 1px dashed #ece8de; }
+.sch-sec--film .event-item:last-child { border-bottom: 0; }
+.sch-sec--film .event-item .item-title { flex: 0 0 46%; }
 .sch-sec .event-item > span:last-child { color: var(--sh-ink); font-weight: 600; }
 .sch-sec .event-item > span:last-child:empty::after { content: '—'; color: #b9b6ad; font-weight: 400; }
 .sch-sec .event-item.is-warning:has(> span:last-child:not(:empty)) { padding: 8px 12px; border: 1px solid #f0d58a; border-radius: 10px; background: #fff8e6; }
@@ -679,6 +685,7 @@ body.is-internal .cd-schedule .event-modal .header .sub-title > span b { color: 
 .sch-sec--form form > .sch-field-block { display: flex; flex-direction: column; gap: 8px; grid-column: 1 / -1; }
 .sch-sec--form form > .sch-field-block > legend { float: none; width: auto; margin: 0 !important; padding: 0; }
 .sch-sec--form form > .sch-field-block > * { margin: 0 !important; }
+.sch-sec--form form > .sch-qty-last { grid-column: 1 / -1; }
 
 /* Hình thức trả kết quả: ô chọn dạng nút bấm */
 .sch-sec--form .block-order-send-result { display: flex; flex-wrap: wrap; gap: 8px; }
