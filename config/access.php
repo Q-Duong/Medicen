@@ -24,6 +24,7 @@ return [
         // Phân tích tài chính, Công nợ kế toán, Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán
         'finance.index',
         'finance.notes.*', // Ghi nhớ CFO: giám đốc được thêm / sửa / xóa
+        'news_admin.*', // Tin tức website: giám đốc được viết / đăng / sửa / xóa bài
         'accountant.index', 'accountant.get', 'accountant.filter_options',
         'ct.index', 'ct.edit',
         'vcb.index',
@@ -98,7 +99,7 @@ return [
         'names' => ['SubAdmin'],
     ],
 
-    // Tin tức trên website (Website → Tin tức): Admin và Sales soạn / đăng bài
+    // Tin tức trên website (Website → Tin tức): Admin, SubAdmin (giám đốc, xem subadmin_routes) và Sales soạn / đăng bài
     'news' => [
         'departments' => ['sales'],
         'names' => ['Sale'],
