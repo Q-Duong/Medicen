@@ -70,7 +70,7 @@ class ContractPriceAudit
             if (in_array($k, ['year', 'type'], true) || $v === '' || $v === []) {
                 continue;
             }
-            $vals = array_map('strval', (array) $v);
+            $vals = array_map(fn ($x) => $x === 'NULL_EMPTY' ? 'ô để trống' : (string) $x, (array) $v);
             $parts[] = ($labels[$k] ?? $k) . ': ' . (count($vals) > 6 ? implode(', ', array_slice($vals, 0, 6)) . '… (' . count($vals) . ' giá trị)' : implode(', ', $vals));
         }
 
