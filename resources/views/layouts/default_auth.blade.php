@@ -73,6 +73,8 @@
         @include('layouts.section.admin.notification')
         {{-- Hộp xác nhận / thông báo dùng chung (uiConfirm, form data-confirm, ô tiền is-money, nút Hủy trong khung sửa) --}}
         @include('pages.admin.partials.dialog')
+        {{-- Khung chat Trợ lý AI nổi (mọi trang admin, trừ trang Trợ lý) --}}
+        @include('layouts.section.admin.assistant_widget')
         <div id="portal-notification">
             @include('layouts.section.essential.session_notification')
         </div>

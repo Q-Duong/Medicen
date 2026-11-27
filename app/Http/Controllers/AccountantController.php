@@ -392,7 +392,24 @@ class AccountantController extends Controller
 		return response()->json($response);
 	}
 
-	/** Lưu một dòng, trả về mảng kết quả (success / conflict / message, computed, order_status) */
+	/**
+	 * Trợ lý AI sửa giá (App\Services\Accounting\ContractPriceAudit): lưu các ô như kế toán tự sửa trên trang Công nợ
+	 * (cùng kiểm tra đơn đã chốt, tính lại các ô liên kết, chuyển "Đã cập nhật doanh thu", ghi nhật ký).
+	 */
+	public function saveRowValues(Accountant $accountant, array $values): array
+	{
+		$order = $accountant->order;
+		$current = fn ($c) => in_array($c, $accountant->getFillable()) ? $accountant->getRawOriginal($c) : ($order ? $order->getRawOriginal($c) : null);
+		$rows = [];
+		$original = [];
+		foreach ($values as $name => $value) {
+			$rows[] = ['name' => $name, 'value' => (string) $value];
+			$original[] = ['name' => $name, 'value' => (string) $current($name)];
+		}
+
+		return $this->saveRowData(['id' => $accountant->id, 'row_data' => $rows, 'original' => $original, 'edited' => array_keys($values), 'client' => 2], true);
+	}
+
 	/** Nhãn cột trang Công nợ cho nhật ký thao tác */
 	private const DEBT_LABELS = [
 		'order_quantity' => 'Số ca', 'order_cost' => 'Đơn giá', 'order_price' => 'Thành tiền', 'order_vat' => 'VAT',

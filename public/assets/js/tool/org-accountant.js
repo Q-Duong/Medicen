@@ -1719,6 +1719,9 @@ function getValuesFilterObj() {
     return data;
 }
 
+// Khung chat trợ lý nổi lấy bộ lọc đang chọn (để trợ lý đối chiếu giá hợp đồng đúng các đơn đang hiện)
+window.assistantPageFilters = getValuesFilterObj;
+
 // Hàm lưu State vào LocalStorage
 function saveFilterState() {
     let filterData = getValuesFilterObj();

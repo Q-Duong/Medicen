@@ -273,6 +273,8 @@ class SalesTools implements DepartmentTools
                     'additionalProperties' => false,
                 ],
             ],
+            \App\Services\Sales\SalesLogTool::definition(),
+            OrderLookupTool::definition(),
         ];
     }
 
@@ -289,6 +291,8 @@ class SalesTools implements DepartmentTools
             'gia_hop_dong' => app(\App\Services\Accounting\ContractPricing::class)->forAssistant(
                 trim((string) ($input['tu_khoa'] ?? '')) ?: null, (int) ($input['so_ca'] ?? 0), max(1, (int) ($input['so_ngay'] ?? 1)), (int) ($input['km_khu_hoi'] ?? 0), trim((string) ($input['cong_ty'] ?? '')) ?: null),
             'soan_hop_dong' => $this->draftContract($input),
+            'nhat_ky_sales' => app(\App\Services\Sales\SalesLogTool::class)->call($input, $user),
+            'xem_don_hang' => app(OrderLookupTool::class)->call($input),
             'xem_cong_no' => !empty($input['loc'])
                 ? app(\App\Services\Accountant\DebtList::class)->find((string) $input['loc'], (int) ($input['so_ngay'] ?? 7), trim((string) ($input['tu_khoa'] ?? '')) ?: null)
                 : $this->debts($this->requireString($input, 'tu_khoa')),

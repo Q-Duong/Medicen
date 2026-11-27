@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
- * Tool cho agent phòng Kế toán. Tất cả chỉ ĐỌC.
+ * Tool cho agent phòng Kế toán. Chỉ ĐỌC, trừ sua_gia_don (sửa giá đơn ở trang Công nợ khi kế toán đồng ý) và ghi_nho.
  *
  * Hai nguồn dữ liệu:
  *  - Sổ sách MISA của cả công ty (XQ + CT) nhập vào acc_* (php artisan accounting:import / trang Dữ liệu kế toán):
@@ -352,6 +352,9 @@ class AccountantTools implements DepartmentTools
                     . 'giá / ca so với giá sàn ước tính, đã duyệt hay chưa, ai duyệt.',
                 'input_schema' => ['type' => 'object', 'properties' => new \stdClass(), 'additionalProperties' => false],
             ],
+            \App\Services\Sales\SalesLogTool::definition(),
+            OrderLookupTool::definition(),
+            ...ContractPriceTool::definitions(),
             [
                 'name' => 'hoat_dong_nhan_vien',
                 'description' => 'CHỈ ADMIN / SUBADMIN. Nhân viên đã làm gì trên web Medicen theo DÒNG THỜI GIAN: mỗi ngày vào lúc mấy giờ, thao tác cuối lúc mấy giờ, '
@@ -411,6 +414,9 @@ class AccountantTools implements DepartmentTools
             'cong_no_ct' => $this->ctBook((int) ($input['nam'] ?? now()->year), $this->optString($input, 'benh_vien'), (bool) ($input['chi_tiet'] ?? false)),
             'so_vcb_chu_loc' => $this->vcbBook((int) ($input['nam'] ?? now()->year), isset($input['thang']) ? (int) $input['thang'] : null),
             'hoat_dong_nhan_vien' => $this->staffActivity($input, $user),
+            'nhat_ky_sales' => app(\App\Services\Sales\SalesLogTool::class)->call($input, $user),
+            'xem_don_hang' => app(OrderLookupTool::class)->call($input),
+            'kiem_tra_gia_hop_dong', 'sua_gia_don' => app(ContractPriceTool::class)->call($name, $input, $user),
             'phan_tich_van_hanh' => $this->operations($input),
             'tuoi_no_tien_ket' => $this->aging(),
             'hop_dong_khach_hang' => app(\App\Services\Accounting\ContractPricing::class)->forAssistant(

@@ -48,6 +48,7 @@ class AdminMenu
             $can('orders') ? $item('Đơn hàng', 'fas fa-clipboard-list', 'order.index', [], 'order.*', 'Lên đơn, sửa đơn, nhóm đi chung') : null,
             ($admin || in_array($dept, config('profit.user_departments', []), true)) ? $item('Tính lợi nhuận X-Quang', 'fas fa-calculator', 'profit.index', [], 'profit.*', 'Lãi / lỗ trước khi chốt đơn') : null,
             $can('units') ? $item('Đơn vị (khách hàng)', 'fas fa-building', 'unit.index', [], 'unit.*', 'Danh sách đơn vị thuê xe') : null,
+            $can('sales_log') ? $item('Nhật ký Sales', 'far fa-comments', 'sales_logs.index', [], 'sales_logs.*', 'Chat Zalo, cuộc gọi với khách; việc cần nhắc') : null,
             (!$fullAdmin && $can('debt_sales')) ? $item('Công nợ (Sales)', 'fas fa-file-invoice-dollar', 'accountant_sales.index', [], null, 'Xem công nợ khách') : null,
         ])];
 

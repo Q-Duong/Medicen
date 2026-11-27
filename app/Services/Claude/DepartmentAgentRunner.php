@@ -66,7 +66,9 @@ class DepartmentAgentRunner
         $today = now()->locale('vi')->isoFormat('dddd, DD/MM/YYYY');
         $this->client->beta->sessions->events->send($sessionId, events: [
             ManagedAgentsUserMessageEventParams::with(content: [
-                ['type' => 'text', 'text' => "[Hôm nay: {$today}]" . ($modeNote ? "\n[Chức năng đang chọn: {$modeNote}]" : '') . "\n\n{$text}"],
+                ['type' => 'text', 'text' => "[Hôm nay: {$today}]" . ($modeNote ? "\n[Chức năng đang chọn: {$modeNote}]" : '')
+                    // Hỏi từ khung chat nổi: trang người dùng đang xem ("đơn này", "khách này" = đối tượng trên trang)
+                    . ($pageNote ? "\n[Người dùng hỏi khi đang xem: {$pageNote}]" : '') . "\n\n{$text}"],
             ]),
         ]);
 
@@ -144,7 +146,7 @@ class DepartmentAgentRunner
      * @return array{event_id: ?string, sent_at: int, started_at: int, handled: array<int,string>, tools: array}
      *         trạng thái lượt hỏi, lưu lại (cache) và truyền cho poll()
      */
-    public function begin(string $sessionId, string $text, ?string $modeNote = null): array
+    public function begin(string $sessionId, string $text, ?string $modeNote = null, ?string $pageNote = null): array
     {
         $sentAt = time();
         $today = now()->locale('vi')->isoFormat('dddd, DD/MM/YYYY');

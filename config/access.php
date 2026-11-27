@@ -25,6 +25,7 @@ return [
         'finance.index',
         'finance.notes.*', // Ghi nhớ CFO: giám đốc được thêm / sửa / xóa
         'news_admin.*', // Tin tức website: giám đốc được viết / đăng / sửa / xóa bài
+        'sales_logs.*', // Nhật ký Sales: giám đốc xem / ghi / tóm tắt ngày
         'accountant.index', 'accountant.get', 'accountant.filter_options',
         'ct.index', 'ct.edit',
         'vcb.index',
@@ -97,6 +98,19 @@ return [
     // Tính KPI
     'kpi' => [
         'names' => ['SubAdmin'],
+    ],
+
+    // Nhật ký Sales (Kinh doanh → Nhật ký Sales): xem — Sales, Kế toán, Admin / SubAdmin
+    'sales_log' => [
+        'departments' => ['sales', 'ke_toan'],
+        'names' => ['Sale', 'Accountant'],
+        'roles' => [3],
+    ],
+
+    // Nhật ký Sales: ghi / sửa / xóa / đánh dấu việc — Sales, Admin / SubAdmin (Kế toán chỉ xem)
+    'sales_log_edit' => [
+        'departments' => ['sales'],
+        'names' => ['Sale'],
     ],
 
     // Tin tức trên website (Website → Tin tức): Admin, SubAdmin (giám đốc, xem subadmin_routes) và Sales soạn / đăng bài

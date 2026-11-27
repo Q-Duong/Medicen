@@ -55,6 +55,7 @@ return [
         'dashboard.' => ['thong_ke', 'Thống kê'],
         'history.' => ['don_hang', 'Lịch sử đơn'],
         'news_admin.' => ['website', 'Tin tức'],
+        'sales_logs.' => ['nhat_ky_sales', 'Nhật ký Sales'],
         'settings' => ['cai_dat', 'Cài đặt'],
         'store-information' => ['cai_dat', 'Cài đặt'],
         'information' => ['cai_dat', 'Thông tin cá nhân'],
@@ -79,6 +80,9 @@ return [
         'accountant.qty_change' => 'Xử lý số ca đổi', 'accountant_sales.update' => 'Sửa công nợ Sales', 'accountant.order.store' => 'Lưu thông tin báo cáo đơn',
         'export.excel' => 'Xuất Excel công nợ', 'export.misa' => 'Xuất file MISA', 'reports.export_pdf' => 'Xuất PDF báo cáo thu chi',
         'reports.update' => 'Sửa báo cáo thu chi', 'reports.update_order' => 'Sắp xếp báo cáo thu chi', 'reports.seed_default' => 'Tạo khung báo cáo thu chi',
+        'sales_logs.store' => 'Ghi nhật ký Sales', 'sales_logs.update' => 'Sửa nhật ký Sales', 'sales_logs.destroy' => 'Xóa nhật ký Sales',
+        'sales_logs.followups.store' => 'Thêm việc Sales', 'sales_logs.followups.update' => 'Cập nhật việc Sales', 'sales_logs.followups.destroy' => 'Xóa việc Sales',
+        'sales_logs.digest' => 'Tóm tắt ngày Sales',
         'news_admin.store' => 'Thêm tin tức', 'news_admin.update' => 'Sửa tin tức', 'news_admin.destroy' => 'Xóa tin tức',
         'news_admin.toggle' => 'Đăng / gỡ tin tức', 'news_admin.restore' => 'Khôi phục tin tức', 'news_admin.upload' => 'Tải ảnh tin tức',
         'contracts.store' => 'Thêm hợp đồng', 'contracts.update' => 'Sửa hợp đồng', 'contracts.destroy' => 'Xóa hợp đồng',
@@ -114,6 +118,6 @@ return [
     'skip_visit_routes' => [
         'order.group_candidates', 'order.filter_options', 'order.customer_suggestions', 'order.contract_hint', 'contracts.orders', 'notifications.todo',
         'assistant.conversations', 'assistant.messages', 'dispatch.refresh', 'dispatch.pending', 'dispatch.order', 'dispatch.week', 'task.load',
-        'csrf.token', 'activity.index', 'debugbar.*', 'ignition.*', 'sanctum.*',
+        'csrf.token', 'activity.index', 'sales_logs.image', 'debugbar.*', 'ignition.*', 'sanctum.*',
     ],
 ];

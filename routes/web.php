@@ -359,6 +359,21 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('phan-tich-tai-chinh/duyet-gia', [\App\Http\Controllers\FinanceController::class, 'approvePrice'])->name('finance.price.approve')->middleware('access:debt_accountant');
     // Nhật ký hoạt động nhân viên (chỉ Admin đầy đủ quyền; gộp cả Lịch sử chỉnh sửa cũ)
     Route::get('nhat-ky-hoat-dong', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index')->middleware('access:activity_log');
+    // Nhật ký Sales: chat Zalo / cuộc gọi với khách → AI tóm tắt, tách việc cần làm, nhắc; tóm tắt cuối ngày cho giám đốc
+    Route::prefix('nhat-ky-sales')->name('sales_logs.')->middleware('access:sales_log')->controller(\App\Http\Controllers\SalesLogController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('anh/{file}', 'image')->name('image')->where('file', '[A-Za-z0-9.\-]+');
+        // Ghi / sửa: Sales, Admin, SubAdmin (Kế toán chỉ xem)
+        Route::middleware('access:sales_log_edit')->group(function () {
+            Route::post('/', 'store')->name('store');
+            Route::patch('{id}', 'update')->name('update')->whereNumber('id');
+            Route::delete('{id}', 'destroy')->name('destroy')->whereNumber('id');
+            Route::post('viec', 'storeFollowup')->name('followups.store');
+            Route::patch('viec/{id}', 'updateFollowup')->name('followups.update')->whereNumber('id');
+            Route::delete('viec/{id}', 'destroyFollowup')->name('followups.destroy')->whereNumber('id');
+            Route::post('tom-tat', 'digest')->name('digest');
+        });
+    });
     // Tin tức trên website (Admin + Sales): soạn bài, ảnh, đăng / hẹn giờ
     Route::prefix('quan-ly-tin-tuc')->name('news_admin.')->middleware('access:news')->controller(\App\Http\Controllers\NewsAdminController::class)->group(function () {
         Route::get('/', 'index')->name('index');

@@ -59,7 +59,17 @@ class AssistantController extends Controller
             'message' => ['required', 'string', 'max:6000'],
             'mode' => ['nullable', 'string', Rule::in(array_keys($modes))],
             'conversation_id' => ['nullable', 'integer'],
+            'page_url' => ['nullable', 'string', 'max:1000'],
+            'page_title' => ['nullable', 'string', 'max:300'],
+            'page_filters' => ['nullable', 'array'],
         ]);
+        // Khung chat nổi gửi kèm trang đang xem; server tự nhận trang từ đường dẫn
+        $pageNote = !empty($data['page_url']) ? \App\Services\Claude\PageContext::describe($data['page_url'], $data['page_title'] ?? null) : null;
+        // Trang Công nợ kế toán: bộ lọc đang chọn → nhớ đúng các đơn đang hiện để trợ lý đối chiếu giá hợp đồng
+        if ($department === 'ke_toan' && isset($data['page_filters']) && \App\Services\Claude\PageContext::routeName($data['page_url'] ?? null) === 'accountant.index') {
+            $filterNote = app(\App\Services\Accounting\ContractPriceAudit::class)->rememberFilter($user, $data['page_filters']);
+            $pageNote = $filterNote ? trim(($pageNote ?? '') . ' — ' . $filterNote, ' —') : $pageNote;
+        }
 
         if (!empty($data['conversation_id'])) {
             $conversation = $this->find($department, $data['conversation_id']);
@@ -96,7 +106,7 @@ class AssistantController extends Controller
 
             // Chỉ gửi câu hỏi rồi trả về ngay; trình duyệt gọi poll() tới khi có câu trả lời
             // (hosting cắt request giữ kết nối lâu, nên không chờ trả lời trong cùng request)
-            $state = $this->runner->begin($conversation->claude_session_id, $data['message'], $modeNote);
+            $state = $this->runner->begin($conversation->claude_session_id, $data['message'], $modeNote, $pageNote);
         } catch (Throwable $e) {
             return $this->failTurn($department, $conversation, $e->getMessage());
         }
