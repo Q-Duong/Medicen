@@ -68,7 +68,7 @@
                 <a href="{{ route('order.index') }}" class="ds-link"><i class="fas fa-file-alt"></i><div><b>{{ number_format($order, 0, ',', '.') }}</b><span>Đơn hàng</span></div></a>
                 <a href="{{ route('customer.index') }}" class="ds-link"><i class="fas fa-users"></i><div><b>{{ number_format($customer, 0, ',', '.') }}</b><span>Khách hàng</span></div></a>
                 <a href="{{ URL::to('/all-product') }}" class="ds-link"><i class="fas fa-briefcase-medical"></i><div><b>{{ number_format($service, 0, ',', '.') }}</b><span>Dịch vụ</span></div></a>
-                <a href="{{ route('post.index') }}" class="ds-link"><i class="fas fa-newspaper"></i><div><b>{{ number_format($post, 0, ',', '.') }}</b><span>Bài viết</span></div></a>
+                <a href="{{ route('news_admin.index') }}" class="ds-link"><i class="fas fa-newspaper"></i><div><b>{{ number_format($post, 0, ',', '.') }}</b><span>Tin tức</span></div></a>
             </div>
         @endif
     </div>

@@ -23,8 +23,8 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}"
-                        href="{{ route('blogs.index') }}">@lang('master_pages.header.blog')</a>
+                    <a class="nav-link {{ request()->routeIs('news.*') ? 'active' : '' }}"
+                        href="{{ route('news.index') }}">@lang('master_pages.header.blog')</a>
                 </li>
 
                 <li class="nav-item">

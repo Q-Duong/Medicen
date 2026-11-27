@@ -54,7 +54,7 @@ return [
         'statistics.' => ['thong_ke', 'Thống kê'],
         'dashboard.' => ['thong_ke', 'Thống kê'],
         'history.' => ['don_hang', 'Lịch sử đơn'],
-        'post.' => ['website', 'Website'],
+        'news_admin.' => ['website', 'Tin tức'],
         'settings' => ['cai_dat', 'Cài đặt'],
         'store-information' => ['cai_dat', 'Cài đặt'],
         'information' => ['cai_dat', 'Thông tin cá nhân'],
@@ -79,6 +79,8 @@ return [
         'accountant.qty_change' => 'Xử lý số ca đổi', 'accountant_sales.update' => 'Sửa công nợ Sales', 'accountant.order.store' => 'Lưu thông tin báo cáo đơn',
         'export.excel' => 'Xuất Excel công nợ', 'export.misa' => 'Xuất file MISA', 'reports.export_pdf' => 'Xuất PDF báo cáo thu chi',
         'reports.update' => 'Sửa báo cáo thu chi', 'reports.update_order' => 'Sắp xếp báo cáo thu chi', 'reports.seed_default' => 'Tạo khung báo cáo thu chi',
+        'news_admin.store' => 'Thêm tin tức', 'news_admin.update' => 'Sửa tin tức', 'news_admin.destroy' => 'Xóa tin tức',
+        'news_admin.toggle' => 'Đăng / gỡ tin tức', 'news_admin.restore' => 'Khôi phục tin tức', 'news_admin.upload' => 'Tải ảnh tin tức',
         'contracts.store' => 'Thêm hợp đồng', 'contracts.update' => 'Sửa hợp đồng', 'contracts.destroy' => 'Xóa hợp đồng',
         'contracts.download' => 'Tải file hợp đồng', 'contracts.draft_download' => 'Tải hợp đồng Word do trợ lý soạn',
         'accounting.import' => 'Nhập sổ MISA', 'accounting.documents.download' => 'Tải tài liệu kế toán',
@@ -92,13 +94,13 @@ return [
         'unit.store' => 'Thêm đơn vị', 'unit.update' => 'Sửa đơn vị', 'unit.destroy' => 'Xóa đơn vị',
         'staff.store' => 'Thêm nhân sự', 'staff.update' => 'Sửa nhân sự', 'staff.destroy' => 'Xóa nhân sự',
         'accounts.store' => 'Thêm tài khoản', 'accounts.update' => 'Sửa tài khoản', 'accounts.destroy' => 'Xóa tài khoản',
-        'post.store' => 'Thêm bài viết', 'post.update' => 'Sửa bài viết', 'post.destroy' => 'Xóa bài viết',
     ],
 
     // POST chỉ để đọc / tìm / lọc / tải tạm — không ghi là thao tác (tên route, * = khớp mọi chữ)
     'read_routes' => [
         '*.get', '*.filter', '*.filter_options', '*.search', '*.suggest', '*.select', '*.select_*', 'statistics.*', 'assistant.ask', 'assistant.poll',
-        'contracts.extract', 'accounting.documents.extract', 'dispatch.suggest', 'file.process', 'file.revert', 'upload-image-ck',
+        'contracts.extract', 'accounting.documents.extract', 'dispatch.suggest', 'file.process', 'file.revert',
+        'news_admin.upload_video', // tải video theo từng phần: mỗi phần một request, không ghi nhật ký từng phần
         'logout', 'admin.logout', 'schedules.logout', 'schedules.login.post', 'login', 'password.*', 'contact.submit', 'debugbar.*', 'ignition.*',
     ],
 

@@ -75,6 +75,11 @@ class AdminMenu
             \App\Services\Claude\AssistantAccess::isFullAdmin($user) ? $item('Nhật ký hoạt động', 'fas fa-history', 'activity.index', [], 'activity.*', 'Ai làm gì, lúc nào; lịch sử từng đơn') : null,
         ])];
 
+        // Website
+        $sections[] = ['title' => 'Website', 'items' => array_filter([
+            $can('news') ? $item('Tin tức', 'far fa-newspaper', 'news_admin.index', [], 'news_admin.*', 'Viết, đăng bài tin tức trên website') : null,
+        ])];
+
         // Trợ lý AI
         $assistants = AssistantAccess::assistantsFor($user);
         $ai = [];

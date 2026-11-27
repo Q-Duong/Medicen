@@ -17,7 +17,7 @@
                     </li>
 
                     <li class="footer-menu-item">
-                        <a class="footer-menu-link" href="{{ route('blogs.index') }}">@lang('master_pages.header.blog')</a>
+                        <a class="footer-menu-link" href="{{ route('news.index') }}">@lang('master_pages.header.blog')</a>
                     </li>
 
                     <li class="footer-menu-item">

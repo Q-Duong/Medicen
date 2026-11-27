@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\Statistic;
 use Carbon\Carbon;
 use App\Http\Requests;
-use App\Models\Blog;
 use App\Models\Profile;
 use App\Models\Unit;
 use App\Models\User;
@@ -29,7 +28,7 @@ class AdminController extends Controller
 
     public function index(Request $request){
         $service = Service::all()->count();
-        $post = Blog::all()->count();
+        $post = \App\Models\News::count();
         $order = Order::all()->count();
         $customer = Customer::all()->count();
         $getAllUnit = Unit::orderBy('unit_code','ASC')->get();

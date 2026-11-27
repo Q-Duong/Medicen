@@ -98,6 +98,12 @@ return [
         'names' => ['SubAdmin'],
     ],
 
+    // Tin tức trên website (Website → Tin tức): Admin và Sales soạn / đăng bài
+    'news' => [
+        'departments' => ['sales'],
+        'names' => ['Sale'],
+    ],
+
     // Xuất bảng chấm công (nút trên trang Xếp lịch xe)
     'timekeeping' => [
         'departments' => ['dieu_phoi'],

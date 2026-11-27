@@ -1,6 +1,9 @@
 @extends('layouts.default')
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    @if ($latestNews->isNotEmpty())
+        <link rel="stylesheet" href="{{ versionResource('assets/css/built/news.css') }}" type="text/css">
+    @endif
 @endpush
 @section('content')
     <section class="hero-section hero-section-full-height">
@@ -227,6 +230,25 @@
             </div>
         </div>
     </section>
+
+    @if ($latestNews->isNotEmpty())
+        <section class="nc-section nc-home" id="news">
+            <div class="container">
+                <div class="nc-section__head">
+                    <div>
+                        <h2>@lang('blog.latestNews')</h2>
+                        <p class="text-muted mb-0">Hoạt động và kiến thức mới từ Medicen</p>
+                    </div>
+                    <a href="{{ route('news.index') }}" class="nc-more">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                </div>
+                <div class="nc-grid">
+                    @foreach ($latestNews as $n)
+                        @include('pages.client.news._card', ['n' => $n])
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
     <section class="contact-section section-padding">
         <div class="container">

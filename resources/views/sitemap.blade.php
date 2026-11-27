@@ -35,10 +35,20 @@
 
     <!-- Trang Tin tức -->
     <url>
-        <loc>{{ route('blogs.index') }}</loc>
+        <loc>{{ route('news.index') }}</loc>
         <lastmod>{{ now()->tz('Asia/Ho_Chi_Minh')->toAtomString() }}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
     </url>
+
+    <!-- Từng bài tin tức -->
+    @foreach (\App\Models\News::published()->orderByDesc('published_at')->limit(500)->get(['slug', 'updated_at']) as $n)
+    <url>
+        <loc>{{ route('news.show', $n->slug) }}</loc>
+        <lastmod>{{ $n->updated_at->tz('Asia/Ho_Chi_Minh')->toAtomString() }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    @endforeach
 
 </urlset>

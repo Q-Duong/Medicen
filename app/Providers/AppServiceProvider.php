@@ -5,7 +5,6 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Service;
-use App\Models\BlogCategory;
 use App\Repositories\ReportRepositoryInterface;
 use App\Repositories\ReportRepository;
 
@@ -19,9 +18,8 @@ class AppServiceProvider extends ServiceProvider
         // Nhật ký hoạt động: gom thay đổi cũ → mới trong một request (RecordActivity ghi một dòng)
         $this->app->scoped(\App\Services\Activity\ActivityRecorder::class);
         view()->composer('*',function($view) {
-            $getAllBlogCategory = BlogCategory::orderBy('id', 'ASC')->get();
 		    $getAllService = Service::orderBy('id','ASC')->get();
-            $view->with(compact('getAllBlogCategory','getAllService'));
+            $view->with(compact('getAllService'));
         });
 
         $this->app->bind(

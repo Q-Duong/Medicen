@@ -5,11 +5,9 @@ use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\DispatchController;
 use App\Http\Controllers\UserDepartmentController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\AccountantController;
@@ -55,11 +53,15 @@ Route::get('/sitemap.xml', function () {
     return response()->view('sitemap')->header('Content-Type', 'text/xml');
 });
 
-//Blog
-Route::prefix('blogs')->group(function () {
-    Route::get('/', [BlogController::class, 'index'])->name('blogs.index');
-    Route::get('{blog_slug}', [BlogController::class, 'details'])->name('blogs.details');
+//Tin tức (khách xem): /news, /news/{slug}, ảnh /news/image/{file}. Link cũ /blogs chuyển sang /news
+Route::prefix('news')->name('news.')->controller(\App\Http\Controllers\NewsController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('image/{file}', 'image')->name('image')->where('file', '[A-Za-z0-9.\-]+');
+    Route::get('video/{file}', 'video')->name('video')->where('file', '[A-Za-z0-9.\-]+');
+    Route::get('{slug}', 'show')->name('show')->where('slug', '[A-Za-z0-9\-]+');
 });
+Route::permanentRedirect('blogs', 'news');
+Route::get('blogs/{any}', fn () => redirect()->route('news.index', [], 301))->where('any', '.*');
 
 //Service
 Route::get('services', [ServiceController::class, 'index'])->name('services.index');
@@ -263,15 +265,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     //Sales (đơn hàng). Trước đây 'isSale' cho qua mọi tài khoản nhân viên (role 2) nên KTV / Office / HR dán link vẫn vào được
     Route::group(['middleware' => 'access:orders'], function () {
-        //Post (bài viết trang chủ): chỉ Admin
-        Route::prefix('post')->middleware('isAdmin')->group(function () {
-            Route::get('/', [PostController::class, 'index'])->name('post.index');
-            Route::get('create', [PostController::class, 'create'])->name('post.create');
-            Route::post('save', [PostController::class, 'store'])->name('post.store');
-            Route::get('edit/{id}', [PostController::class, 'edit'])->name('post.edit');
-            Route::patch('update/{id}', [PostController::class, 'update'])->name('post.update');
-            Route::delete('delete/{id}', [PostController::class, 'destroy'])->name('post.destroy');
-        });
         //Order
         Route::prefix('order')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->name('order.index');
@@ -366,6 +359,19 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('phan-tich-tai-chinh/duyet-gia', [\App\Http\Controllers\FinanceController::class, 'approvePrice'])->name('finance.price.approve')->middleware('access:debt_accountant');
     // Nhật ký hoạt động nhân viên (chỉ Admin đầy đủ quyền; gộp cả Lịch sử chỉnh sửa cũ)
     Route::get('nhat-ky-hoat-dong', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index')->middleware('access:activity_log');
+    // Tin tức trên website (Admin + Sales): soạn bài, ảnh, đăng / hẹn giờ
+    Route::prefix('quan-ly-tin-tuc')->name('news_admin.')->middleware('access:news')->controller(\App\Http\Controllers\NewsAdminController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('them', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{id}', 'edit')->name('edit')->whereNumber('id');
+        Route::patch('{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('{id}', 'destroy')->name('destroy')->whereNumber('id');
+        Route::post('{id}/dang', 'toggle')->name('toggle')->whereNumber('id');
+        Route::post('{id}/khoi-phuc', 'restore')->name('restore')->whereNumber('id');
+        Route::post('tai-anh', 'upload')->name('upload');
+        Route::post('tai-video', 'uploadVideo')->name('upload_video');
+    });
     // Hợp đồng khách hàng (Hành chính, Sales quản lý): AI đọc file, giá theo hợp đồng, đối chiếu đơn
     Route::prefix('hop-dong-khach-hang')->name('contracts.')->middleware('access:customer_contracts')->controller(\App\Http\Controllers\CustomerContractController::class)->group(function () {
         Route::get('/', 'index')->name('index');
@@ -483,4 +489,4 @@ Route::prefix('clear')->middleware(['auth', 'isAdmin'])->group(function () {
 
 Route::get('/clear/route', [ConfigController::class, 'clearRoute'])->middleware(['auth', 'isAdmin']);
 
-Route::post('/upload-image-ck', [PostController::class, 'upload_image_ck'])->name('upload-image-ck')->middleware(['auth', 'isAdmin']);
+
