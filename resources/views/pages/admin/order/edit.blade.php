@@ -166,8 +166,7 @@
                                         <label for="exampleInputPassword1">Ngày chụp</label>
                                         <div class="checkout__input @error('ord_start_day') has-error @enderror">
                                             <input type="date" class="input-control" name="ord_start_day"
-                                                value="{{ $order->ord_start_day }}"
-                                                @if (Auth::user()->role == 0) @else min="<?= date('Y-m-d') ?>" onkeydown="return false" @endif>
+                                                value="{{ $order->ord_start_day }}">
                                             @error('ord_start_day')
                                                 <div class="alert-error"><i class="fas fa-exclamation-circle"></i>
                                                     {{ $message }}</div>
