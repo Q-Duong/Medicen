@@ -41,6 +41,7 @@ return [
         'vcb.' => ['so_vcb', 'Sổ VCB chú Lộc'],
         'accounting.' => ['du_lieu_ke_toan', 'Dữ liệu kế toán'],
         'finance.' => ['tai_chinh', 'Phân tích tài chính'],
+        'director.' => ['tai_chinh', 'Tổng quan điều hành'],
         'contracts.' => ['hop_dong', 'Hợp đồng'],
         'unit.' => ['don_vi', 'Đơn vị'],
         'customer.' => ['don_vi', 'Khách hàng'],

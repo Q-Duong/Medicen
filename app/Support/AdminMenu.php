@@ -57,6 +57,7 @@ class AdminMenu
         // Tổng quan
         $sections[] = ['title' => 'Tổng quan', 'items' => array_filter([
             $item('Trang chủ', 'fas fa-home', 'admin.home'),
+            $can('director') ? $item('Tổng quan điều hành', 'fas fa-tachometer-alt', 'director.index', [], null, 'Tiền đang có, khoản phải chi, X-quang tháng này, cảnh báo') : null,
             $can('dashboard') ? $item('Thống kê doanh thu', 'fas fa-chart-line', 'dashboard.index', [], null, 'Doanh thu theo ngày, tháng, đơn vị') : null,
             $can('kpi') ? $item('Tính KPI', 'fas fa-bullseye', 'statistics.index', [], null, 'Điểm hiệu suất nhân viên') : null,
         ])];

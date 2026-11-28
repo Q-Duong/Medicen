@@ -153,6 +153,8 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/trang-chu', [AdminController::class, 'home'])->name('admin.home');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard.index')->middleware('access:dashboard');
     Route::get('chat', [AdminController::class, 'chat'])->name('dashboard.chat');
+    // Tổng quan điều hành cho giám đốc (App\Services\Finance\DirectorOverview)
+    Route::get('tong-quan-dieu-hanh', [\App\Http\Controllers\DirectorController::class, 'index'])->name('director.index')->middleware('access:director');
     //Chuông thông báo: việc cần làm của tài khoản
     Route::get('notifications/todo', [\App\Http\Controllers\NotificationController::class, 'todo'])->name('notifications.todo');
 

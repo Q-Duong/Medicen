@@ -23,6 +23,7 @@ return [
         // Toàn bộ mục Kế toán, chỉ xem (các route lưu / sửa / xóa không có trong danh sách nên bị chặn):
         // Phân tích tài chính, Công nợ kế toán, Công nợ CT, Sổ VCB chú Lộc, Dữ liệu kế toán
         'finance.index',
+        'director.index', // Tổng quan điều hành
         'finance.notes.*', // Ghi nhớ CFO: giám đốc được thêm / sửa / xóa
         'news_admin.*', // Tin tức website: giám đốc được viết / đăng / sửa / xóa bài
         'sales_logs.*', // Nhật ký trao đổi khách: giám đốc xem / ghi / tóm tắt ngày
@@ -98,6 +99,13 @@ return [
     // Tính KPI
     'kpi' => [
         'names' => ['SubAdmin'],
+    ],
+
+    // Tổng quan điều hành (tiền, khoản phải chi, X-quang tháng này, cảnh báo): Kế toán, Admin / SubAdmin (giám đốc)
+    'director' => [
+        'departments' => ['ke_toan'],
+        'names' => ['Accountant'],
+        'roles' => [3],
     ],
 
     // Nhật ký trao đổi khách (Kinh doanh → Nhật ký trao đổi khách): xem — Sales, Kế toán, Admin / SubAdmin
