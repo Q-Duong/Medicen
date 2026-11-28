@@ -31,17 +31,12 @@ class SalesDay
             ->orderBy('name')->get(['id', 'name', 'email', 'role', 'department']);
     }
 
-    /** Số liệu thô của ngày (dùng cho trang, tool trợ lý và bản tóm tắt) */
+    /** Số liệu nhật ký của ngày (bản tóm tắt / email và tool trợ lý). KHÔNG gồm thao tác trên web — xem webActivity(). */
     public function facts(Carbon $day): array
     {
         $users = self::salesUsers();
         $name = fn ($id) => optional($users->firstWhere('id', $id))->name ?? ('#' . $id);
         $logs = SalesLog::with('followups', 'unit:id,unit_abbreviation,unit_name')->whereDate('happened_on', $day)->orderBy('created_at')->get();
-        $web = DB::table('activity_logs')->whereIn('user_id', $users->pluck('id'))
-            ->whereBetween('created_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])
-            ->whereIn('action', ['them', 'sua', 'xoa', 'tai_len', 'nhap', 'thao_tac'])
-            ->whereNotIn('area', ['nhat_ky_sales'])
-            ->orderBy('created_at')->get(['user_id', 'summary', 'created_at']);
 
         return [
             'ngay' => $day->format('d/m/Y'),
@@ -57,18 +52,34 @@ class SalesDay
                 ->map(fn ($f) => $f->title . ' (hạn ' . $f->due_on->format('d/m') . ')')->all(),
             'viec_ngay_mai' => SalesFollowup::open()->whereDate('due_on', $day->copy()->addDay()->isSunday() ? $day->copy()->addDays(2) : $day->copy()->addDay())->get()
                 ->map(fn ($f) => $f->title)->all(),
-            'thao_tac_tren_web' => $web->groupBy('user_id')->map(fn ($g, $uid) => [
+        ];
+    }
+
+    /**
+     * Sales đã thao tác gì trên web trong ngày (lên / sửa đơn…). CHỈ để trợ lý trả lời khi giám đốc / Admin hỏi
+     * (SalesLogTool) — không đưa vào bản tóm tắt trên trang Nhật ký và email 17:00.
+     */
+    public function webActivity(Carbon $day): array
+    {
+        $users = self::salesUsers();
+        $name = fn ($id) => optional($users->firstWhere('id', $id))->name ?? ('#' . $id);
+
+        return DB::table('activity_logs')->whereIn('user_id', $users->pluck('id'))
+            ->whereBetween('created_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])
+            ->whereIn('action', ['them', 'sua', 'xoa', 'tai_len', 'nhap', 'thao_tac'])
+            ->whereNotIn('area', ['nhat_ky_sales'])
+            ->orderBy('created_at')->get(['user_id', 'summary', 'created_at'])
+            ->groupBy('user_id')->map(fn ($g, $uid) => [
                 'sales' => $name($uid), 'so_thao_tac' => $g->count(),
                 'viec' => $g->pluck('summary')->map(fn ($s) => mb_strimwidth((string) $s, 0, 90, '…'))->unique()->take(25)->values()->all(),
-            ])->values()->all(),
-        ];
+            ])->values()->all();
     }
 
     /** AI viết tóm tắt ngày, lưu lại; null nếu ngày không có gì */
     public function summarize(Carbon $day): ?SalesDigest
     {
         $f = $this->facts($day);
-        if (!$f['nhat_ky'] && !$f['thao_tac_tren_web'] && !$f['viec_xong_trong_ngay']) {
+        if (!$f['nhat_ky'] && !$f['viec_xong_trong_ngay']) {
             SalesDigest::whereDate('day', $day)->delete(); // bản tóm tắt cũ (nhật ký đã bị xóa hết) không còn đúng
 
             return null;
@@ -93,19 +104,18 @@ class SalesDay
         }
 
         return SalesDigest::updateOrCreate(['day' => $day->toDateString()], ['content' => $text, 'stats' => [
-            'nhat_ky' => count($f['nhat_ky']), 'thao_tac_web' => array_sum(array_column($f['thao_tac_tren_web'], 'so_thao_tac')),
+            'nhat_ky' => count($f['nhat_ky']),
             'viec_xong' => count($f['viec_xong_trong_ngay']), 'qua_han' => count($f['viec_qua_han_chua_xong']),
         ]]);
     }
 
     private const INSTRUCTIONS = <<<'TXT'
 Viết BẢN TÓM TẮT CUỐI NGÀY của phòng Sales gửi giám đốc Medicen (cho thuê xe X-quang khám sức khỏe lưu động). Tiếng Việt, markdown,
-ngắn gọn để đọc trên điện thoại, chỉ dựa vào dữ liệu, không bịa. Bố cục:
+ngắn gọn để đọc trên điện thoại, chỉ dựa vào dữ liệu, không bịa. Không nói Sales đã thao tác gì trên web (lên / sửa đơn…): chỉ dựa vào nhật ký trao đổi với khách và danh sách việc. Bố cục:
 ## Tổng quan — 2–3 câu: hôm nay Sales làm việc với bao nhiêu khách, kết quả chính (đơn mới / báo giá / chốt lịch).
 ## Theo khách — mỗi khách một gạch đầu dòng: **khách**: đã trao đổi gì, kết quả, bước tiếp theo.
 ## Cần giám đốc chú ý — khiếu nại, hủy / dời lịch, giảm giá, việc quá hạn (bỏ mục nếu không có).
 ## Việc ngày mai — danh sách việc đến hạn ngày làm việc tới.
-## Trên web — 1–2 dòng: số thao tác, việc chính (lên / sửa đơn…).
 Nếu không có nhật ký trao đổi nào, ghi rõ "Hôm nay Sales chưa ghi nhật ký trao đổi với khách" ở Tổng quan. Không chép số điện thoại, email.
 TXT;
 }

@@ -278,7 +278,8 @@ class ActivityTimeline
         }
         [$h1, $h2] = $cfg['work_hours'] ?? [7, 19];
         $t = $log->created_at;
-        if ($log->action !== 'dang_xuat' && ($t->isSunday() || $t->hour < $h1 || $t->hour >= $h2)) {
+        // Xem lịch buổi tối / Chủ nhật là bình thường (KTV, tài xế xem lịch hôm sau): không nêu "ngoài giờ"
+        if (!in_array($log->action, ['dang_xuat', 'xem'], true) && ($t->isSunday() || $t->hour < $h1 || $t->hour >= $h2)) {
             $out[] = 'Ngoài giờ (' . ($t->isSunday() ? 'Chủ nhật ' : '') . $t->format('H:i') . ')';
         }
 

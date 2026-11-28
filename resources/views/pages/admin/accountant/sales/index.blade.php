@@ -1,4 +1,5 @@
 @extends('layouts.default_auth')
+@section('title', 'Công nợ Sales - Medicen')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/accountant.css') }}" type="text/css" as="style" />
 @endpush

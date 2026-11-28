@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 
 <head>
-    <title>Medicen</title>
+    {{-- Tên tab: trang tự đặt (@section('title')), không có thì lấy tên mục menu đang chọn --}}
+    <title>@hasSection('title')@yield('title')@else{{ \App\Support\AdminMenu::pageTitle(Auth::user()) }}@endif</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="keywords" content="Medicen, Y tế, Thiết bị, Xe">

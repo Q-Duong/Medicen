@@ -34,7 +34,9 @@ class RecordActivity
             $route = $request->route()?->getName();
             if ($user && $route) {
                 $method = $request->method();
-                if ($method !== 'GET' && $method !== 'HEAD') {
+                if ($method !== 'GET' && $method !== 'HEAD' && isset(config('activity.view_routes', [])[$route])) {
+                    $this->recordView($request, $response, $route, $user->id);
+                } elseif ($method !== 'GET' && $method !== 'HEAD') {
                     $this->recordWrite($request, $response, $route, $recorder);
                 } elseif ($this->matches($route, config('activity.download_routes', []))) {
                     if ($response->getStatusCode() < 400) {
@@ -101,6 +103,34 @@ class RecordActivity
             'summary' => mb_substr($summary, 0, 500),
             'changes' => $recorder->changes() ?: null,
         ]);
+    }
+
+    /** Xem lịch theo tháng / lọc theo người (config activity.view_routes): "Xem lịch KTV tháng 11/2026 — lọc: Nguyễn Văn A" */
+    private function recordView(Request $request, Response $response, string $route, int $userId): void
+    {
+        if ($response->getStatusCode() >= 400) {
+            return;
+        }
+        $time = (array) $request->input('currentTime', []);
+        $month = (string) ($request->input('month') ?? ($time['month'] ?? ''));
+        $year = (string) ($request->input('year') ?? ($time['year'] ?? ''));
+        $when = '';
+        if ($month !== '' && preg_match('/^\d{4}$/', $year)) {
+            try {
+                $when = ' tháng ' . \Carbon\Carbon::parse('1 ' . $month . ' ' . $year)->format('m/Y');
+            } catch (Throwable) {
+                $when = '';
+            }
+        }
+        $param = trim((string) (is_scalar($request->input('param')) ? $request->input('param') : ''));
+        $summary = config('activity.view_routes')[$route] . $when
+            . ($param !== '' && $param !== 'all' ? ($route === 'schedules.results.search' ? ' — tìm: ' : ' — lọc: ') . mb_substr($param, 0, 80) : '');
+        $minutes = (int) config('activity.view_dedupe_minutes', 10);
+        if (!Cache::add('activity:view:' . $userId . ':' . md5($summary), 1, $minutes * 60)) {
+            return;
+        }
+        [$area] = self::area($route);
+        ActivityRecorder::write(['area' => $area, 'action' => 'xem', 'route' => mb_substr($route, 0, 80), 'summary' => mb_substr($summary, 0, 500)]);
     }
 
     private function recordVisit(Request $request, Response $response, string $route, int $userId): void

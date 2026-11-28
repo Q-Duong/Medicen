@@ -1,5 +1,5 @@
 @extends('layouts.default_auth')
-@section('title', 'Nhật ký Sales - Medicen')
+@section('title', 'Nhật ký trao đổi khách - Medicen')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/staff.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/sales-log.css') }}" type="text/css" as="style" />
@@ -17,7 +17,7 @@
     <div class="sf sl">
         <div class="sf-head">
             <div class="sf-head__title">
-                <h1>Nhật ký Sales</h1>
+                <h1>Nhật ký trao đổi khách</h1>
                 <p>Dán đoạn chat Zalo, ảnh chụp màn hình hoặc ghi lại cuộc gọi với khách — AI tóm tắt và tách việc cần làm để nhắc lại.
                     {{ config('sales_log.digest_at') }} mỗi ngày gửi email nhắc việc; giám đốc cũng hỏi được Trợ lý AI ("hôm nay Sales làm gì").</p>
             </div>

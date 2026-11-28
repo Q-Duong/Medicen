@@ -55,7 +55,7 @@ return [
         'dashboard.' => ['thong_ke', 'Thống kê'],
         'history.' => ['don_hang', 'Lịch sử đơn'],
         'news_admin.' => ['website', 'Tin tức'],
-        'sales_logs.' => ['nhat_ky_sales', 'Nhật ký Sales'],
+        'sales_logs.' => ['nhat_ky_sales', 'Nhật ký trao đổi khách'],
         'settings' => ['cai_dat', 'Cài đặt'],
         'store-information' => ['cai_dat', 'Cài đặt'],
         'information' => ['cai_dat', 'Thông tin cá nhân'],
@@ -80,7 +80,7 @@ return [
         'accountant.qty_change' => 'Xử lý số ca đổi', 'accountant_sales.update' => 'Sửa công nợ Sales', 'accountant.order.store' => 'Lưu thông tin báo cáo đơn',
         'export.excel' => 'Xuất Excel công nợ', 'export.misa' => 'Xuất file MISA', 'reports.export_pdf' => 'Xuất PDF báo cáo thu chi',
         'reports.update' => 'Sửa báo cáo thu chi', 'reports.update_order' => 'Sắp xếp báo cáo thu chi', 'reports.seed_default' => 'Tạo khung báo cáo thu chi',
-        'sales_logs.store' => 'Ghi nhật ký Sales', 'sales_logs.update' => 'Sửa nhật ký Sales', 'sales_logs.destroy' => 'Xóa nhật ký Sales',
+        'sales_logs.store' => 'Ghi nhật ký trao đổi khách', 'sales_logs.update' => 'Sửa nhật ký trao đổi khách', 'sales_logs.destroy' => 'Xóa nhật ký trao đổi khách',
         'sales_logs.followups.store' => 'Thêm việc Sales', 'sales_logs.followups.update' => 'Cập nhật việc Sales', 'sales_logs.followups.destroy' => 'Xóa việc Sales',
         'sales_logs.digest' => 'Tóm tắt ngày Sales',
         'news_admin.store' => 'Thêm tin tức', 'news_admin.update' => 'Sửa tin tức', 'news_admin.destroy' => 'Xóa tin tức',
@@ -99,6 +99,16 @@ return [
         'staff.store' => 'Thêm nhân sự', 'staff.update' => 'Sửa nhân sự', 'staff.destroy' => 'Xóa nhân sự',
         'accounts.store' => 'Thêm tài khoản', 'accounts.update' => 'Sửa tài khoản', 'accounts.destroy' => 'Xóa tài khoản',
     ],
+
+    // Xem lịch (trang lịch tải từng tháng / lọc theo người bằng yêu cầu ngầm): ghi là "Xem" để biết KTV, tài xế, Kết quả
+    // đã xem lịch nào (trước đây chỉ thấy đăng nhập). Cùng một nội dung xem trong view_dedupe_minutes phút chỉ ghi một lần.
+    'view_routes' => [
+        'schedules.technicians.select' => 'Xem lịch KTV', 'schedules.technicians.select_technician' => 'Xem lịch KTV',
+        'schedules.drivers.select' => 'Xem lịch tài xế', 'schedules.drivers.select_driver' => 'Xem lịch tài xế',
+        'schedules.sales.select' => 'Xem lịch Sales', 'schedules.sales.select_driver' => 'Xem lịch Sales', 'schedules.sales.select_technician' => 'Xem lịch Sales',
+        'schedules.results.select' => 'Xem lịch Kết quả', 'schedules.results.get' => 'Xem lịch Kết quả', 'schedules.results.search' => 'Tìm lịch Kết quả',
+    ],
+    'view_dedupe_minutes' => 10,
 
     // POST chỉ để đọc / tìm / lọc / tải tạm — không ghi là thao tác (tên route, * = khớp mọi chữ)
     'read_routes' => [

@@ -235,12 +235,12 @@ class TodoList
             ->whereExists(fn ($q) => $q->from('history_edits')->whereColumn('history_edits.order_id', 'orders.id')->where('history_edits.history_action', 'like', 'Hủy lịch%'))
             ->count();
 
-        // Nhật ký Sales: việc hẹn với khách đến hạn hôm nay / quá hạn chưa xong
+        // Nhật ký trao đổi khách: việc hẹn với khách đến hạn hôm nay / quá hạn chưa xong
         $due = \App\Models\SalesFollowup::due($today)->get(['title', 'due_on']);
         $lateCount = $due->filter(fn ($f) => $f->due_on->lt($today))->count();
 
         return array_merge([
-            $this->item('sales_followups', 'Việc với khách đến hạn (Nhật ký Sales)', $due->count(), route('sales_logs.index'), $lateCount ? 'urgent' : 'normal',
+            $this->item('sales_followups', 'Việc với khách đến hạn (Nhật ký trao đổi khách)', $due->count(), route('sales_logs.index'), $lateCount ? 'urgent' : 'normal',
                 $due->count() ? ($lateCount ? "{$lateCount} việc quá hạn · " : '') . \Illuminate\Support\Str::limit($due->first()->title, 70) : null),
             $this->item('unscheduled_soon', 'Đơn chụp trong 3 ngày tới chưa lên lịch xe', $unscheduledSoon,
                 route('order.index', ['status_id' => 5, 'from_date' => $today->toDateString(), 'to_date' => $soon]), 'urgent'),

@@ -1,4 +1,5 @@
 @extends('layouts.default_auth')
+@section('title', 'Đơn hàng - Medicen')
 
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/order.css') }}" type="text/css" as="style" />

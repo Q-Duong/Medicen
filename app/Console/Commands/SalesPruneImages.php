@@ -8,12 +8,12 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-/** Nhật ký Sales: xóa ảnh chụp màn hình chat cũ hơn config('sales_log.image_days') ngày (tóm tắt và việc cần làm vẫn giữ). Chạy 02:15 hằng ngày. */
+/** Nhật ký trao đổi khách: xóa ảnh chụp màn hình chat cũ hơn config('sales_log.image_days') ngày (tóm tắt và việc cần làm vẫn giữ). Chạy 02:15 hằng ngày. */
 class SalesPruneImages extends Command
 {
     protected $signature = 'sales:prune-images';
 
-    protected $description = 'Xóa ảnh chụp chat cũ trong Nhật ký Sales';
+    protected $description = 'Xóa ảnh chụp chat cũ trong Nhật ký trao đổi khách';
 
     public function handle(): int
     {

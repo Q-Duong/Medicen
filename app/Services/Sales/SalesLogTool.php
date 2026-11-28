@@ -3,6 +3,7 @@
 namespace App\Services\Sales;
 
 use App\Http\Middleware\PageAccess;
+use App\Services\Claude\AssistantAccess;
 use App\Models\SalesDigest;
 use App\Models\SalesFollowup;
 use App\Models\SalesLog;
@@ -16,11 +17,11 @@ class SalesLogTool
     {
         return [
             'name' => 'nhat_ky_sales',
-            'description' => 'NHẬT KÝ SALES: những gì Sales đã trao đổi với khách (chat Zalo, cuộc gọi, gặp khách — Sales ghi trên web, AI tóm tắt), '
+            'description' => 'NHẬT KÝ TRAO ĐỔI KHÁCH: những gì Sales đã trao đổi với khách (chat Zalo, cuộc gọi, gặp khách — Sales ghi trên web, AI tóm tắt), '
                 . 'các việc cần làm với khách (quá hạn / hôm nay / sắp tới) và bản tóm tắt cuối ngày. Dùng khi hỏi "hôm nay Sales làm gì", '
-                . '"khách X đã trao đổi gì", "còn việc gì phải làm / nhắc gì". Có cả thao tác của Sales trên web (lên / sửa đơn…): '
-                . 'giám đốc hỏi thì tự tổng hợp thành bản tóm tắt (tổng quan, theo khách, việc cần chú ý, việc ngày mai). hanh_dong: xem (mặc định); them_viec (Sales nhờ "nhắc tôi…": cần tieu_de, han);'
-                . ' xong (đánh dấu việc đã làm: cần id). Nhật ký do Sales tự ghi nên có thể thiếu: nói rõ "theo nhật ký Sales đã ghi".',
+                . '"khách X đã trao đổi gì", "còn việc gì phải làm / nhắc gì". Khi GIÁM ĐỐC / Admin hỏi, kết quả có thêm thao_tac_tren_web (Sales đã lên / sửa đơn… '
+                . 'trên web) — chỉ nêu khi họ hỏi Sales làm gì; người khác không có phần này. Tự tổng hợp thành bản tóm tắt (tổng quan, theo khách, việc cần chú ý, việc ngày mai). hanh_dong: xem (mặc định); them_viec (Sales nhờ "nhắc tôi…": cần tieu_de, han);'
+                . ' xong (đánh dấu việc đã làm: cần id). Nhật ký do Sales tự ghi nên có thể thiếu: nói rõ "theo nhật ký trao đổi khách đã ghi".',
             'input_schema' => [
                 'type' => 'object',
                 'properties' => [
@@ -41,11 +42,11 @@ class SalesLogTool
     public function call(array $in, ?User $user): array
     {
         if (!$user || !PageAccess::allows($user, ['sales_log'])) {
-            return ['loi' => 'Tài khoản này không xem được Nhật ký Sales.'];
+            return ['loi' => 'Tài khoản này không xem được Nhật ký trao đổi khách.'];
         }
         $act = (string) ($in['hanh_dong'] ?? 'xem');
         if ($act !== 'xem' && !PageAccess::allows($user, ['sales_log_edit'])) {
-            return ['loi' => 'Tài khoản này chỉ xem được Nhật ký Sales (Kế toán chỉ xem), không thêm / sửa việc.'];
+            return ['loi' => 'Tài khoản này chỉ xem được Nhật ký trao đổi khách (Kế toán chỉ xem), không thêm / sửa việc.'];
         }
         if ($act === 'them_viec') {
             $title = trim((string) ($in['tieu_de'] ?? ''));
@@ -84,11 +85,12 @@ class SalesLogTool
         $today = Carbon::today();
         $open = SalesFollowup::open()->when($kw !== '', fn ($q) => $q->where(fn ($w) => $w->where('customer', 'like', "%{$kw}%")->orWhere('title', 'like', "%{$kw}%")))
             ->orderByRaw('due_on IS NULL')->orderBy('due_on')->limit(60)->get();
+        $director = AssistantAccess::isFullAdmin($user) || AssistantAccess::isSubAdmin($user);
         $fmt = fn ($f) => array_filter(['id' => $f->id, 'viec' => $f->title, 'han' => $f->due_on?->format('d/m/Y')]);
 
         return [
             'pham_vi' => $from->isSameDay($to) ? $from->format('d/m/Y') : $from->format('d/m/Y') . ' – ' . $to->format('d/m/Y'),
-            'ghi_chu' => 'Theo nhật ký Sales tự ghi trên web (Kinh doanh → Nhật ký Sales); trao đổi chưa ghi thì không có ở đây.',
+            'ghi_chu' => 'Theo nhật ký trao đổi khách tự ghi trên web (Kinh doanh → Nhật ký trao đổi khách); trao đổi chưa ghi thì không có ở đây.',
             'nhat_ky' => $logs->map(fn ($l) => array_filter([
                 'ngay' => $l->happened_on->format('d/m'), 'luc' => $l->created_at->format('H:i'), 'sales' => $l->user->name ?? null,
                 'loai' => SalesLog::KINDS[$l->kind] ?? $l->kind, 'khach' => $l->customer, 'don_vi' => $l->unit->unit_abbreviation ?? null,
@@ -98,10 +100,10 @@ class SalesLogTool
             'viec_qua_han' => $open->filter(fn ($f) => $f->due_on && $f->due_on->lt($today))->map($fmt)->values()->all(),
             'viec_hom_nay' => $open->filter(fn ($f) => $f->due_on && $f->due_on->isSameDay($today))->map($fmt)->values()->all(),
             'viec_sap_toi' => $open->filter(fn ($f) => !$f->due_on || $f->due_on->gt($today))->take(20)->map($fmt)->values()->all(),
-            // Thao tác của Sales trên web (lên / sửa đơn, giữ chỗ lịch…) từng ngày, tối đa 7 ngày gần nhất của khoảng
-            'thao_tac_tren_web' => collect(range(0, min(6, $from->diffInDays($to))))->map(fn ($i) => $to->copy()->subDays($i))
-                ->map(fn ($d) => ['ngay' => $d->format('d/m'), 'theo_sales' => app(SalesDay::class)->facts($d)['thao_tac_tren_web']])
-                ->filter(fn ($d) => $d['theo_sales'])->values()->all(),
+            // Thao tác của Sales trên web (lên / sửa đơn, giữ chỗ lịch…) từng ngày, tối đa 7 ngày gần nhất — CHỈ giám đốc (SubAdmin) / Admin hỏi
+            'thao_tac_tren_web' => $director ? collect(range(0, min(6, $from->diffInDays($to))))->map(fn ($i) => $to->copy()->subDays($i))
+                ->map(fn ($d) => ['ngay' => $d->format('d/m'), 'theo_sales' => app(SalesDay::class)->webActivity($d)])
+                ->filter(fn ($d) => $d['theo_sales'])->values()->all() : null,
             'tom_tat_cuoi_ngay' => SalesDigest::whereBetween('day', [$from->toDateString(), $to->toDateString()])->orderBy('day')->get()
                 ->map(fn ($d) => ['ngay' => $d->day->format('d/m'), 'noi_dung' => $d->content])->all(),
             'xem_tren_web' => route('sales_logs.index', ['ngay' => $to->toDateString()]),

@@ -57,7 +57,7 @@ class SalesLog extends Model
 
     public function activityTitle(): string
     {
-        return 'nhật ký Sales ' . (self::KINDS[$this->kind] ?? '') . ($this->customer ? ' · ' . $this->customer : '');
+        return 'nhật ký trao đổi khách ' . (self::KINDS[$this->kind] ?? '') . ($this->customer ? ' · ' . $this->customer : '');
     }
 
     public function activityFields(): array

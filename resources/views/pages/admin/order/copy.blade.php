@@ -1,4 +1,5 @@
 @extends('layouts.default_auth')
+@section('title', 'Copy đơn #' . request()->route('id') . ' - Medicen')
 @push('css')
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/order.css') }}" type="text/css" as="style" />
     <link rel="stylesheet" href="{{ versionResource('assets/css/support/file.css') }}" type="text/css" as="style" />

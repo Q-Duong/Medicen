@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use RuntimeException;
 
 /**
- * AI đọc một mục nhật ký Sales (đoạn chat Zalo dán vào, ảnh chụp màn hình, ghi chú sau cuộc gọi) và trả:
+ * AI đọc một mục nhật ký trao đổi khách (đoạn chat Zalo dán vào, ảnh chụp màn hình, ghi chú sau cuộc gọi) và trả:
  * khách / đơn vị, tóm tắt, việc cần làm kèm hạn. Số điện thoại / email trong chữ được che trước khi gửi AI
  * (quy định: không gửi SĐT khách cho Claude); ảnh không che được nên dặn AI không chép lại.
  */

@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('schedule:remind')->dailyAt(config('schedule.remind_at', '16:00'));
         // Tài chính: cảnh báo sớm sáng thứ Hai, báo cáo CFO tự động ngày 3 hằng tháng (người nhận: config/finance.php)
         $schedule->command('finance:alerts')->weeklyOn(1, '07:30');
-        // Nhật ký Sales: email nhắc việc cuối ngày (người nhận SALES_DIGEST_TO; ngày không có gì thì không gửi) + xóa ảnh chụp chat cũ
+        // Nhật ký trao đổi khách: email nhắc việc cuối ngày (người nhận SALES_DIGEST_TO; ngày không có gì thì không gửi) + xóa ảnh chụp chat cũ
         $schedule->command('sales:digest')->dailyAt(config('sales_log.digest_at', '17:00'))->days([1, 2, 3, 4, 5, 6])->withoutOverlapping(30);
         $schedule->command('sales:prune-images')->dailyAt('02:15');
         // Tiền gấp: mỗi sáng, chỉ gửi khi số dư dự báo 14 ngày tới dưới ngưỡng

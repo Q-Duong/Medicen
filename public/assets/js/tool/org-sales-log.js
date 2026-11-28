@@ -1,4 +1,4 @@
-/* Nhật ký Sales: dán / kéo thả ảnh chụp màn hình chat vào khung, xem trước, báo "AI đang đọc" khi lưu.
+/* Nhật ký trao đổi khách: dán / kéo thả ảnh chụp màn hình chat vào khung, xem trước, báo "AI đang đọc" khi lưu.
  * Nguồn: org-sales-log.js → esbuild --minify --target=es2019 → sales-log.js */
 (function () {
     const form = document.getElementById('sl-add');

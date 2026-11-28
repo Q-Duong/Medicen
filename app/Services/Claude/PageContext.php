@@ -33,7 +33,7 @@ class PageContext
             in_array($name, ['order.edit', 'order.copy', 'order.print'], true) => self::order((int) ($p['id'] ?? 0), $name === 'order.copy' ? 'đang COPY từ đơn' : 'đang xem / sửa đơn'),
             $name === 'unit.edit' => self::unit((int) ($p['id'] ?? 0)),
             $name === 'contracts.edit' => self::contract((int) ($p['contract'] ?? $p['id'] ?? 0)),
-            $name === 'sales_logs.index' => 'Nhật ký Sales ngày ' . (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($query['ngay'] ?? '')) ? date('d/m/Y', strtotime($query['ngay'])) : 'hôm nay'),
+            $name === 'sales_logs.index' => 'Nhật ký trao đổi khách ngày ' . (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($query['ngay'] ?? '')) ? date('d/m/Y', strtotime($query['ngay'])) : 'hôm nay'),
             $name === 'finance.index' => 'Phân tích tài chính, tab ' . (string) ($query['tab'] ?? 'mặc định'),
             $name === 'accountant.index' => null, // bộ lọc trang Công nợ gửi riêng (page_filters), xem AssistantController::ask
             str_starts_with($name, 'order.') || str_starts_with($name, 'accountant') => self::filters($query),

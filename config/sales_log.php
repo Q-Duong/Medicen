@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Nhật ký Sales (Kinh doanh → Nhật ký Sales) và email nhắc việc cuối ngày (lệnh sales:digest, 17:00 thứ 2 – thứ 7).
+ * Nhật ký trao đổi khách (Kinh doanh → Nhật ký trao đổi khách) và email nhắc việc cuối ngày (lệnh sales:digest, 17:00 thứ 2 – thứ 7).
  * Người nhận: SALES_DIGEST_TO trong .env (nhiều email cách nhau dấu phẩy); để trống thì không gửi.
  */
 return [

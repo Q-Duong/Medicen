@@ -17,6 +17,24 @@ class AdminMenu
     /**
      * @return array<int, array{title: string, items: array<int, array{label: string, icon: string, url: string, active: bool, hint: ?string}>}>
      */
+    /** Tên tab trình duyệt khi trang không tự đặt: tên mục menu đang chọn + " - Medicen" */
+    public static function pageTitle(?User $user): string
+    {
+        try {
+            foreach (self::sections($user) as $section) {
+                foreach ($section['items'] as $it) {
+                    if (!empty($it['active'])) {
+                        return $it['label'] . ' - Medicen';
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // tên tab không được làm hỏng trang
+        }
+
+        return 'Medicen';
+    }
+
     public static function sections(?User $user): array
     {
         if (!$user) {
@@ -48,7 +66,7 @@ class AdminMenu
             $can('orders') ? $item('Đơn hàng', 'fas fa-clipboard-list', 'order.index', [], 'order.*', 'Lên đơn, sửa đơn, nhóm đi chung') : null,
             ($admin || in_array($dept, config('profit.user_departments', []), true)) ? $item('Tính lợi nhuận X-Quang', 'fas fa-calculator', 'profit.index', [], 'profit.*', 'Lãi / lỗ trước khi chốt đơn') : null,
             $can('units') ? $item('Đơn vị (khách hàng)', 'fas fa-building', 'unit.index', [], 'unit.*', 'Danh sách đơn vị thuê xe') : null,
-            $can('sales_log') ? $item('Nhật ký Sales', 'far fa-comments', 'sales_logs.index', [], 'sales_logs.*', 'Chat Zalo, cuộc gọi với khách; việc cần nhắc') : null,
+            $can('sales_log') ? $item('Nhật ký trao đổi khách', 'far fa-comments', 'sales_logs.index', [], 'sales_logs.*', 'Chat Zalo, cuộc gọi với khách; việc cần nhắc') : null,
             (!$fullAdmin && $can('debt_sales')) ? $item('Công nợ (Sales)', 'fas fa-file-invoice-dollar', 'accountant_sales.index', [], null, 'Xem công nợ khách') : null,
         ])];
 
@@ -57,6 +75,8 @@ class AdminMenu
             ($admin || in_array($dept, config('schedule.user_departments', []), true)) ? $item('Xếp lịch xe', 'fas fa-shuttle-van', 'dispatch.index', [], 'dispatch.*', 'Xếp xe, tài xế, KTV; chấm công') : null,
             in_array($name, ['Admin', 'Sale'], true) ? $item('Lịch xe Sales', 'far fa-calendar-alt', 'schedules.sales.index') : null,
             ($admin || in_array($name, ['Sale', 'SubAdmin'], true) || in_array($dept, config('schedule.user_departments', []), true)) ? $item('Lịch xe KTV', 'fas fa-calendar-check', 'schedules.technicians.index') : null,
+            // Lịch Kết quả: cùng điều kiện với middleware schedules.role.results (tài khoản Admin, Office)
+            in_array($name, ['Admin', 'Office'], true) ? $item('Lịch Kết quả', 'fas fa-file-medical', 'schedules.results.index', [], null, 'Cập nhật số ca, kết quả, file trả khách') : null,
         ])];
 
         // Kế toán

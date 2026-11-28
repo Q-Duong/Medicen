@@ -29,7 +29,7 @@ class ActivityLog extends Model
     ];
 
     public const ACTIONS = ['them' => 'Thêm', 'sua' => 'Sửa', 'xoa' => 'Xóa', 'tai_len' => 'Tải lên', 'nhap' => 'Nhập file', 'tai_ve' => 'Tải / xuất file',
-        'thao_tac' => 'Thao tác', 'dang_nhap' => 'Đăng nhập', 'dang_xuat' => 'Đăng xuất', 'dang_nhap_sai' => 'Đăng nhập sai'];
+        'thao_tac' => 'Thao tác', 'xem' => 'Xem', 'dang_nhap' => 'Đăng nhập', 'dang_xuat' => 'Đăng xuất', 'dang_nhap_sai' => 'Đăng nhập sai'];
 
     protected $fillable = ['user_id', 'user_name', 'area', 'action', 'route', 'subject_type', 'subject_id', 'summary', 'changes', 'ip', 'user_agent'];
 

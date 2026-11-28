@@ -13,7 +13,7 @@ use Throwable;
 
 /**
  * Email nhắc việc Sales cuối ngày (17:00 thứ 2 – thứ 7, App\Console\Kernel): AI tóm tắt nhật ký trao đổi với khách, việc đã xong /
- * quá hạn / ngày mai và thao tác của Sales trên web, lưu vào Nhật ký Sales rồi gửi tới SALES_DIGEST_TO (.env).
+ * quá hạn / ngày mai và thao tác của Sales trên web, lưu vào Nhật ký trao đổi khách rồi gửi tới SALES_DIGEST_TO (.env).
  * Ngày không có gì thì không gửi.
  */
 class SalesDigestCommand extends Command
@@ -49,7 +49,7 @@ class SalesDigestCommand extends Command
             return self::SUCCESS;
         }
         try {
-            Mail::to($to)->send(new FinanceMail('📋 Sales ngày ' . $day->format('d/m') . ': việc cần nhắc', 'emails.sales.digest', [
+            Mail::to($to)->send(new FinanceMail('📋 Trao đổi khách ngày ' . $day->format('d/m') . ': việc cần nhắc', 'emails.sales.digest', [
                 'day' => $day, 'html' => FinanceCfoReport::emailHtml($digest->content), 'stats' => $digest->stats,
                 'url' => route('sales_logs.index', ['ngay' => $day->toDateString()]),
             ]));

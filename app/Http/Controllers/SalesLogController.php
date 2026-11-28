@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Kinh doanh → Nhật ký Sales: Sales dán đoạn chat Zalo / ảnh chụp màn hình / ghi chú cuộc gọi, AI tóm tắt và tách việc cần làm;
+ * Kinh doanh → Nhật ký trao đổi khách: Sales dán đoạn chat Zalo / ảnh chụp màn hình / ghi chú cuộc gọi, AI tóm tắt và tách việc cần làm;
  * việc đến hạn nhắc trên chuông; 17:00 email nhắc việc (lệnh sales:digest); giám đốc hỏi Trợ lý AI (tool nhat_ky_sales). Quyền: config access.sales_log.
  */
 class SalesLogController extends Controller
@@ -83,7 +83,7 @@ class SalesLogController extends Controller
         try {
             $ai = $reader->read($text, array_map(fn ($n) => Storage::disk('local')->path(self::IMG_DIR . '/' . $n), $images), $data['kind'], $day);
         } catch (Throwable $e) {
-            Log::warning('AI đọc nhật ký Sales lỗi', ['error' => $e->getMessage()]);
+            Log::warning('AI đọc nhật ký trao đổi khách lỗi', ['error' => $e->getMessage()]);
             $log->ai_status = 'failed';
             $log->ai_error = mb_substr($e->getMessage(), 0, 250);
         }
